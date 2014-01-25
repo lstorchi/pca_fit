@@ -230,26 +230,6 @@
  }
  
  
- /*
-  * Useful macros for parsing input files
-  */
- #define Get svtsim_assert(fgets(str, sizeof(str), fp))
- #define ExpectStr(S) \
-   svtsim_assert(fgets(str, sizeof(str), fp) && \
- 		1==sscanf(str, "%s", s) && !strcmp(s, (S)))
- #define ExpectInt(N) \
-   svtsim_assert(fgets(str, sizeof(str), fp) && \
- 		1==sscanf(str, "%d", &n) && n==(N))
- #define GetReal(X) do { \
-   svtsim_assert(fgets(str, sizeof(str), fp) && \
- 		1==sscanf(str, "%f", &x)); (X) = x; } while (0)
- #define GetInt(X) do { \
-   svtsim_assert(fgets(str, sizeof(str), fp) && \
- 		1==sscanf(str, "%d", &n)); (X) = n; } while (0)
- #define GetHex(X) do { \
-   svtsim_assert(fgets(str, sizeof(str), fp) && \
- 		1==sscanf(str, "%x", &n)); (X) = n; } while (0)
-
 
 /* 
  * Calculate the parity of the word
@@ -461,8 +441,6 @@ svtsim_cable_t * svtsim_cable_new(void) {
  #undef IHTFOS
    return 0;
  }
- 
- 
  
  
 int svtsim_fconread(tf_arrays_t tf)
@@ -2107,7 +2085,6 @@ int word_decode(int word, int xft, int *ee_word, int *parity_in, int *sector, in
    iaddr = ((zmap&gf_mask(GF_SUBZ_WIDTH)) 
  	   + (lclmap<<MADDR_NCLS_LSB)
  	   + (hitmap<<MADDR_HITM_LSB));
- #define MAXMKA 8192
    if ((iaddr < 0) || (iaddr >= MAXMKA)) {
      printf("gf_mkaddr; invalid MKADDR address\n");
      return SVTSIM_GF_ERR;

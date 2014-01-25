@@ -84,10 +84,31 @@ void *svtsim_realloc1(void *inptr, size_t size,
   svtsim_assert_set( __FILE__, __LINE__ ); \
   } while (0)
 
- #define svtsim_assert(x) \
-   do { \
-   if ((x)) continue; \
-   svtsim_assert_set( __FILE__, __LINE__ ); \
-   } while (0)
+#define svtsim_assert(x) \
+  do { \
+  if ((x)) continue; \
+  svtsim_assert_set( __FILE__, __LINE__ ); \
+  } while (0)
  
- 
+
+/*
+ * Useful macros for parsing input files
+ */
+#define Get svtsim_assert(fgets(str, sizeof(str), fp))
+#define ExpectStr(S) \
+  svtsim_assert(fgets(str, sizeof(str), fp) && \
+		1==sscanf(str, "%s", s) && !strcmp(s, (S)))
+#define ExpectInt(N) \
+  svtsim_assert(fgets(str, sizeof(str), fp) && \
+		1==sscanf(str, "%d", &n) && n==(N))
+#define GetReal(X) do { \
+  svtsim_assert(fgets(str, sizeof(str), fp) && \
+		1==sscanf(str, "%f", &x)); (X) = x; } while (0)
+#define GetInt(X) do { \
+  svtsim_assert(fgets(str, sizeof(str), fp) && \
+		1==sscanf(str, "%d", &n)); (X) = n; } while (0)
+#define GetHex(X) do { \
+  svtsim_assert(fgets(str, sizeof(str), fp) && \
+		1==sscanf(str, "%x", &n)); (X) = n; } while (0)
+
+#define MAXMKA 8192
