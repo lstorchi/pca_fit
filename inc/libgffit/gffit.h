@@ -1,5 +1,5 @@
-#ifndef _SVTSIM_H_
-#define _SVTSIM_H_
+#ifndef _GFFIT_H_
+#define _GFFIT_H_
 
 #include <stdio.h>
 #include <stdlib.h>

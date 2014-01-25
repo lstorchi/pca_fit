@@ -36,7 +36,7 @@
 
 //#include "main.h"
 //#include "net.h"
-#include "svtsim_functions.h"
+#include <libgffit/gffit.h>
 
 //#define DEBUG_SVT
 //#define DUMP
