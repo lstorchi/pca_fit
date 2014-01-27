@@ -1386,8 +1386,11 @@ gf_init (tf_arrays_t * ptr_tf)
   tf->cdf_emsk = GF_ERRMASK_CDF;
   tf->eoe_emsk = GF_ERRMASK_EOE;        /* MASK for the errors */
   *ptr_tf = tf;
-} void
 
+  return 0;
+} 
+
+void
 dump_gf_ievt (tf_arrays_t tf)
  /*  
     Dump the GF input words after decoding. 
@@ -1657,6 +1660,8 @@ gf_fep (tf_arrays_t tf, int n_words_in, void *data)
   dump_fep_out (tf);
 
 #endif /*   */
+
+  return 0;
 }
 
   /* 
@@ -1695,6 +1700,8 @@ gf_fep_CPU (tf_arrays_t tf, int n_words_in, unsigned int *data_in)
   dump_fep_out (tf);
 
 #endif /*   */
+
+  return 0;
 }
 
   /*  
@@ -1855,6 +1862,8 @@ gf_fep_unpack (tf_arrays_t tf, int n_words_in, void *data_in)
   printf ("in gf_fep_unpack: found %d events in this file\n", tf->totEvts);
 
 #endif /*   */
+
+  return 0;
 }
 
 
@@ -2009,6 +2018,8 @@ gf_fep_unpack_CPU (tf_arrays_t tf, int n_words_in, unsigned int *data_in)
           tf->totEvts);
 
 #endif /*   */
+
+  return 0;
 }
 
 int
@@ -2205,9 +2216,9 @@ gf_fit (tf_arrays_t tf)
   int mka_addr;                 /* Address for MKADDR memory */
   long long int theintcp = 0;
   int sign_crv = 0;
-  int which, lwhich;
-  int iz;
-  int newhitmap;
+  int which = 0, lwhich = 0;
+  int iz = 0;
+  int newhitmap = 0;
   int g = 0;
   int p0[6], ix[7];
   int ie;
@@ -2790,7 +2801,6 @@ gf_fit_proc (int hit[], int sign_crv, long long int coeff[],
 int
 gf_fit_format (tf_arrays_t tf)
 {
-
   /* 
      Format the result of the fit 
      - az. angle phi = 13 bits,  no  sign,  phi[0:12] = value, shift = 6 bits  
@@ -3005,6 +3015,8 @@ gf_fit_format (tf_arrays_t tf)
       }                         /* end for (ic=0; ic<fep->ncmb[ir]; ic++) {  Loop for all combi */
     }                           /* end for (ic=0; ic<fep->ncmb[ir]; ic++) {  Loop for all roads */
   }                             //end loop on events 
+
+  return 0;
 }
 
 void
@@ -3302,8 +3314,8 @@ gf_gfunc (int ncomb5h, int icomb5h, int hitmap, int lcmap, int chi2)
 {
   int lyr_config;
   int gvalue;
-  int newhitmap;
-  int newlcmap;
+  int newhitmap = 0;
+  int newlcmap = 0;
   int q = 0;
 
 #ifdef DEBUG_SVT
@@ -3579,8 +3591,8 @@ gf_formatter (tf_arrays_t tf, int ie, int ir, int ic, int ich, int chi2)
     /* 
      * Compute hit status 
      */
-    int presentmask;
-    int newhitmap;
+    int presentmask = 0;
+    int newhitmap = 0;
     if (tf->fep_ncomb5h[ie][ir][ic] == 1)
     {
       presentmask = tf->fep_hitmap[ie][ir][ic];
@@ -3916,7 +3928,7 @@ gf_comparator (tf_arrays_t tf)
   /* int ChiSqCut = 0x0; *//*No tracks in output, only EE */
   /* int ChiSqCut = 0xf40; */
   int ChiSqCut;
-  int ir, ic, ich;
+  int ir, ic, ich = 0;
   int gvalue;
   int gvalue_best;
   int ind_best = 0;
