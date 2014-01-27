@@ -13,10 +13,7 @@ CFLAGS += -I../inc
 
 LIB = lib$(LIBNAME).a
 
-OBJ = $(LIB)(svtsim_functions.o) \
-      $(LIB)(gf_functions.o) \
-      $(LIB)(memutility.o) \
-      $(LIB)(blobio.o)
+OBJ = $(LIB)(svtsim_functions.o)
 
 all: $(LIB)
 
