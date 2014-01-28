@@ -7,10 +7,12 @@
 #
 ###################################################
 
+all: libgffit 
+	$(MAKE) -C gigafitter
+
 libgffit:
 	$(MAKE) -C src
 
-all: libgffit
-
 clean:
 	$(MAKE) clean -C src
+	$(MAKE) clean -C gigafitter

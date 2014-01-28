@@ -210,8 +210,6 @@ enum {
  * Useful macros for parsing input files
  */
 
-
-
 #define gf_mask(x) (gf_maskdata[(x)])
 static int gf_maskdata[] = {
   0x00000000,
@@ -242,8 +240,6 @@ static long long int gf_maskdata3[] = {
   0x01ffffffffffULL, 0x03ffffffffffULL, 0x07ffffffffffULL, 0x0fffffffffffULL,
   0x1fffffffffffULL, 0x3fffffffffffULL, 0x7fffffffffffULL, 0xffffffffffffULL 
 };
-
-
 
 
 typedef struct svtsim_cable_s {
@@ -298,8 +294,8 @@ struct fout_arrays {
 
   int fout_parity[NEVTS];
   int fout_ntrks[NEVTS];
-//  int fout_iroad[NEVTS][MAXROAD*MAXCOMB];
-//  int fout_icmb[NEVTS][MAXROAD*MAXCOMB];
+  //int fout_iroad[NEVTS][MAXROAD*MAXCOMB];
+  //int fout_icmb[NEVTS][MAXROAD*MAXCOMB];
   unsigned int fout_gfword[NEVTS][MAXROAD*MAXCOMB][NTFWORDS];
   int fout_cdferr[NEVTS];
   int fout_svterr[NEVTS];
@@ -365,8 +361,7 @@ struct tf_arrays {
   int fout_err_sum[NEVTS];
   int fout_found[NEVTS];
 
- 
- //output "cable"
+  //output "cable"
   svtsim_cable_t *out;
   
   //gf_memory
@@ -399,9 +394,6 @@ struct tf_arrays {
   float k0Unit, k1Unit, k2Unit;/* units for constraints */
   int dphiNumer, dphiDenom;/* dphi(wedge) = 2pi*N/D */
   int mkaddrBogusValue;
-
-  
-  
 };
 
 
@@ -437,7 +429,8 @@ int  gf_mkaddr(tf_arrays_t tf,
 int  svtsim_get_gfMkAddr(tf_arrays_t tf, int *d, int nd, int d0);
 
 
-int gf_fit_proc(int hit[], int sign_crv, long long int coeff[], long long int intcp, long long int *result, int *err);
+int gf_fit_proc(int hit[], int sign_crv, long long int coeff[], 
+    long long int intcp, long long int *result, int *err);
 
 //int gf_fit_format(tf_arrays_t tf);
 
@@ -451,8 +444,8 @@ int gf_formatter(tf_arrays_t tf,int ie, int ir, int ic, int ich,int chi2);
 
 void dump_fout(tf_arrays_t tf); 
 
-static int gf_formatter_err(int err_sum, int cdf_emsk, int svt_emsk, int eoe_emsk , int * eoe_err, int * cdf_err, int * svt_err);
-
+static int gf_formatter_err(int err_sum, int cdf_emsk, int svt_emsk, 
+    int eoe_emsk , int * eoe_err, int * cdf_err, int * svt_err);
 
 int gf_stword(int id, int err, int mask);
 
