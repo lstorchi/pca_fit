@@ -12,7 +12,7 @@ PLATFORM = $(shell uname -s)
 # DEBUG: 
 # yes, 
 # no
-DEBUG=no
+DEBUG=yes
 
 CC = gcc
 CXX = g++
