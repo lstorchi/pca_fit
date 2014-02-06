@@ -2430,7 +2430,7 @@ gf_init (tf_arrays_t * ptr_tf)
 {
 
   //GF 
-  struct tf_arrays *tf = malloc (sizeof (struct tf_arrays));
+  struct tf_arrays *tf = calloc (1, sizeof (struct tf_arrays));
   tf->out = svtsim_cable_new ();
   tf->gf_emsk = 0;
   tf->chi2cut = GF_TOTCHI2_CUTVAL;
