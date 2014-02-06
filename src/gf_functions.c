@@ -2441,3 +2441,9 @@ gf_init (tf_arrays_t * ptr_tf)
 
   return 0;
 } 
+
+void
+gf_finalize (tf_arrays_t * ptr_tf)
+{
+  free(ptr_tf);
+}
