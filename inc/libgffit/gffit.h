@@ -413,8 +413,9 @@ int gf_fep_unpack_CPU(tf_arrays_t tf, int n_words_in, unsigned int* data_in);
 
 int  gf_fep_comb(tf_arrays_t tf);
 
-//int gf_init(tf_arrays_t* ptr_tf);
+int gf_init(tf_arrays_t* ptr_tf);
 
+void gf_finalize (tf_arrays_t *ptr_tf);
 
 //void svtsim_cable_copywords(svtsim_cable_t *cable, unsigned int *word, int nword);
 
