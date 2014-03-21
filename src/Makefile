@@ -9,7 +9,8 @@
 
 include ../config.mk
 
-CFLAGS += -I../inc
+#CFLAGS += -I../inc -D DEBUG_SVT
+CFLAGS += -I../inc 
 
 LIB = lib$(LIBNAME).a
 
