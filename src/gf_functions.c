@@ -1722,7 +1722,7 @@ gf_fit (tf_arrays_t tf)
           {
             for (ih = 0; ih < SVTNHITS; ih++)
             {
-              if (gf_mkaddr
+              if (gf_mkaddr // calcola indirizzo set costanti da usare 
                   (tf, tf->fep_hitmap[ie][ir][ic],
                    tf->fep_lcl[ie][ir][ic],
                    tf->fep_zid[ie][ir], &coe_addr, &int_addr,
@@ -1836,7 +1836,7 @@ gf_fit (tf_arrays_t tf)
 
 #endif /*   */
             /* printf("in gf_fit: which = %d\n", which); */
-            if (gf_fit_proc
+            if (gf_fit_proc // fit vero e proprio prodotto scale moltipli hit dalle costanti 
                 (hit, sign_crv, coeff[ip], theintcp,
                  &tf->fit_fit[ie][ip][ir][ic][0],
                  &tf->fit_err[ie][ir][ic][0]))
