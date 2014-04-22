@@ -1,5 +1,10 @@
 #!/usr/bin/python
 
+# IMPORTANT quick note 
+# this code is obviously made to generate non physical event but only  
+# input packet with a correct format. 
+# each word stating with 6 is a end of packet 
+
 import sys, string, os, time, re
 import random
 
