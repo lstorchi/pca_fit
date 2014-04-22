@@ -297,17 +297,17 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
     for(map<int,vector<Hit*>*>::iterator sec_it=m_hitsPerSector.begin();sec_it!=m_hitsPerSector.end();sec_it++)
     {
       //      cout<<"Sector "<<sec_it->first<<endl;
-      // TODO: no such a method for PCA
-      // fitter->setSectorID(sec_it->first);
+      // TODO: no such a method for PCA so shuld come from TrackFitter
+      fitter->setSectorID(sec_it->first);
 
       // Do the fit
       fitter->fit(*(sec_it->second));
       fitter->mergeTracks();//remove some duplicates
       tracks.clear();
-      // TODO: no get track method for PCA
-      //tracks = fitter->getTracks();
-      // TODO: no clean methods
-      //fitter->clean();
+      // TODO: no get track method for PCA should come from TrackFitter class
+      tracks = fitter->getTracks();
+      // TODO: some as getTracks
+      fitter->clean();
 
       // Store the tracks (no duplicate cleaning yet)
  
