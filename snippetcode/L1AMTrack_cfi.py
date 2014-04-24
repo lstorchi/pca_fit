@@ -8,7 +8,7 @@ TTPatternsFromStub = cms.EDProducer("TrackFindingAMProducer",
    threshold          = cms.int32(5)
 )
 
-# Hough-based trackfit default sequence
+# PCA trackfit default sequence
 TTTracksFromPattern = cms.EDProducer("TrackFitPCAProducer",
    TTInputStubs       = cms.InputTag("TTStubsFromPixelDigis", "StubAccepted"),
    TTInputPatterns    = cms.InputTag("MergePROutput", "AML1Patterns"),
