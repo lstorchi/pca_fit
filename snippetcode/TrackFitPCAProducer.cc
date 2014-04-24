@@ -297,7 +297,7 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
     for(map<int,vector<Hit*>*>::iterator sec_it=m_hitsPerSector.begin();sec_it!=m_hitsPerSector.end();sec_it++)
     {
       //      cout<<"Sector "<<sec_it->first<<endl;
-      // TODO: no such a method for PCA so shuld come from TrackFitter
+      // TODO: no such a method for PCA so should come from TrackFitter
       fitter->setSectorID(sec_it->first);
 
       // Do the fit
@@ -307,7 +307,7 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
       // TODO we need to fill patterns see : Pattern.h
       //  patterns are used to get vector of Hit 
       //  
-      //  Line 41 of PrincipalTrackFitter.cc
+      //  Line 41 of PrincipalTrackFitter.cc p is a pointer to a Pattern class
       //    oss<<setw(2)<<p->getLayerStrip(j)->getPhi(); get the phi and use it 
       //         to search  inside params 
       //
