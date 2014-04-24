@@ -45,7 +45,6 @@ void PrincipalTrackFitter::fit(vector<Hit*> active_hits)
   else
   {
     FitParams* fit = it->second;
-    vector<Hit*> active_hits = 
     double coords[active_hits.size()*3];
     double coords_PCA[active_hits.size()*3];
     
