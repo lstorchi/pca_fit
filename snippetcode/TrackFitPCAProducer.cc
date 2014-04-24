@@ -301,7 +301,24 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
       fitter->setSectorID(sec_it->first);
 
       // Do the fit
-      fitter->fit(*(sec_it->second));
+      // fitter->fit(*(sec_it->second));
+      // fit for PCA
+
+      // TODO we need to fill patterns see : Pattern.h
+      //  patterns are used to get vector of Hit 
+      //  
+      //  Line 41 of PrincipalTrackFitter.cc
+      //    oss<<setw(2)<<p->getLayerStrip(j)->getPhi(); get the phi and use it 
+      //         to search  inside params 
+      //
+      //  We need to fill params before calling fit method (using 
+      //       PrincipalFitGenerator.cc)
+      //
+      //  Line 46 search for FitParams within params that is  map<string, FitParams*> params;     
+      //     map<string, FitParams*>::iterator it = params.find(oss.str());
+
+      fitter->fit();
+
       fitter->mergeTracks();//remove some duplicates
       tracks.clear();
       // TODO: no get track method for PCA should come from TrackFitter class

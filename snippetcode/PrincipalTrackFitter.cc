@@ -32,6 +32,8 @@ void PrincipalTrackFitter::mergeTracks(){
 void PrincipalTrackFitter::fit(vector<Hit*> active_hits)
 {
   //cout<<"fit(vector<Hit*>) not implemented"<<endl;
+  //
+  // cannot be used as it is needed constants from params
 
   ostringstream oss;
   oss<<std::setfill('0');
