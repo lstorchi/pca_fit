@@ -19,6 +19,13 @@ void PrincipalTrackFitter::initialize(){
 
 }
 
+void PrincipalTrackFitter::addParams () // we will need to add args as FitParams and realted phi value
+{
+  // fill params to be used by the fit method
+  // maybe we will read the needed params (i.e. PCA constants) from a PBK 
+  // file
+}
+
 void PrincipalTrackFitter::mergePatterns(){
   //cout<<"Merging of patterns not implemented"<<endl;
 }
@@ -34,10 +41,24 @@ void PrincipalTrackFitter::fit(vector<Hit*> active_hits)
   //cout<<"fit(vector<Hit*>) not implemented"<<endl;
   //
   // cannot be used as it is needed constants from params
+  
+  short phi;
+
+  // we should be able to compute phi given Hit or provide
+  // and input value for phi
+  phi = 0; // fake value
+
+  int nb_layers = 1; // fake value 
 
   ostringstream oss;
   oss<<std::setfill('0');
-  
+  for(int j=0;j<nb_layers;j++){
+    oss<<setw(2)<<j;
+    oss<<setw(2)<<phi;
+    if(j!=nb_layers-1)
+      oss<<"-";
+  }
+
   cout<<"ladder : "<<oss.str()<<endl;
   map<string, FitParams*>::iterator it = params.find(oss.str());
   if(it==params.end())

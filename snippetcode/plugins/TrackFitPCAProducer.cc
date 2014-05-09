@@ -316,8 +316,10 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
       //
       //  Line 46 search for FitParams within params that is  map<string, FitParams*> params;     
       //     map<string, FitParams*>::iterator it = params.find(oss.str());
-
-      fitter->fit();
+      
+      fitter->addParams(); // empty method we will add needed arguments such as phi value and 
+                           // FitParams * 
+      fitter->fit(*(sec_it->second));
 
       fitter->mergeTracks();//remove some duplicates
       tracks.clear();
