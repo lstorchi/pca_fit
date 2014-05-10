@@ -19,12 +19,12 @@ void PrincipalTrackFitter::initialize(){
 
 }
 
-void PrincipalTrackFitter::addParams () // we will need to add args as FitParams and realted phi value
-{
+//void PrincipalTrackFitter::addParams () // we will need to add args as FitParams and realted phi value
+//{
   // fill params to be used by the fit method
   // maybe we will read the needed params (i.e. PCA constants) from a PBK 
   // file
-}
+//}
 
 void PrincipalTrackFitter::mergePatterns(){
   //cout<<"Merging of patterns not implemented"<<endl;

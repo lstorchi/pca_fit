@@ -293,6 +293,10 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
     std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > > tempVec;
 
     // Loop over the different sectors
+    
+    // fitter->addParams(); // empty method we will add needed arguments such as phi value and 
+                           // FitParams * 
+    // to minimize API changment we should mayve read all the constant during initialization or so
 
     for(map<int,vector<Hit*>*>::iterator sec_it=m_hitsPerSector.begin();sec_it!=m_hitsPerSector.end();sec_it++)
     {
@@ -317,8 +321,6 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
       //  Line 46 search for FitParams within params that is  map<string, FitParams*> params;     
       //     map<string, FitParams*>::iterator it = params.find(oss.str());
       
-      fitter->addParams(); // empty method we will add needed arguments such as phi value and 
-                           // FitParams * 
       fitter->fit(*(sec_it->second));
 
       fitter->mergeTracks();//remove some duplicates

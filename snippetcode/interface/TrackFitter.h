@@ -106,7 +106,6 @@ class TrackFitter{
   /**
      \brief to be used by PCA fitter
    **/
-  virtual void addParams ();
-
+  //virtual void addParams ()=0;
 };
 #endif

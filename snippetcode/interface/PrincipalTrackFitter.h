@@ -40,7 +40,7 @@ class PrincipalTrackFitter:public TrackFitter{
   PrincipalTrackFitter(int nb, int t);
   ~PrincipalTrackFitter();
 
-  void addParams (); // we will need to add args as FitParams and realted phi value
+  //void addParams (); // we will need to add args as FitParams and realted phi value
 
   void initialize();
   void mergePatterns();
