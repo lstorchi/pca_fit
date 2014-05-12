@@ -1,0 +1,59 @@
+here's a snippet that shows how to get the coordinates of all the hits
+needed for the track fit.
+
+Cheers,
+Nicola
+
+https://twiki.cern.ch/twiki/bin/viewauth/CMS/SLHCTrackerTriggerSWTools#HOWTO_Use_the_dedicated_geom_AN1
+
+
+// At the beginning of analyze() or produce() method of EDAnalyzers or
+EDProducers
+
+  /// Get the Stacked Tracker Geometry (Pt modules container)
+  edm::ESHandle< StackedTrackerGeometry > theStackedTrackerGeomHandle;
+  eventSetup.get< StackedTrackerGeometryRecord >().get(
+theStackedTrackerGeomHandle );
+  const StackedTrackerGeometry* theStackedTracker =
+theStackedTrackerGeomHandle.product();
+
+
+
+// Inside a loop over TTTrack< Ref_PixelDigi_ > objects
+
+
+  TTrack< Ref_PixelDigi_ > thisTrack = .....
+
+  /// Get the stubs
+  std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_
+> >, TTStub< Ref_PixelDigi_ > > > stubsFromThisTrack
+    = thisTrack.getStubRefs();
+
+  /// Loop over the stubs
+  for ( unsigned int j = 0; j < stubsFromThisTrack.size(); j++ )
+  {
+    /// Get the stub object in the form of a pointer
+    TTStub< Ref_PixelDigi_ >* thisStub = stubsFromThisTrack.at(j).get();
+
+    /// Get the stub coordinates
+    /// i.e. the position of the innermost cluster
+    GlobalPoint thisStubPosition =
+theStackedTracker->findGlobalPosition( thisStub );
+
+    /// Cartesian coordinates
+    double x = thisStubPosition.x(); /// Same for y, z
+    /// Polar coordinates
+    double rho = thisStubPosition.perp(); /// Same for phi, theta, eta
+
+    /// If both the clusters are needed,
+    /// i.e. each stub gives 2 positions instead of 1
+    for ( unsigned int k = 0; k < 2; k++ )
+    {
+      /// Get the cluster object in the form of a pointer
+      TTCluster< Ref_PixelDigi_ >* thisCluster = thisStub->getClusterRef( k );
+
+      /// Get the cluster coordinates
+      GlobalPoint thisClusterPosition =
+theStackedTracker->findAverageGlobalPosition( thisCluster );
+
+
