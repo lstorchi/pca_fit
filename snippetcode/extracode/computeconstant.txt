@@ -1,0 +1,44 @@
+
+code snippet extracted from AMSimulation.cc
+  
+else if(vm.count("buildFitParams")) {
+    SectorTree st;
+    cout<<"Loading pattern bank..."<<endl;
+    {
+      std::ifstream ifs(vm["bankFile"].as<string>().c_str());
+      boost::iostreams::filtering_stream<boost::iostreams::input> f;
+      f.push(boost::iostreams::gzip_decompressor());
+      //we try to read a compressed file
+      try { 
+        f.push(ifs);
+        boost::archive::text_iarchive ia(f);
+        ia >> st;
+      }
+      catch (boost::iostreams::gzip_error& e) {
+        if(e.error()==4){//file is not compressed->read it without decompression
+          std::ifstream new_ifs(vm["bankFile"].as<string>().c_str());
+          boost::archive::text_iarchive ia(new_ifs);
+          ia >> st;
+        }
+      }
+    }
+
+    map<int,pair<float,float> > eta_limits = CMSPatternLayer::getLayerDefInEta();
+
+    PrincipalFitGenerator pfg(vm["input_directory"].as<string>().c_str(), &st);
+    pfg.generate(eta_limits, 2, 100, 0, 0.87);
+    
+    cout<<"Saving SectorTree...";
+    {
+      const SectorTree& ref = st;
+      std::ofstream ofs(vm["outputFile"].as<string>().c_str());
+      // Compression part
+      boost::iostreams::filtering_stream<boost::iostreams::output> f;
+      f.push(boost::iostreams::gzip_compressor(boost::iostreams::gzip_params(boost::iostreams::gzip::best_compression)));
+      f.push(ofs);
+      //
+      boost::archive::text_oarchive oa(f);
+      oa << ref;
+      cout<<"done."<<endl;
+    }
+    
