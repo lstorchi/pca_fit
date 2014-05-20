@@ -124,6 +124,7 @@ void PrincipalTrackFitter::fit()
       //cout<<sec_phi<<endl;
       for(unsigned int i=0;i<active_hits.size();i++){
 	coords[i*3]=active_hits[i]->getX()*cos(sec_phi)+active_hits[i]->getY()*sin(sec_phi);
+        // see equation 7 in ashanskas_114_02.pdf  ... sec_phi should be phi ... apparently here is zero
 	coords[i*3+1]=-active_hits[i]->getX()*sin(sec_phi)+active_hits[i]->getY()*cos(sec_phi);
 	coords[i*3+2]=active_hits[i]->getZ();
 	cout<<*active_hits[i]<<endl;
