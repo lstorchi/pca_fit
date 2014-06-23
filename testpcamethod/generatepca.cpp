@@ -8,14 +8,20 @@ int main (int argc, char ** argv)
     return 1;
   }
 
+
   // leggere file coordinate tracce simulate plus parametri
   // N righe di 14 double
   
-
-  // calcolare V e data V calcolare inversa V e quindi C, matrice di rotazione 
+  // documento Annovi
+  // calcolo matrice di correlazione traccie HC 
+  // diagonalizzo HC e determino A, matrice 5 autovettori principali (5 componenti pricipali)
+  // A matrice rotazione che mi permette di calcolare la traslazione usando i paamtri di tracce 
+  // simulate. 
   
-  // data C determinare il vettore di traslazione q  
 
+  // documento ATLAS 
+  // calcolare V e data V calcolare inversa V e quindi C, matrice di rotazione 
+  // data C determinare il vettore di traslazione q  
   // c plus q costanti PCA 
   // write constants in a file
 
