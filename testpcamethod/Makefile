@@ -9,7 +9,7 @@
 
 include ../config.mk
 
-CFLAGS += -O2
+CFLAGS += -O2 -W -Wall
 
 OBJG = generatepca.o
 
