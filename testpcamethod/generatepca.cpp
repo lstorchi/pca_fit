@@ -151,6 +151,13 @@ int main (int argc, char ** argv)
   }
   std::cout << "5 eigenvalues: " << totvar << std::endl;
 
+  arma::mat hcai = arma::zeros<arma::mat>(3*COORDIM,3*COORDIM);
+  hcai = hca.i(); 
+
+  std::cout << hca * hcai ;
+  
+  // and so on ...
+
   // documento Annovi
   // calcolo matrice di correlazione traccie HC 
   // diagonalizzo HC e determino A, matrice 5 autovettori principali (5 componenti pricipali)
