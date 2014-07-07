@@ -141,14 +141,15 @@ int main (int argc, char ** argv)
 
   int j = 1;
   double totvar = 0.0e0; 
-  for (int i=(3*COORDIM-1); i>0; --i)
+  for (int i=(3*COORDIM-1); i>=0; --i)
   {
     if (j <= 5)
       totvar += 100.0e0*(eigval(i)/totval);
+    ++j;
 
-    std::cout << i << " ==> " << 100.0e0*(eigval(i)/totval) << std::endl;
+    std::cout << i+1 << " ==> " << 100.0e0*(eigval(i)/totval) << std::endl;
   }
-  std::cout << totvar << std::endl;
+  std::cout << "5 eigenvalues: " << totvar << std::endl;
 
   // documento Annovi
   // calcolo matrice di correlazione traccie HC 
