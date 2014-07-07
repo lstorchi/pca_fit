@@ -2,7 +2,11 @@
 #include <fstream>
 #include <string>
 
+// Loriano: let's try Armadillo quick code 
+#include <armadillo>
+
 #define ENTDIM 8
+#define COORDIM (ENTDIM-2)
 
 namespace 
 {
@@ -39,7 +43,7 @@ int main (int argc, char ** argv)
   double ** coord_mtx = new double *[num_of_ent];
   for (int i = 0; i < num_of_ent; ++i)
   {
-    coord_mtx[i] = new double[3*(ENTDIM-2)]; 
+    coord_mtx[i] = new double[3*COORDIM]; 
     param_mtx[i] = new double[5];
   }
 
@@ -55,8 +59,10 @@ int main (int argc, char ** argv)
   {
     int fake1, fake2;
     mytfp >> fake1 >> fake2 ;
+#ifdef DEBUG    
     std::cout << fake1 << " " << fake2 << std::endl;
-    for (int j = 0; j < ENTDIM-2; ++j)
+#endif
+    for (int j = 0; j < COORDIM; ++j)
     {
       int a, b, c;
       mytfp >> coord_mtx[i][j*3] >> 
@@ -76,7 +82,7 @@ int main (int argc, char ** argv)
 #ifdef DEBUG
   for (int i = 0; i < num_of_ent; ++i)
   {
-    for (int j = 0; j < ENTDIM-2; ++j)
+    for (int j = 0; j < COORDIM; ++j)
     {
       std::cout << coord_mtx[i][j*3] << " " <<
                    coord_mtx[i][j*3+1] << " " <<
@@ -90,19 +96,71 @@ int main (int argc, char ** argv)
   }
 #endif
 
+ 
+  double sum = 1.0e0;
+  double coordm[3*COORDIM] = {0.0e0};
+  double hc[3*COORDIM][3*COORDIM] = {0.0e0};
+
+  for (int l=0; l<num_of_ent; ++l) 
+  {
+    sum += 1.0e0;
+    for (int i=0; i<(3*COORDIM); ++i)
+      coordm[i] += (coord_mtx[l][i]-coordm[i])/sum;
+
+    for (int i=0; i<(3*COORDIM); ++i)
+    {
+      for (int j=0; j<(3*COORDIM); ++j)
+      {
+        hc[i][j] += ((coord_mtx[l][i] - coordm[i])*
+                     (coord_mtx[l][j] - coordm[j])-
+                     (sum-1.0e0)*hc[i][j]/sum)/(sum-1.0e0);
+      }
+    }
+  }
+
+  for (int i=0; i<(3*COORDIM); ++i)
+    for (int j=i+1; j<(3*COORDIM); ++j)
+      if (hc[i][j] != hc[j][i])
+        std::cout << i << " " << j << " " << 
+          hc[i][j] << " ERROR" << std::endl;;
+
+
+  arma::mat hca = arma::zeros<arma::mat>(3*COORDIM,3*COORDIM);
+  for (int i=0; i<(3*COORDIM); ++i)
+    for (int j=0; j<(3*COORDIM); ++j)
+      hca(i,j) = hc[i][j];
+
+  arma::vec eigval;
+  arma::mat eigvec;
+
+  arma::eig_sym(eigval, eigvec, hca);
+
+  double totval = 0.0e0;
+  for (int i=0; i<(3*COORDIM); ++i)
+    totval += eigval(i);
+
+  int j = 1;
+  double totvar = 0.0e0; 
+  for (int i=(3*COORDIM-1); i>0; --i)
+  {
+    if (j <= 5)
+      totvar += 100.0e0*(eigval(i)/totval);
+
+    std::cout << i << " ==> " << 100.0e0*(eigval(i)/totval) << std::endl;
+  }
+  std::cout << totvar << std::endl;
+
   // documento Annovi
   // calcolo matrice di correlazione traccie HC 
   // diagonalizzo HC e determino A, matrice 5 autovettori principali (5 componenti pricipali)
   // A matrice rotazione che mi permette di calcolare la traslazione usando i paamtri di tracce 
   // simulate. 
-  
 
   // documento ATLAS 
   // calcolare V e data V calcolare inversa V e quindi C, matrice di rotazione 
   // data C determinare il vettore di traslazione q  
   // c plus q costanti PCA 
   // write constants in a file
-
 
   for (int i = 0; i < num_of_ent; ++i)
   {

@@ -18,7 +18,7 @@ OBJF = fitpca.o
 all: generatepca fitpca
 
 generatepca: $(OBJG) 
-	g++ -o $@ $(OBJG) -lm
+	g++ -o $@ $(OBJG) -larmadillo -lm
 
 fitpca: $(OBJF) 
 	g++ -o $@ $(OBJF) -lm
