@@ -122,12 +122,72 @@ int main (int argc, char ** argv)
     }
   }
 
+
+  for (int l=0; l<num_of_ent; ++l) 
+  {
+    for (int i=0; i<(3*COORDIM); ++i)
+      coordm[i] += (coord_mtx[l][i]-coordm[i])/sum;
+
+    for (int i=0; i<(3*COORDIM); ++i)
+    {
+      for (int j=0; j<(3*COORDIM); ++j)
+      {
+        hc[i][j] += ((coord_mtx[l][i] - coordm[i])*
+                     (coord_mtx[l][j] - coordm[j])-
+                     (sum-1.0e0)*hc[i][j]/sum)/(sum-1.0e0);
+      }
+    }
+  }
+
   for (int i=0; i<(3*COORDIM); ++i)
     for (int j=i+1; j<(3*COORDIM); ++j)
       if (hc[i][j] != hc[j][i])
         std::cout << i << " " << j << " " << 
           hc[i][j] << " ERROR" << std::endl;;
 
+#ifdef DEBUG
+  double coordm_d[3*COORDIM];
+  std::fill_n (coordm_d, (3*COORDIM), 0.0e0);
+  for (int i=0; i<(3*COORDIM); ++i)
+  {
+    for (int l=0; l<num_of_ent; ++l)
+      coordm_d[i] += coord_mtx[l][i];
+    coordm_d[i] = coordm_d[i] / (double)num_of_ent;
+    //std::cout << coordm_d[i] << " " << coordm[i] << std::endl;
+  }
+
+  double hc_d[3*COORDIM][3*COORDIM];
+  std::fill_n (&(hc_d[0][0]), (3*COORDIM)*(3*COORDIM), 0.0e0);
+  for (int i=0; i<(3*COORDIM); ++i)
+  {
+    for (int j=0; j<(3*COORDIM); ++j)
+    {
+      for (int l=0; l<num_of_ent; ++l)
+      {
+        hc_d[i][j] += (coord_mtx[l][i] - coordm[i])*
+                      (coord_mtx[l][j] - coordm[j]);
+      }
+      hc_d[i][j] = hc_d[i][j] / (double)num_of_ent;
+      //std::cout << hc_d[i][j] << " " << hc[i][j] << std::endl;
+    }
+  }
+
+  arma::mat hca_d = arma::zeros<arma::mat>(3*COORDIM,3*COORDIM);
+  for (int i=0; i<(3*COORDIM); ++i)
+    for (int j=0; j<(3*COORDIM); ++j)
+      hca_d(i,j) = hc_d[i][j];
+
+  arma::vec eigval_d;
+  arma::mat eigvec_d;
+
+  arma::eig_sym(eigval_d, eigvec_d, hca_d);
+
+  for (int i=(3*COORDIM-1); i>=0; --i)
+  {
+    std::cout << i+1 << " ==> " << eigval_d(i) << std::endl;
+  }
+  std::cout << "====" << std::endl;
+#endif
 
   arma::mat hca = arma::zeros<arma::mat>(3*COORDIM,3*COORDIM);
   for (int i=0; i<(3*COORDIM); ++i)
@@ -151,7 +211,8 @@ int main (int argc, char ** argv)
       totvar += 100.0e0*(eigval(i)/totval);
     ++j;
 
-    std::cout << i+1 << " ==> " << 100.0e0*(eigval(i)/totval) << std::endl;
+    std::cout << i+1 << " ==> " << 100.0e0*(eigval(i)/totval) 
+      << " ==> " << eigval(i) <<  std::endl;
   }
   std::cout << "PARAMDIM eigenvalues: " << totvar << std::endl;
 
@@ -212,6 +273,17 @@ int main (int argc, char ** argv)
   std::cout << "Q vector: " << std::endl;
   for (int i=0; i<PARAMDIM; ++i)
     std::cout << q[i] << std::endl;
+
+  //test back
+  for (int i=0; i<PARAMDIM; ++i)
+  {
+    double p = q[i];
+    for (int l=0; l<(3*COORDIM); ++l)
+      p += cmtx(i,l)*coord_mtx[0][l];
+    
+    std::cout << "P " << i+1 << " ==> " << p << std::endl;
+    std::cout << "  " << param_mtx[0][i] << std::endl;
+  }
 
   // documento Annovi
   // calcolo matrice di correlazione traccie HC 
