@@ -7,6 +7,7 @@
 
 #define ENTDIM 8
 #define COORDIM (ENTDIM-2)
+#define PARAMDIM 5
 
 namespace 
 {
@@ -44,7 +45,7 @@ int main (int argc, char ** argv)
   for (int i = 0; i < num_of_ent; ++i)
   {
     coord_mtx[i] = new double[3*COORDIM]; 
-    param_mtx[i] = new double[5];
+    param_mtx[i] = new double[PARAMDIM];
   }
 
   // leggere file coordinate tracce simulate plus parametri
@@ -143,20 +144,43 @@ int main (int argc, char ** argv)
   double totvar = 0.0e0; 
   for (int i=(3*COORDIM-1); i>=0; --i)
   {
-    if (j <= 5)
+    if (j <= PARAMDIM)
       totvar += 100.0e0*(eigval(i)/totval);
     ++j;
 
     std::cout << i+1 << " ==> " << 100.0e0*(eigval(i)/totval) << std::endl;
   }
-  std::cout << "5 eigenvalues: " << totvar << std::endl;
+  std::cout << "PARAMDIM eigenvalues: " << totvar << std::endl;
 
   arma::mat hcai = arma::zeros<arma::mat>(3*COORDIM,3*COORDIM);
   hcai = hca.i(); 
 
-  std::cout << hca * hcai ;
+  //std::cout << hca * hcai ;
   
   // and so on ...
+  std::fill(coordm, &(coordm[3*COORDIM]), 0.0e0 );
+  double paramm[PARAMDIM] = {0.0e0};
+  double hcp[3*COORDIM][PARAMDIM] = {0.0e0}; 
+
+  for (int l=0; l<num_of_ent; ++l) 
+  {
+    sum += 1.0e0;
+    for (int i=0; i<(3*COORDIM); ++i)
+      coordm[i] += (coord_mtx[l][i]-coordm[i])/sum;
+
+    for (int i=0; i<(3*COORDIM); ++i)
+      paramm[i] += (param_mtx[l][i]-paramm[i])/sum;
+
+    for (int i=0; i<(3*COORDIM); ++i)
+    {
+      for (int j=0; j<PARAMDIM; ++j)
+      {
+        hcp[i][j] += ((coord_mtx[l][i] - coordm[i])*
+                     (param_mtx[l][j] - paramm[j])-
+                     (sum-1.0e0)*hcp[i][j]/sum)/(sum-1.0e0);
+      }
+    }
+  }
 
   // documento Annovi
   // calcolo matrice di correlazione traccie HC 
