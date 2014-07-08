@@ -99,8 +99,11 @@ int main (int argc, char ** argv)
 
  
   double sum = 1.0e0;
-  double coordm[3*COORDIM] = {0.0e0};
-  double hc[3*COORDIM][3*COORDIM] = {0.0e0};
+  double coordm[3*COORDIM];
+  double hc[3*COORDIM][3*COORDIM];
+
+  std::fill_n (coordm, (3*COORDIM), 0.0e0);
+  std::fill_n (&(hc[0][0]), (3*COORDIM)*(3*COORDIM), 0.0e0);
 
   for (int l=0; l<num_of_ent; ++l) 
   {
@@ -158,9 +161,11 @@ int main (int argc, char ** argv)
   //std::cout << hca * hcai ;
   
   // and so on ...
-  std::fill(coordm, &(coordm[3*COORDIM]), 0.0e0 );
-  double paramm[PARAMDIM] = {0.0e0};
-  double hcp[3*COORDIM][PARAMDIM] = {0.0e0}; 
+  double paramm[PARAMDIM];
+  arma::mat hcap = arma::zeros<arma::mat>(3*COORDIM,PARAMDIM);
+
+  std::fill_n(coordm, (3*COORDIM), 0.0e0 );
+  std::fill_n(paramm, PARAMDIM, 0.0e0 );
 
   for (int l=0; l<num_of_ent; ++l) 
   {
@@ -175,12 +180,38 @@ int main (int argc, char ** argv)
     {
       for (int j=0; j<PARAMDIM; ++j)
       {
-        hcp[i][j] += ((coord_mtx[l][i] - coordm[i])*
-                     (param_mtx[l][j] - paramm[j])-
-                     (sum-1.0e0)*hcp[i][j]/sum)/(sum-1.0e0);
+        hcap(i,j) += ((coord_mtx[l][i] - coordm[i])*
+                      (param_mtx[l][j] - paramm[j])-
+                      (sum-1.0e0)*hcap(i,j)/sum)/(sum-1.0e0);
       }
     }
   }
+
+  arma::mat cmtx = arma::zeros<arma::mat>(PARAMDIM,3*COORDIM);
+
+  for (int i=0; i<PARAMDIM; ++i)
+    for (int l=0; l<(3*COORDIM); ++l)
+      for (int m=0; m<(3*COORDIM); ++m)
+        cmtx(i,l) += hcai(l,m) * hcap (m,i);
+ 
+  std::cout << "C matrix: " << std::endl;
+  std::cout << cmtx;
+
+  double q[PARAMDIM];
+  std::fill_n(q, PARAMDIM, 0.0e0 );
+
+  //std::cout << cmtx;
+
+  for (int i=0; i<PARAMDIM; ++i)
+  {
+    q[i] = paramm[i];
+    for (int j=0; j<(3*COORDIM); ++j)
+      q[i] -= cmtx(i,j)*coordm[j];
+  }
+
+  std::cout << "Q vector: " << std::endl;
+  for (int i=0; i<PARAMDIM; ++i)
+    std::cout << q[i] << std::endl;
 
   // documento Annovi
   // calcolo matrice di correlazione traccie HC 
