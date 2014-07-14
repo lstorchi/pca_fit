@@ -98,23 +98,21 @@ int main (int argc, char ** argv)
 #endif
  
   double sum = 1.0e0;
-  double coordm[3*COORDIM];
+  arma::mat coordm = arma::zeros<arma::mat>(3*COORDIM);
   arma::mat hca = arma::zeros<arma::mat>(3*COORDIM,3*COORDIM);
-
-  std::fill_n (coordm, (3*COORDIM), 0.0e0);
 
   for (int l=0; l<num_of_ent; ++l) 
   {
     sum += 1.0e0;
     for (int i=0; i<(3*COORDIM); ++i)
-      coordm[i] += (coord_mtx[l][i]-coordm[i])/sum;
+      coordm(i) += (coord_mtx[l][i]-coordm(i))/sum;
 
     for (int i=0; i<(3*COORDIM); ++i)
     {
       for (int j=0; j<(3*COORDIM); ++j)
       {
-        hca(i,j) += ((coord_mtx[l][i] - coordm[i])*
-                     (coord_mtx[l][j] - coordm[j])-
+        hca(i,j) += ((coord_mtx[l][i] - coordm(i))*
+                     (coord_mtx[l][j] - coordm(j))-
                      (sum-1.0e0)*hca(i,j)/sum)/(sum-1.0e0);
       }
     }
@@ -180,28 +178,27 @@ int main (int argc, char ** argv)
   //exit(1);
   
   // and so on ...
-  double paramm[PARAMDIM];
+  arma::mat paramm = arma::zeros<arma::mat>(PARAMDIM);
   arma::mat hcap = arma::zeros<arma::mat>(3*COORDIM,PARAMDIM);
 
-  std::fill_n(coordm, (3*COORDIM), 0.0e0 );
-  std::fill_n(paramm, PARAMDIM, 0.0e0 );
+  coordm.fill(0.0e0);
   sum = 1.0e0;
   
   for (int l=0; l<num_of_ent; ++l) 
   {
     sum += 1.0e0;
     for (int i=0; i<(3*COORDIM); ++i)
-      coordm[i] += (coord_mtx[l][i]-coordm[i])/sum;
+      coordm(i) += (coord_mtx[l][i]-coordm(i))/sum;
 
     for (int i=0; i<PARAMDIM; ++i)
-      paramm[i] += (param_mtx[l][i]-paramm[i])/sum;
+      paramm(i) += (param_mtx[l][i]-paramm(i))/sum;
 
     for (int i=0; i<(3*COORDIM); ++i)
     {
       for (int j=0; j<PARAMDIM; ++j)
       {
-        hcap(i,j) += ((coord_mtx[l][i] - coordm[i])*
-                      (param_mtx[l][j] - paramm[j])-
+        hcap(i,j) += ((coord_mtx[l][i] - coordm(i))*
+                      (param_mtx[l][j] - paramm(j))-
                       (sum-1.0e0)*hcap(i,j)/sum)/(sum-1.0e0);
       }
     }
@@ -217,7 +214,7 @@ int main (int argc, char ** argv)
       stats(param_mtx[l][i]);
 
     std::cout << "mean   = " << stats.mean() << std::endl;
-    std::cout << "         "  << paramm[i] << std::endl;
+    std::cout << "         "  << paramm(i) << std::endl;
     std::cout << "stdev  = " << stats.stddev()  << std::endl;
 
     pstdev[i] = stats.stddev();
@@ -238,20 +235,19 @@ int main (int argc, char ** argv)
   //std::cout << "C matrix: " << std::endl;
   //std::cout << cmtx;
 
-  double q[PARAMDIM];
-  std::fill_n(q, PARAMDIM, 0.0e0 );
+  arma::mat q = arma::zeros<arma::mat>(PARAMDIM);
 
   for (int i=0; i<PARAMDIM; ++i)
   {
-    q[i] = paramm[i];
+    q(i) = paramm(i);
     for (int l=0; l<(3*COORDIM); ++l)
-      q[i] -= cmtx(i,l)*coordm[l];
+      q(i) -= cmtx(i,l)*coordm[l];
   }
 
 #ifdef DEBUG
   std::cout << "Q vector: " << std::endl;
   for (int i=0; i<PARAMDIM; ++i)
-    std::cout << q[i] << std::endl;
+    std::cout << q(i) << std::endl;
 #endif
 
   //test back
@@ -260,7 +256,7 @@ int main (int argc, char ** argv)
   {
     for (int i=0; i<PARAMDIM; ++i)
     {
-      double p = q[i];
+      double p = q(i);
       for (int k=0; k<(3*COORDIM); ++k)
         p += cmtx(i,k)*coord_mtx[l][k];
     
