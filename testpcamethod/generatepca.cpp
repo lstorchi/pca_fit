@@ -96,7 +96,22 @@ int main (int argc, char ** argv)
                  param_mtx[i][4] << std::endl;
   }
 #endif
- 
+
+  arma::mat v = arma::zeros<arma::mat>(num_of_ent,3*COORDIM);
+  for (int i = 0; i < num_of_ent; ++i)
+    for (int j = 0; j < 3*COORDIM; ++j)
+      v(i,j) = coord_mtx[i][j];
+
+  arma::mat coeff;
+  arma::mat score;
+  arma::vec latent;
+  arma::vec tsquared;
+
+  arma::princomp(coeff, score, latent, tsquared, v);
+
+  std::cout << "Eigenvalue: " << std::endl;
+  std::cout << latent;
+
   double sum = 1.0e0;
   arma::mat coordm = arma::zeros<arma::mat>(3*COORDIM);
   arma::mat hca = arma::zeros<arma::mat>(3*COORDIM,3*COORDIM);
@@ -118,28 +133,17 @@ int main (int argc, char ** argv)
     }
   }
 
-  /* correlation matrix
-  double cstdev[3*COORDIM];
-  for (int i=0; i<(3*COORDIM); ++i)
-  {
-    arma::running_stat<double> stats;
-
-    for (int l=0; l<num_of_ent; ++l) 
-      stats(coord_mtx[l][i]);
-
-#ifdef DEBUG
-    std::cout << "mean  = " << stats.mean() << std::endl;
-    std::cout << "        "  << coordm[i] << std::endl;
-    std::cout << "stdev = " << stats.stddev()  << std::endl;
-#endif
-
-    cstdev[i] = stats.stddev();
-  }
+  /* correlation matrix ricorda su dati standardizzati coincide con la matrice 
+ *   di covarianza : 
+ *   z = x -<x> / sigma */
+  arma::mat corr = arma::zeros<arma::mat>(3*COORDIM,3*COORDIM);
 
   for (int i=0; i<(3*COORDIM); ++i)
     for (int j=0; j<(3*COORDIM); ++j)
-      hca(i,j) = hca(i,j) / (cstdev[i]*cstdev[j]);
-  */
+      corr(i,j) = hca(i,j) / sqrt(hca(i,i)*hca(j,j));
+
+  std::cout << "Correlation matrix: " << std::endl;
+  std::cout << corr;
 
   for (int i=0; i<(3*COORDIM); ++i)
     for (int j=i+1; j<(3*COORDIM); ++j)
@@ -156,6 +160,7 @@ int main (int argc, char ** argv)
   for (int i=0; i<(3*COORDIM); ++i)
     totval += eigval(i);
 
+  std::cout << "Eigenvalues: " << std::endl;
   int j = 1;
   double totvar = 0.0e0; 
   for (int i=(3*COORDIM-1); i>=0; --i)
@@ -164,10 +169,8 @@ int main (int argc, char ** argv)
       totvar += 100.0e0*(eigval(i)/totval);
     ++j;
 
-#ifdef DEBUG
     std::cout << i+1 << " ==> " << 100.0e0*(eigval(i)/totval) 
       << " ==> " << eigval(i) <<  std::endl;
-#endif
 
   }
   std::cout << "PARAMDIM eigenvalues: " << totvar << std::endl;
@@ -175,9 +178,9 @@ int main (int argc, char ** argv)
   arma::mat hcai = arma::zeros<arma::mat>(3*COORDIM,3*COORDIM);
   hcai = hca.i(); 
 
-#ifdef DEBUG
-  std::cout << hca * hcai ;
-#endif
+//#ifdef DEBUG
+  //std::cout << hca * hcai ;
+//#endif
   
   // and so on ...
   arma::mat paramm = arma::zeros<arma::mat>(PARAMDIM);
