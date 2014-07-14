@@ -147,8 +147,8 @@ int main (int argc, char ** argv)
         std::cout << i << " " << j << " " << 
           hca(i,j) << " ERROR" << std::endl;;
 
-  arma::vec eigval;
-  arma::mat eigvec;
+  arma::vec eigval = arma::zeros<arma::mat>(3*COORDIM);
+  arma::mat eigvec = arma::zeros<arma::mat>(3*COORDIM,3*COORDIM);
 
   arma::eig_sym(eigval, eigvec, hca);
 
@@ -255,6 +255,25 @@ int main (int argc, char ** argv)
   for (int i=0; i<PARAMDIM; ++i)
     std::cout << q(i) << std::endl;
 #endif
+
+  arma::mat k = arma::zeros<arma::mat>((3*COORDIM)-PARAMDIM);
+
+  /* chi**2 */
+  double chi2 = 0.0e0;
+  for (int i=0; i<(3*COORDIM)-PARAMDIM; ++i)
+  {
+    double v = 0.0e0;
+
+    for (int ki=0; ki<(3*COORDIM); ++ki)
+      k(i) = eigvec(i,ki)*coordm[ki];
+
+    for (int j=0; j<(3*COORDIM); ++j)
+      v += (eigvec(i,j)/sqrt(eigval(i))) + k(i);
+    
+    chi2 += (v*v);
+  } 
+
+  std::cout << "Chi2: " << chi2 << std::endl;
 
   //test back
   arma::running_stat<double> pc[PARAMDIM];
