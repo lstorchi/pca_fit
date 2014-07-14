@@ -256,29 +256,23 @@ int main (int argc, char ** argv)
     std::cout << q(i) << std::endl;
 #endif
 
-  arma::mat k = arma::zeros<arma::mat>((3*COORDIM)-PARAMDIM);
-
-  /* chi**2 */
-  double chi2 = 0.0e0;
-  for (int i=0; i<(3*COORDIM)-PARAMDIM; ++i)
-  {
-    double v = 0.0e0;
-
-    for (int ki=0; ki<(3*COORDIM); ++ki)
-      k(i) = eigvec(i,ki)*coordm[ki];
-
+  arma::mat a = arma::zeros<arma::mat>((3*COORDIM),(3*COORDIM));
+  for (int i=0; i<(3*COORDIM); ++i)
     for (int j=0; j<(3*COORDIM); ++j)
-      v += (eigvec(i,j)/sqrt(eigval(i))) + k(i);
-    
-    chi2 += (v*v);
-  } 
+      a(i,j) = eigvec(i,j)/sqrt(eigval(i));
 
-  std::cout << "Chi2: " << chi2 << std::endl;
+  arma::mat k = arma::zeros<arma::mat>(3*COORDIM);
+  for (int i=0; i<(3*COORDIM); ++i)
+    for (int j=0; j<(3*COORDIM); ++j)
+      k(i) += a(i,j)*coordm(j);
+
 
   //test back
+  arma::running_stat<double> chi2stats;
   arma::running_stat<double> pc[PARAMDIM];
   for (int l=0; l<num_of_ent; ++l)
   {
+
     for (int i=0; i<PARAMDIM; ++i)
     {
       double p = q(i);
@@ -287,7 +281,24 @@ int main (int argc, char ** argv)
     
       pc[i](fabs(p - param_mtx[l][i])/(fabs(p + param_mtx[l][i])/2.0));
     }
+
+    /* chi**2 */
+    double chi2 = 0.0e0;
+    for (int i=0; i<(3*COORDIM)-PARAMDIM; ++i)
+    {
+      double v = k(i);
+    
+      for (int j=0; j<(3*COORDIM); ++j)
+        v += a(i,j) * coord_mtx[l][j];
+      
+      chi2 += (v*v);
+    } 
+    chi2stats(chi2);
   }
+  std::cout << "chi2 mean   = " << chi2stats.mean() << std::endl;
+  std::cout << "chi2 stdev  = " << chi2stats.stddev()  << std::endl;
+  std::cout << "chi2 min    = " << chi2stats.min() << std::endl;
+  std::cout << "chi2 max    = " << chi2stats.max() << std::endl;
 
   for (int i=0; i<PARAMDIM; ++i)
   {
