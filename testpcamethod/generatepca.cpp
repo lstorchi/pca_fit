@@ -96,8 +96,8 @@ int main (int argc, char ** argv)
                  param_mtx[i][4] << std::endl;
   }
 #endif
-
  
+
   double sum = 1.0e0;
   double coordm[3*COORDIM];
   double hc[3*COORDIM][3*COORDIM];
@@ -122,6 +122,22 @@ int main (int argc, char ** argv)
     }
   }
 
+  double cstdev[3*COORDIM];
+
+  for (int i=0; i<(3*COORDIM); ++i)
+  {
+    arma::running_stat<double> stats;
+
+    for (int l=0; l<num_of_ent; ++l) 
+      stats(coord_mtx[l][i]);
+
+    std::cout << "mean = " << stats.mean() << std::endl;
+    std::cout << "       "  << coordm[i] << std::endl;
+
+    std::cout << "var  = " << stats.stddev()  << std::endl;
+
+    cstdev[i] = stats.stddev();
+  }
 
   for (int l=0; l<num_of_ent; ++l) 
   {
@@ -138,6 +154,16 @@ int main (int argc, char ** argv)
       }
     }
   }
+
+/*
+  for (int i=0; i<(3*COORDIM); ++i)
+  {
+    for (int j=0; j<(3*COORDIM); ++j)
+    {
+      hc[i][j] = hc[i][j]/(cstdev[i]*cstdev[j]);
+    }
+  }
+*/
 
   for (int i=0; i<(3*COORDIM); ++i)
     for (int j=i+1; j<(3*COORDIM); ++j)
@@ -187,6 +213,7 @@ int main (int argc, char ** argv)
     std::cout << i+1 << " ==> " << eigval_d(i) << std::endl;
   }
   std::cout << "====" << std::endl;
+
 #endif
 
   arma::mat hca = arma::zeros<arma::mat>(3*COORDIM,3*COORDIM);
@@ -198,6 +225,34 @@ int main (int argc, char ** argv)
   arma::mat eigvec;
 
   arma::eig_sym(eigval, eigvec, hca);
+
+#ifdef DEBUG
+
+  double xnew[3*COORDIM];
+
+  std::fill_n (xnew, (3*COORDIM), 0.0e0);
+
+  for (int l=0; l<num_of_ent; ++l) 
+  {
+    for (int i=0; i<(3*COORDIM); ++i)
+    {
+      xnew[i] = 0.0e0;
+      for (int j=0; j<(3*COORDIM); ++j)
+        xnew[i] += eigvec(i, j) * (coord_mtx[l][i] - coordm[i]);
+    }
+    
+    for (int i=0; i<(3*COORDIM); ++i)
+    {
+      std::cout << i << " --> " << xnew[i] << std::endl;
+    }
+
+
+    for (int i=0; i<PARAMDIM; ++i)
+      std::cout << "      " <<  param_mtx[i][i] << std::endl;
+
+  }
+
+#endif
 
   double totval = 0.0e0;
   for (int i=0; i<(3*COORDIM); ++i)
@@ -220,6 +275,8 @@ int main (int argc, char ** argv)
   hcai = hca.i(); 
 
   //std::cout << hca * hcai ;
+
+  //exit(1);
   
   // and so on ...
   double paramm[PARAMDIM];
@@ -227,14 +284,15 @@ int main (int argc, char ** argv)
 
   std::fill_n(coordm, (3*COORDIM), 0.0e0 );
   std::fill_n(paramm, PARAMDIM, 0.0e0 );
-
+  sum = 1.0e0;
+  
   for (int l=0; l<num_of_ent; ++l) 
   {
     sum += 1.0e0;
     for (int i=0; i<(3*COORDIM); ++i)
       coordm[i] += (coord_mtx[l][i]-coordm[i])/sum;
 
-    for (int i=0; i<(3*COORDIM); ++i)
+    for (int i=0; i<PARAMDIM; ++i)
       paramm[i] += (param_mtx[l][i]-paramm[i])/sum;
 
     for (int i=0; i<(3*COORDIM); ++i)
@@ -247,6 +305,31 @@ int main (int argc, char ** argv)
       }
     }
   }
+
+  double pstdev[PARAMDIM];
+
+  for (int i=0; i<PARAMDIM; ++i)
+  {
+    arma::running_stat<double> stats;
+
+    for (int l=0; l<num_of_ent; ++l) 
+      stats(param_mtx[l][i]);
+
+    std::cout << "mean = " << stats.mean() << std::endl;
+    std::cout << "       "  << paramm[i] << std::endl;
+
+    std::cout << "var  = " << stats.stddev()  << std::endl;
+
+    pstdev[i] = stats.stddev();
+  }
+
+
+
+  /*
+  for (int i=0; i<(3*COORDIM); ++i)
+    for (int j=0; j<PARAMDIM; ++j)
+      hcap(i,j) = hcap(i,j) / (cstdev[i]*pstdev[j]);
+  */
 
   arma::mat cmtx = arma::zeros<arma::mat>(PARAMDIM,3*COORDIM);
 
@@ -266,8 +349,8 @@ int main (int argc, char ** argv)
   for (int i=0; i<PARAMDIM; ++i)
   {
     q[i] = paramm[i];
-    for (int j=0; j<(3*COORDIM); ++j)
-      q[i] -= cmtx(i,j)*coordm[j];
+    for (int l=0; l<(3*COORDIM); ++l)
+      q[i] -= cmtx(i,l)*coordm[l];
   }
 
   std::cout << "Q vector: " << std::endl;
