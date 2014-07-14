@@ -118,8 +118,7 @@ int main (int argc, char ** argv)
     }
   }
 
-
-  /*
+  /* correlation matrix
   double cstdev[3*COORDIM];
   for (int i=0; i<(3*COORDIM); ++i)
   {
@@ -128,9 +127,11 @@ int main (int argc, char ** argv)
     for (int l=0; l<num_of_ent; ++l) 
       stats(coord_mtx[l][i]);
 
+#ifdef DEBUG
     std::cout << "mean  = " << stats.mean() << std::endl;
     std::cout << "        "  << coordm[i] << std::endl;
     std::cout << "stdev = " << stats.stddev()  << std::endl;
+#endif
 
     cstdev[i] = stats.stddev();
   }
@@ -174,8 +175,9 @@ int main (int argc, char ** argv)
   arma::mat hcai = arma::zeros<arma::mat>(3*COORDIM,3*COORDIM);
   hcai = hca.i(); 
 
-  //std::cout << hca * hcai ;
-  //exit(1);
+#ifdef DEBUG
+  std::cout << hca * hcai ;
+#endif
   
   // and so on ...
   arma::mat paramm = arma::zeros<arma::mat>(PARAMDIM);
@@ -204,7 +206,7 @@ int main (int argc, char ** argv)
     }
   }
 
-  /*
+  /* correlation matrix
   double pstdev[PARAMDIM];
   for (int i=0; i<PARAMDIM; ++i)
   {
@@ -213,9 +215,11 @@ int main (int argc, char ** argv)
     for (int l=0; l<num_of_ent; ++l) 
       stats(param_mtx[l][i]);
 
+#ifdef DEBUG
     std::cout << "mean   = " << stats.mean() << std::endl;
     std::cout << "         "  << paramm(i) << std::endl;
     std::cout << "stdev  = " << stats.stddev()  << std::endl;
+#endif
 
     pstdev[i] = stats.stddev();
   }
@@ -231,9 +235,11 @@ int main (int argc, char ** argv)
     for (int l=0; l<(3*COORDIM); ++l)
       for (int m=0; m<(3*COORDIM); ++m)
         cmtx(i,l) += hcai(l,m) * hcap (m,i);
- 
-  //std::cout << "C matrix: " << std::endl;
-  //std::cout << cmtx;
+
+#ifdef DEBUG
+  std::cout << "C matrix: " << std::endl;
+  std::cout << cmtx;
+#endif 
 
   arma::mat q = arma::zeros<arma::mat>(PARAMDIM);
 
