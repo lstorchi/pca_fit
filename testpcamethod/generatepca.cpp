@@ -92,79 +92,61 @@ int main (int argc, char ** argv)
   }
 #endif
   
-  arma::mat coeff;
+  // projection 
   arma::mat score;
-  arma::vec latent;
+  // ordered 
+  arma::vec eigval;
+  // by row or by column ?
+  arma::mat eigvec;
 
-  arma::princomp(coeff, score, latent, coord);
-
-  std::cout << "Eigenvalue: " << std::endl;
-  std::cout << latent;
-
-  std::cout << "Eigenvector: " << std::endl;
-  std::cout << score << std::endl;
-
-  double sum = 1.0e0;
-  arma::mat coordm = arma::zeros<arma::mat>(3*COORDIM);
-  arma::mat hca = arma::zeros<arma::mat>(3*COORDIM,3*COORDIM);
-
-  hca = arma::cov(coord);
-
-  /* correlation matrix ricorda su dati standardizzati coincide con la matrice 
- *   di covarianza : 
- *   z = x -<x> / sigma */
-  arma::mat corr = arma::zeros<arma::mat>(3*COORDIM,3*COORDIM);
-
-  for (int i=0; i<(3*COORDIM); ++i)
-    for (int j=0; j<(3*COORDIM); ++j)
-      corr(i,j) = hca(i,j) / sqrt(hca(i,i)*hca(j,j));
-
-  std::cout << "Correlation matrix: " << std::endl;
-  std::cout << corr;
-
-  for (int i=0; i<(3*COORDIM); ++i)
-    for (int j=i+1; j<(3*COORDIM); ++j)
-      if (hca(i,j) != hca(j,i))
-        std::cout << i << " " << j << " " << 
-          hca(i,j) << " ERROR" << std::endl;;
-
-  arma::vec eigval = arma::zeros<arma::mat>(3*COORDIM);
-  arma::mat eigvec = arma::zeros<arma::mat>(3*COORDIM,3*COORDIM);
-
-  arma::eig_sym(eigval, eigvec, hca);
+  arma::princomp(eigvec, score, eigval, coord);
 
   double totval = 0.0e0;
   for (int i=0; i<(3*COORDIM); ++i)
     totval += eigval(i);
 
   std::cout << "Eigenvalues: " << std::endl;
-  int j = 1;
   double totvar = 0.0e0; 
-  for (int i=(3*COORDIM-1); i>=0; --i)
+  for (int i=0; i<(3*COORDIM); ++i)
   {
-    if (j <= PARAMDIM)
+    if (i < PARAMDIM)
       totvar += 100.0e0*(eigval(i)/totval);
-    ++j;
 
     std::cout << i+1 << " ==> " << 100.0e0*(eigval(i)/totval) 
-      << " ==> " << eigval(i) <<  std::endl;
-
+      << "% value: " << eigval(i) <<  std::endl;
   }
   std::cout << "PARAMDIM eigenvalues: " << totvar << std::endl;
 
-  arma::mat hcai = arma::zeros<arma::mat>(3*COORDIM,3*COORDIM);
-  hcai = hca.i(); 
+  arma::mat v = arma::zeros<arma::mat>(3*COORDIM,3*COORDIM);
+  v = arma::cov(coord);
 
-//#ifdef DEBUG
-  //std::cout << hca * hcai ;
-//#endif
+#ifdef DEBUG
+  /* correlation matrix ricorda su dati standardizzati coincide con la matrice 
+   *   di covarianza : 
+   *   z = x -<x> / sigma */
+  arma::mat corr = arma::zeros<arma::mat>(3*COORDIM,3*COORDIM);
+
+  for (int i=0; i<(3*COORDIM); ++i)
+    for (int j=0; j<(3*COORDIM); ++j)
+      corr(i,j) = v(i,j) / sqrt(v(i,i)*v(j,j));
+
+  std::cout << "Correlation matrix: " << std::endl;
+  std::cout << corr;
+#endif
+
+  arma::mat vi = arma::zeros<arma::mat>(3*COORDIM,3*COORDIM);
+  vi = v.i(); 
+
+#ifdef DEBUG
+  std::cout << "inverse by cov matrix: " << std::endl;
+  std::cout << v * vi ;
+#endif
   
   // and so on ...
-  arma::mat paramm = arma::zeros<arma::mat>(PARAMDIM);
   arma::mat hcap = arma::zeros<arma::mat>(3*COORDIM,PARAMDIM);
-
-  coordm.fill(0.0e0);
-  sum = 1.0e0;
+  arma::mat paramm = arma::zeros<arma::mat>(PARAMDIM);
+  arma::mat coordm = arma::zeros<arma::mat>(3*COORDIM);
+  double sum = 1.0e0;
   
   for (int l=0; l<num_of_ent; ++l) 
   {
@@ -186,35 +168,12 @@ int main (int argc, char ** argv)
     }
   }
 
-  /* correlation matrix
-  double pstdev[PARAMDIM];
-  for (int i=0; i<PARAMDIM; ++i)
-  {
-    arma::running_stat<double> stats;
-
-    for (int l=0; l<num_of_ent; ++l) 
-      stats(param(l,i));
-
-#ifdef DEBUG
-    std::cout << "mean   = " << stats.mean() << std::endl;
-    std::cout << "         "  << paramm(i) << std::endl;
-    std::cout << "stdev  = " << stats.stddev()  << std::endl;
-#endif
-
-    pstdev[i] = stats.stddev();
-  }
-
-  for (int i=0; i<(3*COORDIM); ++i)
-    for (int j=0; j<PARAMDIM; ++j)
-      hcap(i,j) = hcap(i,j) / (cstdev[i]*pstdev[j]);
-  */
-
   arma::mat cmtx = arma::zeros<arma::mat>(PARAMDIM,3*COORDIM);
 
   for (int i=0; i<PARAMDIM; ++i)
     for (int l=0; l<(3*COORDIM); ++l)
       for (int m=0; m<(3*COORDIM); ++m)
-        cmtx(i,l) += hcai(l,m) * hcap (m,i);
+        cmtx(i,l) += vi(l,m) * hcap (m,i);
 
 #ifdef DEBUG
   std::cout << "C matrix: " << std::endl;
@@ -236,43 +195,32 @@ int main (int argc, char ** argv)
     std::cout << q(i) << std::endl;
 #endif
 
-  arma::mat a = arma::zeros<arma::mat>((3*COORDIM),(3*COORDIM));
-  for (int i=0; i<(3*COORDIM); ++i)
-    for (int j=0; j<(3*COORDIM); ++j)
-      a(i,j) = eigvec(i,j)/sqrt(eigval(i));
-
-  arma::mat k = arma::zeros<arma::mat>(3*COORDIM);
-  for (int i=0; i<(3*COORDIM); ++i)
-    for (int j=0; j<(3*COORDIM); ++j)
-      k(i) += a(i,j)*coordm(j);
-
-
   //test back
   arma::running_stat<double> chi2stats;
   arma::running_stat<double> pc[PARAMDIM];
   for (int l=0; l<num_of_ent; ++l)
   {
 
+    std::cout << "Track: " << l+1 << std::endl;
+
     for (int i=0; i<PARAMDIM; ++i)
     {
       double p = q(i);
       for (int k=0; k<(3*COORDIM); ++k)
         p += cmtx(i,k)*coord(l,k);
+      
+      std::cout << "   computed "  << p << " real " << param(l,i) << std::endl;
     
       pc[i](fabs(p - param(l,i))/(fabs(p + param(l,i))/2.0));
     }
 
     /* chi**2 */
     double chi2 = 0.0e0;
-    for (int i=0; i<(3*COORDIM)-PARAMDIM; ++i)
-    {
-      double v = k(i);
-    
+    for (int i=0; i<(3*COORDIM); ++i)
       for (int j=0; j<(3*COORDIM); ++j)
-        v += a(i,j) * coord(l,j);
-      
-      chi2 += (v*v);
-    } 
+        chi2 += (coord(l,i) - coordm(i)) * 
+                vi(i, j) * (coord(l,j) - coordm(j)); 
+    std::cout << "   chi2: " << chi2 << std::endl;
     chi2stats(chi2);
   }
   std::cout << "chi2 mean   = " << chi2stats.mean() << std::endl;
