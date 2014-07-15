@@ -40,13 +40,8 @@ int main (int argc, char ** argv)
   std::cout << "  " << num_of_ent << " entries " << std::endl;
 
   // non perfomante ma easy to go
-  double ** param_mtx = new double *[num_of_ent];
-  double ** coord_mtx = new double *[num_of_ent];
-  for (int i = 0; i < num_of_ent; ++i)
-  {
-    coord_mtx[i] = new double[3*COORDIM]; 
-    param_mtx[i] = new double[PARAMDIM];
-  }
+  arma::mat param = arma::zeros<arma::mat>(num_of_ent,PARAMDIM);
+  arma::mat coord = arma::zeros<arma::mat>(num_of_ent,3*COORDIM);
 
   // leggere file coordinate tracce simulate plus parametri
   std::string line;
@@ -66,16 +61,16 @@ int main (int argc, char ** argv)
     for (int j = 0; j < COORDIM; ++j)
     {
       int a, b, c;
-      mytfp >> coord_mtx[i][j*3] >> 
-               coord_mtx[i][j*3+1] >> 
-               coord_mtx[i][j*3+2] >> 
+      mytfp >> coord(i, j*3) >> 
+               coord(i, j*3+1) >> 
+               coord(i, j*3+2) >> 
                a >> b >> c; 
     }
-    mytfp >> param_mtx[i][0] >> 
-             param_mtx[i][1] >> 
-             param_mtx[i][2] >> 
-             param_mtx[i][3] >> 
-             param_mtx[i][4];
+    mytfp >> param(i,0) >> 
+             param(i,1) >> 
+             param(i,2) >> 
+             param(i,3) >> 
+             param(i,4);
   }
 
   mytfp.close();
@@ -85,53 +80,35 @@ int main (int argc, char ** argv)
   {
     for (int j = 0; j < COORDIM; ++j)
     {
-      std::cout << coord_mtx[i][j*3] << " " <<
-                   coord_mtx[i][j*3+1] << " " <<
-                   coord_mtx[i][j*3+2] << std::endl;
+      std::cout << coord(i, j*3) << " " <<
+                   coord(i, j*3+1) << " " <<
+                   coord(i, j*3+2) << std::endl;
     }
-    std::cout << param_mtx[i][0] << " " <<
-                 param_mtx[i][1] << " " <<
-                 param_mtx[i][2] << " " <<
-                 param_mtx[i][3] << " " <<
-                 param_mtx[i][4] << std::endl;
+    std::cout << param(i,0) << " " <<
+                 param(i,1) << " " <<
+                 param(i,2) << " " <<
+                 param(i,3) << " " <<
+                 param(i,4) << std::endl;
   }
 #endif
-
-  arma::mat v = arma::zeros<arma::mat>(num_of_ent,3*COORDIM);
-  for (int i = 0; i < num_of_ent; ++i)
-    for (int j = 0; j < 3*COORDIM; ++j)
-      v(i,j) = coord_mtx[i][j];
-
+  
   arma::mat coeff;
   arma::mat score;
   arma::vec latent;
-  arma::vec tsquared;
 
-  arma::princomp(coeff, score, latent, tsquared, v);
+  arma::princomp(coeff, score, latent, coord);
 
   std::cout << "Eigenvalue: " << std::endl;
   std::cout << latent;
+
+  std::cout << "Eigenvector: " << std::endl;
+  std::cout << score << std::endl;
 
   double sum = 1.0e0;
   arma::mat coordm = arma::zeros<arma::mat>(3*COORDIM);
   arma::mat hca = arma::zeros<arma::mat>(3*COORDIM,3*COORDIM);
 
-  for (int l=0; l<num_of_ent; ++l) 
-  {
-    sum += 1.0e0;
-    for (int i=0; i<(3*COORDIM); ++i)
-      coordm(i) += (coord_mtx[l][i]-coordm(i))/sum;
-
-    for (int i=0; i<(3*COORDIM); ++i)
-    {
-      for (int j=0; j<(3*COORDIM); ++j)
-      {
-        hca(i,j) += ((coord_mtx[l][i] - coordm(i))*
-                     (coord_mtx[l][j] - coordm(j))-
-                     (sum-1.0e0)*hca(i,j)/sum)/(sum-1.0e0);
-      }
-    }
-  }
+  hca = arma::cov(coord);
 
   /* correlation matrix ricorda su dati standardizzati coincide con la matrice 
  *   di covarianza : 
@@ -193,17 +170,17 @@ int main (int argc, char ** argv)
   {
     sum += 1.0e0;
     for (int i=0; i<(3*COORDIM); ++i)
-      coordm(i) += (coord_mtx[l][i]-coordm(i))/sum;
+      coordm(i) += (coord(l,i)-coordm(i))/sum;
 
     for (int i=0; i<PARAMDIM; ++i)
-      paramm(i) += (param_mtx[l][i]-paramm(i))/sum;
+      paramm(i) += (param(l,i)-paramm(i))/sum;
 
     for (int i=0; i<(3*COORDIM); ++i)
     {
       for (int j=0; j<PARAMDIM; ++j)
       {
-        hcap(i,j) += ((coord_mtx[l][i] - coordm(i))*
-                      (param_mtx[l][j] - paramm(j))-
+        hcap(i,j) += ((coord(l,i) - coordm(i))*
+                      (param(l,j) - paramm(j))-
                       (sum-1.0e0)*hcap(i,j)/sum)/(sum-1.0e0);
       }
     }
@@ -216,7 +193,7 @@ int main (int argc, char ** argv)
     arma::running_stat<double> stats;
 
     for (int l=0; l<num_of_ent; ++l) 
-      stats(param_mtx[l][i]);
+      stats(param(l,i));
 
 #ifdef DEBUG
     std::cout << "mean   = " << stats.mean() << std::endl;
@@ -280,9 +257,9 @@ int main (int argc, char ** argv)
     {
       double p = q(i);
       for (int k=0; k<(3*COORDIM); ++k)
-        p += cmtx(i,k)*coord_mtx[l][k];
+        p += cmtx(i,k)*coord(l,k);
     
-      pc[i](fabs(p - param_mtx[l][i])/(fabs(p + param_mtx[l][i])/2.0));
+      pc[i](fabs(p - param(l,i))/(fabs(p + param(l,i))/2.0));
     }
 
     /* chi**2 */
@@ -292,7 +269,7 @@ int main (int argc, char ** argv)
       double v = k(i);
     
       for (int j=0; j<(3*COORDIM); ++j)
-        v += a(i,j) * coord_mtx[l][j];
+        v += a(i,j) * coord(l,j);
       
       chi2 += (v*v);
     } 
@@ -310,21 +287,13 @@ int main (int argc, char ** argv)
     arma::running_stat<double> stats;
 
     for (int l=0; l<num_of_ent; ++l) 
-      stats(param_mtx[l][i]);
+      stats(param(l,i));
 
     std::cout << "  mean   = " << stats.mean() << std::endl;
     std::cout << "  stdev  = " << stats.stddev()  << std::endl;
     std::cout << "  min    = " << stats.min() << std::endl;
     std::cout << "  max    = " << stats.max() << std::endl;
   }
-
-  for (int i = 0; i < num_of_ent; ++i)
-  {
-    delete(coord_mtx[i]);
-    delete(param_mtx[i]);
-  }
-  delete(coord_mtx);
-  delete(param_mtx);
 
   return 0;
 }
