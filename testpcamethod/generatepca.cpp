@@ -43,8 +43,11 @@ int main (int argc, char ** argv)
   arma::mat paraminp = arma::zeros<arma::mat>(num_of_ent,PARAMDIM);
   arma::mat coordinp = arma::zeros<arma::mat>(num_of_ent,3*COORDIM);
 
-  arma::mat tracker;
-  tracker.set_size(num_of_ent,3*COORDIM);
+  arma::mat layer, ladder, module;
+  layer.set_size(num_of_ent,COORDIM);
+  ladder.set_size(num_of_ent,COORDIM);
+  module.set_size(num_of_ent,COORDIM);
+
 
   // leggere file coordinate tracce simulate plus parametri
   std::string line;
@@ -89,7 +92,8 @@ int main (int argc, char ** argv)
     {
       std::cout << coordinp(i, j*3) << " " <<
                    coordinp(i, j*3+1) << " " <<
-                   coordinp(i, j*3+2) << std::endl;
+                   coordinp(i, j*3+2) << " " << 
+                   ladder(i, j) << std::endl;
     }
     std::cout << paraminp(i,0) << " " <<
                  paraminp(i,1) << " " <<
@@ -106,11 +110,12 @@ int main (int argc, char ** argv)
   // to be used to select inly a ladder .... 
   for (int i = 0; i < num_of_ent; ++i)
   {
-    int counter = 0;
-    if ((tracker(i, 0) == 1) && (tracker(i, 2) == 2))
-        counter++;
+    bool todo = false;
+    if ((ladder(i, 0) == 0) && (ladder(i, 1) == 1) && 
+         (ladder(i, 2) == 2))
+      todo = true;
    
-    if (counter == 6)
+    if (todo)
       k++;
   } 
 
@@ -121,11 +126,12 @@ int main (int argc, char ** argv)
   // to be used to select inly a ladder .... 
   for (int i = 0; i < num_of_ent; ++i)
   {
-    int counter = 0;
-    if ((tracker(i, 0) == 1) && (tracker(i, 3) == 2))
-        counter++;
+    bool todo = false;
+    if ((ladder(i, 0) == 0) && (ladder(i, 1) == 1) && 
+        (ladder(i, 2) == 2))
+        todo = true;
     
-    if (counter == 6)
+    if (todo)
     {
       for (int j = 0; j < 3*COORDIM; ++j)
         coord(k,j) = coordinp(i,j);
@@ -138,6 +144,8 @@ int main (int argc, char ** argv)
   } 
 
   num_of_ent = k;
+
+  std::cout << "we got " << num_of_ent << " tracks " << std::endl;
   
   // projection 
   arma::mat score;
