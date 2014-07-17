@@ -60,6 +60,9 @@ TChain* PrincipalFitGenerator::createTChain(){
   return TT;
 }
 
+
+// covariance of coodinates ?
+
 void PrincipalFitGenerator::generatePrincipal(map<int,pair<float,float> > eta_limits, float min_pt, float max_pt, float min_eta, float max_eta){
 
   if(st->getNbSectors()==0){
@@ -74,7 +77,9 @@ void PrincipalFitGenerator::generatePrincipal(map<int,pair<float,float> > eta_li
   for(int i=0;i<first_sector->getNbLayers();i++){
     tracker_layers.push_back(first_sector->getLayerID(i));
   }
-  int nb_ladders = -1;
+  
+
+int nb_ladders = -1;
   if(detector_config.find(first_sector->getLayerID(0))!=detector_config.end()){
     nb_ladders = detector_config[first_sector->getLayerID(0)][1];
   }
@@ -158,6 +163,8 @@ void PrincipalFitGenerator::generatePrincipal(map<int,pair<float,float> > eta_li
 
   delete TT;
 }
+
+// covariance of coodinates vs parameters ?
 
 void PrincipalFitGenerator::generateMultiDim(map<int,pair<float,float> > eta_limits, float min_pt, float max_pt, float min_eta, float max_eta){
 
