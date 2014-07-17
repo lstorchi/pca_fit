@@ -40,8 +40,8 @@ int main (int argc, char ** argv)
   std::cout << "  " << num_of_ent << " entries " << std::endl;
 
   // non perfomante ma easy to go
-  arma::mat param = arma::zeros<arma::mat>(num_of_ent,PARAMDIM);
-  arma::mat coord = arma::zeros<arma::mat>(num_of_ent,3*COORDIM);
+  arma::mat paraminp = arma::zeros<arma::mat>(num_of_ent,PARAMDIM);
+  arma::mat coordinp = arma::zeros<arma::mat>(num_of_ent,3*COORDIM);
 
   arma::mat tracker;
   tracker.set_size(num_of_ent,3*COORDIM);
@@ -64,20 +64,20 @@ int main (int argc, char ** argv)
     for (int j = 0; j < COORDIM; ++j)
     {
       int a, b, c;
-      mytfp >> coord(i, j*3) >> 
-               coord(i, j*3+1) >> 
-               coord(i, j*3+2) >> 
+      mytfp >> coordinp(i, j*3) >> 
+               coordinp(i, j*3+1) >> 
+               coordinp(i, j*3+2) >> 
                a >> b >> c; 
 
                tracker(i, j*3) = a;
                tracker(i, j*3+1) = b;
                tracker(i, j*3+2) = c;
     }
-    mytfp >> param(i,0) >> 
-             param(i,1) >> 
-             param(i,2) >> 
-             param(i,3) >> 
-             param(i,4);
+    mytfp >> paraminp(i,0) >> 
+             paraminp(i,1) >> 
+             paraminp(i,2) >> 
+             paraminp(i,3) >> 
+             paraminp(i,4);
   }
 
   mytfp.close();
@@ -87,17 +87,24 @@ int main (int argc, char ** argv)
   {
     for (int j = 0; j < COORDIM; ++j)
     {
-      std::cout << coord(i, j*3) << " " <<
-                   coord(i, j*3+1) << " " <<
-                   coord(i, j*3+2) << std::endl;
+      std::cout << coordinp(i, j*3) << " " <<
+                   coordinp(i, j*3+1) << " " <<
+                   coordinp(i, j*3+2) << std::endl;
     }
-    std::cout << param(i,0) << " " <<
-                 param(i,1) << " " <<
-                 param(i,2) << " " <<
-                 param(i,3) << " " <<
-                 param(i,4) << std::endl;
+    std::cout << paraminp(i,0) << " " <<
+                 paraminp(i,1) << " " <<
+                 paraminp(i,2) << " " <<
+                 paraminp(i,3) << " " <<
+                 paraminp(i,4) << std::endl;
   }
 #endif
+
+  arma::mat param;
+  arma::mat coord;
+
+  // to be used to select inly a ladder .... 
+  coord = coordinp;
+  param = paraminp;
   
   // projection 
   arma::mat score;
