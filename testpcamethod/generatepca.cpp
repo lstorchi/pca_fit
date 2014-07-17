@@ -43,6 +43,9 @@ int main (int argc, char ** argv)
   arma::mat param = arma::zeros<arma::mat>(num_of_ent,PARAMDIM);
   arma::mat coord = arma::zeros<arma::mat>(num_of_ent,3*COORDIM);
 
+  arma::mat tracker;
+  tracker.set_size(num_of_ent,3*COORDIM);
+
   // leggere file coordinate tracce simulate plus parametri
   std::string line;
   std::ifstream mytfp;
@@ -65,6 +68,10 @@ int main (int argc, char ** argv)
                coord(i, j*3+1) >> 
                coord(i, j*3+2) >> 
                a >> b >> c; 
+
+               tracker(i, j*3) = a;
+               tracker(i, j*3+1) = b;
+               tracker(i, j*3+2) = c;
     }
     mytfp >> param(i,0) >> 
              param(i,1) >> 
@@ -100,6 +107,12 @@ int main (int argc, char ** argv)
   arma::mat eigvec;
 
   arma::princomp(eigvec, score, eigval, coord);
+
+  //std::cout << score.n_rows << " " << score.n_cols << std::endl;
+
+  //for (int i=0; i<score.n_rows; ++i)
+  //  std::cout << score(i,0)  << " " 
+  //    << score(i,1) << " " << score(i,2) << std::endl;
 
   double totval = 0.0e0;
   for (int i=0; i<(3*COORDIM); ++i)
