@@ -69,9 +69,9 @@ int main (int argc, char ** argv)
                coordinp(i, j*3+2) >> 
                a >> b >> c; 
 
-               tracker(i, j*3) = a;
-               tracker(i, j*3+1) = b;
-               tracker(i, j*3+2) = c;
+               layer(i, j) = a;
+               ladder(i, j) = b;
+               module(i, j) = c;
     }
     mytfp >> paraminp(i,0) >> 
              paraminp(i,1) >> 
@@ -102,9 +102,42 @@ int main (int argc, char ** argv)
   arma::mat param;
   arma::mat coord;
 
+  int k = 0;
   // to be used to select inly a ladder .... 
-  coord = coordinp;
-  param = paraminp;
+  for (int i = 0; i < num_of_ent; ++i)
+  {
+    int counter = 0;
+    if ((tracker(i, 0) == 1) && (tracker(i, 2) == 2))
+        counter++;
+   
+    if (counter == 6)
+      k++;
+  } 
+
+  param.set_size(k,PARAMDIM);
+  coord.set_size(k,3*COORDIM);
+
+  k = 0;
+  // to be used to select inly a ladder .... 
+  for (int i = 0; i < num_of_ent; ++i)
+  {
+    int counter = 0;
+    if ((tracker(i, 0) == 1) && (tracker(i, 3) == 2))
+        counter++;
+    
+    if (counter == 6)
+    {
+      for (int j = 0; j < 3*COORDIM; ++j)
+        coord(k,j) = coordinp(i,j);
+
+      for (int j = 0; j < PARAMDIM; ++j)
+        param(k,j) = paraminp(i,j);
+
+      k++;
+    }
+  } 
+
+  num_of_ent = k;
   
   // projection 
   arma::mat score;
