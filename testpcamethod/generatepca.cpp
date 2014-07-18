@@ -106,7 +106,7 @@ int main (int argc, char ** argv)
     switch (i)
     {
       case 0:
-        std::cout << i+1 << " pt" << std::endl;
+        std::cout << i+1 << " q * pt" << std::endl;
         break;
       case 1:
         std::cout << i+1 << " phi" << std::endl;
@@ -155,6 +155,7 @@ int main (int argc, char ** argv)
     bool todo = false;
     //if ((ladder(i, 0) == 0) && (ladder(i, 1) == 1) && 
     //     (ladder(i, 2) == 2))
+    if (paraminp(i,0) > 0.0)
       todo = true;
    
     if (todo)
@@ -171,7 +172,8 @@ int main (int argc, char ** argv)
     bool todo = false;
     //if ((ladder(i, 0) == 0) && (ladder(i, 1) == 1) && 
     //    (ladder(i, 2) == 2))
-        todo = true;
+    if (paraminp(i,0) > 0.0)
+      todo = true;
     
     if (todo)
     {
@@ -199,10 +201,14 @@ int main (int argc, char ** argv)
   arma::princomp(eigvec, score, eigval, coord);
 
   //std::cout << score.n_rows << " " << score.n_cols << std::endl;
+  
+  std::ofstream myfilesc("scoreplot.txt");
 
-  //for (int i=0; i<score.n_rows; ++i)
-  //  std::cout << score(i,0)  << " " 
-  //    << score(i,1) << " " << score(i,2) << std::endl;
+  for (int i=0; i<(int)score.n_rows; ++i)
+    myfilesc << score(i,0)  << " " 
+      << score(i,1) << " " << score(i,2) << std::endl;
+
+  myfilesc.close();
 
   double totval = 0.0e0;
   for (int i=0; i<(3*COORDIM); ++i)
