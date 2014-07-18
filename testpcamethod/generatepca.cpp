@@ -189,7 +189,7 @@ int main (int argc, char ** argv)
 
   num_of_ent = k;
 
-  std::cout << "we got " << num_of_ent << " tracks " << std::endl;
+  std::cout << "We got " << num_of_ent << " tracks " << std::endl;
   
   // projection 
   arma::mat score;
@@ -205,8 +205,15 @@ int main (int argc, char ** argv)
   std::ofstream myfilesc("scoreplot.txt");
 
   for (int i=0; i<(int)score.n_rows; ++i)
+  {
     myfilesc << score(i,0)  << " " 
       << score(i,1) << " " << score(i,2) << std::endl;
+
+    double residue = 0.0;
+    for (int j=5; j<3*COORDIM; ++j)
+      residue += score(i,j) * score(i,j);
+    std::cout << "Track " << i+1 << " residue " << residue << std::endl;
+  }
 
   myfilesc.close();
 
@@ -345,8 +352,8 @@ int main (int argc, char ** argv)
     for (int l=0; l<num_of_ent; ++l) 
       stats(param(l,i));
 
-    std::cout << "  mean   = " << stats.mean() << std::endl;
-    std::cout << "  stdev  = " << stats.stddev()  << std::endl;
+    std::cout << "  mean   = " << 100.0e0*stats.mean() << std::endl;
+    std::cout << "  stdev  = " << 100.0e0*stats.stddev()  << std::endl;
     std::cout << "  min    = " << stats.min() << std::endl;
     std::cout << "  max    = " << stats.max() << std::endl;
   }
