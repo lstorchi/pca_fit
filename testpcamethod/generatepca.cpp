@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sstream>
 #include <fstream>
 #include <string>
 
@@ -24,6 +25,21 @@ namespace
                             
     return number_of_lines;
   }
+
+  void writetofile (const char * fname, int cidx, 
+      const arma::mat & mat) 
+  {
+    if (cidx < (int) mat.n_cols) 
+    {
+      std::ofstream myfile(fname);
+      
+      for (int i=0; i<(int)mat.n_rows; i++)
+        myfile << i << " " << mat(i,cidx) << std::endl;
+      
+      myfile.close();
+    }
+  }
+
 }
 
 int main (int argc, char ** argv)
@@ -85,6 +101,32 @@ int main (int argc, char ** argv)
 
   mytfp.close();
 
+  for (int i = 0; i < PARAMDIM; ++i)
+  {
+    switch (i)
+    {
+      case 0:
+        std::cout << i+1 << " pt" << std::endl;
+        break;
+      case 1:
+        std::cout << i+1 << " phi" << std::endl;
+        break;
+      case 2:
+        std::cout << i+1 << " d0" << std::endl;
+        break;  
+      case 3:
+        std::cout << i+1 << " eta" << std::endl;
+        break;
+      case 4:
+        std::cout << i+1 << " z0" << std::endl;
+        break;
+    };
+
+    std::ostringstream fname;
+    fname << "p" << i+1 << ".txt";
+    writetofile(fname.str().c_str(), i, paraminp);
+  }
+
 #ifdef DEBUG
   for (int i = 0; i < num_of_ent; ++i)
   {
@@ -111,8 +153,8 @@ int main (int argc, char ** argv)
   for (int i = 0; i < num_of_ent; ++i)
   {
     bool todo = false;
-    if ((ladder(i, 0) == 0) && (ladder(i, 1) == 1) && 
-         (ladder(i, 2) == 2))
+    //if ((ladder(i, 0) == 0) && (ladder(i, 1) == 1) && 
+    //     (ladder(i, 2) == 2))
       todo = true;
    
     if (todo)
@@ -127,8 +169,8 @@ int main (int argc, char ** argv)
   for (int i = 0; i < num_of_ent; ++i)
   {
     bool todo = false;
-    if ((ladder(i, 0) == 0) && (ladder(i, 1) == 1) && 
-        (ladder(i, 2) == 2))
+    //if ((ladder(i, 0) == 0) && (ladder(i, 1) == 1) && 
+    //    (ladder(i, 2) == 2))
         todo = true;
     
     if (todo)
@@ -261,7 +303,6 @@ int main (int argc, char ** argv)
   arma::running_stat<double> pc[PARAMDIM];
   for (int l=0; l<num_of_ent; ++l)
   {
-
     std::cout << "Track: " << l+1 << std::endl;
 
     for (int i=0; i<PARAMDIM; ++i)
