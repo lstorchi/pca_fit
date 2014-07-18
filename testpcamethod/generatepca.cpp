@@ -209,10 +209,16 @@ int main (int argc, char ** argv)
     myfilesc << score(i,0)  << " " 
       << score(i,1) << " " << score(i,2) << std::endl;
 
+    double mainr = 0.0e0;
+    for (int j=1; j<5; ++j)
+      mainr += score(i,j) * score(i,j);
+
     double residue = 0.0;
     for (int j=5; j<3*COORDIM; ++j)
       residue += score(i,j) * score(i,j);
-    std::cout << "Track " << i+1 << " residue " << residue << std::endl;
+
+    std::cout << "Track " << i+1 << " residue " << residue << 
+      " mainr " << mainr << std::endl;
   }
 
   myfilesc.close();
@@ -345,15 +351,15 @@ int main (int argc, char ** argv)
 
   for (int i=0; i<PARAMDIM; ++i)
   {
-    std::cout << pc[i].mean() << " " << pc[i].stddev() << std::endl;
+    std::cout << 100.0*pc[i].mean() << " " << 100.0*pc[i].stddev() << std::endl;
 
     arma::running_stat<double> stats;
 
     for (int l=0; l<num_of_ent; ++l) 
       stats(param(l,i));
 
-    std::cout << "  mean   = " << 100.0e0*stats.mean() << std::endl;
-    std::cout << "  stdev  = " << 100.0e0*stats.stddev()  << std::endl;
+    std::cout << "  mean   = " << stats.mean() << std::endl;
+    std::cout << "  stdev  = " << stats.stddev()  << std::endl;
     std::cout << "  min    = " << stats.min() << std::endl;
     std::cout << "  max    = " << stats.max() << std::endl;
   }
