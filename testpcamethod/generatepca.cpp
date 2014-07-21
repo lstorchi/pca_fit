@@ -12,6 +12,7 @@
 #define ENTDIM 8
 #define COORDIM (ENTDIM-2)
 #define PARAMDIM 5
+#define THRSVAL 1000
 
 namespace 
 {
@@ -122,13 +123,23 @@ int main (int argc, char ** argv)
 
   mytfp.close();
 
-  std::cout << "We found " << subsectors.size() << " subsectors " << std::endl;
+  std::string slctsubsec = "";
+  int maxnumber = 0;
+  std::cout << "We  found " << subsectors.size() << " subsectors " << std::endl;
   std::map<std::string, int>::iterator it = subsectors.begin();
   for (; it != subsectors.end(); ++it)
   {
+    if (it->second > maxnumber)
+    {
+      maxnumber = it->second;
+      slctsubsec = it->first;
+    }
+
     std::cout << "Subsector " << it->first << " has " << 
       it->second << " tracks " << std::endl;
   } 
+
+  std::cout << "Selected subsecyor " << slctsubsec << " numevt: " << maxnumber << std::endl;
 
   for (int i = 0; i < PARAMDIM; ++i)
   {
@@ -177,17 +188,72 @@ int main (int argc, char ** argv)
   arma::mat param;
   arma::mat coord;
 
+  std::map<std::string, int> subladder;
+  // to be used to select inly a ladder .... 
+  for (int i = 0; i < num_of_ent; ++i)
+  {
+    std::ostringstream oss;
+    oss << std::setfill('0');
+    for (int j = 0; j < COORDIM; ++j)
+    {
+      oss << std::setw(2) << layer(i, j);
+      oss << std::setw(2) << ladder(i, j);
+      if (j != COORDIM-1)
+        oss<<"-";
+    }
+
+    std::ostringstream osss;
+    osss << std::setfill('0');
+    if (oss.str() == slctsubsec)
+    {
+      for (int j = 0; j < COORDIM; ++j)
+      {
+        osss << std::setw(2) << layer(i, j);
+        osss << std::setw(2) << ladder(i, j);
+        osss << std::setw(2) << module(i, j);
+        if (j != COORDIM-1)
+          osss<<"-";
+      }
+
+      std::map<std::string, int>::iterator it = subladder.find(osss.str());
+      if (it == subladder.end())
+        subladder[osss.str()] = 1;
+      else 
+        subladder[osss.str()] += 1;
+    }
+  }
+
+  std::string slctsubladder = "";
+  int maxv = 0;
+  std::map<std::string, int>::iterator iter = subladder.begin();
+  for (; iter != subladder.end(); ++iter)
+  {
+     if (maxv < iter->second)
+     {
+       maxv = iter->second;
+       slctsubladder = iter->first;
+     }
+     std::cout << iter->first << " " << iter->second << std::endl;
+  }
+
+  std::cout << "Selcted subladder " << slctsubladder << " num track: " << maxv << std::endl;
+
   int k = 0;
   // to be used to select inly a ladder .... 
   for (int i = 0; i < num_of_ent; ++i)
   {
-    bool todo = false;
-    //if ((ladder(i, 0) == 0) && (ladder(i, 1) == 1) && 
-    //     (ladder(i, 2) == 2))
-    if (paraminp(i,0) > 0.0)
-      todo = true;
-   
-    if (todo)
+    std::ostringstream oss;
+    oss << std::setfill('0');
+    for (int j = 0; j < COORDIM; ++j)
+    {
+      oss << std::setw(2) << layer(i, j);
+      oss << std::setw(2) << ladder(i, j);
+      oss << std::setw(2) << module(i, j);
+      if (j != COORDIM-1)
+        oss<<"-";
+    }
+
+    if (oss.str() == slctsubladder)
       k++;
   } 
 
@@ -198,13 +264,18 @@ int main (int argc, char ** argv)
   // to be used to select inly a ladder .... 
   for (int i = 0; i < num_of_ent; ++i)
   {
-    bool todo = false;
-    //if ((ladder(i, 0) == 0) && (ladder(i, 1) == 1) && 
-    //    (ladder(i, 2) == 2))
-    if (paraminp(i,0) > 0.0)
-      todo = true;
-    
-    if (todo)
+    std::ostringstream oss;
+    oss << std::setfill('0');
+    for (int j = 0; j < COORDIM; ++j)
+    {
+      oss << std::setw(2) << layer(i, j);
+      oss << std::setw(2) << ladder(i, j);
+      oss << std::setw(2) << module(i, j);
+      if (j != COORDIM-1)
+        oss<<"-";
+    }
+
+    if (oss.str() == slctsubladder) 
     {
       for (int j = 0; j < 3*COORDIM; ++j)
         coord(k,j) = coordinp(i,j);
@@ -238,6 +309,7 @@ int main (int argc, char ** argv)
     myfilesc << score(i,0)  << " " 
       << score(i,1) << " " << score(i,2) << std::endl;
 
+#ifdef DEBUG
     double mainr = 0.0e0;
     for (int j=1; j<5; ++j)
       mainr += score(i,j) * score(i,j);
@@ -248,6 +320,7 @@ int main (int argc, char ** argv)
 
     std::cout << "Track " << i+1 << " residue " << residue << 
       " mainr " << mainr << std::endl;
+#endif
   }
 
   myfilesc.close();
