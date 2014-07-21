@@ -238,6 +238,7 @@ int main (int argc, char ** argv)
 
   std::cout << "Selcted subladder " << slctsubladder << " num track: " << maxv << std::endl;
 
+#if 1
   int k = 0;
   // to be used to select inly a ladder .... 
   for (int i = 0; i < num_of_ent; ++i)
@@ -288,6 +289,10 @@ int main (int argc, char ** argv)
   } 
 
   num_of_ent = k;
+#else 
+  param = paraminp;
+  coord = coordinp;
+#endif
 
   std::cout << "We got " << num_of_ent << " tracks " << std::endl;
   
