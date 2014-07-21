@@ -4,7 +4,7 @@
 #include <iomanip>
 #include <string>
 #include <string>
-#include <set>
+#include <map>
 
 // Loriano: let's try Armadillo quick code 
 #include <armadillo>
@@ -76,7 +76,7 @@ int main (int argc, char ** argv)
   std::getline (mytfp, line);
   //std::cout << line << std::endl;
   
-  std::set<std::string> subsectors;
+  std::map<std::string, int> subsectors;
 
   for (int i = 0; i < num_of_ent; ++i)
   {
@@ -105,8 +105,14 @@ int main (int argc, char ** argv)
       if (j != COORDIM-1)
         oss<<"-";
 
-      subsectors.insert(oss.str());
     }
+
+    std::map<std::string, int>::iterator it = subsectors.find(oss.str());
+    if (it == subsectors.end())
+      subsectors[oss.str()] = 1;
+    else 
+      subsectors[oss.str()] += 1;
+
     mytfp >> paraminp(i,0) >> 
              paraminp(i,1) >> 
              paraminp(i,2) >> 
@@ -116,7 +122,13 @@ int main (int argc, char ** argv)
 
   mytfp.close();
 
-  std::cout << "We found " << subsectors.size() << " subsector " << std::endl;
+  std::cout << "We found " << subsectors.size() << " subsectors " << std::endl;
+  std::map<std::string, int>::iterator it = subsectors.begin();
+  for (; it != subsectors.end(); ++it)
+  {
+    std::cout << "Subsector " << it->first << " has " << 
+      it->second << " tracks " << std::endl;
+  } 
 
   for (int i = 0; i < PARAMDIM; ++i)
   {
