@@ -1,7 +1,10 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
+#include <iomanip>
 #include <string>
+#include <string>
+#include <set>
 
 // Loriano: let's try Armadillo quick code 
 #include <armadillo>
@@ -73,6 +76,8 @@ int main (int argc, char ** argv)
   std::getline (mytfp, line);
   //std::cout << line << std::endl;
   
+  std::set<std::string> subsectors;
+
   for (int i = 0; i < num_of_ent; ++i)
   {
     int fake1, fake2;
@@ -80,6 +85,9 @@ int main (int argc, char ** argv)
 #ifdef DEBUG    
     std::cout << fake1 << " " << fake2 << std::endl;
 #endif
+    std::ostringstream oss;
+    oss << std::setfill('0');
+
     for (int j = 0; j < COORDIM; ++j)
     {
       int a, b, c;
@@ -88,9 +96,16 @@ int main (int argc, char ** argv)
                coordinp(i, j*3+2) >> 
                a >> b >> c; 
 
-               layer(i, j) = a;
-               ladder(i, j) = b;
-               module(i, j) = c;
+      layer(i, j) = a;
+      ladder(i, j) = b;
+      module(i, j) = c;
+      
+      oss << std::setw(2) << layer(i, j);
+      oss << std::setw(2) << ladder(i, j);
+      if (j != COORDIM-1)
+        oss<<"-";
+
+      subsectors.insert(oss.str());
     }
     mytfp >> paraminp(i,0) >> 
              paraminp(i,1) >> 
@@ -100,6 +115,8 @@ int main (int argc, char ** argv)
   }
 
   mytfp.close();
+
+  std::cout << "We found " << subsectors.size() << " subsector " << std::endl;
 
   for (int i = 0; i < PARAMDIM; ++i)
   {
