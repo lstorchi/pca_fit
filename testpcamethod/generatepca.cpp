@@ -249,12 +249,14 @@ int main (int argc, char ** argv)
     {
       oss << std::setw(2) << layer(i, j);
       oss << std::setw(2) << ladder(i, j);
-      oss << std::setw(2) << module(i, j);
+      //oss << std::setw(2) << module(i, j);
       if (j != COORDIM-1)
         oss<<"-";
     }
 
-    if (oss.str() == slctsubladder)
+    if (oss.str() == slctsubsec)
+    //if (oss.str() == slctsubladder)
+    //if (paraminp(i, 0) > 0.0e0)
       k++;
   } 
 
@@ -271,12 +273,14 @@ int main (int argc, char ** argv)
     {
       oss << std::setw(2) << layer(i, j);
       oss << std::setw(2) << ladder(i, j);
-      oss << std::setw(2) << module(i, j);
+      //oss << std::setw(2) << module(i, j);
       if (j != COORDIM-1)
         oss<<"-";
     }
 
-    if (oss.str() == slctsubladder) 
+    if (oss.str() == slctsubsec)
+    //if (oss.str() == slctsubladder) 
+    //if (paraminp(i, 0) > 0.0e0)
     {
       for (int j = 0; j < 3*COORDIM; ++j)
         coord(k,j) = coordinp(i,j);
