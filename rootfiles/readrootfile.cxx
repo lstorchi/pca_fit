@@ -2,12 +2,24 @@
 #include <string>
 
 #include "TFile.h"
+#include "TNtuple.h"
 
 void readandtest (const std::string & fname)
 {
   TFile* inputFile = new TFile(fname.c_str(),"READ");
   
+  std::cout << "Print file info: " << std::endl;
   inputFile->Print();
+  std::cout << std::endl;
+
+  std::cout << "List file TTree: " << std::endl;
+  inputFile->ls();
+  std::cout << std::endl;
+
+  std::cout << "Print TkStubs info: " << std::endl;
+  TTree* t1 = (TTree*) inputFile->Get("TkStubs");
+  t1->Print();
+  std::cout << std::endl;
 
   inputFile->Close();
 }
