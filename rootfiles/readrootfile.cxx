@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <cassert>
 
 #include "TFile.h"
 #include "TTree.h"
@@ -40,16 +41,41 @@ void readandtest (const std::string & fname)
   TT->SetBranchAddress("STUB_zGEN", &p_m_stub_z0);
   */
 
-  std::vector<int> layerid;
-  //TT->SetBranchAddress("L1TkSTUB_layer", &layerid);
+  std::vector<int> layerid, * p_layerid, moduleid, * p_moduleid, 
+    ladderid, * p_ladderid;
+  p_layerid = &layerid;
+  p_ladderid = &ladderid;
+  p_moduleid = &moduleid;
+  TT->SetBranchAddress("L1TkSTUB_layer", &p_layerid);
+  TT->SetBranchAddress("L1TkSTUB_ladder", &p_ladderid);
+  TT->SetBranchAddress("L1TkSTUB_module", &p_moduleid);
 
+  unsigned int countevt = 0;
   Int_t nevent = t1->GetEntries(); 
   std::cout << "We got " << nevent << " events " << std::endl;
   for (Int_t i=0; i<nevent; ++i) 
   { 
      t1->GetEvent(i);
+     assert (layerid.size() == ladderid.size());
+     assert (layerid.size() == moduleid.size());
+
+     if (layerid.size() == 6)
+     {
+       std::cout << "Event: " << i+1 << std::endl;
+       
+       for (int j=0; j<(int)layerid.size(); ++j)
+       {
+         std::cout << layerid[j] << " " << ladderid[j] << " " << 
+           moduleid[j] << std::endl;
+       }
+
+       countevt++;
+     }
+
      //t1->Show(i);
   }
+
+  std::cout << "Event with 6 layer " << countevt << std::endl;
 
   inputFile->Close();
 }
