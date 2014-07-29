@@ -2,7 +2,10 @@
 #include <string>
 
 #include "TFile.h"
-#include "TNtuple.h"
+#include "TTree.h"
+#include "TChain.h"
+#include "TBranch.h" 
+#include "TBasket.h"
 
 void readandtest (const std::string & fname)
 {
@@ -18,8 +21,35 @@ void readandtest (const std::string & fname)
 
   std::cout << "Print TkStubs info: " << std::endl;
   TTree* t1 = (TTree*) inputFile->Get("TkStubs");
+  TChain* TT = (TChain*) inputFile->Get("TkStubs");
   t1->Print();
   std::cout << std::endl;
+
+  /*
+  TT->SetBranchAddress("STUB_n", &m_stub);
+  TT->SetBranchAddress("STUB_modid", &p_m_stub_modid);
+  TT->SetBranchAddress("STUB_ptGEN", &p_m_stub_ptGEN);
+  TT->SetBranchAddress("STUB_phiGEN", &p_m_stub_phiGEN);
+  TT->SetBranchAddress("STUB_etaGEN", &p_m_stub_etaGEN);
+  TT->SetBranchAddress("STUB_x", &p_m_stub_x);
+  TT->SetBranchAddress("STUB_y", &p_m_stub_y);
+  TT->SetBranchAddress("STUB_z", &p_m_stub_z);
+  TT->SetBranchAddress("STUB_pdgGEN", &p_m_stub_pdg);
+  TT->SetBranchAddress("STUB_xGEN", &p_m_stub_x0);
+  TT->SetBranchAddress("STUB_yGEN", &p_m_stub_y0);
+  TT->SetBranchAddress("STUB_zGEN", &p_m_stub_z0);
+  */
+
+  std::vector<int> layerid;
+  //TT->SetBranchAddress("L1TkSTUB_layer", &layerid);
+
+  Int_t nevent = t1->GetEntries(); 
+  std::cout << "We got " << nevent << " events " << std::endl;
+  for (Int_t i=0; i<nevent; ++i) 
+  { 
+     t1->GetEvent(i);
+     //t1->Show(i);
+  }
 
   inputFile->Close();
 }
