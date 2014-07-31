@@ -14,6 +14,11 @@ PLATFORM = $(shell uname -s)
 # no
 DEBUG=no
 
+# CERN 
+# yes if in lxplus
+# no
+CERN = yes
+
 CC = gcc
 CXX = g++
 LIBNAME = gffit
