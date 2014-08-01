@@ -55,6 +55,12 @@ void readandtest (const std::string & fname)
   std::cout << "We got " << nevent << " events " << std::endl;
   for (Int_t i=0; i<nevent; ++i) 
   { 
+     //L1TkSTUB_tp tutti gli stub appartenti alla stessa traccia hanno stesso tp 
+     //  posso avere eventi con molte tracce devo solezionarle usando tp
+     //
+     //StubExtractor e' utile punto di partenza visto che contiene il codice 
+     //   che scrive il Tree L1Tk
+
      t1->GetEvent(i);
      assert (layerid.size() == ladderid.size());
      assert (layerid.size() == moduleid.size());
