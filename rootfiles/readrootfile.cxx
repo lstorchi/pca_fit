@@ -15,7 +15,8 @@
 void readandtest (const std::string & fname)
 {
   TFile* inputFile = new TFile(fname.c_str(),"READ");
-  
+
+#if 0  
   std::cout << "Print file info: " << std::endl;
   inputFile->Print();
   std::cout << std::endl;
@@ -25,10 +26,13 @@ void readandtest (const std::string & fname)
   std::cout << std::endl;
 
   std::cout << "Print TkStubs info: " << std::endl;
+#endif
   TTree* t1 = (TTree*) inputFile->Get("TkStubs");
   TChain* TT = (TChain*) inputFile->Get("TkStubs");
+#if 0  
   t1->Print();
   std::cout << std::endl;
+#endif
 
   std::vector<int> layerid, * p_layerid, moduleid, * p_moduleid, 
     ladderid, * p_ladderid, tp, * p_tp;
@@ -113,17 +117,27 @@ void readandtest (const std::string & fname)
 
      if (layerid.size() == 6)
      {
-       std::cout << "Event: " << i+1 << " size " << tp.size() << std::endl;
+       std::cout << i+1 << " " << tp.size() << std::endl;
        
-       for (int j=0; j<(int)layerid.size(); ++j)
+       int j = 0;
+       for (; j<(int)layerid.size(); ++j)
        {
          std::cout << stubx[j] << " " << stuby[j] << " " <<
            stubz[j] << " ";
+         
+#if 0 
          std::cout << sqrt(pow(px[j],2.0) + pow(py[j],2.0)) << " "  <<
            phi[j] << " " << sqrt(pow(x0[j],2.0) + pow(y0[j],2.0)) << " " 
            << eta[j] << " " << z0[j] << " ";
+#endif 
+
          std::cout << layerid[j] << " " << ladderid[j] << " " << 
-           moduleid[j] << " "  << tp[j] << std::endl;
+           moduleid[j] << " "
+#if 0           
+         << tp[j] << std::endl;
+#else
+         << std::endl;
+#endif
 
          ptfile << i << " " << sqrt(pow(px[j],2.0) + pow(py[j],2.0))  
            << std::endl;
@@ -132,7 +146,13 @@ void readandtest (const std::string & fname)
            << std::endl;
          etafile << i << " " << eta[j] << std::endl;
          z0file << i << " " << z0[j] << std::endl;
+
        }
+       --j;
+       std::cout << sqrt(pow(px[j],2.0) + pow(py[j],2.0)) << " "  <<
+         phi[j] << " " << sqrt(pow(x0[j],2.0) + pow(y0[j],2.0)) << " " 
+         << eta[j] << " " << z0[j] << std::endl;
+
 
        countevt++;
 
