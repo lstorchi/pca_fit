@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <cassert>
+#include <vector>
 
 #include "TFile.h"
 #include "TTree.h"
@@ -42,13 +43,23 @@ void readandtest (const std::string & fname)
   */
 
   std::vector<int> layerid, * p_layerid, moduleid, * p_moduleid, 
-    ladderid, * p_ladderid;
+    ladderid, * p_ladderid, tp, * p_tp;
+  std::vector<float> stubx, * p_stubx, stuby, * p_stuby, stubz, * p_stubz;
   p_layerid = &layerid;
   p_ladderid = &ladderid;
   p_moduleid = &moduleid;
+  p_tp = &tp;
+  p_stubx = &stubx;
+  p_stuby = &stuby;
+  p_stubz = &stubz;
   TT->SetBranchAddress("L1TkSTUB_layer", &p_layerid);
   TT->SetBranchAddress("L1TkSTUB_ladder", &p_ladderid);
   TT->SetBranchAddress("L1TkSTUB_module", &p_moduleid);
+  TT->SetBranchAddress("L1TkSTUB_tp", &p_tp);
+
+  TT->SetBranchAddress("L1TkSTUB_x", &p_stubx);
+  TT->SetBranchAddress("L1TkSTUB_y", &p_stuby);
+  TT->SetBranchAddress("L1TkSTUB_z", &p_stubz);
 
   unsigned int countevt = 0;
   Int_t nevent = t1->GetEntries(); 
@@ -64,15 +75,21 @@ void readandtest (const std::string & fname)
      t1->GetEvent(i);
      assert (layerid.size() == ladderid.size());
      assert (layerid.size() == moduleid.size());
+     assert (layerid.size() == tp.size());
+     assert (layerid.size() == stubx.size());
+     assert (layerid.size() == stuby.size());
+     assert (layerid.size() == stubz.size());
 
      if (layerid.size() == 6)
      {
-       std::cout << "Event: " << i+1 << std::endl;
+       std::cout << "Event: " << i+1 << " size " << tp.size() << std::endl;
        
        for (int j=0; j<(int)layerid.size(); ++j)
        {
+         std::cout << stubx[j] << " " << stuby[j] << " " <<
+           stubz[j] ;
          std::cout << layerid[j] << " " << ladderid[j] << " " << 
-           moduleid[j] << std::endl;
+           moduleid[j] << " "  << tp[j] << std::endl;
        }
 
        countevt++;
