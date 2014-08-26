@@ -1,7 +1,10 @@
 #include <iostream>
-#include <string>
 #include <cassert>
+#include <sstream>
+#include <fstream>
 #include <vector>
+#include <string>
+#include <cmath>
 
 #include "TFile.h"
 #include "TTree.h"
@@ -69,6 +72,11 @@ void readandtest (const std::string & fname)
   unsigned int countevt = 0;
   Int_t nevent = t1->GetEntries(); 
   std::cout << "We got " << nevent << " events " << std::endl;
+  std::ofstream ptfile("pt.txt");
+  std::ofstream phifile("phi.txt");
+  std::ofstream d0file("d0.txt");
+  std::ofstream etafile("eta.txt");
+  std::ofstream z0file("z0.txt");
   for (Int_t i=0; i<nevent; ++i) 
   { 
      //L1TkSTUB_tp tutti gli stub appartenti alla stessa traccia hanno stesso tp 
@@ -110,16 +118,33 @@ void readandtest (const std::string & fname)
        for (int j=0; j<(int)layerid.size(); ++j)
        {
          std::cout << stubx[j] << " " << stuby[j] << " " <<
-           stubz[j];
+           stubz[j] << " ";
+         std::cout << sqrt(pow(px[j],2.0) + pow(py[j],2.0)) << " "  <<
+           phi[j] << " " << sqrt(pow(x0[j],2.0) + pow(y0[j],2.0)) << " " 
+           << eta[j] << " " << z0[j] << " ";
          std::cout << layerid[j] << " " << ladderid[j] << " " << 
            moduleid[j] << " "  << tp[j] << std::endl;
+
+         ptfile << i << " " << sqrt(pow(px[j],2.0) + pow(py[j],2.0))  
+           << std::endl;
+         phifile << i << " " << phi[j] << std::endl;
+         d0file << i << " " << sqrt(pow(x0[j],2.0) + pow(y0[j],2.0)) 
+           << std::endl;
+         etafile << i << " " << eta[j] << std::endl;
+         z0file << i << " " << z0[j] << std::endl;
        }
 
        countevt++;
+
      }
 
      //t1->Show(i);
   }
+  ptfile.close();
+  phifile.close();
+  d0file.close();
+  etafile.close();
+  z0file.close();
 
   std::cout << "Event with 6 layer " << countevt << std::endl;
 
