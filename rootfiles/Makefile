@@ -7,18 +7,25 @@
 #
 ###################################################
 
-CFLAGS = $(shell root-config --cflags)
+CFLAGS = $(shell root-config --cflags) -I./
 LIBS = $(shell root-config --libs)
 
-OBJ = readrootfile.o
+OBJ = readrootfile.o \
+      dicts.o
 
 all: readrootfile
 
 readrootfile.o: readrootfile.cxx
 	g++ -c $(CFLAGS) -o $@ $< 
 
+dicts.cpp: linkdef.h
+	rootcint -v4 -f $@ -c $(CFLAGS) -I./ $<
+
+dicts.o: dicts.cpp
+	g++ -c $(CFLAGS) -o $@ $<
+
 readrootfile: $(OBJ) 
 	g++ -o $@ $(OBJ) $(LIBS)
 
 clean:
-	rm -f *.o readrootfile
+	rm -f *.o readrootfile dicts.cpp dicts.h
