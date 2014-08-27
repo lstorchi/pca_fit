@@ -9,6 +9,8 @@
 
 include ../config.mk
 
+//CFLAGS += -DUSEALLVALUES 
+
 ifeq ($(CERN),yes)
   CFLAGS += -I/afs/cern.ch/user/l/lstorchi/armadillo-3.930.4/include
   LIBS = -L/afs/cern.ch/user/l/lstorchi/armadillo-3.930.4 
