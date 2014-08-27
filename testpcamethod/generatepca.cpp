@@ -54,6 +54,9 @@ int main (int argc, char ** argv)
     return 1;
   }
 
+  // Use a subladder or not 
+  bool selectsubladder = false;
+
   int num_of_line = numofline(argv[1]);
   std::cout << "file has " << num_of_line << " line " << std::endl;
   int num_of_ent = (num_of_line-1)/ENTDIM;
@@ -139,14 +142,14 @@ int main (int argc, char ** argv)
       it->second << " tracks " << std::endl;
   } 
 
-  std::cout << "Selected subsecyor " << slctsubsec << " numevt: " << maxnumber << std::endl;
+  std::cout << "Selected subsector " << slctsubsec << " numevt: " << maxnumber << std::endl;
 
   for (int i = 0; i < PARAMDIM; ++i)
   {
     switch (i)
     {
       case 0:
-        std::cout << i+1 << " q * pt" << std::endl;
+        std::cout << i+1 << " pt" << std::endl;
         break;
       case 1:
         std::cout << i+1 << " phi" << std::endl;
@@ -189,7 +192,6 @@ int main (int argc, char ** argv)
   arma::mat coord;
 
   std::map<std::string, int> subladder;
-  // to be used to select inly a ladder .... 
   for (int i = 0; i < num_of_ent; ++i)
   {
     std::ostringstream oss;
@@ -236,9 +238,9 @@ int main (int argc, char ** argv)
      std::cout << iter->first << " " << iter->second << std::endl;
   }
 
-  std::cout << "Selcted subladder " << slctsubladder << " num track: " << maxv << std::endl;
+  std::cout << "Selected subladder " << slctsubladder << " num track: " << maxv << std::endl;
 
-#if 1
+#ifndef USEALLVALUES
   int k = 0;
   // to be used to select inly a ladder .... 
   for (int i = 0; i < num_of_ent; ++i)
@@ -249,22 +251,30 @@ int main (int argc, char ** argv)
     {
       oss << std::setw(2) << layer(i, j);
       oss << std::setw(2) << ladder(i, j);
-      //oss << std::setw(2) << module(i, j);
+      if (selectsubladder)
+        oss << std::setw(2) << module(i, j);
       if (j != COORDIM-1)
         oss<<"-";
     }
 
-    if (oss.str() == slctsubsec)
-    //if (oss.str() == slctsubladder)
+    if (selectsubladder)
+    {
+      if (oss.str() == slctsubladder)
+        k++;
+    }
+    else
+    {
+      if (oss.str() == slctsubsec)
+        k++;
+    }
     //if (paraminp(i, 0) > 0.0e0)
-      k++;
   } 
 
   param.set_size(k,PARAMDIM);
   coord.set_size(k,3*COORDIM);
 
   k = 0;
-  // to be used to select inly a ladder .... 
+  // to be used to select only a ladder .... 
   for (int i = 0; i < num_of_ent; ++i)
   {
     std::ostringstream oss;
@@ -273,22 +283,37 @@ int main (int argc, char ** argv)
     {
       oss << std::setw(2) << layer(i, j);
       oss << std::setw(2) << ladder(i, j);
-      //oss << std::setw(2) << module(i, j);
+      if (selectsubladder)
+        oss << std::setw(2) << module(i, j);
       if (j != COORDIM-1)
         oss<<"-";
     }
 
-    if (oss.str() == slctsubsec)
-    //if (oss.str() == slctsubladder) 
-    //if (paraminp(i, 0) > 0.0e0)
+    if (selectsubladder)
     {
-      for (int j = 0; j < 3*COORDIM; ++j)
-        coord(k,j) = coordinp(i,j);
-
-      for (int j = 0; j < PARAMDIM; ++j)
-        param(k,j) = paraminp(i,j);
-
-      k++;
+      if (oss.str() == slctsubladder)
+      {
+        for (int j = 0; j < 3*COORDIM; ++j)
+          coord(k,j) = coordinp(i,j);
+  
+        for (int j = 0; j < PARAMDIM; ++j)
+          param(k,j) = paraminp(i,j);
+  
+        k++;
+      }
+    }
+    else
+    {
+      if (oss.str() == slctsubsec)
+      {
+        for (int j = 0; j < 3*COORDIM; ++j)
+          coord(k,j) = coordinp(i,j);
+      
+        for (int j = 0; j < PARAMDIM; ++j)
+          param(k,j) = paraminp(i,j);
+      
+        k++;
+      }
     }
   } 
 
