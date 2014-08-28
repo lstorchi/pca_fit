@@ -454,32 +454,53 @@ int main (int argc, char ** argv)
 #endif
 
   //test back
+  std::cout << "IMPORTANT I am using only track where the prediction has an error <= 10%" 
+     << std::endl;
   arma::running_stat<double> chi2stats;
   arma::running_stat<double> pc[PARAMDIM];
+  int howmany = 0;
   for (int l=0; l<num_of_ent; ++l)
   {
-    std::cout << "Track: " << l+1 << std::endl;
-
+    int counter = 0;
     for (int i=0; i<PARAMDIM; ++i)
     {
       double p = q(i);
       for (int k=0; k<(3*COORDIM); ++k)
         p += cmtx(i,k)*coord(l,k);
       
-      std::cout << "   computed "  << p << " real " << param(l,i) << std::endl;
-    
-      pc[i](fabs(p - param(l,i))/(fabs(p + param(l,i))/2.0));
+      if ((fabs(p - param(l,i))/(fabs(p + param(l,i))/2.0)) < 0.1)
+        counter++;
     }
 
-    /* chi**2 */
-    double chi2 = 0.0e0;
-    for (int i=0; i<(3*COORDIM); ++i)
-      for (int j=0; j<(3*COORDIM); ++j)
-        chi2 += (coord(l,i) - coordm(i)) * 
-                vi(i, j) * (coord(l,j) - coordm(j)); 
-    std::cout << "   chi2: " << chi2 << std::endl;
-    chi2stats(chi2);
+    if (counter == PARAMDIM)
+    {
+      howmany++;
+      std::cout << "Track: " << l+1 << std::endl;
+      for (int i=0; i<PARAMDIM; ++i)
+      {
+        double p = q(i);
+        for (int k=0; k<(3*COORDIM); ++k)
+          p += cmtx(i,k)*coord(l,k);
+        
+        std::cout << "   computed "  << p << " real " << param(l,i) << std::endl;
+      
+        pc[i](fabs(p - param(l,i))/(fabs(p + param(l,i))/2.0));
+      }
+      
+      /* chi**2 */
+      double chi2 = 0.0e0;
+      for (int i=0; i<(3*COORDIM); ++i)
+        for (int j=0; j<(3*COORDIM); ++j)
+          chi2 += (coord(l,i) - coordm(i)) * 
+                  vi(i, j) * (coord(l,j) - coordm(j)); 
+      std::cout << "   chi2: " << chi2 << std::endl;
+      chi2stats(chi2);
+    }
   }
+ 
+  std::cout << "IMPORTANT I am using only track where the prediction has an error <= 10%" 
+     << std::endl;
+  std::cout << "Using : " << howmany << std::endl;
   std::cout << "chi2 mean   = " << chi2stats.mean() << std::endl;
   std::cout << "chi2 stdev  = " << chi2stats.stddev()  << std::endl;
   std::cout << "chi2 min    = " << chi2stats.min() << std::endl;
