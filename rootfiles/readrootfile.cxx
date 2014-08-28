@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <iostream>
 #include <cassert>
 #include <sstream>
@@ -148,10 +149,12 @@ void readandtest (const std::string & fname)
 
      if (layerid.size() == 6)
      {
-       if ((z0[layerid.size()-1] <= 15.0) && (z0[layerid.size()-1] >= -15))
+       bool allAreEqual = std::find_if(z0.begin() + 1, z0.end(), 
+          std::bind1st(std::not_equal_to<int>(), z0.front())) == z0.end();
+       if ((z0[0] <= 15.0) && (z0[0] >= -15) && allAreEqual) 
        {
          std::cout << i+1 << " " << tp.size() << std::endl;
-       
+
          int j = 0;
          for (; j<(int)layerid.size(); ++j)
          {
