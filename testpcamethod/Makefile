@@ -10,6 +10,7 @@
 include ../config.mk
 
 //CFLAGS += -DUSEALLVALUES 
+//CFLAGS += -DDEBUG
 
 ifeq ($(CERN),yes)
   CFLAGS += -I/afs/cern.ch/user/l/lstorchi/armadillo-3.930.4/include

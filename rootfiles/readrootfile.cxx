@@ -57,7 +57,7 @@ void readandtest (const std::string & fname)
      int j = 0;
      for (; j<(int)genpx.size(); ++j)
      {
-       std::cout << genpx[j] << std::endl;
+       //std::cout << genpx[j] << std::endl;
      }
   }
 
@@ -151,33 +151,35 @@ void readandtest (const std::string & fname)
        std::cout << i+1 << " " << tp.size() << std::endl;
        
        int j = 0;
-       for (; j<(int)layerid.size(); ++j)
+       if ((z0[layerid.size()-1] <= 15.0) && (z0[layerid.size()-1] >= -15))
        {
-         std::cout << stubx[j] << " " << stuby[j] << " " <<
-           stubz[j] << " ";
-         
-#if 0 
-         std::cout << sqrt(pow(px[j],2.0) + pow(py[j],2.0)) << " "  <<
-           phi[j] << " " << sqrt(pow(x0[j],2.0) + pow(y0[j],2.0)) << " " 
-           << eta[j] << " " << z0[j] << " ";
-#endif 
-
-         std::cout << layerid[j] << " " << ladderid[j] << " " << 
-           moduleid[j] << " "
-#if 0           
-         << tp[j] << std::endl;
-#else
-         << std::endl;
-#endif
-
-         ptfile << sqrt(pow(px[j],2.0) + pow(py[j],2.0))  
+         for (; j<(int)layerid.size(); ++j)
+         {
+          std::cout << stubx[j] << " " << stuby[j] << " " <<
+             stubz[j] << " ";
+           
+#if 0     
+           std::cout << sqrt(pow(px[j],2.0) + pow(py[j],2.0)) << " "  <<
+             phi[j] << " " << sqrt(pow(x0[j],2.0) + pow(y0[j],2.0)) << " " 
+             << eta[j] << " " << z0[j] << " ";
+#endif   
+          
+           std::cout << layerid[j] << " " << ladderid[j] << " " << 
+             moduleid[j] << " "
+#if 0             
+           << tp[j] << std::endl;
+#else     
            << std::endl;
-         phifile << phi[j] << std::endl;
-         d0file << sqrt(pow(x0[j],2.0) + pow(y0[j],2.0)) 
-           << std::endl;
-         etafile << eta[j] << std::endl;
-         z0file << z0[j] << std::endl;
-
+#endif    
+          
+           ptfile << sqrt(pow(px[j],2.0) + pow(py[j],2.0))  
+             << std::endl;
+           phifile << phi[j] << std::endl;
+           d0file << sqrt(pow(x0[j],2.0) + pow(y0[j],2.0)) 
+             << std::endl;
+           etafile << eta[j] << std::endl;
+           z0file << z0[j] << std::endl;
+         }
        }
        --j;
 
