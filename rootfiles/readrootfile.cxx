@@ -16,7 +16,7 @@ void readandtest (const std::string & fname)
 {
   TFile* inputFile = new TFile(fname.c_str(),"READ");
 
-#if 0  
+#if 0 
   std::cout << "Print file info: " << std::endl;
   inputFile->Print();
   std::cout << std::endl;
@@ -25,10 +25,22 @@ void readandtest (const std::string & fname)
   inputFile->ls();
   std::cout << std::endl;
 
+  std::cout << "Print Pixels info: " << std::endl;
+  TTree* t0 = (TTree*) inputFile->Get("Pixels");
+  t0->Print(); 
+  std::cout << std::endl;
+
+  std::cout << "Print MC info: " << std::endl;
+  TTree* t01 = (TTree*) inputFile->Get("MC");
+  t01->Print(); 
+  std::cout << std::endl;
+
   std::cout << "Print TkStubs info: " << std::endl;
 #endif
+
   TTree* t1 = (TTree*) inputFile->Get("TkStubs");
   TChain* TT = (TChain*) inputFile->Get("TkStubs");
+
 #if 0  
   t1->Print();
   std::cout << std::endl;
@@ -139,13 +151,13 @@ void readandtest (const std::string & fname)
          << std::endl;
 #endif
 
-         ptfile << i << " " << sqrt(pow(px[j],2.0) + pow(py[j],2.0))  
+         ptfile << sqrt(pow(px[j],2.0) + pow(py[j],2.0))  
            << std::endl;
-         phifile << i << " " << phi[j] << std::endl;
-         d0file << i << " " << sqrt(pow(x0[j],2.0) + pow(y0[j],2.0)) 
+         phifile << phi[j] << std::endl;
+         d0file << sqrt(pow(x0[j],2.0) + pow(y0[j],2.0)) 
            << std::endl;
-         etafile << i << " " << eta[j] << std::endl;
-         z0file << i << " " << z0[j] << std::endl;
+         etafile << eta[j] << std::endl;
+         z0file << z0[j] << std::endl;
 
        }
        --j;
