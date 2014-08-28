@@ -41,6 +41,26 @@ void readandtest (const std::string & fname)
   TTree* t1 = (TTree*) inputFile->Get("TkStubs");
   TChain* TT = (TChain*) inputFile->Get("TkStubs");
 
+  TTree* tmc = (TTree*) inputFile->Get("MC");
+  tmc->Print();
+  TChain* TTmc = (TChain*) inputFile->Get("MC");
+
+  std::vector<float> genpx, * p_genpx;
+  p_genpx = &genpx;
+  TTmc->SetBranchAddress("gen_px", &p_genpx);
+  
+  Int_t neventmc = tmc->GetEntries();
+  for (Int_t i=0; i<neventmc; ++i) 
+  { 
+     tmc->GetEvent(i);
+
+     int j = 0;
+     for (; j<(int)genpx.size(); ++j)
+     {
+       std::cout << genpx[j] << std::endl;
+     }
+  }
+
 #if 0  
   t1->Print();
   std::cout << std::endl;
@@ -83,7 +103,6 @@ void readandtest (const std::string & fname)
   TT->SetBranchAddress("L1TkSTUB_Z0", &p_z0);
   TT->SetBranchAddress("L1TkSTUB_etaGEN", &p_eta);
   TT->SetBranchAddress("L1TkSTUB_PHI0", &p_phi);
-
 
   unsigned int countevt = 0;
   Int_t nevent = t1->GetEntries(); 
@@ -161,6 +180,7 @@ void readandtest (const std::string & fname)
 
        }
        --j;
+
        std::cout << sqrt(pow(px[j],2.0) + pow(py[j],2.0)) << " "  <<
          phi[j] << " " << sqrt(pow(x0[j],2.0) + pow(y0[j],2.0)) << " " 
          << eta[j] << " " << z0[j] << std::endl;
