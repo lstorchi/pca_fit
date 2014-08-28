@@ -42,7 +42,7 @@ void readandtest (const std::string & fname)
   TChain* TT = (TChain*) inputFile->Get("TkStubs");
 
   TTree* tmc = (TTree*) inputFile->Get("MC");
-  tmc->Print();
+  //tmc->Print();
   TChain* TTmc = (TChain*) inputFile->Get("MC");
 
   std::vector<float> genpx, * p_genpx;
@@ -148,11 +148,11 @@ void readandtest (const std::string & fname)
 
      if (layerid.size() == 6)
      {
-       std::cout << i+1 << " " << tp.size() << std::endl;
-       
-       int j = 0;
        if ((z0[layerid.size()-1] <= 15.0) && (z0[layerid.size()-1] >= -15))
        {
+         std::cout << i+1 << " " << tp.size() << std::endl;
+       
+         int j = 0;
          for (; j<(int)layerid.size(); ++j)
          {
           std::cout << stubx[j] << " " << stuby[j] << " " <<
@@ -180,16 +180,14 @@ void readandtest (const std::string & fname)
            etafile << eta[j] << std::endl;
            z0file << z0[j] << std::endl;
          }
+         --j;
+
+         std::cout << sqrt(pow(px[j],2.0) + pow(py[j],2.0)) << " "  <<
+           phi[j] << " " << sqrt(pow(x0[j],2.0) + pow(y0[j],2.0)) << " " 
+           << eta[j] << " " << z0[j] << std::endl;
+
+         countevt++;
        }
-       --j;
-
-       std::cout << sqrt(pow(px[j],2.0) + pow(py[j],2.0)) << " "  <<
-         phi[j] << " " << sqrt(pow(x0[j],2.0) + pow(y0[j],2.0)) << " " 
-         << eta[j] << " " << z0[j] << std::endl;
-
-
-       countevt++;
-
      }
 
      //t1->Show(i);
