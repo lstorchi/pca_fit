@@ -149,8 +149,21 @@ void readandtest (const std::string & fname)
 
      if (layerid.size() == 6)
      {
-       bool allAreEqual = std::find_if(z0.begin() + 1, z0.end(), 
-          std::bind1st(std::not_equal_to<int>(), z0.front())) == z0.end();
+       bool allAreEqual = ((std::find_if(z0.begin() + 1, z0.end(), 
+          std::bind1st(std::not_equal_to<int>(), z0.front())) == z0.end()) &&
+                          (std::find_if(x0.begin() + 1, x0.end(), 
+          std::bind1st(std::not_equal_to<int>(), x0.front())) == x0.end()) &&
+                          (std::find_if(y0.begin() + 1, y0.end(), 
+          std::bind1st(std::not_equal_to<int>(), y0.front())) == y0.end()) &&
+                          (std::find_if(px.begin() + 1, px.end(), 
+          std::bind1st(std::not_equal_to<int>(), px.front())) == px.end()) &&
+                          (std::find_if(py.begin() + 1, py.end(), 
+          std::bind1st(std::not_equal_to<int>(), py.front())) == py.end()) &&
+                          (std::find_if(eta.begin() + 1, eta.end(), 
+          std::bind1st(std::not_equal_to<int>(), eta.front())) == eta.end()) &&
+                          (std::find_if(phi.begin() + 1, phi.end(), 
+          std::bind1st(std::not_equal_to<int>(), phi.front())) == phi.end()));
+
        if ((z0[0] <= 15.0) && (z0[0] >= -15) && allAreEqual) 
        {
          std::cout << i+1 << " " << tp.size() << std::endl;
