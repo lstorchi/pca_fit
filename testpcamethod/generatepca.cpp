@@ -454,14 +454,15 @@ int main (int argc, char ** argv)
 #endif
 
   //test back
-  std::cout << "IMPORTANT I am using only track where the prediction has an error <= 10%" 
-     << std::endl;
+  //std::cout << "IMPORTANT I am using only track where the prediction has an error <= 10%" 
+  //   << std::endl;
   arma::running_stat<double> chi2stats;
   arma::running_stat<double> pc[PARAMDIM];
   int howmany = 0;
   for (int l=0; l<num_of_ent; ++l)
   {
-    int counter = 0;
+    int counter = PARAMDIM;
+    /*
     for (int i=0; i<PARAMDIM; ++i)
     {
       double p = q(i);
@@ -471,6 +472,7 @@ int main (int argc, char ** argv)
       if ((fabs(p - param(l,i))/(fabs(p + param(l,i))/2.0)) < 0.1)
         counter++;
     }
+    */
 
     if (counter == PARAMDIM)
     {
@@ -483,7 +485,33 @@ int main (int argc, char ** argv)
           p += cmtx(i,k)*coord(l,k);
         
         std::cout << "   computed "  << p << " real " << param(l,i) << std::endl;
-      
+
+        if (i == 0)
+        {
+          std::cout << " pttorootgen " << param(l,i) << std::endl;
+          std::cout << " pttorootcalc " << p << std::endl;
+        }
+        else if (i == 1)
+        {
+          std::cout << " phitorootgen " << param(l,i) << std::endl;
+          std::cout << " phitorootcalc " << p << std::endl;
+        }
+        else if (i == 2)
+        {
+          std::cout << " d0torootgen " << param(l,i) << std::endl;
+          std::cout << " d0torootcalc " << p << std::endl;
+        }
+        else if (i == 3)
+        {
+          std::cout << " etatorootgen " << param(l,i) << std::endl;
+          std::cout << " etatorootcalc " << p << std::endl;
+        }
+        else if (i == 4)
+        {
+          std::cout << " z0torootgen " << param(l,i) << std::endl;
+          std::cout << " z0torootcalc " << p << std::endl;
+        }
+
         pc[i](fabs(p - param(l,i))/(fabs(p + param(l,i))/2.0));
       }
       

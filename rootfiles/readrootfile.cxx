@@ -17,13 +17,18 @@ void readandtest (const std::string & fname)
 {
   TFile* inputFile = new TFile(fname.c_str(),"READ");
 
-#if 0 
+#if 1
   std::cout << "Print file info: " << std::endl;
   inputFile->Print();
   std::cout << std::endl;
 
   std::cout << "List file TTree: " << std::endl;
   inputFile->ls();
+  std::cout << std::endl;
+
+  std::cout << "Print BankStubs info: " << std::endl;
+  TTree* tbs = (TTree*) inputFile->Get("BankStubs");
+  tbs->Print(); 
   std::cout << std::endl;
 
   std::cout << "Print Pixels info: " << std::endl;
@@ -164,7 +169,7 @@ void readandtest (const std::string & fname)
                           (std::find_if(phi.begin() + 1, phi.end(), 
           std::bind1st(std::not_equal_to<int>(), phi.front())) == phi.end()));
 
-       if ((z0[0] <= 15.0) && (z0[0] >= -15) && allAreEqual) 
+       if ((z0[0] <= 15.0) && (z0[0] >= -15) && allAreEqual && (tp[0] == 0))
        {
          std::cout << i+1 << " " << tp.size() << std::endl;
 
