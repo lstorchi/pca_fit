@@ -242,7 +242,7 @@ int main (int argc, char ** argv)
 
 #ifndef USEALLVALUES
   int k = 0;
-  // to be used to select inly a ladder .... 
+  // to be used to select only a ladder .... 
   for (int i = 0; i < num_of_ent; ++i)
   {
     std::ostringstream oss;
@@ -265,9 +265,9 @@ int main (int argc, char ** argv)
     else
     {
       if (oss.str() == slctsubsec)
-        k++;
+        if (paraminp(i, 0) > 3.0e0)
+          k++;
     }
-    //if (paraminp(i, 0) > 0.0e0)
   } 
 
   param.set_size(k,PARAMDIM);
@@ -306,13 +306,16 @@ int main (int argc, char ** argv)
     {
       if (oss.str() == slctsubsec)
       {
-        for (int j = 0; j < 3*COORDIM; ++j)
-          coord(k,j) = coordinp(i,j);
+        if (paraminp(i, 0) > 3.0e0)
+        {
+          for (int j = 0; j < 3*COORDIM; ++j)
+            coord(k,j) = coordinp(i,j);
       
-        for (int j = 0; j < PARAMDIM; ++j)
-          param(k,j) = paraminp(i,j);
+          for (int j = 0; j < PARAMDIM; ++j)
+            param(k,j) = paraminp(i,j);
       
-        k++;
+          k++;
+        }
       }
     }
   } 
@@ -461,8 +464,11 @@ int main (int argc, char ** argv)
   int howmany = 0;
   for (int l=0; l<num_of_ent; ++l)
   {
+
+#if 1
     int counter = PARAMDIM;
-    /*
+#else
+    int counter = 0;
     for (int i=0; i<PARAMDIM; ++i)
     {
       double p = q(i);
@@ -472,7 +478,7 @@ int main (int argc, char ** argv)
       if ((fabs(p - param(l,i))/(fabs(p + param(l,i))/2.0)) < 0.1)
         counter++;
     }
-    */
+#endif
 
     if (counter == PARAMDIM)
     {

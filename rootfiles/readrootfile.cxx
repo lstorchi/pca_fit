@@ -17,7 +17,7 @@ void readandtest (const std::string & fname)
 {
   TFile* inputFile = new TFile(fname.c_str(),"READ");
 
-#if 1
+#if 0
   std::cout << "Print file info: " << std::endl;
   inputFile->Print();
   std::cout << std::endl;
