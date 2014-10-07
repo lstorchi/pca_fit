@@ -13,6 +13,111 @@
 #include "TBranch.h" 
 #include "TBasket.h"
 
+void print_bankstub (TFile * inputFile)
+{
+  TChain* TT = (TChain*) inputFile->Get("BankStubs");
+
+  std::vector<int> moduleid, * p_moduleid; 
+  p_moduleid = &moduleid;
+
+  TT->SetBranchAddress("STUB_modid", &p_moduleid); // QA come determino layerid e altro ? 
+                                                   //    devo caricare la geometria ?
+
+  std::vector<float> stubx, * p_stubx, stuby, * p_stuby, stubz, * p_stubz,
+    pt, * p_pt, x0, * p_x0, y0, * p_y0, z0, * p_z0, eta, * p_eta,
+    phi, * p_phi;
+  p_stubx = &stubx;
+  p_stuby = &stuby;
+  p_stubz = &stubz;
+  p_pt = &pt;
+  p_x0 = &x0;
+  p_y0 = &y0;
+  p_z0 = &z0;
+  p_eta = &eta;
+  p_phi = &phi;
+
+  TT->SetBranchAddress("STUB_x", &p_stubx);
+  TT->SetBranchAddress("STUB_y", &p_stuby);
+  TT->SetBranchAddress("STUB_z", &p_stubz);
+
+  TT->SetBranchAddress("STUB_ptGEN", &p_pt);
+  TT->SetBranchAddress("STUB_xGEN", &p_x0);
+  TT->SetBranchAddress("STUB_yGEN", &p_y0);
+  TT->SetBranchAddress("STUB_zGEN", &p_z0);
+  TT->SetBranchAddress("STUB_etaGEN", &p_eta);
+  TT->SetBranchAddress("STUB_phiGEN", &p_phi);
+
+  unsigned int countevt = 0;
+  Int_t nevent = TT->GetEntries(); 
+  std::cout << "We got " << nevent << " events in BankStubs" << std::endl; 
+  // QA perche' il numero di eventi qui e' molto maggiore ?
+
+  std::ofstream ptfile("pt_BankStubs.txt");
+  std::ofstream phifile("phi_BankStubs.txt");
+  std::ofstream d0file("d0_BankStubs.txt");
+  std::ofstream etafile("eta_BankStubs.txt");
+  std::ofstream z0file("z0_BankStubs.txt");
+  for (Int_t i=0; i<nevent; ++i) 
+  { 
+     TT->GetEntry(i);
+     
+     assert (moduleid.size() == stubx.size());
+     assert (moduleid.size() == stuby.size());
+     assert (moduleid.size() == stubz.size());
+     assert (moduleid.size() == pt.size());
+     assert (moduleid.size() == x0.size());
+     assert (moduleid.size() == y0.size());
+     assert (moduleid.size() == z0.size());
+     assert (moduleid.size() == eta.size());
+     assert (moduleid.size() == phi.size());
+
+     bool allAreEqual = ((std::find_if(z0.begin() + 1, z0.end(), 
+        std::bind1st(std::not_equal_to<int>(), z0.front())) == z0.end()) &&
+                        (std::find_if(x0.begin() + 1, x0.end(), 
+        std::bind1st(std::not_equal_to<int>(), x0.front())) == x0.end()) &&
+                        (std::find_if(y0.begin() + 1, y0.end(), 
+        std::bind1st(std::not_equal_to<int>(), y0.front())) == y0.end()) &&
+                        (std::find_if(pt.begin() + 1, pt.end(), 
+        std::bind1st(std::not_equal_to<int>(), pt.front())) == pt.end()) &&
+                        (std::find_if(eta.begin() + 1, eta.end(), 
+        std::bind1st(std::not_equal_to<int>(), eta.front())) == eta.end()) &&
+                        (std::find_if(phi.begin() + 1, phi.end(), 
+        std::bind1st(std::not_equal_to<int>(), phi.front())) == phi.end()));
+
+
+     if ((moduleid.size() == 6)  && allAreEqual) // QA nel caso dei BankStubs questo check e' utile ?
+     {
+       ptfile << pt[0] << std::endl;
+       phifile << phi[0] << std::endl;
+       d0file << sqrt(pow(x0[0],2.0) + pow(y0[0],2.0)) 
+         << std::endl;
+       etafile << eta[0] << std::endl;
+       z0file << z0[0] << std::endl;
+
+       std::cout << i+1 << " " << moduleid.size() << std::endl;
+
+       int j = 0;
+       for (; j<(int)moduleid.size(); ++j)
+       {
+        std::cout << stubx[j] << " " << stuby[j] << " " <<
+           stubz[j] << " ";
+        std::cout << moduleid[j] << " " << moduleid[j] << " " << 
+          moduleid[j] << " " << std::endl;
+       }
+       --j;
+
+       std::cout << pt[j]<< " "  <<
+         phi[j] << " " << sqrt(pow(x0[j],2.0) + pow(y0[j],2.0)) << " " 
+         << eta[j] << " " << z0[j] << std::endl;
+     }
+  }
+  ptfile.close();
+  phifile.close();
+  d0file.close();
+  etafile.close();
+  z0file.close();
+}
+
 void readandtest (const std::string & fname)
 {
   TFile* inputFile = new TFile(fname.c_str(),"READ");
@@ -42,9 +147,11 @@ void readandtest (const std::string & fname)
   std::cout << std::endl;
 
   std::cout << "Print TkStubs info: " << std::endl;
+  TTree* t1 = (TTree*) inputFile->Get("TkStubs");
+  t1->Print();
+  std::cout << std::endl;
 #endif
 
-  TTree* t1 = (TTree*) inputFile->Get("TkStubs");
   TChain* TT = (TChain*) inputFile->Get("TkStubs");
 
   TTree* tmc = (TTree*) inputFile->Get("MC");
@@ -67,10 +174,7 @@ void readandtest (const std::string & fname)
      }
   }
 
-#if 0  
-  t1->Print();
-  std::cout << std::endl;
-#endif
+  print_bankstub (inputFile);
 
   std::vector<int> layerid, * p_layerid, moduleid, * p_moduleid, 
     ladderid, * p_ladderid, tp, * p_tp;
@@ -111,13 +215,13 @@ void readandtest (const std::string & fname)
   TT->SetBranchAddress("L1TkSTUB_PHI0", &p_phi);
 
   unsigned int countevt = 0;
-  Int_t nevent = t1->GetEntries(); 
+  Int_t nevent = TT->GetEntries(); 
   std::cout << "We got " << nevent << " events " << std::endl;
-  std::ofstream ptfile("pt.txt");
-  std::ofstream phifile("phi.txt");
-  std::ofstream d0file("d0.txt");
-  std::ofstream etafile("eta.txt");
-  std::ofstream z0file("z0.txt");
+  std::ofstream ptfile("pt_L1TkSTUB.txt");
+  std::ofstream phifile("phi_L1TkSTUB.txt");
+  std::ofstream d0file("d0_L1TkSTUB.txt");
+  std::ofstream etafile("eta_L1TkSTUB.txt");
+  std::ofstream z0file("z0_L1TkSTUB.txt");
   for (Int_t i=0; i<nevent; ++i) 
   { 
      //L1TkSTUB_tp tutti gli stub appartenti alla stessa traccia hanno stesso tp 
@@ -126,7 +230,7 @@ void readandtest (const std::string & fname)
      //StubExtractor e' utile punto di partenza visto che contiene il codice 
      //   che scrive il Tree L1Tk
 
-     t1->GetEvent(i);
+     TT->GetEntry(i);
      assert (layerid.size() == ladderid.size());
      assert (layerid.size() == moduleid.size());
      assert (layerid.size() == tp.size());
@@ -169,7 +273,11 @@ void readandtest (const std::string & fname)
                           (std::find_if(phi.begin() + 1, phi.end(), 
           std::bind1st(std::not_equal_to<int>(), phi.front())) == phi.end()));
 
-       if ((z0[0] <= 15.0) && (z0[0] >= -15) && allAreEqual && (tp[0] == 0))
+       //if ((z0[0] <= 15.0) && (z0[0] >= -15) && allAreEqual && (tp[0] == 0))
+       if ((tp[0] == 0) && allAreEqual) // QA perche' devo fare un controllo anche su allAreEqual 
+                                        // non dovrebbe bazter il controllo su tp ? 
+                                        // tp non indica le traccie primarie ? 
+       //if (tp[0] == 0)
        {
          std::cout << i+1 << " " << tp.size() << std::endl;
 
@@ -193,15 +301,16 @@ void readandtest (const std::string & fname)
            << std::endl;
 #endif    
           
-           ptfile << sqrt(pow(px[j],2.0) + pow(py[j],2.0))  
-             << std::endl;
-           phifile << phi[j] << std::endl;
-           d0file << sqrt(pow(x0[j],2.0) + pow(y0[j],2.0)) 
-             << std::endl;
-           etafile << eta[j] << std::endl;
-           z0file << z0[j] << std::endl;
          }
          --j;
+
+         ptfile << sqrt(pow(px[j],2.0) + pow(py[j],2.0))  
+           << std::endl;
+         phifile << phi[j] << std::endl;
+         d0file << sqrt(pow(x0[j],2.0) + pow(y0[j],2.0)) 
+           << std::endl;
+         etafile << eta[j] << std::endl;
+         z0file << z0[j] << std::endl;
 
          std::cout << sqrt(pow(px[j],2.0) + pow(py[j],2.0)) << " "  <<
            phi[j] << " " << sqrt(pow(x0[j],2.0) + pow(y0[j],2.0)) << " " 

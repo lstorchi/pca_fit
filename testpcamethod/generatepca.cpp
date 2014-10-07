@@ -532,8 +532,10 @@ int main (int argc, char ** argv)
     }
   }
  
+#if 0  
   std::cout << "IMPORTANT I am using only track where the prediction has an error <= 10%" 
      << std::endl;
+#endif
   std::cout << "Using : " << howmany << std::endl;
   std::cout << "chi2 mean   = " << chi2stats.mean() << std::endl;
   std::cout << "chi2 stdev  = " << chi2stats.stddev()  << std::endl;
