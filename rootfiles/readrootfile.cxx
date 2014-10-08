@@ -175,6 +175,10 @@ void readandtest (const std::string & fname)
   }
 
   print_bankstub (inputFile);
+  // QA le distribuzioni dei vari parametri sono simili ma 
+  //    ancora in bankstub ci sono tantssime tracce in piu'.
+  //    ed il module id ha un valore numeri che non "capisco" immagino
+  //    sia una specie di identificativo univoco del modulo
 
   std::vector<int> layerid, * p_layerid, moduleid, * p_moduleid, 
     ladderid, * p_ladderid, tp, * p_tp;
