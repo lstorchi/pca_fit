@@ -27,9 +27,11 @@ all: generatepca fitpca
 
 generatepca: $(OBJG) 
 	g++ -o $@ $(OBJG) $(LIBS) -larmadillo -lm
+	mv -f $@ ../bin 
 
 fitpca: $(OBJF) 
 	g++ -o $@ $(OBJF) -lm
+	mv -f $@ ../bin
 
 clean:
-	rm -f *.o  generatepca fitpca
+	rm -f *.o  ../bin/generatepca ../bin/fitpca

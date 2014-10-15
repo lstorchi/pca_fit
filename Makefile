@@ -7,12 +7,10 @@
 #
 ###################################################
 
-all: libgffit 
-	$(MAKE) -C gigafitter
-
-libgffit:
+all: 
 	$(MAKE) -C src
+	$(MAKE) -C rootfilereader
 
 clean:
 	$(MAKE) clean -C src
-	$(MAKE) clean -C gigafitter
+	$(MAKE) clean -C rootfilereader
