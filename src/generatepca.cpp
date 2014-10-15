@@ -9,6 +9,10 @@
 // Loriano: let's try Armadillo quick code 
 #include <armadillo>
 
+#include <getopt.h>
+#include <unistd.h>
+#include <alloca.h>
+
 #define ENTDIM 8
 #define COORDIM (ENTDIM-2)
 #define PARAMDIM 5
@@ -46,18 +50,58 @@ namespace
 
 }
 
+void usage (char * name)
+{
+  std::cerr << "usage: " << name << " [options] coordinatesfile " << std::endl;
+  std::cerr << std::endl;
+  std::cerr << " -h, --help               : display this help and exit" << std::endl;
+  std::cerr << " -v, --verbose            : verbose option on" << std::endl;
+
+  exit(1);
+}
+
 int main (int argc, char ** argv)
 {
-  if (argc != 2)
+  bool verbose = false;
+
+  while (1)
   {
-    std::cerr << "usage: " << argv[0] << " coordinatesfile " << std::endl;
-    return 1;
+    int c, option_index;
+    static struct option long_options[] = {
+      {"help", 0, NULL, 'h'},
+      {"verbose", 0, NULL, 'V'},
+      {0, 0, 0, 0}
+    };
+
+    c = getopt_long (argc, argv, "hV", long_options, &option_index);
+
+    if (c == -1)
+      break;
+
+    switch (c)
+    {
+      case 'h':
+        usage (argv[0]);
+        break;
+      case 'v':
+        verbose = true;
+        break;
+      default:
+        usage (argv[0]);
+        break;
+    } 
   }
 
+  if (optind >= argc) 
+    usage (argv[0]);
+
+  char * filename = (char *) alloca (strlen(argv[optind]) + 1);
+  strcpy (filename, argv[optind]);
+                  
   // Use a subladder or not 
   bool selectsubladder = false;
 
-  int num_of_line = numofline(argv[1]);
+  int num_of_line = numofline(filename);
   std::cout << "file has " << num_of_line << " line " << std::endl;
   int num_of_ent = (num_of_line-1)/ENTDIM;
   std::cout << "  " << num_of_ent << " entries " << std::endl;
@@ -71,11 +115,10 @@ int main (int argc, char ** argv)
   ladder.set_size(num_of_ent,COORDIM);
   module.set_size(num_of_ent,COORDIM);
 
-
   // leggere file coordinate tracce simulate plus parametri
   std::string line;
   std::ifstream mytfp;
-  mytfp.open (argv[1], std::ios::in);
+  mytfp.open (filename, std::ios::in);
 
   std::getline (mytfp, line);
   //std::cout << line << std::endl;
@@ -483,39 +526,42 @@ int main (int argc, char ** argv)
     if (counter == PARAMDIM)
     {
       howmany++;
-      std::cout << "Track: " << l+1 << std::endl;
+      if (verbose) std::cout << "Track: " << l+1 << std::endl;
       for (int i=0; i<PARAMDIM; ++i)
       {
         double p = q(i);
         for (int k=0; k<(3*COORDIM); ++k)
           p += cmtx(i,k)*coord(l,k);
-        
-        std::cout << "   computed "  << p << " real " << param(l,i) << std::endl;
-
-        if (i == 0)
-        {
-          std::cout << " pttorootgen " << param(l,i) << std::endl;
-          std::cout << " pttorootcalc " << p << std::endl;
-        }
-        else if (i == 1)
-        {
-          std::cout << " phitorootgen " << param(l,i) << std::endl;
-          std::cout << " phitorootcalc " << p << std::endl;
-        }
-        else if (i == 2)
-        {
-          std::cout << " d0torootgen " << param(l,i) << std::endl;
-          std::cout << " d0torootcalc " << p << std::endl;
-        }
-        else if (i == 3)
-        {
-          std::cout << " etatorootgen " << param(l,i) << std::endl;
-          std::cout << " etatorootcalc " << p << std::endl;
-        }
-        else if (i == 4)
-        {
-          std::cout << " z0torootgen " << param(l,i) << std::endl;
-          std::cout << " z0torootcalc " << p << std::endl;
+       
+          if (verbose)  
+          {
+            std::cout << "   computed "  << p << " real " << param(l,i) << std::endl;
+          
+          if (i == 0)
+          {
+            std::cout << " pttorootgen " << param(l,i) << std::endl;
+            std::cout << " pttorootcalc " << p << std::endl;
+          }
+          else if (i == 1)
+          {
+            std::cout << " phitorootgen " << param(l,i) << std::endl;
+            std::cout << " phitorootcalc " << p << std::endl;
+          }
+          else if (i == 2)
+          {
+            std::cout << " d0torootgen " << param(l,i) << std::endl;
+            std::cout << " d0torootcalc " << p << std::endl;
+          }
+          else if (i == 3)
+          {
+            std::cout << " etatorootgen " << param(l,i) << std::endl;
+            std::cout << " etatorootcalc " << p << std::endl;
+          }
+          else if (i == 4)
+          {
+            std::cout << " z0torootgen " << param(l,i) << std::endl;
+            std::cout << " z0torootcalc " << p << std::endl;
+          }
         }
 
         pc[i](fabs(p - param(l,i))/(fabs(p + param(l,i))/2.0));
@@ -527,7 +573,8 @@ int main (int argc, char ** argv)
         for (int j=0; j<(3*COORDIM); ++j)
           chi2 += (coord(l,i) - coordm(i)) * 
                   vi(i, j) * (coord(l,j) - coordm(j)); 
-      std::cout << "   chi2: " << chi2 << std::endl;
+      if (verbose) 
+        std::cout << "   chi2: " << chi2 << std::endl;
       chi2stats(chi2);
     }
   }
