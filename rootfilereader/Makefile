@@ -26,6 +26,7 @@ dicts.o: dicts.cpp
 
 readrootfile: $(OBJ) 
 	g++ -o $@ $(OBJ) $(LIBS)
+	mv -f $@ ../bin
 
 clean:
-	rm -f *.o readrootfile dicts.cpp dicts.h
+	rm -f *.o ../bin/readrootfile dicts.cpp dicts.h
