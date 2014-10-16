@@ -34,20 +34,90 @@ namespace
     return number_of_lines;
   }
 
-  void writetofile (const char * fname, int cidx, 
-      const arma::mat & mat) 
+  void writetofile (const char * fname, 
+      const arma::rowvec & vec) 
   {
-    if (cidx < (int) mat.n_cols) 
-    {
-      std::ofstream myfile(fname);
+    std::ofstream myfile(fname);
       
-      for (int i=0; i<(int)mat.n_rows; i++)
-        myfile << i << " " << mat(i,cidx) << std::endl;
+    for (int i=0; i<(int)vec.n_cols; i++)
+      myfile << i << " " << vec(i) << std::endl;
       
-      myfile.close();
-    }
+    myfile.close();
   }
 
+  void readingfromfile (const char * filename, 
+      arma::rowvec & ptin, arma::rowvec & phiin, 
+      arma::rowvec & d0in, arma::rowvec & etain, 
+      arma::rowvec & z0in, arma::mat & coordinp, 
+      arma::mat & layer, arma::mat & ladder, 
+      arma::mat & module, 
+      std::map<std::string, int> & subsectors, 
+      std::map<std::string, int> & subladders,
+      int num_of_ent)
+  {
+
+    std::string line;
+    std::ifstream mytfp;
+    mytfp.open (filename, std::ios::in);
+  
+    std::getline (mytfp, line);
+    for (int i = 0; i < num_of_ent; ++i)
+    {
+      int fake1, fake2;
+      // valori aggiunti solo di controllo 
+      mytfp >> fake1 >> fake2 ;
+#ifdef DEBUG    
+      std::cout << fake1 << " " << fake2 << std::endl;
+#endif
+      std::ostringstream osss, ossl;
+      osss << std::setfill('0');
+      ossl << std::setfill('0');
+      
+      for (int j = 0; j < COORDIM; ++j)
+      {
+        int a, b, c;
+        mytfp >> coordinp(i, j*3) >> 
+                 coordinp(i, j*3+1) >> 
+                 coordinp(i, j*3+2) >> 
+                 a >> b >> c; 
+      
+        layer(i, j) = a;
+        ladder(i, j) = b;
+        module(i, j) = c;
+        
+        osss << std::setw(2) << layer(i, j);
+        osss << std::setw(2) << ladder(i, j);
+        if (j != COORDIM-1)
+          osss<<"-";
+
+        ossl << std::setw(2) << layer(i, j);
+        ossl << std::setw(2) << ladder(i, j);
+        ossl << std::setw(2) << module(i, j);
+        if (j != COORDIM-1)
+          ossl<<"-";
+      }
+      
+      std::map<std::string, int>::iterator its = subsectors.find(osss.str());
+      if (its == subsectors.end())
+        subsectors[osss.str()] = 1;
+      else 
+        subsectors[osss.str()] += 1;
+
+      std::map<std::string, int>::iterator itl = subladders.find(ossl.str());
+      if (itl == subladders.end())
+        subladders[ossl.str()] = 1;
+      else 
+        subladders[ossl.str()] += 1;
+      
+      mytfp >> ptin(i) >> 
+               phiin(i) >> 
+               d0in(i) >> 
+               etain(i) >> 
+               z0in(i);
+    }
+
+    mytfp.close();
+  }
 }
 
 void usage (char * name)
@@ -56,6 +126,10 @@ void usage (char * name)
   std::cerr << std::endl;
   std::cerr << " -h, --help               : display this help and exit" << std::endl;
   std::cerr << " -v, --verbose            : verbose option on" << std::endl;
+  std::cerr << " -s, --bigger-subsector   : use values of the bigger subsector" << std::endl;
+  std::cerr << "                            (connot be used with bigger-subladder)" << std::endl;
+  std::cerr << " -l, --bigger-subladder   : use values of the bigger subladder " << std::endl;
+  std::cerr << "                            (connot be used with bigger-subsector)" << std::endl;
 
   exit(1);
 }
@@ -63,6 +137,8 @@ void usage (char * name)
 int main (int argc, char ** argv)
 {
   bool verbose = false;
+  bool selectsubsecor = false;
+  bool selectsubladder = false;
 
   while (1)
   {
@@ -70,10 +146,12 @@ int main (int argc, char ** argv)
     static struct option long_options[] = {
       {"help", 0, NULL, 'h'},
       {"verbose", 0, NULL, 'V'},
+      {"bigger-subsector", 0, NULL, 's'},
+      {"bigger-subladder", 0, NULL, 'l'},
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "hV", long_options, &option_index);
+    c = getopt_long (argc, argv, "hVsl", long_options, &option_index);
 
     if (c == -1)
       break;
@@ -85,6 +163,16 @@ int main (int argc, char ** argv)
         break;
       case 'v':
         verbose = true;
+        break;
+      case's':
+        selectsubsecor = true;
+        if (selectsubladder)
+          usage (argv[0]);
+        break;
+      case 'l':
+        selectsubladder = true;
+        if (selectsubsecor)
+          usage (argv[0]);
         break;
       default:
         usage (argv[0]);
@@ -98,510 +186,65 @@ int main (int argc, char ** argv)
   char * filename = (char *) alloca (strlen(argv[optind]) + 1);
   strcpy (filename, argv[optind]);
                   
-  // Use a subladder or not 
-  bool selectsubladder = false;
-
   int num_of_line = numofline(filename);
   std::cout << "file has " << num_of_line << " line " << std::endl;
   int num_of_ent = (num_of_line-1)/ENTDIM;
-  std::cout << "  " << num_of_ent << " entries " << std::endl;
+  std::cout << "file has " << num_of_ent << " entries " << std::endl;
 
   // non perfomante ma easy to go
-  arma::mat paraminp = arma::zeros<arma::mat>(num_of_ent,PARAMDIM);
-  arma::mat coordinp = arma::zeros<arma::mat>(num_of_ent,3*COORDIM);
+  arma::rowvec ptin = arma::zeros<arma::rowvec>(num_of_ent);
+  arma::rowvec phiin = arma::zeros<arma::rowvec>(num_of_ent);
+  arma::rowvec d0in = arma::zeros<arma::rowvec>(num_of_ent);
+  arma::rowvec etain = arma::zeros<arma::rowvec>(num_of_ent);
+  arma::rowvec z0in = arma::zeros<arma::rowvec>(num_of_ent);
 
-  arma::mat layer, ladder, module;
+  arma::mat layer, ladder, module, coordinp;
   layer.set_size(num_of_ent,COORDIM);
   ladder.set_size(num_of_ent,COORDIM);
   module.set_size(num_of_ent,COORDIM);
+  coordinp.set_size(num_of_ent,3*COORDIM);
+
+  std::map<std::string, int> subsectors;
+  std::map<std::string, int> subladders;
 
   // leggere file coordinate tracce simulate plus parametri
-  std::string line;
-  std::ifstream mytfp;
-  mytfp.open (filename, std::ios::in);
+  std::cout << "Reading data from " << filename << " file " << std::endl;
+  readingfromfile (filename, ptin, phiin, d0in, etain, z0in, coordinp, 
+      layer, ladder, module, subsectors, subladders, num_of_ent);
+ 
+  // write date to file 
+  std::cout << "Writing parameters to files" << std::endl;
+  writetofile("pt.txt", ptin);
+  writetofile("phi.txt", phiin);
+  writetofile("d0.txt", d0in);
+  writetofile("eta.txt", etain);
+  writetofile("z0t.txt", z0in);
 
-  std::getline (mytfp, line);
-  //std::cout << line << std::endl;
-  
-  std::map<std::string, int> subsectors;
-
-  for (int i = 0; i < num_of_ent; ++i)
-  {
-    int fake1, fake2;
-    mytfp >> fake1 >> fake2 ;
-#ifdef DEBUG    
-    std::cout << fake1 << " " << fake2 << std::endl;
-#endif
-    std::ostringstream oss;
-    oss << std::setfill('0');
-
-    for (int j = 0; j < COORDIM; ++j)
-    {
-      int a, b, c;
-      mytfp >> coordinp(i, j*3) >> 
-               coordinp(i, j*3+1) >> 
-               coordinp(i, j*3+2) >> 
-               a >> b >> c; 
-
-      layer(i, j) = a;
-      ladder(i, j) = b;
-      module(i, j) = c;
-      
-      oss << std::setw(2) << layer(i, j);
-      oss << std::setw(2) << ladder(i, j);
-      if (j != COORDIM-1)
-        oss<<"-";
-
-    }
-
-    std::map<std::string, int>::iterator it = subsectors.find(oss.str());
-    if (it == subsectors.end())
-      subsectors[oss.str()] = 1;
-    else 
-      subsectors[oss.str()] += 1;
-
-    mytfp >> paraminp(i,0) >> 
-             paraminp(i,1) >> 
-             paraminp(i,2) >> 
-             paraminp(i,3) >> 
-             paraminp(i,4);
-  }
-
-  mytfp.close();
-
+  // selection subsector 
   std::string slctsubsec = "";
   int maxnumber = 0;
-  std::cout << "We  found " << subsectors.size() << " subsectors " << std::endl;
-  std::map<std::string, int>::iterator it = subsectors.begin();
-  for (; it != subsectors.end(); ++it)
+  
+  if (selectsubsecor)
   {
-    if (it->second > maxnumber)
+    std::cout << "Looking for bigger subsector" << std::endl; 
+    std::cout << "We  found " << subsectors.size() << 
+      " subsectors " << std::endl;
+    
+    std::map<std::string, int>::iterator it = subsectors.begin();
+    for (; it != subsectors.end(); ++it)
     {
-      maxnumber = it->second;
-      slctsubsec = it->first;
-    }
-
-    std::cout << "Subsector " << it->first << " has " << 
-      it->second << " tracks " << std::endl;
-  } 
-
-  std::cout << "Selected subsector " << slctsubsec << " numevt: " << maxnumber << std::endl;
-
-  for (int i = 0; i < PARAMDIM; ++i)
-  {
-    switch (i)
-    {
-      case 0:
-        std::cout << i+1 << " pt" << std::endl;
-        break;
-      case 1:
-        std::cout << i+1 << " phi" << std::endl;
-        break;
-      case 2:
-        std::cout << i+1 << " d0" << std::endl;
-        break;  
-      case 3:
-        std::cout << i+1 << " eta" << std::endl;
-        break;
-      case 4:
-        std::cout << i+1 << " z0" << std::endl;
-        break;
-    };
-
-    std::ostringstream fname;
-    fname << "p" << i+1 << ".txt";
-    writetofile(fname.str().c_str(), i, paraminp);
-  }
-
-#ifdef DEBUG
-  for (int i = 0; i < num_of_ent; ++i)
-  {
-    for (int j = 0; j < COORDIM; ++j)
-    {
-      std::cout << coordinp(i, j*3) << " " <<
-                   coordinp(i, j*3+1) << " " <<
-                   coordinp(i, j*3+2) << " " << 
-                   ladder(i, j) << std::endl;
-    }
-    std::cout << paraminp(i,0) << " " <<
-                 paraminp(i,1) << " " <<
-                 paraminp(i,2) << " " <<
-                 paraminp(i,3) << " " <<
-                 paraminp(i,4) << std::endl;
-  }
-#endif
-
-  arma::mat param;
-  arma::mat coord;
-
-  std::map<std::string, int> subladder;
-  for (int i = 0; i < num_of_ent; ++i)
-  {
-    std::ostringstream oss;
-    oss << std::setfill('0');
-    for (int j = 0; j < COORDIM; ++j)
-    {
-      oss << std::setw(2) << layer(i, j);
-      oss << std::setw(2) << ladder(i, j);
-      if (j != COORDIM-1)
-        oss<<"-";
-    }
-
-    std::ostringstream osss;
-    osss << std::setfill('0');
-    if (oss.str() == slctsubsec)
-    {
-      for (int j = 0; j < COORDIM; ++j)
+      if (it->second > maxnumber)
       {
-        osss << std::setw(2) << layer(i, j);
-        osss << std::setw(2) << ladder(i, j);
-        osss << std::setw(2) << module(i, j);
-        if (j != COORDIM-1)
-          osss<<"-";
+        maxnumber = it->second;
+        slctsubsec = it->first;
       }
-
-      std::map<std::string, int>::iterator it = subladder.find(osss.str());
-      if (it == subladder.end())
-        subladder[osss.str()] = 1;
-      else 
-        subladder[osss.str()] += 1;
-    }
-  }
-
-  std::string slctsubladder = "";
-  int maxv = 0;
-  std::map<std::string, int>::iterator iter = subladder.begin();
-  for (; iter != subladder.end(); ++iter)
-  {
-     if (maxv < iter->second)
-     {
-       maxv = iter->second;
-       slctsubladder = iter->first;
-     }
-     std::cout << iter->first << " " << iter->second << std::endl;
-  }
-
-  std::cout << "Selected subladder " << slctsubladder << " num track: " << maxv << std::endl;
-
-#ifndef USEALLVALUES
-  int k = 0;
-  // to be used to select only a ladder .... 
-  for (int i = 0; i < num_of_ent; ++i)
-  {
-    std::ostringstream oss;
-    oss << std::setfill('0');
-    for (int j = 0; j < COORDIM; ++j)
-    {
-      oss << std::setw(2) << layer(i, j);
-      oss << std::setw(2) << ladder(i, j);
-      if (selectsubladder)
-        oss << std::setw(2) << module(i, j);
-      if (j != COORDIM-1)
-        oss<<"-";
-    }
-
-    if (selectsubladder)
-    {
-      if (oss.str() == slctsubladder)
-        k++;
-    }
-    else
-    {
-      if (oss.str() == slctsubsec)
-        if (paraminp(i, 0) > 3.0e0)
-          k++;
-    }
-  } 
-
-  param.set_size(k,PARAMDIM);
-  coord.set_size(k,3*COORDIM);
-
-  k = 0;
-  // to be used to select only a ladder .... 
-  for (int i = 0; i < num_of_ent; ++i)
-  {
-    std::ostringstream oss;
-    oss << std::setfill('0');
-    for (int j = 0; j < COORDIM; ++j)
-    {
-      oss << std::setw(2) << layer(i, j);
-      oss << std::setw(2) << ladder(i, j);
-      if (selectsubladder)
-        oss << std::setw(2) << module(i, j);
-      if (j != COORDIM-1)
-        oss<<"-";
-    }
-
-    if (selectsubladder)
-    {
-      if (oss.str() == slctsubladder)
-      {
-        for (int j = 0; j < 3*COORDIM; ++j)
-          coord(k,j) = coordinp(i,j);
-  
-        for (int j = 0; j < PARAMDIM; ++j)
-          param(k,j) = paraminp(i,j);
-  
-        k++;
-      }
-    }
-    else
-    {
-      if (oss.str() == slctsubsec)
-      {
-        if (paraminp(i, 0) > 3.0e0)
-        {
-          for (int j = 0; j < 3*COORDIM; ++j)
-            coord(k,j) = coordinp(i,j);
-      
-          for (int j = 0; j < PARAMDIM; ++j)
-            param(k,j) = paraminp(i,j);
-      
-          k++;
-        }
-      }
-    }
-  } 
-
-  num_of_ent = k;
-#else 
-  param = paraminp;
-  coord = coordinp;
-#endif
-
-  std::cout << "We got " << num_of_ent << " tracks " << std::endl;
-  
-  // projection 
-  arma::mat score;
-  // ordered 
-  arma::vec eigval;
-  // by row or by column ?
-  arma::mat eigvec;
-
-  arma::princomp(eigvec, score, eigval, coord);
-
-  //std::cout << score.n_rows << " " << score.n_cols << std::endl;
-  
-  std::ofstream myfilesc("scoreplot.txt");
-
-  for (int i=0; i<(int)score.n_rows; ++i)
-  {
-    myfilesc << score(i,0)  << " " 
-      << score(i,1) << " " << score(i,2) << std::endl;
-
-#ifdef DEBUG
-    double mainr = 0.0e0;
-    for (int j=1; j<5; ++j)
-      mainr += score(i,j) * score(i,j);
-
-    double residue = 0.0;
-    for (int j=5; j<3*COORDIM; ++j)
-      residue += score(i,j) * score(i,j);
-
-    std::cout << "Track " << i+1 << " residue " << residue << 
-      " mainr " << mainr << std::endl;
-#endif
-  }
-
-  myfilesc.close();
-
-  double totval = 0.0e0;
-  for (int i=0; i<(3*COORDIM); ++i)
-    totval += eigval(i);
-
-  std::cout << "Eigenvalues: " << std::endl;
-  double totvar = 0.0e0; 
-  for (int i=0; i<(3*COORDIM); ++i)
-  {
-    if (i < PARAMDIM)
-      totvar += 100.0e0*(eigval(i)/totval);
-
-    std::cout << i+1 << " ==> " << 100.0e0*(eigval(i)/totval) 
-      << "% value: " << eigval(i) <<  std::endl;
-  }
-  std::cout << "PARAMDIM eigenvalues: " << totvar << std::endl;
-
-  arma::mat v = arma::zeros<arma::mat>(3*COORDIM,3*COORDIM);
-  v = arma::cov(coord);
-
-#ifdef DEBUG
-  /* correlation matrix ricorda su dati standardizzati coincide con la matrice 
-   *   di covarianza : 
-   *   z = x -<x> / sigma */
-  arma::mat corr = arma::zeros<arma::mat>(3*COORDIM,3*COORDIM);
-
-  for (int i=0; i<(3*COORDIM); ++i)
-    for (int j=0; j<(3*COORDIM); ++j)
-      corr(i,j) = v(i,j) / sqrt(v(i,i)*v(j,j));
-
-  std::cout << "Correlation matrix: " << std::endl;
-  std::cout << corr;
-#endif
-
-  arma::mat vi = arma::zeros<arma::mat>(3*COORDIM,3*COORDIM);
-  vi = v.i(); 
-
-#ifdef DEBUG
-  std::cout << "inverse by cov matrix: " << std::endl;
-  std::cout << v * vi ;
-#endif
-  
-  // and so on ...
-  arma::mat hcap = arma::zeros<arma::mat>(3*COORDIM,PARAMDIM);
-  arma::mat paramm = arma::zeros<arma::mat>(PARAMDIM);
-  arma::mat coordm = arma::zeros<arma::mat>(3*COORDIM);
-  double sum = 1.0e0;
-  
-  for (int l=0; l<num_of_ent; ++l) 
-  {
-    sum += 1.0e0;
-    for (int i=0; i<(3*COORDIM); ++i)
-      coordm(i) += (coord(l,i)-coordm(i))/sum;
-
-    for (int i=0; i<PARAMDIM; ++i)
-      paramm(i) += (param(l,i)-paramm(i))/sum;
-
-    for (int i=0; i<(3*COORDIM); ++i)
-    {
-      for (int j=0; j<PARAMDIM; ++j)
-      {
-        hcap(i,j) += ((coord(l,i) - coordm(i))*
-                      (param(l,j) - paramm(j))-
-                      (sum-1.0e0)*hcap(i,j)/sum)/(sum-1.0e0);
-      }
-    }
-  }
-
-  arma::mat cmtx = arma::zeros<arma::mat>(PARAMDIM,3*COORDIM);
-
-  for (int i=0; i<PARAMDIM; ++i)
-    for (int l=0; l<(3*COORDIM); ++l)
-      for (int m=0; m<(3*COORDIM); ++m)
-        cmtx(i,l) += vi(l,m) * hcap (m,i);
-
-#ifdef DEBUG
-  std::cout << "C matrix: " << std::endl;
-  std::cout << cmtx;
-#endif 
-
-  arma::mat q = arma::zeros<arma::mat>(PARAMDIM);
-
-  for (int i=0; i<PARAMDIM; ++i)
-  {
-    q(i) = paramm(i);
-    for (int l=0; l<(3*COORDIM); ++l)
-      q(i) -= cmtx(i,l)*coordm[l];
-  }
-
-#ifdef DEBUG
-  std::cout << "Q vector: " << std::endl;
-  for (int i=0; i<PARAMDIM; ++i)
-    std::cout << q(i) << std::endl;
-#endif
-
-  //test back
-  //std::cout << "IMPORTANT I am using only track where the prediction has an error <= 10%" 
-  //   << std::endl;
-  arma::running_stat<double> chi2stats;
-  arma::running_stat<double> pc[PARAMDIM];
-  int howmany = 0;
-  for (int l=0; l<num_of_ent; ++l)
-  {
-
-#if 1
-    int counter = PARAMDIM;
-#else
-    int counter = 0;
-    for (int i=0; i<PARAMDIM; ++i)
-    {
-      double p = q(i);
-      for (int k=0; k<(3*COORDIM); ++k)
-        p += cmtx(i,k)*coord(l,k);
-      
-      if ((fabs(p - param(l,i))/(fabs(p + param(l,i))/2.0)) < 0.1)
-        counter++;
-    }
-#endif
-
-    if (counter == PARAMDIM)
-    {
-      howmany++;
-      if (verbose) std::cout << "Track: " << l+1 << std::endl;
-      for (int i=0; i<PARAMDIM; ++i)
-      {
-        double p = q(i);
-        for (int k=0; k<(3*COORDIM); ++k)
-          p += cmtx(i,k)*coord(l,k);
-       
-          if (verbose)  
-          {
-            std::cout << "   computed "  << p << " real " << param(l,i) << std::endl;
-          
-          if (i == 0)
-          {
-            std::cout << " pttorootgen " << param(l,i) << std::endl;
-            std::cout << " pttorootcalc " << p << std::endl;
-          }
-          else if (i == 1)
-          {
-            std::cout << " phitorootgen " << param(l,i) << std::endl;
-            std::cout << " phitorootcalc " << p << std::endl;
-          }
-          else if (i == 2)
-          {
-            std::cout << " d0torootgen " << param(l,i) << std::endl;
-            std::cout << " d0torootcalc " << p << std::endl;
-          }
-          else if (i == 3)
-          {
-            std::cout << " etatorootgen " << param(l,i) << std::endl;
-            std::cout << " etatorootcalc " << p << std::endl;
-          }
-          else if (i == 4)
-          {
-            std::cout << " z0torootgen " << param(l,i) << std::endl;
-            std::cout << " z0torootcalc " << p << std::endl;
-          }
-        }
-
-        pc[i](fabs(p - param(l,i))/(fabs(p + param(l,i))/2.0));
-      }
-      
-      /* chi**2 */
-      double chi2 = 0.0e0;
-      for (int i=0; i<(3*COORDIM); ++i)
-        for (int j=0; j<(3*COORDIM); ++j)
-          chi2 += (coord(l,i) - coordm(i)) * 
-                  vi(i, j) * (coord(l,j) - coordm(j)); 
-      if (verbose) 
-        std::cout << "   chi2: " << chi2 << std::endl;
-      chi2stats(chi2);
-    }
-  }
- 
-#if 0  
-  std::cout << "IMPORTANT I am using only track where the prediction has an error <= 10%" 
-     << std::endl;
-#endif
-  std::cout << "Using : " << howmany << std::endl;
-  std::cout << "chi2 mean   = " << chi2stats.mean() << std::endl;
-  std::cout << "chi2 stdev  = " << chi2stats.stddev()  << std::endl;
-  std::cout << "chi2 min    = " << chi2stats.min() << std::endl;
-  std::cout << "chi2 max    = " << chi2stats.max() << std::endl;
-
-  for (int i=0; i<PARAMDIM; ++i)
-  {
-    std::cout << 100.0*pc[i].mean() << " " << 100.0*pc[i].stddev() << std::endl;
-
-    arma::running_stat<double> stats;
-
-    for (int l=0; l<num_of_ent; ++l) 
-      stats(param(l,i));
-
-    std::cout << "  mean   = " << stats.mean() << std::endl;
-    std::cout << "  stdev  = " << stats.stddev()  << std::endl;
-    std::cout << "  min    = " << stats.min() << std::endl;
-    std::cout << "  max    = " << stats.max() << std::endl;
+    
+      if (verbose)
+        std::cout << "Subsector " << it->first << " has " << 
+            it->second << " tracks " << std::endl;
+    } 
+    
+    std::cout << "Selected subsector " << slctsubsec << " numevt: " << maxnumber << std::endl;
   }
 
   return 0;
