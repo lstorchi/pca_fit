@@ -17,11 +17,15 @@ ifeq ($(CERN),yes)
   LIBS = -L/afs/cern.ch/user/l/lstorchi/armadillo-3.930.4 
 endif
 
+CFLAGS +=-I./
+
 LIBS += -larmadillo -lm
 
-OBJG = generatepca.o
+OBJG = generatepca.o \
+       utility.o
 
-OBJF = fitpca.o
+OBJF = fitpca.o \
+       utility.o
 
 all: generatepca fitpca
 
@@ -30,7 +34,7 @@ generatepca: $(OBJG)
 	mv -f $@ ../bin 
 
 fitpca: $(OBJF) 
-	g++ -o $@ $(OBJF) -lm
+	g++ -o $@ $(OBJF) $(LIBS) -larmadillo -lm
 	mv -f $@ ../bin
 
 clean:
