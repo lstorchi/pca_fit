@@ -180,6 +180,7 @@ void pcafitter::select_bigger_sub (
     const std::map<std::string, int> & sublist, 
     bool verbose, int & maxnumber, std::string & slctsubsec ) 
 {
+  maxnumber = -1;
   std::map<std::string, int>::const_iterator it = sublist.begin();
   for (; it != sublist.end(); ++it)
   {
