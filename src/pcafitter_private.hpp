@@ -6,12 +6,20 @@
 #define PARAMDIM 5
 #define THRSVAL 1000
 
+#define PTIDX 0
+#define PHIIDX 1
+#define D0IDX 2
+#define ETAIDX 3
+#define Z0IDX 4
+
 #include <armadillo>
 #include <vector>
 #include <map>
 
 namespace pcafitter
 {
+  std::string paramidxtostring (int i);
+
   int numofline (const char * fname);
   
   void writetofile (const char * fname, 
@@ -24,6 +32,13 @@ namespace pcafitter
   void readarmmat (const char *, arma::mat & cmtx);
 
   void readarmvct (const char *, arma::rowvec & q);
+
+  void computeparameters (const arma::mat & cmtx, 
+    const arma::rowvec & q, 
+    const arma::mat & coordslt, 
+    double * ptcmp, double * phicmp, 
+    double * etacmp, double * z0cmp, 
+    double * d0cmp);
   
   void readingfromfile (const char * filename, 
       arma::rowvec & ptin, arma::rowvec & phiin, 

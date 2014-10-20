@@ -152,9 +152,132 @@ int main (int argc, char ** argv)
     
     std::cout << "Selected subladder " << sublad << " numevt: " 
       << maxnumber << std::endl;
+  }
 
+  if (subsec != "")
+  {
+    std::cout << "Using subsector " << subsec << std::endl;
+
+    arma::rowvec ptslt, phislt, d0slt, etaslt, z0slt;
+    arma::mat coordslt;
+
+    pcafitter::extract_sub (subsectorslist, 
+        subsec, pt, phi, d0, eta, z0, coord, 
+        ptslt, phislt, d0slt, etaslt, z0slt, 
+        coordslt);
+
+    double * ptcmp, * phicmp, * etacmp, * z0cmp, * d0cmp;
+    ptcmp = new double [(int)coord.n_rows];
+    phicmp = new double [(int)coord.n_rows];
+    etacmp = new double [(int)coord.n_rows];
+    z0cmp = new double [(int)coord.n_rows];
+    d0cmp = new double [(int)coord.n_rows];
+    pcafitter::computeparameters (cmtx, q, coordslt, ptcmp,
+        phicmp, etacmp, z0cmp, d0cmp);
+
+    arma::running_stat<double> pc[PARAMDIM];
+    for (int i=0; i<(int)coordslt.n_rows; ++i)
+    {
+      pc[PTIDX](fabs(ptcmp[i] - ptslt(i))/
+          (fabs(ptcmp[i] + ptslt(i))/2.0));
+      pc[PHIIDX](fabs(phicmp[i] - phislt(i))/
+          (fabs(phicmp[i] + phislt(i))/2.0));
+      pc[ETAIDX](fabs(etacmp[i] - etaslt(i))/
+          (fabs(etacmp[i] + etaslt(i))/2.0));
+      pc[D0IDX](fabs(d0cmp[i] - d0slt(i))/
+          (fabs(d0cmp[i] + d0slt(i))/2.0));
+      pc[Z0IDX](fabs(z0cmp[i] - z0slt(i))/
+          (fabs(z0cmp[i] + z0slt(i))/2.0));
+
+ 
+      if (verbose)
+      {
+        std::cout << "For track : " << i+1 << std::endl;
+        std::cout << " pt  cmpt " << ptcmp[i] << std::endl;
+        std::cout << " pt  calc " << ptslt(i) << std::endl;
+        std::cout << " phi cmpt " << phicmp[i] << std::endl;
+        std::cout << " phi calc " << phislt(i) << std::endl;
+        std::cout << " eta cmpt " << etacmp[i] << std::endl;
+        std::cout << " eta calc " << etaslt(i) << std::endl;
+        std::cout << " d0  cmpt " << d0cmp[i] << std::endl;
+        std::cout << " d0  calc " << d0slt(i) << std::endl;
+        std::cout << " z0  cmpt " << z0cmp[i] << std::endl;
+        std::cout << " z0  calc " << z0slt(i) << std::endl;
+      }
+    }
+
+    for (int i=0; i<PARAMDIM; ++i)
+       std::cout << "For " << pcafitter::paramidxtostring(i) << " error " << 
+         100.0*pc[i].mean() << " " << 100.0*pc[i].stddev() << std::endl;
+
+    delete [] ptcmp;
+    delete [] phicmp;
+    delete [] etacmp;
+    delete [] z0cmp;
+    delete [] d0cmp;
   }
   
+  if (sublad != "")
+  {
+    std::cout << "Using subladder " << sublad << std::endl;
+
+    arma::rowvec ptslt, phislt, d0slt, etaslt, z0slt;
+    arma::mat coordslt;
+
+    pcafitter::extract_sub (subladderslist, 
+        sublad, pt, phi, d0, eta, z0, coord, 
+        ptslt, phislt, d0slt, etaslt, z0slt, 
+        coordslt);
+
+    double * ptcmp, * phicmp, * etacmp, * z0cmp, * d0cmp;
+    ptcmp = new double [(int)coord.n_rows];
+    phicmp = new double [(int)coord.n_rows];
+    etacmp = new double [(int)coord.n_rows];
+    z0cmp = new double [(int)coord.n_rows];
+    d0cmp = new double [(int)coord.n_rows];
+    pcafitter::computeparameters (cmtx, q, coordslt, ptcmp,
+        phicmp, etacmp, z0cmp, d0cmp);
+
+    arma::running_stat<double> pc[PARAMDIM];
+    for (int i=0; i<(int)coordslt.n_rows; ++i)
+    {
+      pc[PTIDX](fabs(ptcmp[i] - ptslt(i))/
+          (fabs(ptcmp[i] + ptslt(i))/2.0));
+      pc[PHIIDX](fabs(phicmp[i] - phislt(i))/
+          (fabs(phicmp[i] + phislt(i))/2.0));
+      pc[ETAIDX](fabs(etacmp[i] - etaslt(i))/
+          (fabs(etacmp[i] + etaslt(i))/2.0));
+      pc[D0IDX](fabs(d0cmp[i] - d0slt(i))/
+          (fabs(d0cmp[i] + d0slt(i))/2.0));
+      pc[Z0IDX](fabs(z0cmp[i] - z0slt(i))/
+          (fabs(z0cmp[i] + z0slt(i))/2.0));
+
+      if (verbose)
+      {
+        std::cout << "For track : " << i+1 << std::endl;
+        std::cout << " pt  cmpt " << ptcmp[i] << std::endl;
+        std::cout << " pt  calc " << ptslt(i) << std::endl;
+        std::cout << " phi cmpt " << phicmp[i] << std::endl;
+        std::cout << " phi calc " << phislt(i) << std::endl;
+        std::cout << " eta cmpt " << etacmp[i] << std::endl;
+        std::cout << " eta calc " << etaslt(i) << std::endl;
+        std::cout << " d0  cmpt " << d0cmp[i] << std::endl;
+        std::cout << " d0  calc " << d0slt(i) << std::endl;
+        std::cout << " z0  cmpt " << z0cmp[i] << std::endl;
+        std::cout << " z0  calc " << z0slt(i) << std::endl;
+      }
+    }
+
+    for (int i=0; i<PARAMDIM; ++i)
+       std::cout << "For " << pcafitter::paramidxtostring(i) << " error " << 
+         100.0*pc[i].mean() << " " << 100.0*pc[i].stddev() << std::endl;
+
+    delete [] ptcmp;
+    delete [] phicmp;
+    delete [] etacmp;
+    delete [] z0cmp;
+    delete [] d0cmp;
+  }
 
   return 0;
 }

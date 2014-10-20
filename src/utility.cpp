@@ -15,6 +15,68 @@
 
 #include <pcafitter_private.hpp>
 
+std::string pcafitter::paramidxtostring (int i)
+{
+  switch (i)
+  {
+    case PTIDX:
+      return "pt";
+      break;
+    case PHIIDX:
+      return "phi";
+      break;
+    case ETAIDX:
+      return "eta";
+      break;
+    case Z0IDX:
+      return "z0";
+      break;
+    case D0IDX:
+      return "d0";
+      break;
+    default:
+      return "";
+      break;
+  }
+}
+
+void pcafitter::computeparameters (const arma::mat & cmtx, 
+    const arma::rowvec & q, 
+    const arma::mat & coord, 
+    double * ptcmp, double * phicmp, 
+    double * etacmp, double * z0cmp, 
+    double * d0cmp)
+{
+  for (int i=0; i<(int)coord.n_rows; ++i)
+  {
+    // pt 
+    ptcmp[i] = q(PTIDX);
+    for (int k=0; k<(3*COORDIM); ++k)
+      ptcmp[i] += cmtx(PTIDX,k)*coord(i,k);
+
+    // phi
+    phicmp[i] = q(PHIIDX);
+    for (int k=0; k<(3*COORDIM); ++k)
+      phicmp[i] += cmtx(PHIIDX,k)*coord(i,k);
+
+    // eta
+    etacmp[i] = q(ETAIDX);
+    for (int k=0; k<(3*COORDIM); ++k)
+      etacmp[i] += cmtx(ETAIDX,k)*coord(i,k);
+
+    // z0
+    z0cmp[i] = q(Z0IDX);
+    for (int k=0; k<(3*COORDIM); ++k)
+      z0cmp[i] += cmtx(Z0IDX,k)*coord(i,k);
+
+    // d0
+    d0cmp[i] = q(D0IDX);
+    for (int k=0; k<(3*COORDIM); ++k)
+      d0cmp[i] += cmtx(D0IDX,k)*coord(i,k);
+  }
+}
+
+
 void pcafitter::readarmmat (const char * fname, arma::mat & cmtx)
 {
   int n, m;
@@ -292,33 +354,33 @@ void pcafitter::compute_pca_constants (
     for (int i=0; i<(3*COORDIM); ++i)
       coordm(i) += (coord(l,i)-coordm(i))/sum;
     
-    paramm(0) += (pt(l)-paramm(0))/sum;
-    paramm(1) += (phi(l)-paramm(0))/sum;
-    paramm(2) += (d0(l)-paramm(0))/sum;
-    paramm(3) += (eta(l)-paramm(0))/sum;
-    paramm(4) += (z0(l)-paramm(0))/sum;
+    paramm(PTIDX) += (pt(l)-paramm(0))/sum;
+    paramm(PHIIDX) += (phi(l)-paramm(PHIIDX))/sum;
+    paramm(D0IDX) += (d0(l)-paramm(D0IDX))/sum;
+    paramm(ETAIDX) += (eta(l)-paramm(ETAIDX))/sum;
+    paramm(Z0IDX) += (z0(l)-paramm(Z0IDX))/sum;
     
     for (int i=0; i<(3*COORDIM); ++i)
     {
-      hcap(i,0) += ((coord(l,i) - coordm(i))*
-                    (pt(l) - paramm(0))-
-                    (sum-1.0e0)*hcap(i,0)/sum)/(sum-1.0e0);
+      hcap(i,PTIDX) += ((coord(l,i) - coordm(i))*
+                    (pt(l) - paramm(PTIDX))-
+                    (sum-1.0e0)*hcap(i,PTIDX)/sum)/(sum-1.0e0);
 
-      hcap(i,1) += ((coord(l,i) - coordm(i))*
-                    (phi(l) - paramm(1))-
-                    (sum-1.0e0)*hcap(i,1)/sum)/(sum-1.0e0);
+      hcap(i,PHIIDX) += ((coord(l,i) - coordm(i))*
+                    (phi(l) - paramm(PHIIDX))-
+                    (sum-1.0e0)*hcap(i,PHIIDX)/sum)/(sum-1.0e0);
 
-      hcap(i,2) += ((coord(l,i) - coordm(i))*
-                    (d0(l) - paramm(2))-
-                    (sum-1.0e0)*hcap(i,2)/sum)/(sum-1.0e0);
+      hcap(i,D0IDX) += ((coord(l,i) - coordm(i))*
+                    (d0(l) - paramm(D0IDX))-
+                    (sum-1.0e0)*hcap(i,D0IDX)/sum)/(sum-1.0e0);
 
-      hcap(i,3) += ((coord(l,i) - coordm(i))*
-                    (eta(l) - paramm(3))-
-                    (sum-1.0e0)*hcap(i,3)/sum)/(sum-1.0e0);
+      hcap(i,ETAIDX) += ((coord(l,i) - coordm(i))*
+                    (eta(l) - paramm(ETAIDX))-
+                    (sum-1.0e0)*hcap(i,ETAIDX)/sum)/(sum-1.0e0);
 
-      hcap(i,4) += ((coord(l,i) - coordm(i))*
-                    (z0(l) - paramm(4))-
-                    (sum-1.0e0)*hcap(i,4)/sum)/(sum-1.0e0);
+      hcap(i,Z0IDX) += ((coord(l,i) - coordm(i))*
+                    (z0(l) - paramm(Z0IDX))-
+                    (sum-1.0e0)*hcap(i,Z0IDX)/sum)/(sum-1.0e0);
 
     }
   }
