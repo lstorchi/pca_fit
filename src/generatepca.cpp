@@ -32,7 +32,7 @@ void usage (char * name)
 int main (int argc, char ** argv)
 {
   bool verbose = false;
-  bool selectsubsecor = false;
+  bool selectsubsecor = true;
   bool selectsubladder = false;
 
   while (1)
