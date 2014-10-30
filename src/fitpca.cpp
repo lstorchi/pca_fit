@@ -189,7 +189,6 @@ int main (int argc, char ** argv)
       pc[Z0IDX](fabs(z0cmp[i] - z0slt(i))/
           (fabs(z0cmp[i] + z0slt(i))/2.0));
 
- 
       if (verbose)
       {
         std::cout << "For track : " << i+1 << std::endl;
