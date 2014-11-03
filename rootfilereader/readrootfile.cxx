@@ -49,7 +49,7 @@ void print_bankstub (TFile * inputFile)
 
   unsigned int countevt = 0;
   Int_t nevent = TT->GetEntries(); 
-  std::cout << "We got " << nevent << " events in BankStubs" << std::endl; 
+  std::cerr << "We got " << nevent << " events in BankStubs" << std::endl; 
   // QA perche' il numero di eventi qui e' molto maggiore ?
 
   std::ofstream ptfile("pt_BankStubs.txt");
@@ -87,12 +87,12 @@ void print_bankstub (TFile * inputFile)
 
      if ((moduleid.size() == 6)  && allAreEqual) // QA nel caso dei BankStubs questo check e' utile ?
      {
-       ptfile << pt[0] << std::endl;
-       phifile << phi[0] << std::endl;
-       d0file << sqrt(pow(x0[0],2.0) + pow(y0[0],2.0)) 
-         << std::endl;
-       etafile << eta[0] << std::endl;
-       z0file << z0[0] << std::endl;
+       //ptfile << pt[0] << std::endl;
+       //phifile << phi[0] << std::endl;
+       //d0file << sqrt(pow(x0[0],2.0) + pow(y0[0],2.0)) 
+       //  << std::endl;
+       //etafile << eta[0] << std::endl;
+       //z0file << z0[0] << std::endl;
 
        std::cerr << i+1 << " " << moduleid.size() << std::endl;
 
