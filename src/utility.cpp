@@ -153,7 +153,7 @@ void pcafitter::writetofile (const char * fname,
   std::ofstream myfile(fname);
     
   for (int i=0; i<(int)vec.n_cols; i++)
-    myfile << i << " " << vec(i) << std::endl;
+    myfile << vec(i) << std::endl;
     
   myfile.close();
 }
