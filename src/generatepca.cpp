@@ -234,17 +234,18 @@ int main (int argc, char ** argv)
   }
   else
   {
-
     std::cout << "Compute correlation mtx" << std::endl;
-    double sum = 1.0e0;
     arma::mat coordm = arma::zeros<arma::mat>(3*COORDIM);
     arma::mat hca = arma::zeros<arma::mat>(3*COORDIM,3*COORDIM);
-
     arma::vec eigvaltmp = arma::zeros<arma::vec>(3*COORDIM);
 
     eigvec = arma::zeros<arma::mat>(3*COORDIM,3*COORDIM);
     eigval = arma::zeros<arma::vec>(3*COORDIM);
 
+    hca = arma::cov(coord);
+
+#if 0
+    double sum = 1.0e0;
     for (int l=0; l<(int)coord.n_rows; ++l) 
     {
       sum += 1.0e0;
@@ -261,6 +262,7 @@ int main (int argc, char ** argv)
         }
       }
     }
+#endif
 
     std::cout << "Eigensystem" << std::endl;
     arma::eig_sym(eigvaltmp, eigvec, hca);
