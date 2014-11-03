@@ -13,9 +13,9 @@
 #include "TBranch.h" 
 #include "TBasket.h"
 
-#define STOPAFTERMAXEVT 2000000
+#define STOPAFTERMAXEVT 20000
 
-void print_bankstub (TFile * inputFile)
+void print_bankstub (TFile * inputFile, std::ostream& ss)
 {
   TChain* TT = (TChain*) inputFile->Get("BankStubs");
 
@@ -24,7 +24,6 @@ void print_bankstub (TFile * inputFile)
 
   TT->SetBranchAddress("STUB_modid", &p_moduleid); // QA come determino layerid e altro ? 
                                                    //    devo caricare la geometria ?
-
   std::vector<float> stubx, * p_stubx, stuby, * p_stuby, stubz, * p_stubz,
     pt, * p_pt, x0, * p_x0, y0, * p_y0, z0, * p_z0, eta, * p_eta,
     phi, * p_phi;
@@ -51,7 +50,7 @@ void print_bankstub (TFile * inputFile)
 
   unsigned int countevt = 0;
   Int_t nevent = TT->GetEntries(); 
-  std::cerr << "We got " << nevent << " events in BankStubs" << std::endl; 
+  ss << "We got " << nevent << " events in BankStubs" << std::endl; 
   // QA perche' il numero di eventi qui e' molto maggiore ?
 
   std::ofstream ptfile("pt_BankStubs.txt");
@@ -96,12 +95,12 @@ void print_bankstub (TFile * inputFile)
        etafile << eta[0] << std::endl;
        z0file << z0[0] << std::endl;
 
-       std::cerr << i+1 << " " << moduleid.size() << std::endl;
+       ss << i+1 << " " << moduleid.size() << std::endl;
 
        int j = 0;
        for (; j<(int)moduleid.size(); ++j)
        {
-        std::cerr << stubx[j] << " " << stuby[j] << " " <<
+        ss << stubx[j] << " " << stuby[j] << " " <<
            stubz[j] << " ";
 
         int value = moduleid[j];
@@ -112,12 +111,12 @@ void print_bankstub (TFile * inputFile)
         int module = value/100;
         value = value-module*100;
 
-        std::cerr << layer << " " << ladder << " " << 
+        ss << layer << " " << ladder << " " << 
           module << " " << std::endl;
        }
        --j;
 
-       std::cerr << pt[j]<< " "  <<
+       ss << pt[j]<< " "  <<
          phi[j] << " " << sqrt(pow(x0[j],2.0) + pow(y0[j],2.0)) << " " 
          << eta[j] << " " << z0[j] << std::endl;
 
@@ -134,7 +133,7 @@ void print_bankstub (TFile * inputFile)
   z0file.close();
 }
 
-void print_l1tkstub (TFile * inputFile)
+void print_l1tkstub (TFile * inputFile, std::ostream & ss)
 {
   TChain* TT = (TChain*) inputFile->Get("TkStubs");
   std::vector<int> layerid, * p_layerid, moduleid, * p_moduleid, 
@@ -177,7 +176,7 @@ void print_l1tkstub (TFile * inputFile)
 
   unsigned int countevt = 0;
   Int_t nevent = TT->GetEntries(); 
-  std::cout << "We got " << nevent << " events " << std::endl;
+  ss << "We got " << nevent << " events " << std::endl;
   std::ofstream ptfile("pt_L1TkSTUB.txt");
   std::ofstream phifile("phi_L1TkSTUB.txt");
   std::ofstream d0file("d0_L1TkSTUB.txt");
@@ -240,21 +239,21 @@ void print_l1tkstub (TFile * inputFile)
                                         // tp non indica le traccie primarie ? 
        //if (tp[0] == 0)
        {
-         std::cout << i+1 << " " << tp.size() << std::endl;
+         ss << i+1 << " " << tp.size() << std::endl;
 
          int j = 0;
          for (; j<(int)layerid.size(); ++j)
          {
-          std::cout << stubx[j] << " " << stuby[j] << " " <<
+          ss << stubx[j] << " " << stuby[j] << " " <<
              stubz[j] << " ";
            
 #if 0     
-           std::cout << sqrt(pow(px[j],2.0) + pow(py[j],2.0)) << " "  <<
+           ss << sqrt(pow(px[j],2.0) + pow(py[j],2.0)) << " "  <<
              phi[j] << " " << sqrt(pow(x0[j],2.0) + pow(y0[j],2.0)) << " " 
              << eta[j] << " " << z0[j] << " ";
 #endif   
           
-           std::cout << layerid[j] << " " << ladderid[j] << " " << 
+           ss << layerid[j] << " " << ladderid[j] << " " << 
              moduleid[j] << " "
 #if 0             
            << tp[j] << std::endl;
@@ -273,7 +272,7 @@ void print_l1tkstub (TFile * inputFile)
          etafile << eta[j] << std::endl;
          z0file << z0[j] << std::endl;
 
-         std::cout << sqrt(pow(px[j],2.0) + pow(py[j],2.0)) << " "  <<
+         ss << sqrt(pow(px[j],2.0) + pow(py[j],2.0)) << " "  <<
            phi[j] << " " << sqrt(pow(x0[j],2.0) + pow(y0[j],2.0)) << " " 
            << eta[j] << " " << z0[j] << std::endl;
 
@@ -293,7 +292,7 @@ void print_l1tkstub (TFile * inputFile)
   etafile.close();
   z0file.close();
 
-  std::cout << "Event with 6 layer " << countevt << std::endl;
+  ss << "Event with 6 layer " << countevt << std::endl;
 
 }
 
@@ -351,16 +350,21 @@ void readandtest (const std::string & fname)
        //std::cout << genpx[j] << std::endl;
      }
   }
-*/
+  */
 
-  print_bankstub (inputFile);
+  std::ofstream bankstbfile("bakstub.txt");
+  //print_bankstub (inputFile, std::cerr);
+  print_bankstub (inputFile, bankstbfile);
   // QA le distribuzioni dei vari parametri sono simili ma 
   //    ancora in bankstub ci sono tantssime tracce in piu'.
   //    ed il module id ha un valore numeri che non "capisco" immagino
   //    sia una specie di identificativo univoco del modulo
-  
-  print_l1tkstub (inputFile);
+  bankstbfile.close();
 
+  std::ofstream l1tkstubfile("l1tkstub.txt");
+  //print_l1tkstub (inputFile, std::cout);
+  print_l1tkstub (inputFile, l1tkstubfile);
+  l1tkstubfile.close();
 
   inputFile->Close();
 }
