@@ -121,7 +121,7 @@ int main (int argc, char ** argv)
   pcafitter::writetofile("phi.txt", phiin);
   pcafitter::writetofile("d0.txt", d0in);
   pcafitter::writetofile("eta.txt", etain);
-  pcafitter::writetofile("z0t.txt", z0in);
+  pcafitter::writetofile("z0.txt", z0in);
 
   // values selection
   std::string slctsubsec = "";
@@ -192,6 +192,14 @@ int main (int argc, char ** argv)
                     coord(i, j+1) << " " <<
                     coord(i, j+2) << std::endl;
   myfileslct.close();
+
+  // write date to file 
+  std::cout << "Writing extracted parameters to files" << std::endl;
+  pcafitter::writetofile("pt_selected.txt", pt);
+  pcafitter::writetofile("phi_selected.txt", phi);
+  pcafitter::writetofile("d0_selected.txt", d0);
+  pcafitter::writetofile("eta_selected.txt", eta);
+  pcafitter::writetofile("z0_selected.txt", z0);
 
   // ordered 
   arma::vec eigval;
