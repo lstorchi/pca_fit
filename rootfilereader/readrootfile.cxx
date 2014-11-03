@@ -424,7 +424,7 @@ int main(int argc, char ** argv)
       case 'l':
         tkstubs = true;
         break;
-      case's':
+      case'b':
         bkstubs = true;
         break;
       case 'm':
