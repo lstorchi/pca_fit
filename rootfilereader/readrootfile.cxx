@@ -13,6 +13,8 @@
 #include "TBranch.h" 
 #include "TBasket.h"
 
+#define STOPAFTERMAXEVT 2000000
+
 void print_bankstub (TFile * inputFile)
 {
   TChain* TT = (TChain*) inputFile->Get("BankStubs");
@@ -87,12 +89,12 @@ void print_bankstub (TFile * inputFile)
 
      if ((moduleid.size() == 6)  && allAreEqual) // QA nel caso dei BankStubs questo check e' utile ?
      {
-       //ptfile << pt[0] << std::endl;
-       //phifile << phi[0] << std::endl;
-       //d0file << sqrt(pow(x0[0],2.0) + pow(y0[0],2.0)) 
-       //  << std::endl;
-       //etafile << eta[0] << std::endl;
-       //z0file << z0[0] << std::endl;
+       ptfile << pt[0] << std::endl;
+       phifile << phi[0] << std::endl;
+       d0file << sqrt(pow(x0[0],2.0) + pow(y0[0],2.0)) 
+         << std::endl;
+       etafile << eta[0] << std::endl;
+       z0file << z0[0] << std::endl;
 
        std::cerr << i+1 << " " << moduleid.size() << std::endl;
 
@@ -101,15 +103,29 @@ void print_bankstub (TFile * inputFile)
        {
         std::cerr << stubx[j] << " " << stuby[j] << " " <<
            stubz[j] << " ";
-        std::cerr << moduleid[j] << " " << moduleid[j] << " " << 
-          moduleid[j] << " " << std::endl;
+
+        int value = moduleid[j];
+        int layer = value/1000000;
+        value = value-layer*1000000;
+        int ladder = value/10000;
+        value = value-ladder*10000;
+        int module = value/100;
+        value = value-module*100;
+
+        std::cerr << layer << " " << ladder << " " << 
+          module << " " << std::endl;
        }
        --j;
 
        std::cerr << pt[j]<< " "  <<
          phi[j] << " " << sqrt(pow(x0[j],2.0) + pow(y0[j],2.0)) << " " 
          << eta[j] << " " << z0[j] << std::endl;
+
+       countevt++;
      }
+
+     if (countevt >= STOPAFTERMAXEVT)
+       break;
   }
   ptfile.close();
   phifile.close();
@@ -321,10 +337,14 @@ void readandtest (const std::string & fname)
            << eta[j] << " " << z0[j] << std::endl;
 
          countevt++;
+
        }
      }
 
      //t1->Show(i);
+     
+     if (countevt >= STOPAFTERMAXEVT)
+       break;
   }
   ptfile.close();
   phifile.close();
