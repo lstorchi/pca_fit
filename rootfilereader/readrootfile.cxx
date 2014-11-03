@@ -94,19 +94,19 @@ void print_bankstub (TFile * inputFile)
        etafile << eta[0] << std::endl;
        z0file << z0[0] << std::endl;
 
-       std::cout << i+1 << " " << moduleid.size() << std::endl;
+       std::cerr << i+1 << " " << moduleid.size() << std::endl;
 
        int j = 0;
        for (; j<(int)moduleid.size(); ++j)
        {
-        std::cout << stubx[j] << " " << stuby[j] << " " <<
+        std::cerr << stubx[j] << " " << stuby[j] << " " <<
            stubz[j] << " ";
-        std::cout << moduleid[j] << " " << moduleid[j] << " " << 
+        std::cerr << moduleid[j] << " " << moduleid[j] << " " << 
           moduleid[j] << " " << std::endl;
        }
        --j;
 
-       std::cout << pt[j]<< " "  <<
+       std::cerr << pt[j]<< " "  <<
          phi[j] << " " << sqrt(pow(x0[j],2.0) + pow(y0[j],2.0)) << " " 
          << eta[j] << " " << z0[j] << std::endl;
      }
