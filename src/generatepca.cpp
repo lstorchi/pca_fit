@@ -187,7 +187,7 @@ int main (int argc, char ** argv)
   std::cout << "Printout selected coordinates " << std::endl;
   std::ofstream myfileslct("selectedcoords.txt");
   for (int i=0; i<(int)coord.n_rows; ++i)
-    for (int j=0; j<COORDIM; j=j+3)
+    for (int j=0; j<(3*COORDIM); j=j+3)
       myfileslct << coord(i, j) << " " << 
                     coord(i, j+1) << " " <<
                     coord(i, j+2) << std::endl;
