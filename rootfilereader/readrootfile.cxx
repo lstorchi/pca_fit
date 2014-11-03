@@ -7,15 +7,32 @@
 #include <string>
 #include <cmath>
 
+#include <getopt.h>
+#include <unistd.h>
+#include <alloca.h>
+
 #include "TFile.h"
 #include "TTree.h"
 #include "TChain.h"
 #include "TBranch.h" 
 #include "TBasket.h"
 
-#define STOPAFTERMAXEVT 20000
+#define STOPAFTERMAXEVT 2000000
 
-void print_bankstub (TFile * inputFile, std::ostream& ss)
+void usage (char * name)
+{
+  std::cerr << "usage: " << name << " [options] rootfile " << std::endl;
+  std::cerr << std::endl;
+  std::cerr << " -h, --help               : display this help and exit" << std::endl;
+  std::cerr << " -b, --bank-stubs         : extract bankstubs" << std::endl;
+  std::cerr << " -l, --l1tk-stubs         : extract l1tkstubs" << std::endl;
+  std::cerr << " -m, --max-tracks[=value] : max value of tracks to be extracted" << std::endl;
+
+  exit(1);
+}
+
+
+void print_bankstub (TFile * inputFile, std::ostream& ss, unsigned int maxtracks)
 {
   TChain* TT = (TChain*) inputFile->Get("BankStubs");
 
@@ -123,7 +140,7 @@ void print_bankstub (TFile * inputFile, std::ostream& ss)
        countevt++;
      }
 
-     if (countevt >= STOPAFTERMAXEVT)
+     if (countevt >= maxtracks)
        break;
   }
   ptfile.close();
@@ -133,7 +150,7 @@ void print_bankstub (TFile * inputFile, std::ostream& ss)
   z0file.close();
 }
 
-void print_l1tkstub (TFile * inputFile, std::ostream & ss)
+void print_l1tkstub (TFile * inputFile, std::ostream & ss, unsigned int maxtracks)
 {
   TChain* TT = (TChain*) inputFile->Get("TkStubs");
   std::vector<int> layerid, * p_layerid, moduleid, * p_moduleid, 
@@ -283,7 +300,7 @@ void print_l1tkstub (TFile * inputFile, std::ostream & ss)
 
      //t1->Show(i);
      
-     if (countevt >= STOPAFTERMAXEVT)
+     if (countevt >= maxtracks)
        break;
   }
   ptfile.close();
@@ -296,7 +313,8 @@ void print_l1tkstub (TFile * inputFile, std::ostream & ss)
 
 }
 
-void readandtest (const std::string & fname)
+void readandtest (const std::string & fname, bool tkstubs, 
+    bool bkstubs, int maxtracks)
 {
   TFile* inputFile = new TFile(fname.c_str(),"READ");
 
@@ -352,19 +370,25 @@ void readandtest (const std::string & fname)
   }
   */
 
-  std::ofstream bankstbfile("bakstub.txt");
-  //print_bankstub (inputFile, std::cerr);
-  print_bankstub (inputFile, bankstbfile);
-  // QA le distribuzioni dei vari parametri sono simili ma 
-  //    ancora in bankstub ci sono tantssime tracce in piu'.
-  //    ed il module id ha un valore numeri che non "capisco" immagino
-  //    sia una specie di identificativo univoco del modulo
-  bankstbfile.close();
+  if (bkstubs)
+  {
+    std::ofstream bankstbfile("bakstub.txt");
+    //print_bankstub (inputFile, std::cerr);
+    print_bankstub (inputFile, bankstbfile, (unsigned int)maxtracks);
+    // QA le distribuzioni dei vari parametri sono simili ma 
+    //    ancora in bankstub ci sono tantssime tracce in piu'.
+    //    ed il module id ha un valore numeri che non "capisco" immagino
+    //    sia una specie di identificativo univoco del modulo
+    bankstbfile.close();
+  }
 
-  std::ofstream l1tkstubfile("l1tkstub.txt");
-  //print_l1tkstub (inputFile, std::cout);
-  print_l1tkstub (inputFile, l1tkstubfile);
-  l1tkstubfile.close();
+  if (tkstubs)
+  {
+    std::ofstream l1tkstubfile("l1tkstub.txt");
+    //print_l1tkstub (inputFile, std::cout);
+    print_l1tkstub (inputFile, l1tkstubfile, (unsigned int)maxtracks);
+    l1tkstubfile.close();
+  }
 
   inputFile->Close();
 }
@@ -372,13 +396,50 @@ void readandtest (const std::string & fname)
 # ifndef __CINT__
 int main(int argc, char ** argv) 
 {
-  if (argc != 2) 
+  bool tkstubs = false;
+  bool bkstubs = false;
+  int maxtracks = STOPAFTERMAXEVT;
+
+  while (1)
   {
-    std::cerr << "usage: " << argv[0] << " rootfilename " << std::endl;
-    return 1;
+    int c, option_index;
+    static struct option long_options[] = {
+      {"help", 0, NULL, 'h'},
+      {"bank-stubs", 0, NULL, 'b'},
+      {"l1tk-stubs", 0, NULL, 'l'},
+      {"max-track", 0, NULL, 'm'}, 
+      {0, 0, 0, 0}
+    };
+
+    c = getopt_long (argc, argv, "hlbm:", long_options, &option_index);
+
+    if (c == -1)
+      break;
+
+    switch (c)
+    {
+      case 'h':
+        usage (argv[0]);
+        break;
+      case 'l':
+        tkstubs = true;
+        break;
+      case's':
+        bkstubs = true;
+        break;
+      case 'm':
+        maxtracks = atoi(optarg);
+        break;
+      default:
+        usage (argv[0]);
+        break;
+    } 
   }
-   
-  readandtest(argv[1]);
+
+  if (optind >= argc) 
+    usage (argv[0]);
+
+  readandtest(argv[optind], tkstubs, bkstubs, maxtracks);
 
   return 0;
 }
