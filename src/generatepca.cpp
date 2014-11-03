@@ -32,7 +32,7 @@ void usage (char * name)
 int main (int argc, char ** argv)
 {
   bool verbose = false;
-  bool selectsubsecor = true;
+  bool selectsubsector = true;
   bool selectsubladder = false;
 
   while (1)
@@ -60,14 +60,12 @@ int main (int argc, char ** argv)
         verbose = true;
         break;
       case's':
-        selectsubsecor = true;
-        if (selectsubladder)
-          usage (argv[0]);
+        selectsubsector = true;
+        selectsubladder = false;
         break;
       case 'l':
         selectsubladder = true;
-        if (selectsubsecor)
-          usage (argv[0]);
+        selectsubsector = false;
         break;
       default:
         usage (argv[0]);
@@ -76,6 +74,9 @@ int main (int argc, char ** argv)
   }
 
   if (optind >= argc) 
+    usage (argv[0]);
+
+  if (selectsubladder && selectsubsector)
     usage (argv[0]);
 
   char * filename = (char *) alloca (strlen(argv[optind]) + 1);
@@ -127,11 +128,11 @@ int main (int argc, char ** argv)
   arma::rowvec z0 = arma::zeros<arma::rowvec>(num_of_ent);
   arma::mat coord;
 
-  assert(selectsubsecor != selectsubladder);
+  assert(selectsubsector != selectsubladder);
 
-  if (selectsubladder || selectsubsecor)
+  if (selectsubladder || selectsubsector)
   {
-    if (selectsubsecor)
+    if (selectsubsector)
     {
       std::cout << "Looking for bigger subsector" << std::endl; 
       std::cout << "We  found " << subsectors.size() << 
