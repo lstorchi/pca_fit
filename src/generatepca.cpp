@@ -21,6 +21,7 @@ void usage (char * name)
   std::cerr << std::endl;
   std::cerr << " -h, --help               : display this help and exit" << std::endl;
   std::cerr << " -V, --verbose            : verbose option on" << std::endl;
+  std::cerr << " -f, --fast               : do not perfomr pca only diag matrix" << std::endl;
   std::cerr << " -s, --bigger-subsector   : use values of the bigger subsector" << std::endl;
   std::cerr << "                            (connot be used with bigger-subladder)" << std::endl;
   std::cerr << " -l, --bigger-subladder   : use values of the bigger subladder " << std::endl;
@@ -31,6 +32,7 @@ void usage (char * name)
 
 int main (int argc, char ** argv)
 {
+  bool fast = false;
   bool verbose = false;
   bool selectsubsector = true;
   bool selectsubladder = false;
@@ -43,10 +45,11 @@ int main (int argc, char ** argv)
       {"verbose", 0, NULL, 'V'},
       {"bigger-subsector", 0, NULL, 's'},
       {"bigger-subladder", 0, NULL, 'l'},
+      {"fast", 0, NULL, 'f'},
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "hVsl", long_options, &option_index);
+    c = getopt_long (argc, argv, "hVslf", long_options, &option_index);
 
     if (c == -1)
       break;
@@ -55,6 +58,9 @@ int main (int argc, char ** argv)
     {
       case 'h':
         usage (argv[0]);
+        break;
+      case 'f':
+        fast = true;
         break;
       case 'V':
         verbose = true;
@@ -178,41 +184,90 @@ int main (int argc, char ** argv)
     coord = coordin;
   }
 
-  std::cout << "Perform PCA " << std::endl;
-  // projection 
-  arma::mat score;
+  std::cout << "Printout selected coordinates " << std::endl;
+  std::ofstream myfileslct("selectedcoords.txt");
+  for (int i=0; i<(int)coord.n_rows; ++i)
+    for (int j=0; j<COORDIM; j=j+3)
+      myfileslct << coord(i, j) << " " << 
+                    coord(i, j+1) << " " <<
+                    coord(i, j+2) << std::endl;
+  myfileslct.close();
+
   // ordered 
   arma::vec eigval;
   // by row or by column ?
   arma::mat eigvec;
- 
-  arma::princomp(eigvec, score, eigval, coord);
-  std::cout << score.n_rows << " " << score.n_cols << std::endl;
+
+  if (!fast)
+  {
+    std::cout << "Perform PCA " << std::endl;
+    // projection 
+    arma::mat score;
   
-  std::cout << "Writing Scoreplot" << std::endl;
-  std::ofstream myfilesc("scoreplot.txt");
-
-  for (int i=0; i<(int)score.n_rows; ++i)
-  { 
-    myfilesc << score(i,0)  << " "
-             << score(i,1) << " " << score(i,2) << std::endl;
-
-    if (verbose)
-    {
-      double mainr = 0.0e0;
-      for (int j=1; j<5; ++j)
-        mainr += score(i,j) * score(i,j);
-      
-      double residue = 0.0;
-      for (int j=5; j<3*COORDIM; ++j)
-        residue += score(i,j) * score(i,j);
-      
-      std::cout << "Track " << i+1 << " residue " << residue <<
-                   " mainr " << mainr << std::endl;
+    arma::princomp(eigvec, score, eigval, coord);
+    std::cout << score.n_rows << " " << score.n_cols << std::endl;
+    
+    std::cout << "Writing Scoreplot" << std::endl;
+    std::ofstream myfilesc("scoreplot.txt");
+    
+    for (int i=0; i<(int)score.n_rows; ++i)
+    { 
+      myfilesc << score(i,0)  << " "
+               << score(i,1) << " " << score(i,2) << std::endl;
+    
+      if (verbose)
+      {
+        double mainr = 0.0e0;
+        for (int j=1; j<5; ++j)
+          mainr += score(i,j) * score(i,j);
+        
+        double residue = 0.0;
+        for (int j=5; j<3*COORDIM; ++j)
+          residue += score(i,j) * score(i,j);
+        
+        std::cout << "Track " << i+1 << " residue " << residue <<
+                     " mainr " << mainr << std::endl;
+      }
     }
+    
+    myfilesc.close();
   }
+  else
+  {
 
-  myfilesc.close();
+    std::cout << "Compute correlation mtx" << std::endl;
+    double sum = 1.0e0;
+    arma::mat coordm = arma::zeros<arma::mat>(3*COORDIM);
+    arma::mat hca = arma::zeros<arma::mat>(3*COORDIM,3*COORDIM);
+
+    arma::vec eigvaltmp = arma::zeros<arma::vec>(3*COORDIM);
+
+    eigvec = arma::zeros<arma::mat>(3*COORDIM,3*COORDIM);
+    eigval = arma::zeros<arma::vec>(3*COORDIM);
+
+    for (int l=0; l<(int)coord.n_rows; ++l) 
+    {
+      sum += 1.0e0;
+      for (int i=0; i<(3*COORDIM); ++i)
+        coordm(i) += (coord(l,i)-coordm(i))/sum;
+    
+      for (int i=0; i<(3*COORDIM); ++i)
+      {
+        for (int j=0; j<(3*COORDIM); ++j)
+        {
+          hca(i,j) += ((coord(l,i) - coordm(i))*
+                       (coord(l,j) - coordm(j))-
+                       (sum-1.0e0)*hca(i,j)/sum)/(sum-1.0e0);
+        }
+      }
+    }
+
+    std::cout << "Eigensystem" << std::endl;
+    arma::eig_sym(eigvaltmp, eigvec, hca);
+ 
+    for (int i=0; i<(3*COORDIM); ++i)
+      eigval(i) = eigvaltmp((3*COORDIM)-i-1);
+  }
 
   double totval = 0.0e0;
   for (int i=0; i<(3*COORDIM); ++i)
