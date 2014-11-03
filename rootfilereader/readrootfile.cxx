@@ -134,68 +134,9 @@ void print_bankstub (TFile * inputFile)
   z0file.close();
 }
 
-void readandtest (const std::string & fname)
+void print_l1tkstub (TFile * inputFile)
 {
-  TFile* inputFile = new TFile(fname.c_str(),"READ");
-
-#if 0
-  std::cout << "Print file info: " << std::endl;
-  inputFile->Print();
-  std::cout << std::endl;
-
-  std::cout << "List file TTree: " << std::endl;
-  inputFile->ls();
-  std::cout << std::endl;
-
-  std::cout << "Print BankStubs info: " << std::endl;
-  TTree* tbs = (TTree*) inputFile->Get("BankStubs");
-  tbs->Print(); 
-  std::cout << std::endl;
-
-  std::cout << "Print Pixels info: " << std::endl;
-  TTree* t0 = (TTree*) inputFile->Get("Pixels");
-  t0->Print(); 
-  std::cout << std::endl;
-
-  std::cout << "Print MC info: " << std::endl;
-  TTree* t01 = (TTree*) inputFile->Get("MC");
-  t01->Print(); 
-  std::cout << std::endl;
-
-  std::cout << "Print TkStubs info: " << std::endl;
-  TTree* t1 = (TTree*) inputFile->Get("TkStubs");
-  t1->Print();
-  std::cout << std::endl;
-#endif
-
   TChain* TT = (TChain*) inputFile->Get("TkStubs");
-
-  TTree* tmc = (TTree*) inputFile->Get("MC");
-  //tmc->Print();
-  TChain* TTmc = (TChain*) inputFile->Get("MC");
-
-  std::vector<float> genpx, * p_genpx;
-  p_genpx = &genpx;
-  TTmc->SetBranchAddress("gen_px", &p_genpx);
-  
-  Int_t neventmc = tmc->GetEntries();
-  for (Int_t i=0; i<neventmc; ++i) 
-  { 
-     tmc->GetEvent(i);
-
-     int j = 0;
-     for (; j<(int)genpx.size(); ++j)
-     {
-       //std::cout << genpx[j] << std::endl;
-     }
-  }
-
-  print_bankstub (inputFile);
-  // QA le distribuzioni dei vari parametri sono simili ma 
-  //    ancora in bankstub ci sono tantssime tracce in piu'.
-  //    ed il module id ha un valore numeri che non "capisco" immagino
-  //    sia una specie di identificativo univoco del modulo
-
   std::vector<int> layerid, * p_layerid, moduleid, * p_moduleid, 
     ladderid, * p_ladderid, tp, * p_tp;
   p_layerid = &layerid;
@@ -353,6 +294,73 @@ void readandtest (const std::string & fname)
   z0file.close();
 
   std::cout << "Event with 6 layer " << countevt << std::endl;
+
+}
+
+void readandtest (const std::string & fname)
+{
+  TFile* inputFile = new TFile(fname.c_str(),"READ");
+
+#if 0
+  std::cout << "Print file info: " << std::endl;
+  inputFile->Print();
+  std::cout << std::endl;
+
+  std::cout << "List file TTree: " << std::endl;
+  inputFile->ls();
+  std::cout << std::endl;
+
+  std::cout << "Print BankStubs info: " << std::endl;
+  TTree* tbs = (TTree*) inputFile->Get("BankStubs");
+  tbs->Print(); 
+  std::cout << std::endl;
+
+  std::cout << "Print Pixels info: " << std::endl;
+  TTree* t0 = (TTree*) inputFile->Get("Pixels");
+  t0->Print(); 
+  std::cout << std::endl;
+
+  std::cout << "Print MC info: " << std::endl;
+  TTree* t01 = (TTree*) inputFile->Get("MC");
+  t01->Print(); 
+  std::cout << std::endl;
+
+  std::cout << "Print TkStubs info: " << std::endl;
+  TTree* t1 = (TTree*) inputFile->Get("TkStubs");
+  t1->Print();
+  std::cout << std::endl;
+#endif
+
+  /*
+  TTree* tmc = (TTree*) inputFile->Get("MC");
+  //tmc->Print();
+  TChain* TTmc = (TChain*) inputFile->Get("MC");
+
+  std::vector<float> genpx, * p_genpx;
+  p_genpx = &genpx;
+  TTmc->SetBranchAddress("gen_px", &p_genpx);
+  
+  Int_t neventmc = tmc->GetEntries();
+  for (Int_t i=0; i<neventmc; ++i) 
+  { 
+     tmc->GetEvent(i);
+
+     int j = 0;
+     for (; j<(int)genpx.size(); ++j)
+     {
+       //std::cout << genpx[j] << std::endl;
+     }
+  }
+*/
+
+  print_bankstub (inputFile);
+  // QA le distribuzioni dei vari parametri sono simili ma 
+  //    ancora in bankstub ci sono tantssime tracce in piu'.
+  //    ed il module id ha un valore numeri che non "capisco" immagino
+  //    sia una specie di identificativo univoco del modulo
+  
+  print_l1tkstub (inputFile);
+
 
   inputFile->Close();
 }
