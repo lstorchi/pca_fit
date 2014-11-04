@@ -342,11 +342,69 @@ void pcafitter::compute_pca_constants (
   std::cout << "inverse by cov matrix: " << std::endl;
   std::cout << v * vi ;
 #endif
-  
+
   // and so on ...
   arma::mat hcap = arma::zeros<arma::mat>(3*COORDIM,PARAMDIM);
   arma::rowvec paramm = arma::zeros<arma::rowvec>(PARAMDIM);
   arma::rowvec coordm = arma::zeros<arma::rowvec>(3*COORDIM);
+
+#if 1
+  
+  //hcap = arma::cov()
+
+  /*
+  for (int i=0; i<(int)coord.n_cols; ++i)
+  {
+    for (int j=0; j<(int)coord.n_rows; ++j)
+      coordm(i) += coord(j,i);
+    coordm(i) /= (double) coord.n_rows;
+  } 
+  std::cout << coordm << std::endl;
+  */ 
+
+  coordm = mean(coord, 0);
+
+  /*
+  for (int i=0; i<(int)coord.n_rows; ++i)
+  {
+    paramm(PTIDX) += pt(i);
+    paramm(PHIIDX) += phi(i);
+    paramm(D0IDX) += d0(i);
+    paramm(ETAIDX) += eta(i);
+    paramm(Z0IDX) += z0(i);
+  }
+
+  paramm(PTIDX) /= (double) coord.n_rows;
+  paramm(PHIIDX) /= (double) coord.n_rows;
+  paramm(D0IDX) /= (double) coord.n_rows;
+  paramm(ETAIDX) /= (double) coord.n_rows;
+  paramm(Z0IDX) /= (double) coord.n_rows;
+
+  std::cout << paramm(PTIDX) << " " << mean(pt) << std::endl;
+  */
+
+  paramm(PTIDX) = mean(pt);
+  paramm(PHIIDX) = mean(phi);
+  paramm(D0IDX) = mean(d0);
+  paramm(ETAIDX) = mean(eta);
+  paramm(Z0IDX) = mean(z0);
+
+  arma::mat param = arma::zeros<arma::mat>(coord.n_rows,PARAMDIM);
+
+  for (int i=0; i<(int)coord.n_rows; ++i)
+  {
+    param(i,PTIDX) = pt(i);
+    param(i,PHIIDX) = phi(i);
+    param(i,D0IDX) = d0(i);
+    param(i,ETAIDX) = eta(i);
+    param(i,Z0IDX) = z0(i);
+  }
+
+  hcap = arma::cov(coord, param);
+
+  //std::cout << hcap << std::endl;
+
+#else
   double sum = 1.0e0;
 
   for (int l=0; l<(int)coord.n_rows; ++l) 
@@ -385,6 +443,10 @@ void pcafitter::compute_pca_constants (
 
     }
   }
+
+  //std::cout << hcap << std::endl;
+
+#endif
 
   for (int i=0; i<PARAMDIM; ++i)
     for (int l=0; l<(3*COORDIM); ++l)
