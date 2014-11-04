@@ -335,7 +335,8 @@ void pcafitter::compute_pca_constants (
 #endif
 
   arma::mat vi = arma::zeros<arma::mat>(3*COORDIM,3*COORDIM);
-  vi = v.i(); 
+  vi = arma::inv(v); 
+  //vi = v.i();
 
 #ifdef DEBUG
   std::cout << "inverse by cov matrix: " << std::endl;
@@ -354,7 +355,7 @@ void pcafitter::compute_pca_constants (
     for (int i=0; i<(3*COORDIM); ++i)
       coordm(i) += (coord(l,i)-coordm(i))/sum;
     
-    paramm(PTIDX) += (pt(l)-paramm(0))/sum;
+    paramm(PTIDX) += (pt(l)-paramm(PTIDX))/sum;
     paramm(PHIIDX) += (phi(l)-paramm(PHIIDX))/sum;
     paramm(D0IDX) += (d0(l)-paramm(D0IDX))/sum;
     paramm(ETAIDX) += (eta(l)-paramm(ETAIDX))/sum;
@@ -399,7 +400,7 @@ void pcafitter::compute_pca_constants (
   {
     q(i) = paramm(i);
     for (int l=0; l<(3*COORDIM); ++l)
-      q(i) -= cmtx(i,l)*coordm[l];
+      q(i) -= cmtx(i,l)*coordm(l);
   }
 
 #ifdef DEBUG
