@@ -348,8 +348,6 @@ void pcafitter::compute_pca_constants (
   arma::rowvec paramm = arma::zeros<arma::rowvec>(PARAMDIM);
   arma::rowvec coordm = arma::zeros<arma::rowvec>(3*COORDIM);
 
-#if 1
-  
   //hcap = arma::cov()
 
   /*
@@ -403,50 +401,6 @@ void pcafitter::compute_pca_constants (
   hcap = arma::cov(coord, param);
 
   //std::cout << hcap << std::endl;
-
-#else
-  double sum = 1.0e0;
-
-  for (int l=0; l<(int)coord.n_rows; ++l) 
-  {
-    sum += 1.0e0;
-    for (int i=0; i<(3*COORDIM); ++i)
-      coordm(i) += (coord(l,i)-coordm(i))/sum;
-    
-    paramm(PTIDX) += (pt(l)-paramm(PTIDX))/sum;
-    paramm(PHIIDX) += (phi(l)-paramm(PHIIDX))/sum;
-    paramm(D0IDX) += (d0(l)-paramm(D0IDX))/sum;
-    paramm(ETAIDX) += (eta(l)-paramm(ETAIDX))/sum;
-    paramm(Z0IDX) += (z0(l)-paramm(Z0IDX))/sum;
-    
-    for (int i=0; i<(3*COORDIM); ++i)
-    {
-      hcap(i,PTIDX) += ((coord(l,i) - coordm(i))*
-                    (pt(l) - paramm(PTIDX))-
-                    (sum-1.0e0)*hcap(i,PTIDX)/sum)/(sum-1.0e0);
-
-      hcap(i,PHIIDX) += ((coord(l,i) - coordm(i))*
-                    (phi(l) - paramm(PHIIDX))-
-                    (sum-1.0e0)*hcap(i,PHIIDX)/sum)/(sum-1.0e0);
-
-      hcap(i,D0IDX) += ((coord(l,i) - coordm(i))*
-                    (d0(l) - paramm(D0IDX))-
-                    (sum-1.0e0)*hcap(i,D0IDX)/sum)/(sum-1.0e0);
-
-      hcap(i,ETAIDX) += ((coord(l,i) - coordm(i))*
-                    (eta(l) - paramm(ETAIDX))-
-                    (sum-1.0e0)*hcap(i,ETAIDX)/sum)/(sum-1.0e0);
-
-      hcap(i,Z0IDX) += ((coord(l,i) - coordm(i))*
-                    (z0(l) - paramm(Z0IDX))-
-                    (sum-1.0e0)*hcap(i,Z0IDX)/sum)/(sum-1.0e0);
-
-    }
-  }
-
-  //std::cout << hcap << std::endl;
-
-#endif
 
   for (int i=0; i<PARAMDIM; ++i)
     for (int l=0; l<(3*COORDIM); ++l)
