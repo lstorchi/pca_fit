@@ -15,6 +15,17 @@
 
 #include <pcafitter_private.hpp>
 
+#include <version.h>
+
+std::string pcafitter::get_version_string( )
+{
+    std::ostringstream version;
+    version << PCAFITTER_MAJOR_VER << "." << PCAFITTER_MINOR_VER << "." << 
+      PCAFITTER_PATCH_VER ;
+
+    return version.str();
+}
+
 std::string pcafitter::paramidxtostring (int i)
 {
   switch (i)

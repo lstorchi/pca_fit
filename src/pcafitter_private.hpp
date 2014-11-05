@@ -18,6 +18,8 @@
 
 namespace pcafitter
 {
+  std::string get_version_string();
+
   std::string paramidxtostring (int i);
 
   int numofline (const char * fname);
