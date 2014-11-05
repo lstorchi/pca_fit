@@ -62,27 +62,27 @@ void pcafitter::computeparameters (const arma::mat & cmtx,
   {
     // pt 
     ptcmp[i] = q(PTIDX);
-    for (int k=0; k<(3*COORDIM); ++k)
+    for (int k=0; k<(DIMPERCOORD*COORDIM); ++k)
       ptcmp[i] += cmtx(PTIDX,k)*coord(i,k);
 
     // phi
     phicmp[i] = q(PHIIDX);
-    for (int k=0; k<(3*COORDIM); ++k)
+    for (int k=0; k<(DIMPERCOORD*COORDIM); ++k)
       phicmp[i] += cmtx(PHIIDX,k)*coord(i,k);
 
     // eta
     etacmp[i] = q(ETAIDX);
-    for (int k=0; k<(3*COORDIM); ++k)
+    for (int k=0; k<(DIMPERCOORD*COORDIM); ++k)
       etacmp[i] += cmtx(ETAIDX,k)*coord(i,k);
 
     // z0
     z0cmp[i] = q(Z0IDX);
-    for (int k=0; k<(3*COORDIM); ++k)
+    for (int k=0; k<(DIMPERCOORD*COORDIM); ++k)
       z0cmp[i] += cmtx(Z0IDX,k)*coord(i,k);
 
     // d0
     d0cmp[i] = q(D0IDX);
-    for (int k=0; k<(3*COORDIM); ++k)
+    for (int k=0; k<(DIMPERCOORD*COORDIM); ++k)
       d0cmp[i] += cmtx(D0IDX,k)*coord(i,k);
   }
 }
@@ -159,20 +159,18 @@ int pcafitter::numofline (const char * fname)
 }
 
 void pcafitter::writetofile (const char * fname, 
-    const arma::rowvec & vec) 
+    const arma::mat & vec, int idx) 
 {
   std::ofstream myfile(fname);
     
   for (int i=0; i<(int)vec.n_cols; i++)
-    myfile << vec(i) << std::endl;
+    myfile << vec(idx, i) << std::endl;
     
   myfile.close();
 }
 
-void pcafitter::readingfromfile (const char * filename, 
-    arma::rowvec & ptin, arma::rowvec & phiin, 
-    arma::rowvec & d0in, arma::rowvec & etain, 
-    arma::rowvec & z0in, arma::mat & coordin, 
+void pcafitter::readingfromfile (const char * filename,
+    arma::mat & paramin, arma::mat & coordin, 
     arma::mat & layer, arma::mat & ladder, 
     arma::mat & module, 
     std::map<std::string, int> & subsectors, 
@@ -239,11 +237,11 @@ void pcafitter::readingfromfile (const char * filename,
     else 
       subladders[ossl.str()] += 1;
     
-    mytfp >> ptin(i) >> 
-             phiin(i) >> 
-             d0in(i) >> 
-             etain(i) >> 
-             z0in(i);
+    mytfp >> paramin(i, PTIDX) >> 
+             paramin(i, PHIIDX) >> 
+             paramin(i, D0IDX) >> 
+             paramin(i, ETAIDX) >> 
+             paramin(i, Z0IDX);
   }
 
   mytfp.close();
@@ -271,17 +269,9 @@ void pcafitter::select_bigger_sub (
 
 void pcafitter::extract_sub (const std::vector<std::string> & sublist, 
     const std::string & slctsubsec, 
-    const arma::rowvec & ptin, 
-    const arma::rowvec & phiin, 
-    const arma::rowvec & d0in, 
-    const arma::rowvec & etain, 
-    const arma::rowvec & z0in, 
+    const arma::mat & paramin,
     const arma::mat & coordin, 
-    arma::rowvec & pt, 
-    arma::rowvec & phi,
-    arma::rowvec & d0,
-    arma::rowvec & eta,
-    arma::rowvec & z0,
+    arma::mat & param,
     arma::mat & coord)
 {
   int dim = 0;
@@ -291,12 +281,8 @@ void pcafitter::extract_sub (const std::vector<std::string> & sublist,
     if (*it == slctsubsec)
       dim++;
 
-  coord.set_size(dim,3*COORDIM);
-  pt.set_size(dim);
-  phi.set_size(dim);
-  d0.set_size(dim);
-  eta.set_size(dim);
-  z0.set_size(dim);
+  coord.set_size(dim,DIMPERCOORD*COORDIM);
+  param.set_size(dim,PARAMDIM);
 
   int k = 0;
   it = sublist.begin();
@@ -304,48 +290,39 @@ void pcafitter::extract_sub (const std::vector<std::string> & sublist,
   {
     if (*it == slctsubsec)
     {
-      for (int j = 0; j < 3*COORDIM; ++j)
+      for (int j = 0; j < DIMPERCOORD*COORDIM; ++j)
         coord(k,j) = coordin(i,j);
-
-      pt(k) = ptin(i);
-      phi(k) = phiin(i);
-      d0(k) = d0in(i);
-      eta(k) = etain(i);
-      z0(k) = z0in(i);
-
+      for (int j = 0; j < PARAMDIM; ++j)
+        param(k,j) = paramin (i,j);
       ++k;
     }
   }
 }
 
 void pcafitter::compute_pca_constants (
-    const arma::rowvec & pt, 
-    const arma::rowvec & phi,
-    const arma::rowvec & d0,
-    const arma::rowvec & eta,
-    const arma::rowvec & z0,
+    const arma::mat & param, 
     const arma::mat & coord,
     arma::mat & cmtx, 
     arma::rowvec & q)
 {
-  arma::mat v = arma::zeros<arma::mat>(3*COORDIM,3*COORDIM);
+  arma::mat v = arma::zeros<arma::mat>(DIMPERCOORD*COORDIM,DIMPERCOORD*COORDIM);
   v = arma::cov(coord);
 
 #ifdef DEBUG
   /* correlation matrix ricorda su dati standardizzati coincide con la matrice 
    *   di covarianza : 
    *   z = x -<x> / sigma */
-  arma::mat corr = arma::zeros<arma::mat>(3*COORDIM,3*COORDIM);
+  arma::mat corr = arma::zeros<arma::mat>(DIMPERCOORD*COORDIM,DIMPERCOORD*COORDIM);
   
-  for (int i=0; i<(3*COORDIM); ++i)
-    for (int j=0; j<(3*COORDIM); ++j)
+  for (int i=0; i<(DIMPERCOORD*COORDIM); ++i)
+    for (int j=0; j<(DIMPERCOORD*COORDIM); ++j)
       corr(i,j) = v(i,j) / sqrt(v(i,i)*v(j,j));
   
   std::cout << "Correlation matrix: " << std::endl;
   std::cout << corr;
 #endif
 
-  arma::mat vi = arma::zeros<arma::mat>(3*COORDIM,3*COORDIM);
+  arma::mat vi = arma::zeros<arma::mat>(DIMPERCOORD*COORDIM,DIMPERCOORD*COORDIM);
   vi = arma::inv(v); 
   //vi = v.i();
 
@@ -355,9 +332,9 @@ void pcafitter::compute_pca_constants (
 #endif
 
   // and so on ...
-  arma::mat hcap = arma::zeros<arma::mat>(3*COORDIM,PARAMDIM);
+  arma::mat hcap = arma::zeros<arma::mat>(DIMPERCOORD*COORDIM,PARAMDIM);
   arma::rowvec paramm = arma::zeros<arma::rowvec>(PARAMDIM);
-  arma::rowvec coordm = arma::zeros<arma::rowvec>(3*COORDIM);
+  arma::rowvec coordm = arma::zeros<arma::rowvec>(DIMPERCOORD*COORDIM);
 
   //hcap = arma::cov()
 
@@ -376,11 +353,11 @@ void pcafitter::compute_pca_constants (
   /*
   for (int i=0; i<(int)coord.n_rows; ++i)
   {
-    paramm(PTIDX) += pt(i);
-    paramm(PHIIDX) += phi(i);
-    paramm(D0IDX) += d0(i);
-    paramm(ETAIDX) += eta(i);
-    paramm(Z0IDX) += z0(i);
+    paramm(PTIDX) += param(i, PTIDX);
+    paramm(PHIIDX) += param(i, PHIIDX);
+    paramm(D0IDX) += param(i, D0IDX);
+    paramm(ETAIDX) += param(i, ETAIDX);
+    paramm(Z0IDX) += param(i, Z0IDX);
   }
 
   paramm(PTIDX) /= (double) coord.n_rows;
@@ -389,33 +366,18 @@ void pcafitter::compute_pca_constants (
   paramm(ETAIDX) /= (double) coord.n_rows;
   paramm(Z0IDX) /= (double) coord.n_rows;
 
-  std::cout << paramm(PTIDX) << " " << mean(pt) << std::endl;
+  std::cout << paramm(PTIDX) << " " << mean(param, 0) << std::endl;
   */
 
-  paramm(PTIDX) = mean(pt);
-  paramm(PHIIDX) = mean(phi);
-  paramm(D0IDX) = mean(d0);
-  paramm(ETAIDX) = mean(eta);
-  paramm(Z0IDX) = mean(z0);
-
-  arma::mat param = arma::zeros<arma::mat>(coord.n_rows,PARAMDIM);
-
-  for (int i=0; i<(int)coord.n_rows; ++i)
-  {
-    param(i,PTIDX) = pt(i);
-    param(i,PHIIDX) = phi(i);
-    param(i,D0IDX) = d0(i);
-    param(i,ETAIDX) = eta(i);
-    param(i,Z0IDX) = z0(i);
-  }
+  paramm = mean(param, 0);
 
   hcap = arma::cov(coord, param);
 
   //std::cout << hcap << std::endl;
 
   for (int i=0; i<PARAMDIM; ++i)
-    for (int l=0; l<(3*COORDIM); ++l)
-      for (int m=0; m<(3*COORDIM); ++m)
+    for (int l=0; l<(DIMPERCOORD*COORDIM); ++l)
+      for (int m=0; m<(DIMPERCOORD*COORDIM); ++m)
         cmtx(i,l) += vi(l,m) * hcap (m,i);
 
 #ifdef DEBUG
@@ -426,7 +388,7 @@ void pcafitter::compute_pca_constants (
   for (int i=0; i<PARAMDIM; ++i)
   {
     q(i) = paramm(i);
-    for (int l=0; l<(3*COORDIM); ++l)
+    for (int l=0; l<(DIMPERCOORD*COORDIM); ++l)
       q(i) -= cmtx(i,l)*coordm(l);
   }
 
