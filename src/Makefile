@@ -17,7 +17,7 @@ ifeq ($(CERN),yes)
   LIBS = -L/afs/cern.ch/user/l/$(USER)/armadillo-3.930.4 
 endif
 
-CFLAGS +=-I./
+CFLAGS +=-I./ -I../include 
 
 LIBS += -larmadillo -lm
 

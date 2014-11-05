@@ -21,6 +21,7 @@ void usage (char * name)
   std::cerr << std::endl;
   std::cerr << " -h, --help               : display this help and exit" << std::endl;
   std::cerr << " -V, --verbose            : verbose option on" << std::endl;
+  std::cerr << " -v, --version            : print version and exit" << std::endl;
   std::cerr << " -f, --fast               : do not perfomr pca only diag matrix" << std::endl;
   std::cerr << " -s, --bigger-subsector   : use values of the bigger subsector" << std::endl;
   std::cerr << "                            (connot be used with bigger-subladder)" << std::endl;
@@ -46,10 +47,11 @@ int main (int argc, char ** argv)
       {"bigger-subsector", 0, NULL, 's'},
       {"bigger-subladder", 0, NULL, 'l'},
       {"fast", 0, NULL, 'f'},
+      {"version", 0, NULL, 'v'},
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "hVslf", long_options, &option_index);
+    c = getopt_long (argc, argv, "vhVslf", long_options, &option_index);
 
     if (c == -1)
       break;
@@ -58,6 +60,10 @@ int main (int argc, char ** argv)
     {
       case 'h':
         usage (argv[0]);
+        break;
+      case 'v':
+        std::cout << "Version: " << pcafitter::get_version_string() << std::endl;
+        exit(1);
         break;
       case 'f':
         fast = true;

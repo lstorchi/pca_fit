@@ -21,6 +21,7 @@ void usage (char * name)
   std::cerr << std::endl;
   std::cerr << " -h, --help               : display this help and exit" << std::endl;
   std::cerr << " -V, --verbose            : verbose option on" << std::endl;
+  std::cerr << " -v, --version            : print version and exit" << std::endl;
   std::cerr << " -c, --cmtx=[fillename]   : CMTX filename [default is c.bin]" << std::endl;
   std::cerr << " -q, --qvct=[fillename]   : QVCT filename [default is q.bin]" << std::endl;
   std::cerr << " -s, --subsector=[subsec] : by default use values of the bigger subsector" << std::endl;
@@ -51,10 +52,11 @@ int main (int argc, char ** argv)
       {"subsector", 1, NULL, 's'},
       {"subladder", 1, NULL, 'l'},
       {"verbose", 0, NULL, 'V'},
+      {"version", 0, NULL, 'v'},
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "hVc:q:s:l:", long_options, &option_index);
+    c = getopt_long (argc, argv, "vhVc:q:s:l:", long_options, &option_index);
 
     if (c == -1)
       break;
@@ -63,6 +65,10 @@ int main (int argc, char ** argv)
     {
       case 'V':
         verbose = true;
+        break;
+      case 'v':
+        std::cout << "Version: " << pcafitter::get_version_string() << std::endl;
+        exit(1);
         break;
       case 'h':
         usage (argv[0]);
