@@ -100,45 +100,34 @@ int main (int argc, char ** argv)
   std::cout << "file has " << num_of_ent << " entries " << std::endl;
 
   // non perfomante ma easy to go
-  arma::rowvec ptin = arma::zeros<arma::rowvec>(num_of_ent);
-  arma::rowvec phiin = arma::zeros<arma::rowvec>(num_of_ent);
-  arma::rowvec d0in = arma::zeros<arma::rowvec>(num_of_ent);
-  arma::rowvec etain = arma::zeros<arma::rowvec>(num_of_ent);
-  arma::rowvec z0in = arma::zeros<arma::rowvec>(num_of_ent);
-
-  arma::mat layer, ladder, module, coordin;
+  arma::mat layer, ladder, module, coordin, paramin;
   layer.set_size(num_of_ent,COORDIM);
   ladder.set_size(num_of_ent,COORDIM);
   module.set_size(num_of_ent,COORDIM);
-  coordin.set_size(num_of_ent,3*COORDIM);
+  coordin.set_size(num_of_ent,DIMPERCOORD*COORDIM);
+  paramin.set_size(num_of_ent,PARAMDIM);
 
   std::map<std::string, int> subsectors, subladders;
   std::vector<std::string> subladderslist, subsectorslist;
 
   // leggere file coordinate tracce simulate plus parametri
   std::cout << "Reading data from " << filename << " file " << std::endl;
-  pcafitter::readingfromfile (filename, ptin, phiin, d0in, etain, z0in, coordin, 
+  pcafitter::readingfromfile (filename, paramin, coordin, 
       layer, ladder, module, subsectors, subladders, 
       subsectorslist, subladderslist, num_of_ent);
- 
   // write date to file 
   std::cout << "Writing parameters to files" << std::endl;
-  pcafitter::writetofile("pt.txt", ptin);
-  pcafitter::writetofile("phi.txt", phiin);
-  pcafitter::writetofile("d0.txt", d0in);
-  pcafitter::writetofile("eta.txt", etain);
-  pcafitter::writetofile("z0.txt", z0in);
+  pcafitter::writetofile("pt.txt", paramin, PTIDX);
+  pcafitter::writetofile("phi.txt", paramin, PHIIDX);
+  pcafitter::writetofile("d0.txt", paramin, D0IDX);
+  pcafitter::writetofile("eta.txt", paramin, ETAIDX);
+  pcafitter::writetofile("z0.txt", paramin, Z0IDX);
 
   // values selection
   std::string slctsubsec = "";
   int maxnumber = 0;
   
-  arma::rowvec pt = arma::zeros<arma::rowvec>(num_of_ent);
-  arma::rowvec phi = arma::zeros<arma::rowvec>(num_of_ent);
-  arma::rowvec d0 = arma::zeros<arma::rowvec>(num_of_ent);
-  arma::rowvec eta = arma::zeros<arma::rowvec>(num_of_ent);
-  arma::rowvec z0 = arma::zeros<arma::rowvec>(num_of_ent);
-  arma::mat coord;
+  arma::mat coord, param;
 
   assert(selectsubsector != selectsubladder);
 
@@ -157,9 +146,8 @@ int main (int argc, char ** argv)
         " numevt: " << maxnumber << std::endl;
 
       pcafitter::extract_sub (subsectorslist, 
-          slctsubsec, ptin, phiin,
-          d0in, etain, z0in, coordin, pt, 
-          phi, d0, eta, z0, coord);
+          slctsubsec, paramin, coordin, param, 
+          coord);
     }
     
     if (selectsubladder)
@@ -173,27 +161,22 @@ int main (int argc, char ** argv)
       
       std::cout << "Selected subladder " << slctsubsec << " numevt: " << maxnumber << std::endl;
 
-      pcafitter::extract_sub (subladderslist, \
-          slctsubsec, ptin, phiin,
-          d0in, etain, z0in, coordin, pt, 
-          phi, d0, eta, z0, coord);
+      pcafitter::extract_sub (subladderslist, 
+          slctsubsec, paramin, coordin, param, 
+          coord);
     }
  
   }
   else
   {
-    pt = ptin;
-    phi = phiin;
-    d0 = d0in;
-    eta = etain;
-    z0 = z0in;
+    param = paramin;
     coord = coordin;
   }
 
   std::cout << "Printout selected coordinates " << std::endl;
   std::ofstream myfileslct("selectedcoords.txt");
   for (int i=0; i<(int)coord.n_rows; ++i)
-    for (int j=0; j<(3*COORDIM); j=j+3)
+    for (int j=0; j<(DIMPERCOORD*COORDIM); j=j+3)
       myfileslct << coord(i, j) << " " << 
                     coord(i, j+1) << " " <<
                     coord(i, j+2) << std::endl;
@@ -201,11 +184,11 @@ int main (int argc, char ** argv)
 
   // write date to file 
   std::cout << "Writing extracted parameters to files" << std::endl;
-  pcafitter::writetofile("pt_selected.txt", pt);
-  pcafitter::writetofile("phi_selected.txt", phi);
-  pcafitter::writetofile("d0_selected.txt", d0);
-  pcafitter::writetofile("eta_selected.txt", eta);
-  pcafitter::writetofile("z0_selected.txt", z0);
+  pcafitter::writetofile("pt_selected.txt", param, PTIDX);
+  pcafitter::writetofile("phi_selected.txt", param, PHIIDX);
+  pcafitter::writetofile("d0_selected.txt", param, D0IDX);
+  pcafitter::writetofile("eta_selected.txt", param, ETAIDX);
+  pcafitter::writetofile("z0_selected.txt", param, Z0IDX);
 
   // ordered 
   arma::vec eigval;
@@ -236,7 +219,7 @@ int main (int argc, char ** argv)
           mainr += score(i,j) * score(i,j);
         
         double residue = 0.0;
-        for (int j=5; j<3*COORDIM; ++j)
+        for (int j=5; j<DIMPERCOORD*COORDIM; ++j)
           residue += score(i,j) * score(i,j);
         
         std::cout << "Track " << i+1 << " residue " << residue <<
@@ -249,26 +232,26 @@ int main (int argc, char ** argv)
   else
   {
     std::cout << "Compute correlation mtx" << std::endl;
-    arma::mat coordm = arma::zeros<arma::mat>(3*COORDIM);
-    arma::mat hca = arma::zeros<arma::mat>(3*COORDIM,3*COORDIM);
-    arma::vec eigvaltmp = arma::zeros<arma::vec>(3*COORDIM);
+    arma::mat coordm = arma::zeros<arma::mat>(DIMPERCOORD*COORDIM);
+    arma::mat hca = arma::zeros<arma::mat>(DIMPERCOORD*COORDIM,DIMPERCOORD*COORDIM);
+    arma::vec eigvaltmp = arma::zeros<arma::vec>(DIMPERCOORD*COORDIM);
 
-    eigvec = arma::zeros<arma::mat>(3*COORDIM,3*COORDIM);
-    eigval = arma::zeros<arma::vec>(3*COORDIM);
+    eigvec = arma::zeros<arma::mat>(DIMPERCOORD*COORDIM,DIMPERCOORD*COORDIM);
+    eigval = arma::zeros<arma::vec>(DIMPERCOORD*COORDIM);
 
     hca = arma::cov(coord);
 
-#if 0
+    /* double check 
     double sum = 1.0e0;
     for (int l=0; l<(int)coord.n_rows; ++l) 
     {
       sum += 1.0e0;
-      for (int i=0; i<(3*COORDIM); ++i)
+      for (int i=0; i<(DIMPERCOORD*COORDIM); ++i)
         coordm(i) += (coord(l,i)-coordm(i))/sum;
     
-      for (int i=0; i<(3*COORDIM); ++i)
+      for (int i=0; i<(DIMPERCOORD*COORDIM); ++i)
       {
-        for (int j=0; j<(3*COORDIM); ++j)
+        for (int j=0; j<(DIMPERCOORD*COORDIM); ++j)
         {
           hca(i,j) += ((coord(l,i) - coordm(i))*
                        (coord(l,j) - coordm(j))-
@@ -276,22 +259,23 @@ int main (int argc, char ** argv)
         }
       }
     }
-#endif
+    */
 
     std::cout << "Eigensystem" << std::endl;
     arma::eig_sym(eigvaltmp, eigvec, hca);
  
-    for (int i=0; i<(3*COORDIM); ++i)
-      eigval(i) = eigvaltmp((3*COORDIM)-i-1);
+    for (int i=0; i<(DIMPERCOORD*COORDIM); ++i)
+      eigval(i) = eigvaltmp((DIMPERCOORD*COORDIM)-i-1);
   }
 
+
   double totval = 0.0e0;
-  for (int i=0; i<(3*COORDIM); ++i)
+  for (int i=0; i<(DIMPERCOORD*COORDIM); ++i)
     totval += eigval(i);
 
   std::cout << "Eigenvalues: " << std::endl;
   double totvar = 0.0e0; 
-  for (int i=0; i<(3*COORDIM); ++i)
+  for (int i=0; i<(DIMPERCOORD*COORDIM); ++i)
   {
     if (i < PARAMDIM)
       totvar += 100.0e0*(eigval(i)/totval);
@@ -301,11 +285,11 @@ int main (int argc, char ** argv)
   }
   std::cout << "PARAMDIM eigenvalues: " << totvar << std::endl;
 
-  arma::mat cmtx = arma::zeros<arma::mat>(PARAMDIM,3*COORDIM);
+  arma::mat cmtx = arma::zeros<arma::mat>(PARAMDIM,DIMPERCOORD*COORDIM);
   arma::rowvec q = arma::zeros<arma::rowvec>(PARAMDIM);
 
   std::cout << "Compute PCA constants " << std::endl;
-  pcafitter::compute_pca_constants (pt, phi, d0, eta, z0, 
+  pcafitter::compute_pca_constants (param,
       coord, cmtx, q);
 
   std::cout << "Write constant to file" << std::endl;
