@@ -117,10 +117,10 @@ int main (int argc, char ** argv)
       subsectorslist, subladderslist, num_of_ent);
   // write date to file 
   std::cout << "Writing parameters to files" << std::endl;
-  pcafitter::writetofile("pt.txt", paramin, PTIDX);
+  pcafitter::writetofile("oneoverpt.txt", paramin, PTIDX);
   pcafitter::writetofile("phi.txt", paramin, PHIIDX);
   pcafitter::writetofile("d0.txt", paramin, D0IDX);
-  pcafitter::writetofile("eta.txt", paramin, ETAIDX);
+  pcafitter::writetofile("cotetha.txt", paramin, TETHAIDX);
   pcafitter::writetofile("z0.txt", paramin, Z0IDX);
 
   // values selection
@@ -184,10 +184,10 @@ int main (int argc, char ** argv)
 
   // write date to file 
   std::cout << "Writing extracted parameters to files" << std::endl;
-  pcafitter::writetofile("pt_selected.txt", param, PTIDX);
+  pcafitter::writetofile("oneoverpt_selected.txt", param, PTIDX);
   pcafitter::writetofile("phi_selected.txt", param, PHIIDX);
   pcafitter::writetofile("d0_selected.txt", param, D0IDX);
-  pcafitter::writetofile("eta_selected.txt", param, ETAIDX);
+  pcafitter::writetofile("cotetha_selected.txt", param, TETHAIDX);
   pcafitter::writetofile("z0_selected.txt", param, Z0IDX);
 
   // ordered 

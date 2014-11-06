@@ -9,7 +9,7 @@
 #define PTIDX 0
 #define PHIIDX 1
 #define D0IDX 2
-#define ETAIDX 3
+#define TETHAIDX 3
 #define Z0IDX 4
 
 #include <armadillo>
@@ -38,7 +38,7 @@ namespace pcafitter
   void computeparameters (const arma::mat & cmtx, 
     const arma::rowvec & q, 
     const arma::mat & coordslt, 
-    double * ptcmp, double * phicmp, 
+    double * oneoverptcmp, double * phicmp, 
     double * etacmp, double * z0cmp, 
     double * d0cmp);
   

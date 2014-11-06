@@ -31,13 +31,13 @@ std::string pcafitter::paramidxtostring (int i)
   switch (i)
   {
     case PTIDX:
-      return "pt";
+      return "oneoverpt";
       break;
     case PHIIDX:
       return "phi";
       break;
-    case ETAIDX:
-      return "eta";
+    case TETHAIDX:
+      return "cot(tetha/2)";
       break;
     case Z0IDX:
       return "z0";
@@ -54,16 +54,16 @@ std::string pcafitter::paramidxtostring (int i)
 void pcafitter::computeparameters (const arma::mat & cmtx, 
     const arma::rowvec & q, 
     const arma::mat & coord, 
-    double * ptcmp, double * phicmp, 
+    double * oneoverptcmp, double * phicmp, 
     double * etacmp, double * z0cmp, 
     double * d0cmp)
 {
   for (int i=0; i<(int)coord.n_rows; ++i)
   {
-    // pt 
-    ptcmp[i] = q(PTIDX);
+    // 1 / pt 
+    oneoverptcmp[i] = q(PTIDX);
     for (int k=0; k<(DIMPERCOORD*COORDIM); ++k)
-      ptcmp[i] += cmtx(PTIDX,k)*coord(i,k);
+      oneoverptcmp[i] += cmtx(PTIDX,k)*coord(i,k);
 
     // phi
     phicmp[i] = q(PHIIDX);
@@ -71,9 +71,9 @@ void pcafitter::computeparameters (const arma::mat & cmtx,
       phicmp[i] += cmtx(PHIIDX,k)*coord(i,k);
 
     // eta
-    etacmp[i] = q(ETAIDX);
+    etacmp[i] = q(TETHAIDX);
     for (int k=0; k<(DIMPERCOORD*COORDIM); ++k)
-      etacmp[i] += cmtx(ETAIDX,k)*coord(i,k);
+      etacmp[i] += cmtx(TETHAIDX,k)*coord(i,k);
 
     // z0
     z0cmp[i] = q(Z0IDX);
@@ -238,11 +238,18 @@ void pcafitter::readingfromfile (const char * filename,
     else 
       subladders[ossl.str()] += 1;
     
-    mytfp >> paramin(i, PTIDX) >> 
+    double valread, valr;
+
+    mytfp >> valr >> 
              paramin(i, PHIIDX) >> 
              paramin(i, D0IDX) >> 
-             paramin(i, ETAIDX) >> 
+             valread >> 
              paramin(i, Z0IDX);
+    
+    // cot (tetha/2) = 1 / e^(-eta)
+    paramin(i, TETHAIDX) = 1.0e0 / exp (-1.0e0 * valread);
+    // use 1/pt 
+    paramin(i, PTIDX) = 1.0e0 / valr;
   }
 
   mytfp.close();
@@ -357,14 +364,14 @@ void pcafitter::compute_pca_constants (
     paramm(PTIDX) += param(i, PTIDX);
     paramm(PHIIDX) += param(i, PHIIDX);
     paramm(D0IDX) += param(i, D0IDX);
-    paramm(ETAIDX) += param(i, ETAIDX);
+    paramm(TETHAIDX) += param(i, TETHAIDX);
     paramm(Z0IDX) += param(i, Z0IDX);
   }
 
   paramm(PTIDX) /= (double) coord.n_rows;
   paramm(PHIIDX) /= (double) coord.n_rows;
   paramm(D0IDX) /= (double) coord.n_rows;
-  paramm(ETAIDX) /= (double) coord.n_rows;
+  paramm(TETHAIDTETHAIDX(double) coord.n_rows;
   paramm(Z0IDX) /= (double) coord.n_rows;
 
   std::cout << paramm(PTIDX) << " " << mean(param, 0) << std::endl;
