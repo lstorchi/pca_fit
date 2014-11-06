@@ -127,9 +127,10 @@ void print_bankstub (TFile * inputFile, std::ostream& ss, unsigned int maxtracks
         value = value-ladder*10000;
         int module = value/100;
         value = value-module*100;
+        int segid = value;
 
         ss << layer << " " << ladder << " " << 
-          module << " " << std::endl;
+          module << " " << segid << " " << std::endl;
        }
        --j;
 
@@ -254,6 +255,7 @@ void print_l1tkstub (TFile * inputFile, std::ostream & ss, unsigned int maxtrack
        if ((tp[0] == 0) && allAreEqual) // QA perche' devo fare un controllo anche su allAreEqual 
                                         // non dovrebbe bazter il controllo su tp ? 
                                         // tp non indica le traccie primarie ? 
+                                        // I should use bankstubs, so useless 
        //if (tp[0] == 0)
        {
          ss << i+1 << " " << tp.size() << std::endl;
@@ -272,11 +274,7 @@ void print_l1tkstub (TFile * inputFile, std::ostream & ss, unsigned int maxtrack
           
            ss << layerid[j] << " " << ladderid[j] << " " << 
              moduleid[j] << " "
-#if 0             
            << tp[j] << std::endl;
-#else     
-           << std::endl;
-#endif    
           
          }
          --j;
@@ -379,6 +377,8 @@ void readandtest (const std::string & fname, bool tkstubs,
     //    ancora in bankstub ci sono tantssime tracce in piu'.
     //    ed il module id ha un valore numeri che non "capisco" immagino
     //    sia una specie di identificativo univoco del modulo
+    //    L1TkStubs should be not there maybe is just a bad file 
+    //         there should be only BankStubs 
     bankstbfile.close();
   }
 
