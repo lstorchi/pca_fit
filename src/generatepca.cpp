@@ -15,6 +15,8 @@
 
 #include <pcafitter_private.hpp>
 
+// lstorchi: basic quicj code to generate PCA constants
+
 void usage (char * name)
 {
   std::cerr << "usage: " << name << " [options] coordinatesfile " << std::endl;
