@@ -187,7 +187,7 @@ void pcafitter::readingfromfile (const char * filename,
   std::getline (mytfp, line);
   for (int i = 0; i < num_of_ent; ++i)
   {
-    int fake1, fake2;
+    int fake1, fake2, segid;
     // valori aggiunti solo di controllo 
     mytfp >> fake1 >> fake2 ;
 #ifdef DEBUG    
@@ -203,7 +203,8 @@ void pcafitter::readingfromfile (const char * filename,
       mytfp >> coordin(i, j*3) >> 
                coordin(i, j*3+1) >> 
                coordin(i, j*3+2) >> 
-               a >> b >> c; 
+               a >> b >> c >> segid; // segid I am reading because can be used as local ccordinate ?
+                                     // in case of l1tkstubs is the tp value here 
     
       layer(i, j) = a;
       ladder(i, j) = b;
