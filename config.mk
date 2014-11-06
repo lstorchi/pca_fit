@@ -1,6 +1,7 @@
 ##################################################
 #
-# config.mk 
+# config.mk lstorchi to be used for all the basic 
+#           configuration related to all sources
 #
 # $Id$
 #

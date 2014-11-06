@@ -16,6 +16,10 @@
 #include <vector>
 #include <map>
 
+
+// lstorchi: this should be moved into include as soon as the utility code will becema
+//           a class...
+
 namespace pcafitter
 {
   std::string get_version_string();
