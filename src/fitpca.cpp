@@ -15,6 +15,9 @@
 
 #include <pcafitter_private.hpp>
 
+// lstorchi: basi code to fit tracks, using the PCA constants generated 
+//           by the related generatepca
+
 void build_and_compare (arma::mat & paramslt, arma::mat & coordslt, 
      arma::mat & cmtx, arma::rowvec & q, bool verbose)
 {

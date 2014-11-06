@@ -19,6 +19,9 @@
 
 #define STOPAFTERMAXEVT 2000000
 
+// lstorchi: as all the code here is a very quick implementation
+//    of a simil stubs extractors
+
 void usage (char * name)
 {
   std::cerr << "usage: " << name << " [options] rootfile " << std::endl;

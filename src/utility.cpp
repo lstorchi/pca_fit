@@ -17,6 +17,9 @@
 
 #include <version.h>
 
+// lstorchi: here all the basic routines, in principles can be used 
+//           to start building a proper class.
+
 std::string pcafitter::get_version_string( )
 {
     std::ostringstream version;
@@ -246,6 +249,8 @@ void pcafitter::readingfromfile (const char * filename,
              valread >> 
              paramin(i, Z0IDX);
     
+    // lstorchi: I use this to diretcly convert input parameters into
+    //     better parameters for the fitting 
     // cot (tetha/2) = 1 / e^(-eta)
     paramin(i, TETHAIDX) = 1.0e0 / exp (-1.0e0 * valread);
     // use 1/pt 

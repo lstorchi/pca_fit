@@ -1,9 +1,11 @@
 #ifndef _PCAFITTER_VERSION_INC
 #define _PCAFITTER_VERSION_INC
 
-/*! Versioning stuff 
+/*! lstorchi: Versioning stuff 
  * 
- * The first version where this was added after rel_0_0_0
+ * The first version where this was added after rel_0_0_0. 
+ *      this is usefull to track versioning expecially when 
+ *      distributiong some test exe
  * */
 #define PCAFITTER_MAJOR_VER 0
 #define PCAFITTER_MINOR_VER 1
