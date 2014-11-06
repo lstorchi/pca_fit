@@ -127,7 +127,7 @@ void print_bankstub (TFile * inputFile, std::ostream& ss, unsigned int maxtracks
         value = value-ladder*10000;
         int module = value/100;
         value = value-module*100;
-        int segid = value;
+        int segid = value; // QA is just this ? from the source code seems so, I need to / by 10 ?
 
         ss << layer << " " << ladder << " " << 
           module << " " << segid << " " << std::endl;
