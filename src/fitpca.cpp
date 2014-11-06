@@ -44,16 +44,16 @@ void build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
     if (verbose)
     {
       std::cout << "For track : " << i+1 << std::endl;
-      std::cout << " 1/pt    cmpt " << oneoverptcmp[i] << std::endl;
-      std::cout << " 1/pt    calc " << paramslt(i, PTIDX) << std::endl;
-      std::cout << " phi     cmpt " << phicmp[i] << std::endl;
-      std::cout << " phi     calc " << paramslt(i, PHIIDX) << std::endl;
-      std::cout << " cotetha cmpt " << etacmp[i] << std::endl;
-      std::cout << " cotetha calc " << paramslt(i, TETHAIDX) << std::endl;
-      std::cout << " d0      cmpt " << d0cmp[i] << std::endl;
-      std::cout << " d0      calc " << paramslt(i, D0IDX) << std::endl;
-      std::cout << " z0      cmpt " << z0cmp[i] << std::endl;
-      std::cout << " z0      calc " << paramslt(i, Z0IDX) << std::endl;
+      std::cout << " 1/pt         cmpt " << oneoverptcmp[i] << std::endl;
+      std::cout << " 1/pt         calc " << paramslt(i, PTIDX) << std::endl;
+      std::cout << " phi          cmpt " << phicmp[i] << std::endl;
+      std::cout << " phi          calc " << paramslt(i, PHIIDX) << std::endl;
+      std::cout << " cot(tetha/2) cmpt " << etacmp[i] << std::endl;
+      std::cout << " cot(tetha/2) calc " << paramslt(i, TETHAIDX) << std::endl;
+      std::cout << " d0           cmpt " << d0cmp[i] << std::endl;
+      std::cout << " d0           calc " << paramslt(i, D0IDX) << std::endl;
+      std::cout << " z0           cmpt " << z0cmp[i] << std::endl;
+      std::cout << " z0           calc " << paramslt(i, Z0IDX) << std::endl;
     }
   }
 

@@ -120,7 +120,7 @@ int main (int argc, char ** argv)
   pcafitter::writetofile("oneoverpt.txt", paramin, PTIDX);
   pcafitter::writetofile("phi.txt", paramin, PHIIDX);
   pcafitter::writetofile("d0.txt", paramin, D0IDX);
-  pcafitter::writetofile("cotetha.txt", paramin, TETHAIDX);
+  pcafitter::writetofile("cotetha2.txt", paramin, TETHAIDX);
   pcafitter::writetofile("z0.txt", paramin, Z0IDX);
 
   // values selection
@@ -187,7 +187,7 @@ int main (int argc, char ** argv)
   pcafitter::writetofile("oneoverpt_selected.txt", param, PTIDX);
   pcafitter::writetofile("phi_selected.txt", param, PHIIDX);
   pcafitter::writetofile("d0_selected.txt", param, D0IDX);
-  pcafitter::writetofile("cotetha_selected.txt", param, TETHAIDX);
+  pcafitter::writetofile("cotetha2_selected.txt", param, TETHAIDX);
   pcafitter::writetofile("z0_selected.txt", param, Z0IDX);
 
   // ordered 
