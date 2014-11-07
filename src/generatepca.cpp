@@ -29,6 +29,8 @@ void usage (char * name)
   std::cerr << "                            (connot be used with bigger-subladder)" << std::endl;
   std::cerr << " -l, --bigger-subladder   : use values of the bigger subladder " << std::endl;
   std::cerr << "                            (connot be used with bigger-subsector)" << std::endl;
+  std::cerr << " -a, --all-subsectors     : generate the constants for all subsectors" << std::endl;
+
 
   exit(1);
 }
@@ -39,6 +41,7 @@ int main (int argc, char ** argv)
   bool verbose = false;
   bool selectsubsector = true;
   bool selectsubladder = false;
+  bool useallsubsectors = false;
 
   while (1)
   {
@@ -50,10 +53,11 @@ int main (int argc, char ** argv)
       {"bigger-subladder", 0, NULL, 'l'},
       {"fast", 0, NULL, 'f'},
       {"version", 0, NULL, 'v'},
+      {"all-subsectors", 0, NULL, 'a'},
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "vhVslf", long_options, &option_index);
+    c = getopt_long (argc, argv, "avhVslf", long_options, &option_index);
 
     if (c == -1)
       break;
@@ -65,6 +69,11 @@ int main (int argc, char ** argv)
         break;
       case 'v':
         std::cout << "Version: " << pcafitter::get_version_string() << std::endl;
+        exit(1);
+        break;
+      case 'a':
+        useallsubsectors = true;
+        std::cerr << "TODO " << std::endl;
         exit(1);
         break;
       case 'f':
@@ -92,6 +101,12 @@ int main (int argc, char ** argv)
 
   if (selectsubladder && selectsubsector)
     usage (argv[0]);
+
+  if (useallsubsectors)
+  {
+    selectsubladder = false;
+    selectsubsector = false;
+  }
 
   char * filename = (char *) alloca (strlen(argv[optind]) + 1);
   strcpy (filename, argv[optind]);
@@ -175,22 +190,25 @@ int main (int argc, char ** argv)
     coord = coordin;
   }
 
-  std::cout << "Printout selected coordinates " << std::endl;
-  std::ofstream myfileslct("selectedcoords.txt");
-  for (int i=0; i<(int)coord.n_rows; ++i)
-    for (int j=0; j<(DIMPERCOORD*COORDIM); j=j+3)
-      myfileslct << coord(i, j) << " " << 
-                    coord(i, j+1) << " " <<
-                    coord(i, j+2) << std::endl;
-  myfileslct.close();
-
-  // write date to file 
-  std::cout << "Writing extracted parameters to files" << std::endl;
-  pcafitter::writetofile("oneoverpt_selected.txt", param, PTIDX);
-  pcafitter::writetofile("phi_selected.txt", param, PHIIDX);
-  pcafitter::writetofile("d0_selected.txt", param, D0IDX);
-  pcafitter::writetofile("cotetha2_selected.txt", param, TETHAIDX);
-  pcafitter::writetofile("z0_selected.txt", param, Z0IDX);
+  if (!useallsubsectors)
+  {
+    std::cout << "Printout selected coordinates " << std::endl;
+    std::ofstream myfileslct("selectedcoords.txt");
+    for (int i=0; i<(int)coord.n_rows; ++i)
+      for (int j=0; j<(DIMPERCOORD*COORDIM); j=j+3)
+        myfileslct << coord(i, j) << " " << 
+                      coord(i, j+1) << " " <<
+                      coord(i, j+2) << std::endl;
+    myfileslct.close();
+    
+    // write date to file 
+    std::cout << "Writing extracted parameters to files" << std::endl;
+    pcafitter::writetofile("oneoverpt_selected.txt", param, PTIDX);
+    pcafitter::writetofile("phi_selected.txt", param, PHIIDX);
+    pcafitter::writetofile("d0_selected.txt", param, D0IDX);
+    pcafitter::writetofile("cotetha2_selected.txt", param, TETHAIDX);
+    pcafitter::writetofile("z0_selected.txt", param, Z0IDX);
+  }
 
   // ordered 
   arma::vec eigval;
