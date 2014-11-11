@@ -4,6 +4,7 @@
 #include <iomanip>
 #include <string>
 #include <map>
+#include <set>
 
 // Loriano: let's try Armadillo quick code 
 #include <armadillo>
@@ -14,6 +15,8 @@
 #include <alloca.h>
 
 #include <pcafitter_private.hpp>
+
+#define MINDIMLINIT 25
 
 // lstorchi: basic quicj code to generate PCA constants
 
@@ -30,186 +33,16 @@ void usage (char * name)
   std::cerr << " -l, --bigger-subladder   : use values of the bigger subladder " << std::endl;
   std::cerr << "                            (connot be used with bigger-subsector)" << std::endl;
   std::cerr << " -a, --all-subsectors     : generate the constants for all subsectors" << std::endl;
+  std::cerr << " -r, --all-subladders     : generate the constants for all subladders" << std::endl;
 
 
   exit(1);
 }
 
-int main (int argc, char ** argv)
+void perform_main_computation (const bool fast, const bool verbose, 
+    const arma::mat & coord, const arma::mat & param, 
+    const std::string & cfname, const std::string & qfname)
 {
-  bool fast = false;
-  bool verbose = false;
-  bool selectsubsector = true;
-  bool selectsubladder = false;
-  bool useallsubsectors = false;
-
-  while (1)
-  {
-    int c, option_index;
-    static struct option long_options[] = {
-      {"help", 0, NULL, 'h'},
-      {"verbose", 0, NULL, 'V'},
-      {"bigger-subsector", 0, NULL, 's'},
-      {"bigger-subladder", 0, NULL, 'l'},
-      {"fast", 0, NULL, 'f'},
-      {"version", 0, NULL, 'v'},
-      {"all-subsectors", 0, NULL, 'a'},
-      {0, 0, 0, 0}
-    };
-
-    c = getopt_long (argc, argv, "avhVslf", long_options, &option_index);
-
-    if (c == -1)
-      break;
-
-    switch (c)
-    {
-      case 'h':
-        usage (argv[0]);
-        break;
-      case 'v':
-        std::cout << "Version: " << pcafitter::get_version_string() << std::endl;
-        exit(1);
-        break;
-      case 'a':
-        useallsubsectors = true;
-        std::cerr << "TODO " << std::endl;
-        exit(1);
-        break;
-      case 'f':
-        fast = true;
-        break;
-      case 'V':
-        verbose = true;
-        break;
-      case's':
-        selectsubsector = true;
-        selectsubladder = false;
-        break;
-      case 'l':
-        selectsubladder = true;
-        selectsubsector = false;
-        break;
-      default:
-        usage (argv[0]);
-        break;
-    } 
-  }
-
-  if (optind >= argc) 
-    usage (argv[0]);
-
-  if (selectsubladder && selectsubsector)
-    usage (argv[0]);
-
-  if (useallsubsectors)
-  {
-    selectsubladder = false;
-    selectsubsector = false;
-  }
-
-  char * filename = (char *) alloca (strlen(argv[optind]) + 1);
-  strcpy (filename, argv[optind]);
-                  
-  int num_of_line = pcafitter::numofline(filename);
-  std::cout << "file has " << num_of_line << " line " << std::endl;
-  int num_of_ent = (num_of_line-1)/ENTDIM;
-  std::cout << "file has " << num_of_ent << " entries " << std::endl;
-
-  // non perfomante ma easy to go
-  arma::mat layer, ladder, module, coordin, paramin;
-  layer.set_size(num_of_ent,COORDIM);
-  ladder.set_size(num_of_ent,COORDIM);
-  module.set_size(num_of_ent,COORDIM);
-  coordin.set_size(num_of_ent,DIMPERCOORD*COORDIM);
-  paramin.set_size(num_of_ent,PARAMDIM);
-
-  std::map<std::string, int> subsectors, subladders;
-  std::vector<std::string> subladderslist, subsectorslist;
-
-  // leggere file coordinate tracce simulate plus parametri
-  std::cout << "Reading data from " << filename << " file " << std::endl;
-  pcafitter::readingfromfile (filename, paramin, coordin, 
-      layer, ladder, module, subsectors, subladders, 
-      subsectorslist, subladderslist, num_of_ent);
-  // write date to file 
-  std::cout << "Writing parameters to files" << std::endl;
-  pcafitter::writetofile("oneoverpt.txt", paramin, PTIDX);
-  pcafitter::writetofile("phi.txt", paramin, PHIIDX);
-  pcafitter::writetofile("d0.txt", paramin, D0IDX);
-  pcafitter::writetofile("cotetha2.txt", paramin, TETHAIDX);
-  pcafitter::writetofile("z0.txt", paramin, Z0IDX);
-
-  // values selection
-  std::string slctsubsec = "";
-  int maxnumber = 0;
-  
-  arma::mat coord, param;
-
-  assert(selectsubsector != selectsubladder);
-
-  if (selectsubladder || selectsubsector)
-  {
-    if (selectsubsector)
-    {
-      std::cout << "Looking for bigger subsector" << std::endl; 
-      std::cout << "We  found " << subsectors.size() << 
-        " subsectors " << std::endl;
-    
-      pcafitter::select_bigger_sub (subsectors, verbose, 
-          maxnumber, slctsubsec);
-      
-      std::cout << "Selected subsector " << slctsubsec << 
-        " numevt: " << maxnumber << std::endl;
-
-      pcafitter::extract_sub (subsectorslist, 
-          slctsubsec, paramin, coordin, param, 
-          coord);
-    }
-    
-    if (selectsubladder)
-    {
-      std::cout << "Looking for bigger subladder" << std::endl; 
-      std::cout << "We  found " << subladders.size() << 
-        " subladders " << std::endl;
-    
-      pcafitter::select_bigger_sub (subladders, verbose, 
-          maxnumber, slctsubsec);
-      
-      std::cout << "Selected subladder " << slctsubsec << " numevt: " << maxnumber << std::endl;
-
-      pcafitter::extract_sub (subladderslist, 
-          slctsubsec, paramin, coordin, param, 
-          coord);
-    }
- 
-  }
-  else
-  {
-    param = paramin;
-    coord = coordin;
-  }
-
-  if (!useallsubsectors)
-  {
-    std::cout << "Printout selected coordinates " << std::endl;
-    std::ofstream myfileslct("selectedcoords.txt");
-    for (int i=0; i<(int)coord.n_rows; ++i)
-      for (int j=0; j<(DIMPERCOORD*COORDIM); j=j+3)
-        myfileslct << coord(i, j) << " " << 
-                      coord(i, j+1) << " " <<
-                      coord(i, j+2) << std::endl;
-    myfileslct.close();
-    
-    // write date to file 
-    std::cout << "Writing extracted parameters to files" << std::endl;
-    pcafitter::writetofile("oneoverpt_selected.txt", param, PTIDX);
-    pcafitter::writetofile("phi_selected.txt", param, PHIIDX);
-    pcafitter::writetofile("d0_selected.txt", param, D0IDX);
-    pcafitter::writetofile("cotetha2_selected.txt", param, TETHAIDX);
-    pcafitter::writetofile("z0_selected.txt", param, Z0IDX);
-  }
-
   // ordered 
   arma::vec eigval;
   // by row or by column ?
@@ -313,8 +146,254 @@ int main (int argc, char ** argv)
       coord, cmtx, q);
 
   std::cout << "Write constant to file" << std::endl;
-  pcafitter::writearmmat("c.bin", cmtx);
-  pcafitter::writearmvct("q.bin", q);
+  pcafitter::writearmmat(cfname.c_str(), cmtx);
+  pcafitter::writearmvct(qfname.c_str(), q);
+}
+
+int main (int argc, char ** argv)
+{
+  bool fast = false;
+  bool verbose = false;
+  bool selectsubsector = true;
+  bool selectsubladder = false;
+  bool useallsubsectors = false;
+  bool useallsubladders = false;
+
+  while (1)
+  {
+    int c, option_index;
+    static struct option long_options[] = {
+      {"help", 0, NULL, 'h'},
+      {"verbose", 0, NULL, 'V'},
+      {"bigger-subsector", 0, NULL, 's'},
+      {"bigger-subladder", 0, NULL, 'l'},
+      {"fast", 0, NULL, 'f'},
+      {"version", 0, NULL, 'v'},
+      {"all-subsectors", 0, NULL, 'a'},
+      {"all-subladders", 0, NULL, 'r'},
+      {0, 0, 0, 0}
+    };
+
+    c = getopt_long (argc, argv, "ravhVslf", long_options, &option_index);
+
+    if (c == -1)
+      break;
+
+    switch (c)
+    {
+      case 'h':
+        usage (argv[0]);
+        break;
+      case 'v':
+        std::cout << "Version: " << pcafitter::get_version_string() << std::endl;
+        exit(1);
+        break;
+      case 'a':
+        useallsubsectors = true;
+        break;
+      case 'r':
+        useallsubladders = true;
+        break;
+      case 'f':
+        fast = true;
+        break;
+      case 'V':
+        verbose = true;
+        break;
+      case's':
+        selectsubsector = true;
+        selectsubladder = false;
+        break;
+      case 'l':
+        selectsubladder = true;
+        selectsubsector = false;
+        break;
+      default:
+        usage (argv[0]);
+        break;
+    } 
+  }
+
+  if (optind >= argc) 
+    usage (argv[0]);
+
+  if (selectsubladder && selectsubsector)
+    usage (argv[0]);
+
+  if (useallsubsectors || useallsubladders)
+  {
+    selectsubladder = false;
+    selectsubsector = false;
+  }
+
+  if (useallsubladders && useallsubsectors)
+    usage (argv[0]);
+
+  char * filename = (char *) alloca (strlen(argv[optind]) + 1);
+  strcpy (filename, argv[optind]);
+                  
+  int num_of_line = pcafitter::numofline(filename);
+  std::cout << "file has " << num_of_line << " line " << std::endl;
+  int num_of_ent = (num_of_line-1)/ENTDIM;
+  std::cout << "file has " << num_of_ent << " entries " << std::endl;
+
+  // non perfomante ma easy to go
+  arma::mat layer, ladder, module, coordin, paramin;
+  layer.set_size(num_of_ent,COORDIM);
+  ladder.set_size(num_of_ent,COORDIM);
+  module.set_size(num_of_ent,COORDIM);
+  coordin.set_size(num_of_ent,DIMPERCOORD*COORDIM);
+  paramin.set_size(num_of_ent,PARAMDIM);
+
+  std::map<std::string, int> subsectors, subladders;
+  std::vector<std::string> subladderslist, subsectorslist;
+
+  // leggere file coordinate tracce simulate plus parametri
+  std::cout << "Reading data from " << filename << " file " << std::endl;
+  pcafitter::readingfromfile (filename, paramin, coordin, 
+      layer, ladder, module, subsectors, subladders, 
+      subsectorslist, subladderslist, num_of_ent);
+  // write date to file 
+  std::cout << "Writing parameters to files" << std::endl;
+  pcafitter::writetofile("oneoverpt.txt", paramin, PTIDX);
+  pcafitter::writetofile("phi.txt", paramin, PHIIDX);
+  pcafitter::writetofile("d0.txt", paramin, D0IDX);
+  pcafitter::writetofile("cotetha2.txt", paramin, TETHAIDX);
+  pcafitter::writetofile("z0.txt", paramin, Z0IDX);
+
+  if (!useallsubsectors && !useallsubladders)
+  {
+    // values selection
+    std::string slctsubsec = "";
+    int maxnumber = 0;
+  
+    arma::mat coord, param;
+
+    assert(selectsubsector != selectsubladder);
+    
+    if (selectsubladder || selectsubsector)
+    {
+      if (selectsubsector)
+      {
+        std::cout << "Looking for bigger subsector" << std::endl; 
+        std::cout << "We  found " << subsectors.size() << 
+          " subsectors " << std::endl;
+      
+        pcafitter::select_bigger_sub (subsectors, verbose, 
+            maxnumber, slctsubsec);
+        
+        std::cout << "Selected subsector " << slctsubsec << 
+          " numevt: " << maxnumber << std::endl;
+    
+        pcafitter::extract_sub (subsectorslist, 
+            slctsubsec, paramin, coordin, param, 
+            coord);
+      }
+      
+      if (selectsubladder)
+      {
+        std::cout << "Looking for bigger subladder" << std::endl; 
+        std::cout << "We  found " << subladders.size() << 
+          " subladders " << std::endl;
+      
+        pcafitter::select_bigger_sub (subladders, verbose, 
+            maxnumber, slctsubsec);
+        
+        std::cout << "Selected subladder " << slctsubsec << " numevt: " << maxnumber << std::endl;
+    
+        pcafitter::extract_sub (subladderslist, 
+            slctsubsec, paramin, coordin, param, 
+            coord);
+      }
+   
+    }
+    else
+    {
+      param = paramin;
+      coord = coordin;
+    }
+
+    std::cout << "Printout selected coordinates " << std::endl;
+    std::ofstream myfileslct("selectedcoords.txt");
+    for (int i=0; i<(int)coord.n_rows; ++i)
+      for (int j=0; j<(DIMPERCOORD*COORDIM); j=j+3)
+        myfileslct << coord(i, j) << " " << 
+                      coord(i, j+1) << " " <<
+                      coord(i, j+2) << std::endl;
+    myfileslct.close();
+    
+    // write date to file 
+    std::cout << "Writing extracted parameters to files" << std::endl;
+    pcafitter::writetofile("oneoverpt_selected.txt", param, PTIDX);
+    pcafitter::writetofile("phi_selected.txt", param, PHIIDX);
+    pcafitter::writetofile("d0_selected.txt", param, D0IDX);
+    pcafitter::writetofile("cotetha2_selected.txt", param, TETHAIDX);
+    pcafitter::writetofile("z0_selected.txt", param, Z0IDX);
+
+    std::string cfname = "c.bin";
+    std::string qfname = "q.bin";
+    perform_main_computation (fast, verbose, coord, param,
+        cfname, qfname);
+  }
+  else 
+  {
+    assert(useallsubladders != useallsubsectors);
+
+    arma::mat coord, param;
+    unsigned int totalamnt = 0, usedamnt = 0;
+    std::vector<std::string> * listtouse = NULL;
+
+    std::set<std::string> sectrorset;
+
+    if (useallsubsectors)
+    {
+      std::vector<std::string>::const_iterator selecteds = 
+        subsectorslist.begin(); 
+      for (; selecteds != subsectorslist.end(); ++selecteds)
+        sectrorset.insert(*selecteds);
+
+      listtouse = &subsectorslist;
+    }
+    else if (useallsubladders)
+    {
+      std::vector<std::string>::const_iterator selecteds = 
+        subladderslist.begin(); 
+      for (; selecteds != subladderslist.end(); ++selecteds)
+        sectrorset.insert(*selecteds);
+
+      listtouse = &subladderslist;
+    }
+    else 
+      usage(argv[0]);
+
+    std::set<std::string>::const_iterator selected = 
+      sectrorset.begin(); 
+    for (; selected != sectrorset.end(); ++selected)
+    {
+      pcafitter::extract_sub (*listtouse, 
+          *selected, paramin, coordin, param, 
+          coord);
+
+      std::cout << "Selected " << *selected << " size " << 
+        coord.n_rows << std::endl;
+
+      totalamnt += coord.n_rows;
+
+      if (coord.n_rows > MINDIMLINIT)
+      {
+        std::ostringstream cfname, qfname; 
+        cfname << "c." << *selected << ".bin";
+        qfname << "q." << *selected << ".bin";
+        perform_main_computation (fast, verbose, coord, param,
+            cfname.str(), qfname.str());
+
+        usedamnt += coord.n_rows;
+      }
+    }
+
+    std::cout << "Total tracks: " << totalamnt << std::endl;
+    std::cout << "Used tracks: " << usedamnt << std::endl;
+  }
 
   return 0;
 }
