@@ -4,10 +4,12 @@
 #include <iomanip>
 #include <string>
 #include <map>
+#include <set>
 
 // Loriano: let's try Armadillo quick code 
 #include <armadillo>
 #include <cassert>
+#include <sys/stat.h>
 
 #include <getopt.h>
 #include <unistd.h>
@@ -17,6 +19,18 @@
 
 // lstorchi: basi code to fit tracks, using the PCA constants generated 
 //           by the related generatepca
+
+namespace
+{
+  bool file_exists(const std::string& filename)
+  {
+    struct stat buf;
+    if (stat(filename.c_str(), &buf) != -1)
+      return true;
+                
+    return false;
+  }
+}
 
 void build_and_compare (arma::mat & paramslt, arma::mat & coordslt, 
      arma::mat & cmtx, arma::rowvec & q, bool verbose)
@@ -86,6 +100,8 @@ void usage (char * name)
   std::cerr << " -l, --subladder=[subld]  : by default use values of the bigger subladder " << std::endl;
   std::cerr << "                            with this option you can speficy to perform " << std::endl;
   std::cerr << "                            prediction for subladder subld " << std::endl;
+  std::cerr << " -a, --all-subsectors     : perform the fitting for all subsectors" << std::endl;
+  std::cerr << " -r, --all-subladders     : perform the fitting for all subladders" << std::endl;
 
   exit(1);
 }
@@ -97,6 +113,8 @@ int main (int argc, char ** argv)
   std::string subsec = "";
   std::string sublad = "";
   bool verbose = false;
+  bool useallsubsectors = false;
+  bool useallsubladders = false;
 
   while (1)
   {
@@ -109,16 +127,24 @@ int main (int argc, char ** argv)
       {"subladder", 1, NULL, 'l'},
       {"verbose", 0, NULL, 'V'},
       {"version", 0, NULL, 'v'},
+      {"all-subsectors", 0, NULL, 'a'},
+      {"all-subladders", 0, NULL, 'r'},
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "vhVc:q:s:l:", long_options, &option_index);
+    c = getopt_long (argc, argv, "arvhVc:q:s:l:", long_options, &option_index);
 
     if (c == -1)
       break;
 
     switch (c)
     {
+      case 'a':
+        useallsubsectors = true;
+        break;
+      case 'r':
+        useallsubladders = true;
+        break;
       case 'V':
         verbose = true;
         break;
@@ -150,6 +176,9 @@ int main (int argc, char ** argv)
   if (optind >= argc) 
     usage (argv[0]);
 
+  if (useallsubladders && useallsubsectors)
+    usage (argv[0]);
+
   char * filename = (char *) alloca (strlen(argv[optind]) + 1);
   strcpy (filename, argv[optind]);
 
@@ -159,11 +188,6 @@ int main (int argc, char ** argv)
   
   arma::mat cmtx;
   arma::rowvec q;
-
-  std::cout << "Read constant from files (" << cfname << 
-    " and " << qfname << ")" << std::endl;
-  pcafitter::readarmmat(cfname.c_str(), cmtx);
-  pcafitter::readarmvct(qfname.c_str(), q);
 
   std::cout << "Reading data from " << filename << " file " << std::endl;
   int num_of_line = pcafitter::numofline(filename);
@@ -182,59 +206,123 @@ int main (int argc, char ** argv)
   std::vector<std::string> subladderslist, subsectorslist;
 
   // leggere file coordinate tracce simulate plus parametri
+  if (!file_exists(filename))
+  {
+    std::cerr << "Inout file does not exist" << std::endl;
+    return 1;
+  }
+ 
   pcafitter::readingfromfile (filename, param, coord, 
       layer, ladder, module, subsectors, subladders, 
       subsectorslist, subladderslist, num_of_ent);
 
-  if ((subsec == "") && (sublad == ""))
+  if (!useallsubsectors && !useallsubladders)
   {
-    int maxnumber;
+    std::cout << "Read constant from files (" << cfname << 
+      " and " << qfname << ")" << std::endl;
+    if (!file_exists(cfname) || !file_exists(qfname))
+    {
+      std::cerr << "Constants file does not exist" << std::endl;
+      return 1;
+    }
+    pcafitter::readarmmat(cfname.c_str(), cmtx);
+    pcafitter::readarmvct(qfname.c_str(), q);
 
-    std::cout << "Looking for bigger subsector" << std::endl; 
-    std::cout << "We  found " << subsectors.size() << 
-      " subsectors " << std::endl;
+    if ((subsec == "") && (sublad == ""))
+    {
+      int maxnumber;
     
-    pcafitter::select_bigger_sub (subsectors, verbose, 
-        maxnumber, subsec);
+      std::cout << "Looking for bigger subsector" << std::endl; 
+      std::cout << "We  found " << subsectors.size() << 
+        " subsectors " << std::endl;
+      
+      pcafitter::select_bigger_sub (subsectors, verbose, 
+          maxnumber, subsec);
+      
+      std::cout << "Selected subsector " << subsec << 
+        " numevt: " << maxnumber << std::endl;
     
-    std::cout << "Selected subsector " << subsec << 
-      " numevt: " << maxnumber << std::endl;
-
-    std::cout << "Looking for bigger subladder" << std::endl; 
-    std::cout << "We  found " << subladders.size() << 
-      " subladders " << std::endl;
+      std::cout << "Looking for bigger subladder" << std::endl; 
+      std::cout << "We  found " << subladders.size() << 
+        " subladders " << std::endl;
+      
+      pcafitter::select_bigger_sub (subladders, verbose, 
+          maxnumber, sublad);
+      
+      std::cout << "Selected subladder " << sublad << " numevt: " 
+        << maxnumber << std::endl;
+    }
     
-    pcafitter::select_bigger_sub (subladders, verbose, 
-        maxnumber, sublad);
+    if (subsec != "")
+    {
+      arma::mat paramslt, coordslt;
     
-    std::cout << "Selected subladder " << sublad << " numevt: " 
-      << maxnumber << std::endl;
+      std::cout << "Using subsector " << subsec << std::endl;
+    
+      pcafitter::extract_sub (subsectorslist, 
+          subsec, param, coord, paramslt,
+          coordslt);
+    
+      build_and_compare (paramslt, coordslt, cmtx, q, verbose);
+    }
+    
+    if (sublad != "")
+    {
+      arma::mat paramslt, coordslt;
+    
+      std::cout << "Using subladder " << sublad << std::endl;
+    
+      pcafitter::extract_sub (subladderslist, 
+          sublad, param, coord, paramslt, 
+          coordslt);
+     
+      build_and_compare (paramslt, coordslt, cmtx, q, verbose);
+    }
   }
-
-  if (subsec != "")
+  else
   {
-    arma::mat paramslt, coordslt;
+    assert(useallsubladders != useallsubsectors);
+    std::set<std::string> sectrorset;
 
-    std::cout << "Using subsector " << subsec << std::endl;
+    std::vector<std::string> * listtouse = NULL;
 
-    pcafitter::extract_sub (subsectorslist, 
-        subsec, param, coord, paramslt,
-        coordslt);
+    if (useallsubsectors)
+    {
+      std::vector<std::string>::const_iterator selecteds = 
+        subsectorslist.begin(); 
+      for (; selecteds != subsectorslist.end(); ++selecteds)
+        sectrorset.insert(*selecteds);
 
-    build_and_compare (paramslt, coordslt, cmtx, q, verbose);
-  }
+      listtouse = &subsectorslist;
+    }
+    else if (useallsubladders)
+    {
+      std::vector<std::string>::const_iterator selecteds = 
+        subladderslist.begin(); 
+      for (; selecteds != subladderslist.end(); ++selecteds)
+        sectrorset.insert(*selecteds);
 
-  if (sublad != "")
-  {
-    arma::mat paramslt, coordslt;
+      listtouse = &subladderslist;
+    }
+    else 
+      usage(argv[0]);
 
-    std::cout << "Using subladder " << sublad << std::endl;
+    std::set<std::string>::const_iterator selected = 
+      sectrorset.begin(); 
+    for (; selected != sectrorset.end(); ++selected)
+    {
+      std::ostringstream cfname, qfname; 
+      cfname << "c." << *selected << ".bin";
+      qfname << "q." << *selected << ".bin";
 
-    pcafitter::extract_sub (subladderslist, 
-        sublad, param, coord, paramslt, 
-        coordslt);
-   
-    build_and_compare (paramslt, coordslt, cmtx, q, verbose);
+      if (file_exists(cfname.str()) && file_exists(qfname.str()))
+      {
+        std::cout << "Perfom fitting for " << *selected << std::endl;
+      }
+    }
+ 
+
+    // TODO
   }
  
   return 0;
