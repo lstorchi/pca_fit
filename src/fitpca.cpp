@@ -318,6 +318,14 @@ int main (int argc, char ** argv)
       if (file_exists(cfname.str()) && file_exists(qfname.str()))
       {
         std::cout << "Perfom fitting for " << *selected << std::endl;
+
+        arma::mat paramslt, coordslt;
+    
+        pcafitter::extract_sub (*listtouse, 
+            *selected, param, coord, paramslt,
+            coordslt);
+    
+        build_and_compare (paramslt, coordslt, cmtx, q, verbose);
       }
     }
  
