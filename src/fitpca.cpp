@@ -33,7 +33,8 @@ namespace
 }
 
 void build_and_compare (arma::mat & paramslt, arma::mat & coordslt, 
-     arma::mat & cmtx, arma::rowvec & q, bool verbose)
+     arma::mat & cmtx, arma::rowvec & q, bool verbose, 
+     const std::string & postfname)
 {
   double * oneoverptcmp, * phicmp, * etacmp, * z0cmp, * d0cmp;
   oneoverptcmp = new double [(int)coordslt.n_rows];
@@ -43,6 +44,15 @@ void build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
   d0cmp = new double [(int)coordslt.n_rows];
   pcafitter::computeparameters (cmtx, q, coordslt, oneoverptcmp,
       phicmp, etacmp, z0cmp, d0cmp);
+
+
+  std::ostringstream fname;
+  fname << "results." << postfname << ".txt";
+
+  std::ofstream myfile(fname.str().c_str());
+  myfile << "(1/pt)_orig (1/pt)_cmpt diff (phi)_orig " <<
+    "(phi)_cmpt diff (cot(tetha/2))_orig (cot(tetha/2))_cmpt diff" << 
+    "(d0)_orig (d0)_cmpt diff (z0)_orig (z0)_cmpt diff" << std::endl; 
 
   arma::running_stat<double> pc[PARAMDIM];
   for (int i=0; i<(int)coordslt.n_rows; ++i)
@@ -57,6 +67,18 @@ void build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
         (fabs(d0cmp[i] + paramslt(i, D0IDX))/2.0));
     pc[Z0IDX](fabs(z0cmp[i] - paramslt(i, Z0IDX))/
         (fabs(z0cmp[i] + paramslt(i, Z0IDX))/2.0));
+
+    myfile << 
+      paramslt(i, PTIDX) << " " << oneoverptcmp[i] << " " << 
+      fabs(oneoverptcmp[i] - paramslt(i, PTIDX)) << " " << 
+      paramslt(i, PHIIDX) << " " << phicmp[i] << " " <<
+      fabs(phicmp[i] + paramslt(i, PHIIDX)) << " " << 
+      paramslt(i, TETHAIDX) << " " << etacmp[i] << " " <<
+      fabs(etacmp[i] - paramslt(i, TETHAIDX)) << " " <<
+      paramslt(i, D0IDX) << " " << d0cmp[i] << " " <<
+      fabs(d0cmp[i] - paramslt(i, D0IDX)) << " " <<
+      paramslt(i, Z0IDX) << " " << z0cmp[i] << " " <<
+      fabs(z0cmp[i] - paramslt(i, Z0IDX)) << std::endl;
 
     if (verbose)
     {
@@ -73,6 +95,8 @@ void build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
       std::cout << " z0           calc " << paramslt(i, Z0IDX) << std::endl;
     }
   }
+
+  myfile.close();
 
   for (int i=0; i<PARAMDIM; ++i)
      std::cout << "For " << pcafitter::paramidxtostring(i) << " error " << 
@@ -263,7 +287,8 @@ int main (int argc, char ** argv)
           subsec, param, coord, paramslt,
           coordslt);
     
-      build_and_compare (paramslt, coordslt, cmtx, q, verbose);
+      build_and_compare (paramslt, coordslt, cmtx, q, verbose, 
+          subsec);
     }
     
     if (sublad != "")
@@ -276,7 +301,8 @@ int main (int argc, char ** argv)
           sublad, param, coord, paramslt, 
           coordslt);
      
-      build_and_compare (paramslt, coordslt, cmtx, q, verbose);
+      build_and_compare (paramslt, coordslt, cmtx, q, verbose, 
+          sublad);
     }
   }
   else
@@ -329,7 +355,8 @@ int main (int argc, char ** argv)
             *selected, param, coord, paramslt,
             coordslt);
     
-        build_and_compare (paramslt, coordslt, cmtx, q, verbose);
+        build_and_compare (paramslt, coordslt, cmtx, q, verbose, 
+            *selected);
       }
     }
  
