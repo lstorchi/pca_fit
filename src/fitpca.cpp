@@ -70,15 +70,15 @@ void build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
 
     myfile << 
       paramslt(i, PTIDX) << " " << oneoverptcmp[i] << " " << 
-      fabs(oneoverptcmp[i] - paramslt(i, PTIDX)) << " " << 
+      (oneoverptcmp[i] - paramslt(i, PTIDX)) << " " << 
       paramslt(i, PHIIDX) << " " << phicmp[i] << " " <<
-      fabs(phicmp[i] + paramslt(i, PHIIDX)) << " " << 
+      (phicmp[i] + paramslt(i, PHIIDX)) << " " << 
       paramslt(i, TETHAIDX) << " " << etacmp[i] << " " <<
-      fabs(etacmp[i] - paramslt(i, TETHAIDX)) << " " <<
+      (etacmp[i] - paramslt(i, TETHAIDX)) << " " <<
       paramslt(i, D0IDX) << " " << d0cmp[i] << " " <<
-      fabs(d0cmp[i] - paramslt(i, D0IDX)) << " " <<
+      (d0cmp[i] - paramslt(i, D0IDX)) << " " <<
       paramslt(i, Z0IDX) << " " << z0cmp[i] << " " <<
-      fabs(z0cmp[i] - paramslt(i, Z0IDX)) << std::endl;
+      (z0cmp[i] - paramslt(i, Z0IDX)) << std::endl;
 
     if (verbose)
     {
