@@ -319,6 +319,10 @@ int main (int argc, char ** argv)
       {
         std::cout << "Perfom fitting for " << *selected << std::endl;
 
+        std::cout << "Read constants " << std::endl;
+        pcafitter::readarmmat(cfname.str().c_str(), cmtx);
+        pcafitter::readarmvct(qfname.str().c_str(), q);
+
         arma::mat paramslt, coordslt;
     
         pcafitter::extract_sub (*listtouse, 
