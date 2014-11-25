@@ -21,11 +21,11 @@ CFLAGS +=-I./ -I../include
 
 LIBS += -larmadillo -lm
 
-OBJG = generatepca.o \
-       utility.o
+OBJG = pcafitter.o \
+       generatepca.o
 
-OBJF = fitpca.o \
-       utility.o
+OBJF = pcafitter.o \
+       fitpca.o 
 
 all: generatepca fitpca
 

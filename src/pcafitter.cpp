@@ -13,23 +13,45 @@
 #include <unistd.h>
 #include <alloca.h>
 
-#include <pcafitter_private.hpp>
-
 #include <version.h>
+#include <pcafitter.hpp>
 
 // lstorchi: here all the basic routines, in principles can be used 
 //           to start building a proper class.
 
-std::string pcafitter::get_version_string( )
-{
-    std::ostringstream version;
-    version << PCAFITTER_MAJOR_VER << "." << PCAFITTER_MINOR_VER << "." << 
-      PCAFITTER_PATCH_VER ;
+///////////////////////////////////////////////////////////////////////////////
+//  PUBLIC
+///////////////////////////////////////////////////////////////////////////////
 
-    return version.str();
+pcafitter::pcafitter()
+{
+  DIMPERCOORD = 3;
 }
 
-std::string pcafitter::paramidxtostring (int i)
+pcafitter::~pcafitter()
+{
+}
+
+int pcafitter::get_dimpercoord () const
+{
+  return DIMPERCOORD;
+}
+
+void pcafitter::set_dimpercoord (int i)
+{
+  DIMPERCOORD = i;
+}
+
+std::string pcafitter::get_version_string( )
+{
+  std::ostringstream version;
+  version << PCAFITTER_MAJOR_VER << "." << PCAFITTER_MINOR_VER << "." << 
+    PCAFITTER_PATCH_VER ;
+
+  return version.str();
+}
+
+std::string pcafitter::paramidx_to_string (int i)
 {
   switch (i)
   {
@@ -54,7 +76,7 @@ std::string pcafitter::paramidxtostring (int i)
   }
 }
 
-void pcafitter::computeparameters (const arma::mat & cmtx, 
+void pcafitter::compute_parameters (const arma::mat & cmtx, 
     const arma::rowvec & q, 
     const arma::mat & coord, 
     double * oneoverptcmp, double * phicmp, 
@@ -91,7 +113,7 @@ void pcafitter::computeparameters (const arma::mat & cmtx,
 }
 
 
-void pcafitter::readarmmat (const char * fname, arma::mat & cmtx)
+void pcafitter::read_armmat (const char * fname, arma::mat & cmtx)
 {
   int n, m;
   std::ifstream myfilec(fname, std::ios::binary | std::ios::in);
@@ -111,7 +133,7 @@ void pcafitter::readarmmat (const char * fname, arma::mat & cmtx)
   myfilec.close();
 }
 
-void pcafitter::readarmvct (const char * fname, arma::rowvec & q)
+void pcafitter::read_armvct (const char * fname, arma::rowvec & q)
 {
   int n;
   std::ifstream myfileq(fname, std::ios::binary);
@@ -127,7 +149,7 @@ void pcafitter::readarmvct (const char * fname, arma::rowvec & q)
   myfileq.close();
 }
 
-void pcafitter::writearmmat (const char * fname, arma::mat & cmtx)
+void pcafitter::write_armmat (const char * fname, arma::mat & cmtx)
 {
   std::ofstream myfilec(fname, std::ios::binary);
   myfilec.write((const char*)&(cmtx.n_rows), sizeof(cmtx.n_rows));
@@ -138,7 +160,7 @@ void pcafitter::writearmmat (const char * fname, arma::mat & cmtx)
   myfilec.close();
 }
 
-void pcafitter::writearmvct (const char * fname, arma::rowvec & q)
+void pcafitter::write_armvct (const char * fname, arma::rowvec & q)
 {
   std::ofstream myfileq(fname, std::ios::binary);
   myfileq.write((const char*)&(q.n_cols), sizeof(q.n_cols));
@@ -147,21 +169,7 @@ void pcafitter::writearmvct (const char * fname, arma::rowvec & q)
   myfileq.close();
 }
 
-int pcafitter::numofline (const char * fname) 
-{ 
-  int number_of_lines = 0;
-  std::string line;
-  std::ifstream myfile(fname);
-  
-  while (std::getline(myfile, line))
-    ++number_of_lines;
-
-  myfile.close();
-                          
-  return number_of_lines;
-}
-
-void pcafitter::writetofile (const char * fname, 
+void pcafitter::write_to_file (const char * fname, 
     const arma::mat & vec, int idx) 
 {
   std::ofstream myfile(fname);
@@ -172,7 +180,7 @@ void pcafitter::writetofile (const char * fname,
   myfile.close();
 }
 
-void pcafitter::readingfromfile (const char * filename,
+void pcafitter::reading_from_file (const char * filename,
     arma::mat & paramin, arma::mat & coordin, 
     arma::mat & layer, arma::mat & ladder, 
     arma::mat & module, 
@@ -180,7 +188,7 @@ void pcafitter::readingfromfile (const char * filename,
     std::map<std::string, int> & subladders,
     std::vector<std::string> & subsectorslist,
     std::vector<std::string> & subladderslist,
-    int num_of_ent)
+    int num_of_ent, bool usesegid)
 {
 
   std::string line;
@@ -203,11 +211,22 @@ void pcafitter::readingfromfile (const char * filename,
     for (int j = 0; j < COORDIM; ++j)
     {
       int a, b, c;
-      mytfp >> coordin(i, j*3) >> 
-               coordin(i, j*3+1) >> 
-               coordin(i, j*3+2) >> 
-               a >> b >> c >> segid; // segid I am reading because can be used as local ccordinate ?
-                                     // in case of l1tkstubs is the tp value here 
+      if (usesegid)
+      {
+        float x, y, z;
+        mytfp >> x >> 
+                 y >> 
+                 z >> 
+                 a >> b >> c >> segid; // segid I am reading because can be used as local ccordinate ?
+                                       // in case of l1tkstubs is the tp value here 
+        coordin(i, j) = (double) segid;
+      }
+      else
+        mytfp >> coordin(i, j*3) >> 
+                 coordin(i, j*3+1) >> 
+                 coordin(i, j*3+2) >> 
+                 a >> b >> c >> segid; // segid I am reading because can be used as local ccordinate ?
+                                       // in case of l1tkstubs is the tp value here 
     
       layer(i, j) = a;
       ladder(i, j) = b;
@@ -412,3 +431,22 @@ void pcafitter::compute_pca_constants (
 #endif
 
 }
+
+int pcafitter::numofline (const char * fname) 
+{ 
+  int number_of_lines = 0;
+  std::string line;
+  std::ifstream myfile(fname);
+  
+  while (std::getline(myfile, line))
+    ++number_of_lines;
+
+  myfile.close();
+                          
+  return number_of_lines;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//  PRIVATE
+///////////////////////////////////////////////////////////////////////////////
+
