@@ -2,9 +2,9 @@
 #define _PCAFITTER_INC_
 
 #define ENTDIM 8
-#define COORDIM (ENTDIM-2)
 
 #define PARAMDIM 5
+
 #define PTIDX 0
 #define PHIIDX 1
 #define D0IDX 2
@@ -32,8 +32,10 @@ class pcafitter
     static int numofline (const char * fname);
 
     int get_dimpercoord () const;
-
     void set_dimpercoord (int);
+
+    int get_coordim () const;
+    void set_coordim (int);
     
     void write_to_file (const char * fname, 
         const arma::mat & vec, int idx);
@@ -82,6 +84,7 @@ class pcafitter
 
   private:
     int DIMPERCOORD;
+    int COORDIM;
 };
 
 #endif
