@@ -26,6 +26,7 @@
 pcafitter::pcafitter()
 {
   DIMPERCOORD = 3;
+  COORDIM = 6;
 }
 
 pcafitter::~pcafitter()
@@ -40,6 +41,16 @@ int pcafitter::get_dimpercoord () const
 void pcafitter::set_dimpercoord (int i)
 {
   DIMPERCOORD = i;
+}
+
+int pcafitter::get_coordim () const
+{
+  return COORDIM;
+}
+
+void pcafitter::set_coordim (int i)
+{
+  COORDIM = i;
 }
 
 std::string pcafitter::get_version_string( )

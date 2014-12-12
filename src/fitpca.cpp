@@ -231,10 +231,10 @@ int main (int argc, char ** argv)
   std::cout << "file has " << num_of_ent << " entries " << std::endl;
 
   arma::mat layer, ladder, module, coord, param;
-  layer.set_size(num_of_ent,COORDIM);
-  ladder.set_size(num_of_ent,COORDIM);
-  module.set_size(num_of_ent,COORDIM);
-  coord.set_size(num_of_ent,fitter.get_dimpercoord()*COORDIM);
+  layer.set_size(num_of_ent,fitter.get_coordim());
+  ladder.set_size(num_of_ent,fitter.get_coordim());
+  module.set_size(num_of_ent,fitter.get_coordim());
+  coord.set_size(num_of_ent,fitter.get_dimpercoord()*fitter.get_coordim());
   param.set_size(num_of_ent,PARAMDIM);
 
   std::map<std::string, int> subsectors, subladders;
