@@ -74,8 +74,7 @@ void perform_main_computation (const bool fast, const bool verbose,
           mainr += score(i,j) * score(i,j);
         
         double residue = 0.0;
-        for (int j=5; j<fitter.get_dimpercoord()*
-            fitter.get_coordim(); ++j)
+        for (int j=5; j<fitter.get_coordim(); ++j)
           residue += score(i,j) * score(i,j);
         
         std::cout << "Track " << i+1 << " residue " << residue <<
@@ -88,17 +87,14 @@ void perform_main_computation (const bool fast, const bool verbose,
   else
   {
     std::cout << "Compute correlation mtx" << std::endl;
-    arma::mat coordm = arma::zeros<arma::mat>(fitter.get_dimpercoord()*
+    arma::mat coordm = arma::zeros<arma::mat>(fitter.get_coordim());
+    arma::mat hca = arma::zeros<arma::mat>(fitter.get_coordim(),
         fitter.get_coordim());
-    arma::mat hca = arma::zeros<arma::mat>(fitter.get_dimpercoord()*
-        fitter.get_coordim(),
-        fitter.get_dimpercoord()*fitter.get_coordim());
-    arma::vec eigvaltmp = arma::zeros<arma::vec>(fitter.get_dimpercoord()*
-        fitter.get_coordim());
+    arma::vec eigvaltmp = arma::zeros<arma::vec>(fitter.get_coordim());
 
-    eigvec = arma::zeros<arma::mat>(fitter.get_dimpercoord()*fitter.get_coordim(),
-        fitter.get_dimpercoord()*fitter.get_coordim());
-    eigval = arma::zeros<arma::vec>(fitter.get_dimpercoord()*fitter.get_coordim());
+    eigvec = arma::zeros<arma::mat>(fitter.get_coordim(),
+        fitter.get_coordim());
+    eigval = arma::zeros<arma::vec>(fitter.get_coordim());
 
     hca = arma::cov(coord);
 
@@ -107,12 +103,12 @@ void perform_main_computation (const bool fast, const bool verbose,
     for (int l=0; l<(int)coord.n_rows; ++l) 
     {
       sum += 1.0e0;
-      for (int i=0; i<(fitter.get_dimpercoord()*fitter.get_coordim()); ++i)
+      for (int i=0; i<fitter.get_coordim(); ++i)
         coordm(i) += (coord(l,i)-coordm(i))/sum;
     
-      for (int i=0; i<(fitter.get_dimpercoord()*fitter.get_coordim()); ++i)
+      for (int i=0; i<fitter.get_coordim(); ++i)
       {
-        for (int j=0; j<(fitter.get_dimpercoord()*fitter.get_coordim()); ++j)
+        for (int j=0; j<fitter.get_coordim(); ++j)
         {
           hca(i,j) += ((coord(l,i) - coordm(i))*
                        (coord(l,j) - coordm(j))-
@@ -125,18 +121,18 @@ void perform_main_computation (const bool fast, const bool verbose,
     std::cout << "Eigensystem" << std::endl;
     arma::eig_sym(eigvaltmp, eigvec, hca);
  
-    for (int i=0; i<(fitter.get_dimpercoord()*fitter.get_coordim()); ++i)
-      eigval(i) = eigvaltmp((fitter.get_dimpercoord()*fitter.get_coordim())-i-1);
+    for (int i=0; i<fitter.get_coordim(); ++i)
+      eigval(i) = (eigvaltmp(fitter.get_coordim())-i-1);
   }
 
 
   double totval = 0.0e0;
-  for (int i=0; i<(fitter.get_dimpercoord()*fitter.get_coordim()); ++i)
+  for (int i=0; i<fitter.get_coordim(); ++i)
     totval += eigval(i);
 
   std::cout << "Eigenvalues: " << std::endl;
   double totvar = 0.0e0; 
-  for (int i=0; i<(fitter.get_dimpercoord()*fitter.get_coordim()); ++i)
+  for (int i=0; i<fitter.get_coordim(); ++i)
   {
     if (i < PARAMDIM)
       totvar += 100.0e0*(eigval(i)/totval);
@@ -146,10 +142,10 @@ void perform_main_computation (const bool fast, const bool verbose,
   }
   std::cout << "PARAMDIM eigenvalues: " << totvar << std::endl;
 
-  std::cout << PARAMDIM << " X " << fitter.get_dimpercoord()*fitter.get_coordim() << std::endl;
+  std::cout << PARAMDIM << " X " << fitter.get_coordim() << std::endl;
 
   arma::mat cmtx = arma::zeros<arma::mat>(PARAMDIM,
-      fitter.get_dimpercoord()*fitter.get_coordim());
+      fitter.get_coordim());
   arma::rowvec q = arma::zeros<arma::rowvec>(PARAMDIM);
 
   std::cout << "Compute PCA constants " << std::endl;
@@ -233,7 +229,7 @@ int main (int argc, char ** argv)
   }
 
   if (usesegid)
-    fitter.set_dimpercoord (1);
+    fitter.set_coordim (6);
 
   if (optind >= argc) 
     usage (argv[0]);
@@ -263,7 +259,7 @@ int main (int argc, char ** argv)
   layer.set_size(num_of_ent,fitter.get_coordim());
   ladder.set_size(num_of_ent,fitter.get_coordim());
   module.set_size(num_of_ent,fitter.get_coordim());
-  coordin.set_size(num_of_ent,fitter.get_dimpercoord()*fitter.get_coordim());
+  coordin.set_size(num_of_ent,fitter.get_coordim());
   paramin.set_size(num_of_ent,PARAMDIM);
 
   std::map<std::string, int> subsectors, subladders;
@@ -337,7 +333,7 @@ int main (int argc, char ** argv)
     std::cout << "Printout selected coordinates " << std::endl;
     std::ofstream myfileslct("selectedcoords.txt");
     for (int i=0; i<(int)coord.n_rows; ++i)
-      for (int j=0; j<(fitter.get_dimpercoord()*fitter.get_coordim()); j=j+3)
+      for (int j=0; j<fitter.get_coordim(); j=j+3)
         myfileslct << coord(i, j) << " " << 
                       coord(i, j+1) << " " <<
                       coord(i, j+2) << std::endl;

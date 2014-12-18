@@ -3,8 +3,11 @@ README (Loriano Storchi) loriano@storchi.org
 - basic pca fitting methods. Here  you  find  the  rootfile  reader 
   as well as the generatepca constants code and the code performing 
   the fitting.
-- This is just a test code, nothing more than a basic rapid prototyping.
-  In case we will never need a proper tool we will need to think about 
+- IMPORTANTE NOTE: This is just a test code for internal use only, 
+  nothing more than a basic rapid quick and dirty prototyping. In case 
+  we will never need a proper tool we will need to think about and 
+  totally restructuring the code in a proper OO fashion. 
+- In case you want to test it use: rel_0_2_0
  
 
 All codes are provided with some basic help, just use the 

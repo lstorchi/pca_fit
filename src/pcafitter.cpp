@@ -25,32 +25,21 @@
 
 pcafitter::pcafitter()
 {
-  DIMPERCOORD = 3;
-  COORDIM = 6;
+  coordim_ = 6*3;
 }
 
 pcafitter::~pcafitter()
 {
 }
 
-int pcafitter::get_dimpercoord () const
-{
-  return DIMPERCOORD;
-}
-
-void pcafitter::set_dimpercoord (int i)
-{
-  DIMPERCOORD = i;
-}
-
 int pcafitter::get_coordim () const
 {
-  return COORDIM;
+  return coordim_;
 }
 
 void pcafitter::set_coordim (int i)
 {
-  COORDIM = i;
+  coordim_ = i;
 }
 
 std::string pcafitter::get_version_string( )
@@ -98,27 +87,27 @@ void pcafitter::compute_parameters (const arma::mat & cmtx,
   {
     // 1 / pt 
     oneoverptcmp[i] = q(PTIDX);
-    for (int k=0; k<(DIMPERCOORD*COORDIM); ++k)
+    for (int k=0; k<coordim_; ++k)
       oneoverptcmp[i] += cmtx(PTIDX,k)*coord(i,k);
 
     // phi
     phicmp[i] = q(PHIIDX);
-    for (int k=0; k<(DIMPERCOORD*COORDIM); ++k)
+    for (int k=0; k<coordim_; ++k)
       phicmp[i] += cmtx(PHIIDX,k)*coord(i,k);
 
     // eta
     etacmp[i] = q(TETHAIDX);
-    for (int k=0; k<(DIMPERCOORD*COORDIM); ++k)
+    for (int k=0; k<coordim_; ++k)
       etacmp[i] += cmtx(TETHAIDX,k)*coord(i,k);
 
     // z0
     z0cmp[i] = q(Z0IDX);
-    for (int k=0; k<(DIMPERCOORD*COORDIM); ++k)
+    for (int k=0; k<coordim_; ++k)
       z0cmp[i] += cmtx(Z0IDX,k)*coord(i,k);
 
     // d0
     d0cmp[i] = q(D0IDX);
-    for (int k=0; k<(DIMPERCOORD*COORDIM); ++k)
+    for (int k=0; k<coordim_; ++k)
       d0cmp[i] += cmtx(D0IDX,k)*coord(i,k);
   }
 }
@@ -219,7 +208,7 @@ void pcafitter::reading_from_file (const char * filename,
     osss << std::setfill('0');
     ossl << std::setfill('0');
     
-    for (int j = 0; j < COORDIM; ++j)
+    for (int j = 0; j < NUMOFLAYER; ++j)
     {
       int a, b, c;
       if (usesegid)
@@ -245,13 +234,13 @@ void pcafitter::reading_from_file (const char * filename,
       
       osss << std::setw(2) << layer(i, j);
       osss << std::setw(2) << ladder(i, j);
-      if (j != COORDIM-1)
+      if (j != NUMOFLAYER-1)
         osss<<"-";
 
       ossl << std::setw(2) << layer(i, j);
       ossl << std::setw(2) << ladder(i, j);
       ossl << std::setw(2) << module(i, j);
-      if (j != COORDIM-1)
+      if (j != NUMOFLAYER-1)
         ossl<<"-";
 
     }
@@ -324,7 +313,7 @@ void pcafitter::extract_sub (const std::vector<std::string> & sublist,
     if (*it == slctsubsec)
       dim++;
 
-  coord.set_size(dim,DIMPERCOORD*COORDIM);
+  coord.set_size(dim,coordim_);
   param.set_size(dim,PARAMDIM);
 
   int k = 0;
@@ -333,7 +322,7 @@ void pcafitter::extract_sub (const std::vector<std::string> & sublist,
   {
     if (*it == slctsubsec)
     {
-      for (int j = 0; j < DIMPERCOORD*COORDIM; ++j)
+      for (int j = 0; j < coordim_; ++j)
         coord(k,j) = coordin(i,j);
       for (int j = 0; j < PARAMDIM; ++j)
         param(k,j) = paramin (i,j);
@@ -348,24 +337,24 @@ void pcafitter::compute_pca_constants (
     arma::mat & cmtx, 
     arma::rowvec & q)
 {
-  arma::mat v = arma::zeros<arma::mat>(DIMPERCOORD*COORDIM,DIMPERCOORD*COORDIM);
+  arma::mat v = arma::zeros<arma::mat>(coordim_,coordim_);
   v = arma::cov(coord);
 
 #ifdef DEBUG
   /* correlation matrix ricorda su dati standardizzati coincide con la matrice 
    *   di covarianza : 
    *   z = x -<x> / sigma */
-  arma::mat corr = arma::zeros<arma::mat>(DIMPERCOORD*COORDIM,DIMPERCOORD*COORDIM);
+  arma::mat corr = arma::zeros<arma::mat>(coordim_,coordim_);
   
-  for (int i=0; i<(DIMPERCOORD*COORDIM); ++i)
-    for (int j=0; j<(DIMPERCOORD*COORDIM); ++j)
+  for (int i=0; i<(coordim_); ++i)
+    for (int j=0; j<(coordim_); ++j)
       corr(i,j) = v(i,j) / sqrt(v(i,i)*v(j,j));
   
   std::cout << "Correlation matrix: " << std::endl;
   std::cout << corr;
 #endif
 
-  arma::mat vi = arma::zeros<arma::mat>(DIMPERCOORD*COORDIM,DIMPERCOORD*COORDIM);
+  arma::mat vi = arma::zeros<arma::mat>(coordim_,coordim_);
   vi = arma::inv(v); 
   //vi = v.i();
 
@@ -375,9 +364,9 @@ void pcafitter::compute_pca_constants (
 #endif
 
   // and so on ...
-  arma::mat hcap = arma::zeros<arma::mat>(DIMPERCOORD*COORDIM,PARAMDIM);
+  arma::mat hcap = arma::zeros<arma::mat>(coordim_,PARAMDIM);
   arma::rowvec paramm = arma::zeros<arma::rowvec>(PARAMDIM);
-  arma::rowvec coordm = arma::zeros<arma::rowvec>(DIMPERCOORD*COORDIM);
+  arma::rowvec coordm = arma::zeros<arma::rowvec>(coordim_);
 
   //hcap = arma::cov()
 
@@ -419,8 +408,8 @@ void pcafitter::compute_pca_constants (
   //std::cout << hcap << std::endl;
 
   for (int i=0; i<PARAMDIM; ++i)
-    for (int l=0; l<(DIMPERCOORD*COORDIM); ++l)
-      for (int m=0; m<(DIMPERCOORD*COORDIM); ++m)
+    for (int l=0; l<coordim_; ++l)
+      for (int m=0; m<coordim_; ++m)
         cmtx(i,l) += vi(l,m) * hcap (m,i);
 
 #ifdef DEBUG
@@ -431,7 +420,7 @@ void pcafitter::compute_pca_constants (
   for (int i=0; i<PARAMDIM; ++i)
   {
     q(i) = paramm(i);
-    for (int l=0; l<(DIMPERCOORD*COORDIM); ++l)
+    for (int l=0; l<coordim_; ++l)
       q(i) -= cmtx(i,l)*coordm(l);
   }
 
