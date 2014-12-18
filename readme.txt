@@ -30,6 +30,8 @@ usage: ./generatepca [options] coordinatesfile
                             (connot be used with bigger-subladder)
  -l, --bigger-subladder   : use values of the bigger subladder 
                             (connot be used with bigger-subsector)
+ -a, --all-subsectors     : generate the constants for all subsectors
+ -r, --all-subladders     : generate the constants for all subladders
 
 usage: ./fitpca [options] coordinatesfile 
 
@@ -44,5 +46,5 @@ usage: ./fitpca [options] coordinatesfile
  -l, --subladder=[subld]  : by default use values of the bigger subladder 
                             with this option you can speficy to perform 
                             prediction for subladder subld 
-
-
+ -a, --all-subsectors     : perform the fitting for all subsectors
+ -r, --all-subladders     : perform the fitting for all subladders
