@@ -206,7 +206,7 @@ int main (int argc, char ** argv)
   }
 
   if (usesegid)
-    fitter.set_dimpercoord(1);
+    fitter.set_coordim(6);
 
   if (optind >= argc) 
     usage (argv[0]);
@@ -234,7 +234,7 @@ int main (int argc, char ** argv)
   layer.set_size(num_of_ent,fitter.get_coordim());
   ladder.set_size(num_of_ent,fitter.get_coordim());
   module.set_size(num_of_ent,fitter.get_coordim());
-  coord.set_size(num_of_ent,fitter.get_dimpercoord()*fitter.get_coordim());
+  coord.set_size(num_of_ent,fitter.get_coordim());
   param.set_size(num_of_ent,PARAMDIM);
 
   std::map<std::string, int> subsectors, subladders;

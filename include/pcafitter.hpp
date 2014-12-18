@@ -2,6 +2,7 @@
 #define _PCAFITTER_INC_
 
 #define ENTDIM 8
+#define NUMOFLAYER (ENTDIM-2)
 
 #define PARAMDIM 5
 
@@ -30,9 +31,6 @@ class pcafitter
 
     // remove it
     static int numofline (const char * fname);
-
-    int get_dimpercoord () const;
-    void set_dimpercoord (int);
 
     int get_coordim () const;
     void set_coordim (int);
@@ -83,8 +81,7 @@ class pcafitter
         arma::rowvec & q);
 
   private:
-    int DIMPERCOORD;
-    int COORDIM;
+    int coordim_;
 };
 
 #endif
