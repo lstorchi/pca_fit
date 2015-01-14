@@ -117,8 +117,13 @@ void perform_main_computation (const bool fast, const bool verbose,
     std::cout << "Eigensystem" << std::endl;
     arma::eig_sym(eigvaltmp, eigvec, hca);
  
+<<<<<<< HEAD
     for (int i=0; i<(DIMPERCOORD*COORDIM); ++i)
       eigval(i) = eigvaltmp((DIMPERCOORD*COORDIM)-i-1);
+=======
+    for (int i=0; i<fitter.get_coordim(); ++i)
+      eigval(i) = eigvaltmp(fitter.get_coordim()-i-1);
+>>>>>>> test_new_evl
   }
 
 
@@ -214,6 +219,14 @@ int main (int argc, char ** argv)
     } 
   }
 
+<<<<<<< HEAD
+=======
+  if (usesegid)
+    fitter.set_coordim(6);
+  else
+    fitter.set_coordim(18);
+
+>>>>>>> test_new_evl
   if (optind >= argc) 
     usage (argv[0]);
 
