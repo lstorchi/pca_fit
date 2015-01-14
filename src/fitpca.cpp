@@ -127,6 +127,7 @@ void usage (char * name)
   std::cerr << "                            prediction for subladder subld " << std::endl;
   std::cerr << " -a, --all-subsectors     : perform the fitting for all subsectors" << std::endl;
   std::cerr << " -r, --all-subladders     : perform the fitting for all subladders" << std::endl;
+  std::cerr << " -j, --jump-tracks        : perform the fittin only for odd tracks" << std::endl;
 
   exit(1);
 }
@@ -143,6 +144,7 @@ int main (int argc, char ** argv)
   bool useallsubsectors = false;
   bool useallsubladders = false;
   bool usesegid = false;
+  bool useonlyodd = false;
 
   while (1)
   {
@@ -158,16 +160,20 @@ int main (int argc, char ** argv)
       {"all-subsectors", 0, NULL, 'a'},
       {"all-subladders", 0, NULL, 'r'},
       {"seg-id", 0, NULL, 'i'},
+      {"jump-tracks", 0, NULL, 'j'},
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "iarvhVc:q:s:l:", long_options, &option_index);
+    c = getopt_long (argc, argv, "iarjvhVc:q:s:l:", long_options, &option_index);
 
     if (c == -1)
       break;
 
     switch (c)
     {
+      case 'j':
+        useonlyodd = true;
+        break;
       case 'i':
         usesegid = true;
         break;
@@ -224,10 +230,29 @@ int main (int argc, char ** argv)
   arma::mat cmtx;
   arma::rowvec q;
 
+  // leggere file coordinate tracce simulate plus parametri
+  if (!file_exists(filename))
+  {
+    std::cerr << "Inout file does not exist" << std::endl;
+    return 1;
+  }
+ 
+
   std::cout << "Reading data from " << filename << " file " << std::endl;
   int num_of_line = pcafitter::numofline(filename);
   std::cout << "file has " << num_of_line << " line " << std::endl;
-  int num_of_ent = (num_of_line-1)/ENTDIM;
+  int num_of_ent_read = (num_of_line-1)/ENTDIM;
+
+  int num_of_ent = num_of_ent_read;
+
+  if (useonlyodd)
+  {
+    if (num_of_ent_read % 2)
+      num_of_ent = (num_of_ent_read+1)/2;
+    else
+      num_of_ent = num_of_ent_read/2;
+  }
+
   std::cout << "file has " << num_of_ent << " entries " << std::endl;
 
   arma::mat layer, ladder, module, coord, param;
@@ -240,17 +265,11 @@ int main (int argc, char ** argv)
   std::map<std::string, int> subsectors, subladders;
   std::vector<std::string> subladderslist, subsectorslist;
 
-  // leggere file coordinate tracce simulate plus parametri
-  if (!file_exists(filename))
-  {
-    std::cerr << "Inout file does not exist" << std::endl;
-    return 1;
-  }
- 
+
   fitter.reading_from_file (filename, param, coord, 
       layer, ladder, module, subsectors, subladders, 
-      subsectorslist, subladderslist, num_of_ent, 
-      usesegid);
+      subsectorslist, subladderslist, num_of_ent_read, 
+      usesegid, false, useonlyodd);
 
   if (!useallsubsectors && !useallsubladders)
   {
@@ -298,6 +317,8 @@ int main (int argc, char ** argv)
       fitter.extract_sub (subsectorslist, 
           subsec, param, coord, paramslt,
           coordslt);
+
+      std::cout << " numevt: " << coordslt.n_rows << std::endl;
     
       build_and_compare (paramslt, coordslt, cmtx, q, verbose, 
           subsec, fitter);
@@ -306,12 +327,14 @@ int main (int argc, char ** argv)
     if (sublad != "")
     {
       arma::mat paramslt, coordslt;
-    
+
       std::cout << "Using subladder " << sublad << std::endl;
     
       fitter.extract_sub (subladderslist, 
           sublad, param, coord, paramslt, 
           coordslt);
+
+      std::cout << " numevt: " << coordslt.n_rows << std::endl;
      
       build_and_compare (paramslt, coordslt, cmtx, q, verbose, 
           sublad, fitter);
