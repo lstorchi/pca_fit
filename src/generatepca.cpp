@@ -14,7 +14,7 @@
 #include <unistd.h>
 #include <alloca.h>
 
-#include <pcafitter_private.hpp>
+#include <pcafitter.hpp>
 
 #define MINDIMLINIT 25
 
@@ -28,6 +28,7 @@ void usage (char * name)
   std::cerr << " -V, --verbose            : verbose option on" << std::endl;
   std::cerr << " -v, --version            : print version and exit" << std::endl;
   std::cerr << " -f, --fast               : do not perfomr pca only diag matrix" << std::endl;
+  std::cerr << " -i, --seg-id             : use SegId instead of coordinates" << std::endl;
   std::cerr << " -s, --bigger-subsector   : use values of the bigger subsector" << std::endl;
   std::cerr << "                            (connot be used with bigger-subladder)" << std::endl;
   std::cerr << " -l, --bigger-subladder   : use values of the bigger subladder " << std::endl;
@@ -41,7 +42,8 @@ void usage (char * name)
 
 void perform_main_computation (const bool fast, const bool verbose, 
     const arma::mat & coord, const arma::mat & param, 
-    const std::string & cfname, const std::string & qfname)
+    const std::string & cfname, const std::string & qfname,
+    pcafitter & fitter)
 {
   // ordered 
   arma::vec eigval;
@@ -72,7 +74,7 @@ void perform_main_computation (const bool fast, const bool verbose,
           mainr += score(i,j) * score(i,j);
         
         double residue = 0.0;
-        for (int j=5; j<DIMPERCOORD*COORDIM; ++j)
+        for (int j=5; j<fitter.get_coordim(); ++j)
           residue += score(i,j) * score(i,j);
         
         std::cout << "Track " << i+1 << " residue " << residue <<
@@ -85,12 +87,14 @@ void perform_main_computation (const bool fast, const bool verbose,
   else
   {
     std::cout << "Compute correlation mtx" << std::endl;
-    arma::mat coordm = arma::zeros<arma::mat>(DIMPERCOORD*COORDIM);
-    arma::mat hca = arma::zeros<arma::mat>(DIMPERCOORD*COORDIM,DIMPERCOORD*COORDIM);
-    arma::vec eigvaltmp = arma::zeros<arma::vec>(DIMPERCOORD*COORDIM);
+    arma::mat coordm = arma::zeros<arma::mat>(fitter.get_coordim());
+    arma::mat hca = arma::zeros<arma::mat>(fitter.get_coordim(),
+        fitter.get_coordim());
+    arma::vec eigvaltmp = arma::zeros<arma::vec>(fitter.get_coordim());
 
-    eigvec = arma::zeros<arma::mat>(DIMPERCOORD*COORDIM,DIMPERCOORD*COORDIM);
-    eigval = arma::zeros<arma::vec>(DIMPERCOORD*COORDIM);
+    eigvec = arma::zeros<arma::mat>(fitter.get_coordim(),
+        fitter.get_coordim());
+    eigval = arma::zeros<arma::vec>(fitter.get_coordim());
 
     hca = arma::cov(coord);
 
@@ -99,12 +103,12 @@ void perform_main_computation (const bool fast, const bool verbose,
     for (int l=0; l<(int)coord.n_rows; ++l) 
     {
       sum += 1.0e0;
-      for (int i=0; i<(DIMPERCOORD*COORDIM); ++i)
+      for (int i=0; i<fitter.get_coordim(); ++i)
         coordm(i) += (coord(l,i)-coordm(i))/sum;
     
-      for (int i=0; i<(DIMPERCOORD*COORDIM); ++i)
+      for (int i=0; i<fitter.get_coordim(); ++i)
       {
-        for (int j=0; j<(DIMPERCOORD*COORDIM); ++j)
+        for (int j=0; j<fitter.get_coordim(); ++j)
         {
           hca(i,j) += ((coord(l,i) - coordm(i))*
                        (coord(l,j) - coordm(j))-
@@ -117,23 +121,18 @@ void perform_main_computation (const bool fast, const bool verbose,
     std::cout << "Eigensystem" << std::endl;
     arma::eig_sym(eigvaltmp, eigvec, hca);
  
-<<<<<<< HEAD
-    for (int i=0; i<(DIMPERCOORD*COORDIM); ++i)
-      eigval(i) = eigvaltmp((DIMPERCOORD*COORDIM)-i-1);
-=======
     for (int i=0; i<fitter.get_coordim(); ++i)
       eigval(i) = eigvaltmp(fitter.get_coordim()-i-1);
->>>>>>> test_new_evl
   }
 
 
   double totval = 0.0e0;
-  for (int i=0; i<(DIMPERCOORD*COORDIM); ++i)
+  for (int i=0; i<fitter.get_coordim(); ++i)
     totval += eigval(i);
 
   std::cout << "Eigenvalues: " << std::endl;
   double totvar = 0.0e0; 
-  for (int i=0; i<(DIMPERCOORD*COORDIM); ++i)
+  for (int i=0; i<fitter.get_coordim(); ++i)
   {
     if (i < PARAMDIM)
       totvar += 100.0e0*(eigval(i)/totval);
@@ -143,26 +142,32 @@ void perform_main_computation (const bool fast, const bool verbose,
   }
   std::cout << "PARAMDIM eigenvalues: " << totvar << std::endl;
 
-  arma::mat cmtx = arma::zeros<arma::mat>(PARAMDIM,DIMPERCOORD*COORDIM);
+  std::cout << PARAMDIM << " X " << fitter.get_coordim() << std::endl;
+
+  arma::mat cmtx = arma::zeros<arma::mat>(PARAMDIM,
+      fitter.get_coordim());
   arma::rowvec q = arma::zeros<arma::rowvec>(PARAMDIM);
 
   std::cout << "Compute PCA constants " << std::endl;
-  pcafitter::compute_pca_constants (param,
+  fitter.compute_pca_constants (param,
       coord, cmtx, q);
 
   std::cout << "Write constant to file" << std::endl;
-  pcafitter::writearmmat(cfname.c_str(), cmtx);
-  pcafitter::writearmvct(qfname.c_str(), q);
+  fitter.write_armmat(cfname.c_str(), cmtx);
+  fitter.write_armvct(qfname.c_str(), q);
 }
 
 int main (int argc, char ** argv)
 {
+  pcafitter fitter; 
+
   bool fast = false;
   bool verbose = false;
   bool selectsubsector = true;
   bool selectsubladder = false;
   bool useallsubsectors = false;
   bool useallsubladders = false;
+  bool usesegid = false;
 
   while (1)
   {
@@ -176,16 +181,20 @@ int main (int argc, char ** argv)
       {"version", 0, NULL, 'v'},
       {"all-subsectors", 0, NULL, 'a'},
       {"all-subladders", 0, NULL, 'r'},
+      {"seg-id", 0, NULL, 'i'},
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "ravhVslf", long_options, &option_index);
+    c = getopt_long (argc, argv, "iravhVslf", long_options, &option_index);
 
     if (c == -1)
       break;
 
     switch (c)
     {
+      case 'i':
+        usesegid = true;
+        break;
       case 'h':
         usage (argv[0]);
         break;
@@ -219,14 +228,9 @@ int main (int argc, char ** argv)
     } 
   }
 
-<<<<<<< HEAD
-=======
   if (usesegid)
-    fitter.set_coordim(6);
-  else
-    fitter.set_coordim(18);
+    fitter.set_coordim (6);
 
->>>>>>> test_new_evl
   if (optind >= argc) 
     usage (argv[0]);
 
@@ -252,10 +256,10 @@ int main (int argc, char ** argv)
 
   // non perfomante ma easy to go
   arma::mat layer, ladder, module, coordin, paramin;
-  layer.set_size(num_of_ent,COORDIM);
-  ladder.set_size(num_of_ent,COORDIM);
-  module.set_size(num_of_ent,COORDIM);
-  coordin.set_size(num_of_ent,DIMPERCOORD*COORDIM);
+  layer.set_size(num_of_ent,fitter.get_coordim());
+  ladder.set_size(num_of_ent,fitter.get_coordim());
+  module.set_size(num_of_ent,fitter.get_coordim());
+  coordin.set_size(num_of_ent,fitter.get_coordim());
   paramin.set_size(num_of_ent,PARAMDIM);
 
   std::map<std::string, int> subsectors, subladders;
@@ -263,16 +267,16 @@ int main (int argc, char ** argv)
 
   // leggere file coordinate tracce simulate plus parametri
   std::cout << "Reading data from " << filename << " file " << std::endl;
-  pcafitter::readingfromfile (filename, paramin, coordin, 
+  fitter.reading_from_file (filename, paramin, coordin, 
       layer, ladder, module, subsectors, subladders, 
-      subsectorslist, subladderslist, num_of_ent);
+      subsectorslist, subladderslist, num_of_ent, usesegid);
   // write date to file 
   std::cout << "Writing parameters to files" << std::endl;
-  pcafitter::writetofile("oneoverpt.txt", paramin, PTIDX);
-  pcafitter::writetofile("phi.txt", paramin, PHIIDX);
-  pcafitter::writetofile("d0.txt", paramin, D0IDX);
-  pcafitter::writetofile("cotetha2.txt", paramin, TETHAIDX);
-  pcafitter::writetofile("z0.txt", paramin, Z0IDX);
+  fitter.write_to_file("oneoverpt.txt", paramin, PTIDX);
+  fitter.write_to_file("phi.txt", paramin, PHIIDX);
+  fitter.write_to_file("d0.txt", paramin, D0IDX);
+  fitter.write_to_file("cotetha2.txt", paramin, TETHAIDX);
+  fitter.write_to_file("z0.txt", paramin, Z0IDX);
 
   if (!useallsubsectors && !useallsubladders)
   {
@@ -292,13 +296,13 @@ int main (int argc, char ** argv)
         std::cout << "We  found " << subsectors.size() << 
           " subsectors " << std::endl;
       
-        pcafitter::select_bigger_sub (subsectors, verbose, 
+        fitter.select_bigger_sub (subsectors, verbose, 
             maxnumber, slctsubsec);
         
         std::cout << "Selected subsector " << slctsubsec << 
           " numevt: " << maxnumber << std::endl;
     
-        pcafitter::extract_sub (subsectorslist, 
+        fitter.extract_sub (subsectorslist, 
             slctsubsec, paramin, coordin, param, 
             coord);
       }
@@ -309,12 +313,12 @@ int main (int argc, char ** argv)
         std::cout << "We  found " << subladders.size() << 
           " subladders " << std::endl;
       
-        pcafitter::select_bigger_sub (subladders, verbose, 
+        fitter.select_bigger_sub (subladders, verbose, 
             maxnumber, slctsubsec);
         
         std::cout << "Selected subladder " << slctsubsec << " numevt: " << maxnumber << std::endl;
     
-        pcafitter::extract_sub (subladderslist, 
+        fitter.extract_sub (subladderslist, 
             slctsubsec, paramin, coordin, param, 
             coord);
       }
@@ -329,7 +333,7 @@ int main (int argc, char ** argv)
     std::cout << "Printout selected coordinates " << std::endl;
     std::ofstream myfileslct("selectedcoords.txt");
     for (int i=0; i<(int)coord.n_rows; ++i)
-      for (int j=0; j<(DIMPERCOORD*COORDIM); j=j+3)
+      for (int j=0; j<fitter.get_coordim(); j=j+3)
         myfileslct << coord(i, j) << " " << 
                       coord(i, j+1) << " " <<
                       coord(i, j+2) << std::endl;
@@ -337,16 +341,16 @@ int main (int argc, char ** argv)
     
     // write date to file 
     std::cout << "Writing extracted parameters to files" << std::endl;
-    pcafitter::writetofile("oneoverpt_selected.txt", param, PTIDX);
-    pcafitter::writetofile("phi_selected.txt", param, PHIIDX);
-    pcafitter::writetofile("d0_selected.txt", param, D0IDX);
-    pcafitter::writetofile("cotetha2_selected.txt", param, TETHAIDX);
-    pcafitter::writetofile("z0_selected.txt", param, Z0IDX);
+    fitter.write_to_file("oneoverpt_selected.txt", param, PTIDX);
+    fitter.write_to_file("phi_selected.txt", param, PHIIDX);
+    fitter.write_to_file("d0_selected.txt", param, D0IDX);
+    fitter.write_to_file("cotetha2_selected.txt", param, TETHAIDX);
+    fitter.write_to_file("z0_selected.txt", param, Z0IDX);
 
     std::string cfname = "c.bin";
     std::string qfname = "q.bin";
     perform_main_computation (fast, verbose, coord, param,
-        cfname, qfname);
+        cfname, qfname, fitter);
   }
   else 
   {
@@ -383,7 +387,7 @@ int main (int argc, char ** argv)
       sectrorset.begin(); 
     for (; selected != sectrorset.end(); ++selected)
     {
-      pcafitter::extract_sub (*listtouse, 
+      fitter.extract_sub (*listtouse, 
           *selected, paramin, coordin, param, 
           coord);
 
@@ -398,7 +402,7 @@ int main (int argc, char ** argv)
         cfname << "c." << *selected << ".bin";
         qfname << "q." << *selected << ".bin";
         perform_main_computation (fast, verbose, coord, param,
-            cfname.str(), qfname.str());
+            cfname.str(), qfname.str(), fitter);
 
         usedamnt += coord.n_rows;
       }
