@@ -9,6 +9,7 @@
 // Loriano: let's try Armadillo quick code 
 #include <armadillo>
 #include <cassert>
+#include <sys/stat.h>
 
 #include <getopt.h>
 #include <unistd.h>
@@ -19,6 +20,18 @@
 #define MINDIMLINIT 25
 
 // lstorchi: basic quicj code to generate PCA constants
+
+namespace
+{
+  bool file_exists(const std::string& filename)
+  {
+    struct stat buf;
+    if (stat(filename.c_str(), &buf) != -1)
+      return true;
+                
+    return false;
+  }
+}
 
 void usage (char * name)
 {
@@ -35,7 +48,7 @@ void usage (char * name)
   std::cerr << "                            (connot be used with bigger-subsector)" << std::endl;
   std::cerr << " -a, --all-subsectors     : generate the constants for all subsectors" << std::endl;
   std::cerr << " -r, --all-subladders     : generate the constants for all subladders" << std::endl;
-
+  std::cerr << " -j, --jump-tracks        : generate the constants using only even tracks" << std::endl;
 
   exit(1);
 }
@@ -167,6 +180,7 @@ int main (int argc, char ** argv)
   bool selectsubladder = false;
   bool useallsubsectors = false;
   bool useallsubladders = false;
+  bool useonlyeven = false;
   bool usesegid = false;
 
   while (1)
@@ -182,16 +196,20 @@ int main (int argc, char ** argv)
       {"all-subsectors", 0, NULL, 'a'},
       {"all-subladders", 0, NULL, 'r'},
       {"seg-id", 0, NULL, 'i'},
+      {"jump-tracks", 0, NULL, 'j'},
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "iravhVslf", long_options, &option_index);
+    c = getopt_long (argc, argv, "iravhVslfj", long_options, &option_index);
 
     if (c == -1)
       break;
 
     switch (c)
     {
+      case 'j':
+        useonlyeven = true;
+        break;
       case 'i':
         usesegid = true;
         break;
@@ -248,10 +266,28 @@ int main (int argc, char ** argv)
 
   char * filename = (char *) alloca (strlen(argv[optind]) + 1);
   strcpy (filename, argv[optind]);
+
+  // leggere file coordinate tracce simulate plus parametri
+  if (!file_exists(filename))
+  {
+    std::cerr << "Inout file does not exist" << std::endl;
+    return 1;
+  }
                   
   int num_of_line = pcafitter::numofline(filename);
   std::cout << "file has " << num_of_line << " line " << std::endl;
-  int num_of_ent = (num_of_line-1)/ENTDIM;
+  int num_of_ent_read = (num_of_line-1)/ENTDIM;
+
+  int num_of_ent = num_of_ent_read;
+
+  if (useonlyeven)
+  {
+    if (num_of_ent_read % 2)
+      num_of_ent = (num_of_ent_read-1)/2;
+    else
+      num_of_ent = num_of_ent_read/2;
+  }
+
   std::cout << "file has " << num_of_ent << " entries " << std::endl;
 
   // non perfomante ma easy to go
@@ -269,7 +305,8 @@ int main (int argc, char ** argv)
   std::cout << "Reading data from " << filename << " file " << std::endl;
   fitter.reading_from_file (filename, paramin, coordin, 
       layer, ladder, module, subsectors, subladders, 
-      subsectorslist, subladderslist, num_of_ent, usesegid);
+      subsectorslist, subladderslist, num_of_ent_read, usesegid,
+      useonlyeven, false);
   // write date to file 
   std::cout << "Writing parameters to files" << std::endl;
   fitter.write_to_file("oneoverpt.txt", paramin, PTIDX);

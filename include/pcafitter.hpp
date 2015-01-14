@@ -61,7 +61,8 @@ class pcafitter
         std::map<std::string, int> & subladders,
         std::vector<std::string> & subsectorslist,
         std::vector<std::string> & subladderslist,
-        int num_of_ent, bool usesegid);
+        int num_of_ent, bool usesegid, 
+        bool useonlyeven, bool useonlyodd);
     
     void select_bigger_sub (
         const std::map<std::string, int> & sublist, 

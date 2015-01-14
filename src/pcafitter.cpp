@@ -19,6 +19,31 @@
 // lstorchi: here all the basic routines, in principles can be used 
 //           to start building a proper class.
 
+namespace
+{
+  bool check_to_read (bool useonlyeven, bool useonlyodd, int i)
+  {
+    if (useonlyeven || useonlyodd)
+    {
+      if (useonlyeven)
+      {
+        if (!((i+1) % 2))
+          return true;
+      }
+
+      if (useonlyodd)
+      {
+        if ((i+1) % 2)
+          return true;
+      }
+    }
+    else 
+      return true;
+        
+    return false;
+  }
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 //  PUBLIC
 ///////////////////////////////////////////////////////////////////////////////
@@ -188,17 +213,25 @@ void pcafitter::reading_from_file (const char * filename,
     std::map<std::string, int> & subladders,
     std::vector<std::string> & subsectorslist,
     std::vector<std::string> & subladderslist,
-    int num_of_ent, bool usesegid)
+    int num_of_ent, bool usesegid,
+    bool useonlyeven, bool useonlyodd)
 {
 
   std::string line;
   std::ifstream mytfp;
   mytfp.open (filename, std::ios::in);
 
+  if (useonlyeven && useonlyodd)
+  {
+    useonlyeven = false;
+    useonlyodd = false;
+  }
+
+  int counter = 0;
   std::getline (mytfp, line);
   for (int i = 0; i < num_of_ent; ++i)
   {
-    int fake1, fake2, segid;
+    int fake1, fake2;
     // valori aggiunti solo di controllo 
     mytfp >> fake1 >> fake2 ;
 #ifdef DEBUG    
@@ -210,70 +243,81 @@ void pcafitter::reading_from_file (const char * filename,
     
     for (int j = 0; j < NUMOFLAYER; ++j)
     {
-      int a, b, c;
-      if (usesegid)
+      int a, b, c, segid;
+      double x, y, z;
+
+      mytfp >> x >> 
+               y >> 
+               z >> 
+               a >> b >> c >> segid; // segid I am reading because can be used as local ccordinate ?
+                                       // in case of l1tkstubs is the tp value here 
+ 
+      if (check_to_read (useonlyeven,useonlyodd,i))
       {
-        float x, y, z;
-        mytfp >> x >> 
-                 y >> 
-                 z >> 
-                 a >> b >> c >> segid; // segid I am reading because can be used as local ccordinate ?
-                                       // in case of l1tkstubs is the tp value here 
-        coordin(i, j) = (double) segid;
+        if (usesegid)
+          coordin(counter, j) = (double) segid;
+        else
+        {
+          coordin(counter, j*3) = x;
+          coordin(counter, j*3+1) = y;
+          coordin(counter, j*3+2) = z;
+        }
+ 
+        layer(counter, j) = a;
+        ladder(counter, j) = b;
+        module(counter, j) = c;
+        
+        osss << std::setw(2) << layer(counter, j);
+        osss << std::setw(2) << ladder(counter, j);
+        if (j != NUMOFLAYER-1)
+          osss<<"-";
+       
+        ossl << std::setw(2) << layer(counter, j);
+        ossl << std::setw(2) << ladder(counter, j);
+        ossl << std::setw(2) << module(counter, j);
+        if (j != NUMOFLAYER-1)
+          ossl<<"-";
+
+        subsectorslist.push_back(osss.str());
+        subladderslist.push_back(ossl.str());
+        
+        std::map<std::string, int>::iterator its = subsectors.find(osss.str());
+        if (its == subsectors.end())
+          subsectors[osss.str()] = 1;
+        else 
+          subsectors[osss.str()] += 1;
+        
+        std::map<std::string, int>::iterator itl = subladders.find(ossl.str());
+        if (itl == subladders.end())
+          subladders[ossl.str()] = 1;
+        else 
+          subladders[ossl.str()] += 1;
+
       }
-      else
-        mytfp >> coordin(i, j*3) >> 
-                 coordin(i, j*3+1) >> 
-                 coordin(i, j*3+2) >> 
-                 a >> b >> c >> segid; // segid I am reading because can be used as local ccordinate ?
-                                       // in case of l1tkstubs is the tp value here 
-    
-      layer(i, j) = a;
-      ladder(i, j) = b;
-      module(i, j) = c;
-      
-      osss << std::setw(2) << layer(i, j);
-      osss << std::setw(2) << ladder(i, j);
-      if (j != NUMOFLAYER-1)
-        osss<<"-";
-
-      ossl << std::setw(2) << layer(i, j);
-      ossl << std::setw(2) << ladder(i, j);
-      ossl << std::setw(2) << module(i, j);
-      if (j != NUMOFLAYER-1)
-        ossl<<"-";
-
     }
-
-    subsectorslist.push_back(osss.str());
-    subladderslist.push_back(ossl.str());
     
-    std::map<std::string, int>::iterator its = subsectors.find(osss.str());
-    if (its == subsectors.end())
-      subsectors[osss.str()] = 1;
-    else 
-      subsectors[osss.str()] += 1;
-
-    std::map<std::string, int>::iterator itl = subladders.find(ossl.str());
-    if (itl == subladders.end())
-      subladders[ossl.str()] = 1;
-    else 
-      subladders[ossl.str()] += 1;
-    
-    double valread, valr;
+    double valread, valr, phiread, d0read, z0read;
 
     mytfp >> valr >> 
-             paramin(i, PHIIDX) >> 
-             paramin(i, D0IDX) >> 
+             phiread >> 
+             d0read >> 
              valread >> 
-             paramin(i, Z0IDX);
+             z0read;
     
-    // lstorchi: I use this to diretcly convert input parameters into
-    //     better parameters for the fitting 
-    // cot (tetha/2) = 1 / e^(-eta)
-    paramin(i, TETHAIDX) = 1.0e0 / exp (-1.0e0 * valread);
-    // use 1/pt 
-    paramin(i, PTIDX) = 1.0e0 / valr;
+    if (check_to_read (useonlyeven,useonlyodd,i))
+    {
+      paramin(counter, PHIIDX) = phiread;
+      paramin(counter, D0IDX) = d0read;
+      paramin(counter, Z0IDX) = z0read;
+      // lstorchi: I use this to diretcly convert input parameters into
+      //     better parameters for the fitting 
+      // cot (tetha/2) = 1 / e^(-eta)
+      paramin(counter, TETHAIDX) = 1.0e0 / exp (-1.0e0 * valread);
+      // use 1/pt 
+      paramin(counter, PTIDX) = 1.0e0 / valr;
+
+      ++counter;
+    }
   }
 
   mytfp.close();
