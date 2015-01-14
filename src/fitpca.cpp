@@ -207,6 +207,8 @@ int main (int argc, char ** argv)
 
   if (usesegid)
     fitter.set_coordim(6);
+  else
+    fitter.set_coordim(18);
 
   if (optind >= argc) 
     usage (argv[0]);
