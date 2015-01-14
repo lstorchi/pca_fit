@@ -15,7 +15,7 @@
 #include <unistd.h>
 #include <alloca.h>
 
-#include <pcafitter_private.hpp>
+#include <pcafitter.hpp>
 
 // lstorchi: basi code to fit tracks, using the PCA constants generated 
 //           by the related generatepca
@@ -34,7 +34,7 @@ namespace
 
 void build_and_compare (arma::mat & paramslt, arma::mat & coordslt, 
      arma::mat & cmtx, arma::rowvec & q, bool verbose, 
-     const std::string & postfname)
+     const std::string & postfname, pcafitter & fitter)
 {
   double * oneoverptcmp, * phicmp, * etacmp, * z0cmp, * d0cmp;
   oneoverptcmp = new double [(int)coordslt.n_rows];
@@ -42,7 +42,7 @@ void build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
   etacmp = new double [(int)coordslt.n_rows];
   z0cmp = new double [(int)coordslt.n_rows];
   d0cmp = new double [(int)coordslt.n_rows];
-  pcafitter::computeparameters (cmtx, q, coordslt, oneoverptcmp,
+  fitter.compute_parameters (cmtx, q, coordslt, oneoverptcmp,
       phicmp, etacmp, z0cmp, d0cmp);
 
 
@@ -99,7 +99,7 @@ void build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
   myfile.close();
 
   for (int i=0; i<PARAMDIM; ++i)
-     std::cout << "For " << pcafitter::paramidxtostring(i) << " error " << 
+     std::cout << "For " << pcafitter::paramidx_to_string(i) << " error " << 
        100.0*pc[i].mean() << " " << 100.0*pc[i].stddev() << std::endl;
 
   delete [] oneoverptcmp;
@@ -118,6 +118,7 @@ void usage (char * name)
   std::cerr << " -v, --version            : print version and exit" << std::endl;
   std::cerr << " -c, --cmtx=[fillename]   : CMTX filename [default is c.bin]" << std::endl;
   std::cerr << " -q, --qvct=[fillename]   : QVCT filename [default is q.bin]" << std::endl;
+  std::cerr << " -i, --seg-id             : use SegId instead of coordinates" << std::endl;
   std::cerr << " -s, --subsector=[subsec] : by default use values of the bigger subsector" << std::endl;
   std::cerr << "                            with this option you can speficy to perform " << std::endl;
   std::cerr << "                            prediction for subsector subsec " << std::endl;
@@ -132,6 +133,8 @@ void usage (char * name)
 
 int main (int argc, char ** argv)
 {
+  pcafitter fitter;
+
   std::string qfname = "q.bin";
   std::string cfname = "c.bin";
   std::string subsec = "";
@@ -139,6 +142,7 @@ int main (int argc, char ** argv)
   bool verbose = false;
   bool useallsubsectors = false;
   bool useallsubladders = false;
+  bool usesegid = false;
 
   while (1)
   {
@@ -153,16 +157,20 @@ int main (int argc, char ** argv)
       {"version", 0, NULL, 'v'},
       {"all-subsectors", 0, NULL, 'a'},
       {"all-subladders", 0, NULL, 'r'},
+      {"seg-id", 0, NULL, 'i'},
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "arvhVc:q:s:l:", long_options, &option_index);
+    c = getopt_long (argc, argv, "iarvhVc:q:s:l:", long_options, &option_index);
 
     if (c == -1)
       break;
 
     switch (c)
     {
+      case 'i':
+        usesegid = true;
+        break;
       case 'a':
         useallsubsectors = true;
         break;
@@ -199,8 +207,6 @@ int main (int argc, char ** argv)
 
   if (usesegid)
     fitter.set_coordim(6);
-  else
-    fitter.set_coordim(18);
 
   if (optind >= argc) 
     usage (argv[0]);
@@ -225,10 +231,10 @@ int main (int argc, char ** argv)
   std::cout << "file has " << num_of_ent << " entries " << std::endl;
 
   arma::mat layer, ladder, module, coord, param;
-  layer.set_size(num_of_ent,COORDIM);
-  ladder.set_size(num_of_ent,COORDIM);
-  module.set_size(num_of_ent,COORDIM);
-  coord.set_size(num_of_ent,DIMPERCOORD*COORDIM);
+  layer.set_size(num_of_ent,fitter.get_coordim());
+  ladder.set_size(num_of_ent,fitter.get_coordim());
+  module.set_size(num_of_ent,fitter.get_coordim());
+  coord.set_size(num_of_ent,fitter.get_coordim());
   param.set_size(num_of_ent,PARAMDIM);
 
   std::map<std::string, int> subsectors, subladders;
@@ -241,9 +247,10 @@ int main (int argc, char ** argv)
     return 1;
   }
  
-  pcafitter::readingfromfile (filename, param, coord, 
+  fitter.reading_from_file (filename, param, coord, 
       layer, ladder, module, subsectors, subladders, 
-      subsectorslist, subladderslist, num_of_ent);
+      subsectorslist, subladderslist, num_of_ent, 
+      usesegid);
 
   if (!useallsubsectors && !useallsubladders)
   {
@@ -254,8 +261,8 @@ int main (int argc, char ** argv)
       std::cerr << "Constants file does not exist" << std::endl;
       return 1;
     }
-    pcafitter::readarmmat(cfname.c_str(), cmtx);
-    pcafitter::readarmvct(qfname.c_str(), q);
+    fitter.read_armmat(cfname.c_str(), cmtx);
+    fitter.read_armvct(qfname.c_str(), q);
 
     if ((subsec == "") && (sublad == ""))
     {
@@ -265,7 +272,7 @@ int main (int argc, char ** argv)
       std::cout << "We  found " << subsectors.size() << 
         " subsectors " << std::endl;
       
-      pcafitter::select_bigger_sub (subsectors, verbose, 
+      fitter.select_bigger_sub (subsectors, verbose, 
           maxnumber, subsec);
       
       std::cout << "Selected subsector " << subsec << 
@@ -275,7 +282,7 @@ int main (int argc, char ** argv)
       std::cout << "We  found " << subladders.size() << 
         " subladders " << std::endl;
       
-      pcafitter::select_bigger_sub (subladders, verbose, 
+      fitter.select_bigger_sub (subladders, verbose, 
           maxnumber, sublad);
       
       std::cout << "Selected subladder " << sublad << " numevt: " 
@@ -288,12 +295,12 @@ int main (int argc, char ** argv)
     
       std::cout << "Using subsector " << subsec << std::endl;
     
-      pcafitter::extract_sub (subsectorslist, 
+      fitter.extract_sub (subsectorslist, 
           subsec, param, coord, paramslt,
           coordslt);
     
       build_and_compare (paramslt, coordslt, cmtx, q, verbose, 
-          subsec);
+          subsec, fitter);
     }
     
     if (sublad != "")
@@ -302,12 +309,12 @@ int main (int argc, char ** argv)
     
       std::cout << "Using subladder " << sublad << std::endl;
     
-      pcafitter::extract_sub (subladderslist, 
+      fitter.extract_sub (subladderslist, 
           sublad, param, coord, paramslt, 
           coordslt);
      
       build_and_compare (paramslt, coordslt, cmtx, q, verbose, 
-          sublad);
+          sublad, fitter);
     }
   }
   else
@@ -351,17 +358,17 @@ int main (int argc, char ** argv)
         std::cout << "Perfom fitting for " << *selected << std::endl;
 
         std::cout << "Read constants " << std::endl;
-        pcafitter::readarmmat(cfname.str().c_str(), cmtx);
-        pcafitter::readarmvct(qfname.str().c_str(), q);
+        fitter.read_armmat(cfname.str().c_str(), cmtx);
+        fitter.read_armvct(qfname.str().c_str(), q);
 
         arma::mat paramslt, coordslt;
     
-        pcafitter::extract_sub (*listtouse, 
+        fitter.extract_sub (*listtouse, 
             *selected, param, coord, paramslt,
             coordslt);
     
         build_and_compare (paramslt, coordslt, cmtx, q, verbose, 
-            *selected);
+            *selected, fitter);
       }
     }
  
