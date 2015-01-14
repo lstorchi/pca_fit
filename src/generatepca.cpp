@@ -122,7 +122,7 @@ void perform_main_computation (const bool fast, const bool verbose,
     arma::eig_sym(eigvaltmp, eigvec, hca);
  
     for (int i=0; i<fitter.get_coordim(); ++i)
-      eigval(i) = (eigvaltmp(fitter.get_coordim())-i-1);
+      eigval(i) = eigvaltmp(fitter.get_coordim()-i-1);
   }
 
 
@@ -229,7 +229,9 @@ int main (int argc, char ** argv)
   }
 
   if (usesegid)
-    fitter.set_coordim (6);
+    fitter.set_coordim(6);
+  else
+    fitter.set_coordim(18);
 
   if (optind >= argc) 
     usage (argv[0]);
