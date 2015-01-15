@@ -271,29 +271,33 @@ void pcafitter::reading_from_file (const char * filename,
         osss << std::setw(2) << ladder(counter, j);
         if (j != NUMOFLAYER-1)
           osss<<"-";
-       
+        
         ossl << std::setw(2) << layer(counter, j);
         ossl << std::setw(2) << ladder(counter, j);
         ossl << std::setw(2) << module(counter, j);
         if (j != NUMOFLAYER-1)
           ossl<<"-";
-
-        subsectorslist.push_back(osss.str());
-        subladderslist.push_back(ossl.str());
-        
-        std::map<std::string, int>::iterator its = subsectors.find(osss.str());
-        if (its == subsectors.end())
-          subsectors[osss.str()] = 1;
-        else 
-          subsectors[osss.str()] += 1;
-        
-        std::map<std::string, int>::iterator itl = subladders.find(ossl.str());
-        if (itl == subladders.end())
-          subladders[ossl.str()] = 1;
-        else 
-          subladders[ossl.str()] += 1;
-
       }
+    }
+      
+      
+    if (check_to_read (useonlyeven,useonlyodd,i))
+    {
+      
+      subsectorslist.push_back(osss.str());
+      subladderslist.push_back(ossl.str());
+      
+      std::map<std::string, int>::iterator its = subsectors.find(osss.str());
+      if (its == subsectors.end())
+        subsectors[osss.str()] = 1;
+      else 
+        subsectors[osss.str()] += 1;
+      
+      std::map<std::string, int>::iterator itl = subladders.find(ossl.str());
+      if (itl == subladders.end())
+        subladders[ossl.str()] = 1;
+      else 
+        subladders[ossl.str()] += 1;
     }
     
     double valread, valr, phiread, d0read, z0read;
