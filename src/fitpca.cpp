@@ -50,31 +50,36 @@ void build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
   fname << "results." << postfname << ".txt";
 
   std::ofstream myfile(fname.str().c_str());
-  myfile << "(1/pt)_orig (1/pt)_cmpt diff (phi)_orig " <<
-    "(phi)_cmpt diff (cot(tetha/2))_orig (cot(tetha/2))_cmpt diff" << 
+  myfile << "pt_orig pt_cmpt diff (phi)_orig " <<
+    "(phi)_cmpt diff eta_orig eta_cmpt diff" << 
     "(d0)_orig (d0)_cmpt diff (z0)_orig (z0)_cmpt diff" << std::endl; 
 
   arma::running_stat<double> pc[PARAMDIM];
   for (int i=0; i<(int)coordslt.n_rows; ++i)
   {
-    pc[PTIDX](fabs(oneoverptcmp[i] - paramslt(i, PTIDX))/
-        (fabs(oneoverptcmp[i] + paramslt(i, PTIDX))/2.0));
+    double tantetha = (1.0e0 / etacmp[i]) ; 
+    double etacmps = -1.0e0 * log (tantetha);
+    tantetha = (1.0e0 / paramslt(i, TETHAIDX));
+    double etaorig = -1.0e0 * log (tantetha); 
+
+    pc[PTIDX](fabs(1.0e0/oneoverptcmp[i] - 1.0e0/paramslt(i, PTIDX))/
+        (fabs(1.0e0/oneoverptcmp[i] + 1.0e0/paramslt(i, PTIDX))/2.0));
     pc[PHIIDX](fabs(phicmp[i] - paramslt(i, PHIIDX))/
         (fabs(phicmp[i] + paramslt(i, PHIIDX))/2.0));
-    pc[TETHAIDX](fabs(etacmp[i] - paramslt(i, TETHAIDX))/
-        (fabs(etacmp[i] + paramslt(i, TETHAIDX))/2.0));
+    pc[TETHAIDX](fabs(etacmps - etaorig)/
+        (fabs(etacmps + etaorig)/2.0));
     pc[D0IDX](fabs(d0cmp[i] - paramslt(i, D0IDX))/
         (fabs(d0cmp[i] + paramslt(i, D0IDX))/2.0));
     pc[Z0IDX](fabs(z0cmp[i] - paramslt(i, Z0IDX))/
         (fabs(z0cmp[i] + paramslt(i, Z0IDX))/2.0));
 
     myfile << 
-      paramslt(i, PTIDX) << " " << oneoverptcmp[i] << " " << 
-      (oneoverptcmp[i] - paramslt(i, PTIDX)) << " " << 
+      1.0e0/paramslt(i, PTIDX) << " " << 1.0e0/oneoverptcmp[i] << " " << 
+      (1.0e0/oneoverptcmp[i] - 1.0e0/paramslt(i, PTIDX)) << " " << 
       paramslt(i, PHIIDX) << " " << phicmp[i] << " " <<
-      (phicmp[i] + paramslt(i, PHIIDX)) << " " << 
-      paramslt(i, TETHAIDX) << " " << etacmp[i] << " " <<
-      (etacmp[i] - paramslt(i, TETHAIDX)) << " " <<
+      (phicmp[i] - paramslt(i, PHIIDX)) << " " << 
+      etaorig << " " << etacmps << " " <<
+      (etacmps - etaorig) << " " <<
       paramslt(i, D0IDX) << " " << d0cmp[i] << " " <<
       (d0cmp[i] - paramslt(i, D0IDX)) << " " <<
       paramslt(i, Z0IDX) << " " << z0cmp[i] << " " <<
@@ -83,12 +88,12 @@ void build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
     if (verbose)
     {
       std::cout << "For track : " << i+1 << std::endl;
-      std::cout << " 1/pt         cmpt " << oneoverptcmp[i] << std::endl;
-      std::cout << " 1/pt         calc " << paramslt(i, PTIDX) << std::endl;
+      std::cout << " pt           cmpt " << 1.0e0/oneoverptcmp[i] << std::endl;
+      std::cout << " pt           calc " << 1.0e0/paramslt(i, PTIDX) << std::endl;
       std::cout << " phi          cmpt " << phicmp[i] << std::endl;
       std::cout << " phi          calc " << paramslt(i, PHIIDX) << std::endl;
-      std::cout << " cot(tetha/2) cmpt " << etacmp[i] << std::endl;
-      std::cout << " cot(tetha/2) calc " << paramslt(i, TETHAIDX) << std::endl;
+      std::cout << " eta          cmpt " << etacmps << std::endl;
+      std::cout << " eta          calc " << etaorig << std::endl;
       std::cout << " d0           cmpt " << d0cmp[i] << std::endl;
       std::cout << " d0           calc " << paramslt(i, D0IDX) << std::endl;
       std::cout << " z0           cmpt " << z0cmp[i] << std::endl;
