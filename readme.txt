@@ -4,11 +4,24 @@ README (Loriano Storchi) loriano@storchi.org
   as well as the generatepca constants code and the code performing 
   the fitting.
 - IMPORTANTE NOTE: This is just a test code for internal use only, 
-  nothing more than a basic rapid quick and dirty prototyping. In case 
-  we will never need a proper tool we will need to think about and 
-  totally restructuring the code in a proper OO fashion. 
-- In case you want to test it use: rel_0_2_0
- 
+  nothing more than a basic rapid quick and dirty prototyping (i.e.
+  the code should be totally restructured in a proper OO fashion)
+- also HEAD rev should be safe enough to be used. Step by step:
+
+  a) dowload the code  
+
+  $ git clone https://bitbucket.org/lstorchi/gf_fit PCA
+  $ cd PCA 
+  
+  to use rel_0_2_0 
+
+  $ git checkout rel_0_2_0       
+
+  b) Download the armadillo library from http://arma.sourceforge.net/download.html 
+  
+  c) Modify config.mk to indicate the correct location of this armadillo library, if needed.
+  
+  d) Set the environment variable LD_LIBRARY_PATH to point to the armadillo library, id needed.
 
 All codes are provided with some basic help, just use the 
 --help option,

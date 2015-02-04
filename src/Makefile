@@ -14,7 +14,7 @@ include ../config.mk
 
 ifeq ($(CERN),yes)
   CFLAGS += -I/afs/cern.ch/user/l/$(USER)/armadillo-3.930.4/include
-  LIBS = -L/afs/cern.ch/user/l/$(USER)/armadillo-3.930.4 
+  LIBS += -L/afs/cern.ch/user/l/$(USER)/armadillo-3.930.4 
 endif
 
 CFLAGS +=-I./ -I../include 
