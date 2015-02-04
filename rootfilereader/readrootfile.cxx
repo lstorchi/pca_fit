@@ -317,7 +317,9 @@ void print_l1tkstub (TFile * inputFile, std::ostream & ss, unsigned int maxtrack
 void readandtest (const std::string & fname, bool tkstubs, 
     bool bkstubs, int maxtracks)
 {
-  TFile* inputFile = new TFile(fname.c_str(),"READ");
+  //TFile* inputFile = new TFile(fname.c_str(),"READ");
+  // use xrootd as suggested 
+  TFile* inputFile = TFile::Open(fname.c_str());
 
 #if 0
   std::cout << "Print file info: " << std::endl;

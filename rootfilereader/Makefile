@@ -9,6 +9,8 @@
 
 CFLAGS = $(shell root-config --cflags) -I./
 LIBS = $(shell root-config --libs)
+# to use xrootd suggested by I. Tomalin
+#LIBS = $(shell root-config --libs) –lNetxNG2
 
 OBJ = readrootfile.o \
       dicts.o
