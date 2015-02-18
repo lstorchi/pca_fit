@@ -308,6 +308,16 @@ int main (int argc, char ** argv)
       subsectorslist, subladderslist, num_of_ent_read, usesegid,
       useonlyeven, false);
   // write date to file 
+ 
+  std::cout << "Printout coordinates " << std::endl;
+  std::ofstream myfilect("allcoords.txt");
+  for (int i=0; i<(int)coordin.n_rows; ++i)
+    for (int j=0; j<fitter.get_coordim(); j=j+3)
+      myfilect << coordin(i, j) << " " << 
+                  coordin(i, j+1) << " " <<
+                  coordin(i, j+2) << std::endl;
+  myfilect.close();
+ 
   std::cout << "Writing parameters to files" << std::endl;
   fitter.write_to_file("oneoverpt.txt", paramin, PTIDX);
   fitter.write_to_file("phi.txt", paramin, PHIIDX);
