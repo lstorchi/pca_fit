@@ -30,6 +30,18 @@ namespace
                 
     return false;
   }
+
+
+  double delta_phi(double phi1, double phi2) // http://cmslxr.fnal.gov/source/DataFormats/Math/interface/deltaPhi.h
+  { 
+    double result = phi1 - phi2;
+    
+    while (result > M_PI) result -= 2*M_PI;
+    while (result <= -M_PI) result += 2*M_PI;
+    
+    return result;
+  }
+
 }
 
 void build_and_compare (arma::mat & paramslt, arma::mat & coordslt, 
@@ -61,11 +73,11 @@ void build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
     double etacmps = -1.0e0 * log (tantetha);
     tantetha = (1.0e0 / paramslt(i, TETHAIDX));
     double etaorig = -1.0e0 * log (tantetha); 
-
+    double deltaphi = delta_phi(phicmp[i], paramslt(i, PHIIDX)); 
+  
     pc[PTIDX](fabs(1.0e0/oneoverptcmp[i] - 1.0e0/paramslt(i, PTIDX))/
         (fabs(1.0e0/oneoverptcmp[i] + 1.0e0/paramslt(i, PTIDX))/2.0));
-    pc[PHIIDX](fabs(phicmp[i] - paramslt(i, PHIIDX))/
-        (fabs(phicmp[i] + paramslt(i, PHIIDX))/2.0));
+    pc[PHIIDX](fabs(deltaphi)/(fabs(deltaphi)/2.0));
     pc[TETHAIDX](fabs(etacmps - etaorig)/
         (fabs(etacmps + etaorig)/2.0));
     pc[D0IDX](fabs(d0cmp[i] - paramslt(i, D0IDX))/
@@ -77,7 +89,7 @@ void build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
       1.0e0/paramslt(i, PTIDX) << " " << 1.0e0/oneoverptcmp[i] << " " << 
       (1.0e0/oneoverptcmp[i] - 1.0e0/paramslt(i, PTIDX)) << " " << 
       paramslt(i, PHIIDX) << " " << phicmp[i] << " " <<
-      (phicmp[i] - paramslt(i, PHIIDX)) << " " << 
+      deltaphi << " " << 
       etaorig << " " << etacmps << " " <<
       (etacmps - etaorig) << " " <<
       paramslt(i, D0IDX) << " " << d0cmp[i] << " " <<
