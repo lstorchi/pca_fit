@@ -77,7 +77,8 @@ void build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
   
     pc[PTIDX](fabs(1.0e0/oneoverptcmp[i] - 1.0e0/paramslt(i, PTIDX))/
         (fabs(1.0e0/oneoverptcmp[i] + 1.0e0/paramslt(i, PTIDX))/2.0));
-    pc[PHIIDX](fabs(deltaphi)/(fabs(deltaphi)/2.0));
+    pc[PHIIDX](fabs(deltaphi)/
+        (fabs(phicmp[i] + paramslt(i, PHIIDX))/2.0));
     pc[TETHAIDX](fabs(etacmps - etaorig)/
         (fabs(etacmps + etaorig)/2.0));
     pc[D0IDX](fabs(d0cmp[i] - paramslt(i, D0IDX))/
