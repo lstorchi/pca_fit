@@ -496,7 +496,7 @@ void readandtest (const std::string & fname, bool tkstubs,
 
   if (bkstubs)
   {
-    std::ofstream bankstbfile("bakstub.txt");
+    std::ofstream bankstbfile("bankstub.txt");
     //print_bankstub (inputFile, std::cerr);
     print_bankstub (inputFile, bankstbfile, (unsigned int)maxtracks);
     // QA le distribuzioni dei vari parametri sono simili ma 
@@ -511,7 +511,7 @@ void readandtest (const std::string & fname, bool tkstubs,
 
   if (bkstubsnew)
   {
-    std::ofstream bankstbfile("bakstub.txt");
+    std::ofstream bankstbfile("bankstub.txt");
     print_bankstub_new (inputFile, bankstbfile, (unsigned int)maxtracks);
     bankstbfile.close();
   }
