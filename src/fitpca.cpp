@@ -62,9 +62,9 @@ void build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
   fname << "results." << postfname << ".txt";
 
   std::ofstream myfile(fname.str().c_str());
-  myfile << "pt_orig pt_cmpt diff (phi)_orig " <<
-    "(phi)_cmpt diff eta_orig eta_cmpt diff" << 
-    "(d0)_orig (d0)_cmpt diff (z0)_orig (z0)_cmpt diff" << std::endl; 
+  myfile << "pt_orig pt_cmpt diff phi_orig " <<
+    "phi_cmpt diff eta_orig eta_cmpt diff " << 
+    "d0_orig d0_cmpt diff z0_orig z0_cmpt diff" << std::endl; 
 
   arma::running_stat<double> pc[PARAMDIM];
   for (int i=0; i<(int)coordslt.n_rows; ++i)
