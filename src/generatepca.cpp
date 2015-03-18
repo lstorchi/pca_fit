@@ -37,18 +37,19 @@ void usage (char * name)
 {
   std::cerr << "usage: " << name << " [options] coordinatesfile " << std::endl;
   std::cerr << std::endl;
-  std::cerr << " -h, --help               : display this help and exit" << std::endl;
-  std::cerr << " -V, --verbose            : verbose option on" << std::endl;
-  std::cerr << " -v, --version            : print version and exit" << std::endl;
-  std::cerr << " -f, --fast               : do not perfomr pca only diag matrix" << std::endl;
-  std::cerr << " -i, --seg-id             : use SegId instead of coordinates" << std::endl;
-  std::cerr << " -s, --bigger-subsector   : use values of the bigger subsector" << std::endl;
-  std::cerr << "                            (connot be used with bigger-subladder)" << std::endl;
-  std::cerr << " -l, --bigger-subladder   : use values of the bigger subladder " << std::endl;
-  std::cerr << "                            (connot be used with bigger-subsector)" << std::endl;
-  std::cerr << " -a, --all-subsectors     : generate the constants for all subsectors" << std::endl;
-  std::cerr << " -r, --all-subladders     : generate the constants for all subladders" << std::endl;
-  std::cerr << " -j, --jump-tracks        : generate the constants using only even tracks" << std::endl;
+  std::cerr << " -h, --help                 : display this help and exit" << std::endl;
+  std::cerr << " -V, --verbose              : verbose option on" << std::endl;
+  std::cerr << " -v, --version              : print version and exit" << std::endl;
+  std::cerr << " -f, --fast                 : do not perfomr pca only diag matrix" << std::endl;
+  std::cerr << " -i, --seg-id               : use SegId instead of coordinates" << std::endl;
+  std::cerr << " -s, --bigger-sub-tower     : use values of the bigger sub-tower" << std::endl;
+  std::cerr << "                              (connot be used with bigger-subladder)" << std::endl;
+  std::cerr << " -l, --bigger-sub-sub-tower : use values of the bigger sub-sub-tower " << std::endl;
+  std::cerr << "                              (connot be used with bigger-subsector)" << std::endl;
+  std::cerr << " -a, --all-sub-tower        : generate the constants for all subsectors" << std::endl;
+  std::cerr << " -r, --all-sub-sub-tower    : generate the constants for all subladders" << std::endl;
+  std::cerr << " -j, --jump-tracks          : generate the constants using only even tracks" << std::endl;
+  std::cerr << " -p, --dump-allcoords       : dump all stub coordinates to a file" << std::endl;
 
   exit(1);
 }
@@ -182,6 +183,7 @@ int main (int argc, char ** argv)
   bool useallsubladders = false;
   bool useonlyeven = false;
   bool usesegid = false;
+  bool printallcoords = false;
 
   while (1)
   {
@@ -189,24 +191,28 @@ int main (int argc, char ** argv)
     static struct option long_options[] = {
       {"help", 0, NULL, 'h'},
       {"verbose", 0, NULL, 'V'},
-      {"bigger-subsector", 0, NULL, 's'},
-      {"bigger-subladder", 0, NULL, 'l'},
+      {"bigger-sub-tower", 0, NULL, 's'},
+      {"bigger-sub-sub-tower", 0, NULL, 'l'},
       {"fast", 0, NULL, 'f'},
       {"version", 0, NULL, 'v'},
-      {"all-subsectors", 0, NULL, 'a'},
-      {"all-subladders", 0, NULL, 'r'},
+      {"all-sub-tower", 0, NULL, 'a'},
+      {"all-sub-sub-tower", 0, NULL, 'r'},
       {"seg-id", 0, NULL, 'i'},
       {"jump-tracks", 0, NULL, 'j'},
+      {"dump-allcoords", 0, NULL, 'p'},
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "iravhVslfj", long_options, &option_index);
+    c = getopt_long (argc, argv, "iravhVslfjp", long_options, &option_index);
 
     if (c == -1)
       break;
 
     switch (c)
     {
+      case 'p':
+        printallcoords = true;
+        break;
       case 'j':
         useonlyeven = true;
         break;
@@ -309,15 +315,18 @@ int main (int argc, char ** argv)
       useonlyeven, false);
   // write date to file 
  
-  std::cout << "Printout coordinates " << std::endl;
-  std::ofstream myfilect("allcoords.txt");
-  for (int i=0; i<(int)coordin.n_rows; ++i)
-    for (int j=0; j<fitter.get_coordim(); j=j+3)
-      myfilect << coordin(i, j) << " " << 
-                  coordin(i, j+1) << " " <<
-                  coordin(i, j+2) << std::endl;
-  myfilect.close();
- 
+  if (printallcoords)
+  {
+    std::cout << "Printout coordinates " << std::endl;
+    std::ofstream myfilect("allcoords.txt");
+    for (int i=0; i<(int)coordin.n_rows; ++i)
+      for (int j=0; j<fitter.get_coordim(); j=j+3)
+        myfilect << coordin(i, j) << " " << 
+                    coordin(i, j+1) << " " <<
+                    coordin(i, j+2) << std::endl;
+    myfilect.close();
+  }
+
   std::cout << "Writing parameters to files" << std::endl;
   fitter.write_to_file("oneoverpt.txt", paramin, PTIDX);
   fitter.write_to_file("phi.txt", paramin, PHIIDX);
