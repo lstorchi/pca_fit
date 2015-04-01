@@ -403,10 +403,12 @@ int main (int argc, char ** argv)
     fitter.write_to_file("cotetha2_selected.txt", param, TETHAIDX);
     fitter.write_to_file("z0_selected.txt", param, Z0IDX);
 
-    std::string cfname = "c.bin";
-    std::string qfname = "q.bin";
+    std::ostringstream cfname, qfname; 
+    cfname << "c." << slctsubsec << ".bin";
+    qfname << "q." << slctsubsec << ".bin";
+ 
     perform_main_computation (fast, verbose, coord, param,
-        cfname, qfname, fitter);
+        cfname.str(), qfname.str(), fitter);
   }
   else 
   {
