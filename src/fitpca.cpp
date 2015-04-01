@@ -134,8 +134,8 @@ void usage (char * name)
   std::cerr << " -h, --help               : display this help and exit" << std::endl;
   std::cerr << " -V, --verbose            : verbose option on" << std::endl;
   std::cerr << " -v, --version            : print version and exit" << std::endl;
-  std::cerr << " -c, --cmtx=[fillename]   : CMTX filename [default is c.bin]" << std::endl;
-  std::cerr << " -q, --qvct=[fillename]   : QVCT filename [default is q.bin]" << std::endl;
+  std::cerr << " -c, --cmtx=[fillename]   : CMTX filename [default is c.<selectedsubsecid>.bin]" << std::endl;
+  std::cerr << " -q, --qvct=[fillename]   : QVCT filename [default is q.<selectedsubsecid>.bin]" << std::endl;
   std::cerr << " -i, --seg-id             : use SegId instead of coordinates" << std::endl;
   std::cerr << " -s, --subsector=[subsec] : by default use values of the bigger subsector" << std::endl;
   std::cerr << "                            with this option you can speficy to perform " << std::endl;
@@ -163,6 +163,8 @@ int main (int argc, char ** argv)
   bool useallsubladders = false;
   bool usesegid = false;
   bool useonlyodd = false;
+  bool cfnameset = false;
+  bool qfnameset = false;
 
   while (1)
   {
@@ -219,9 +221,11 @@ int main (int argc, char ** argv)
         break;
       case'c':
         cfname = optarg;
+        cfnameset = true;
         break;
       case 'q':
         qfname = optarg;
+        qfnameset = true;
         break;
       default:
         usage (argv[0]);
@@ -254,7 +258,6 @@ int main (int argc, char ** argv)
     std::cerr << "Inout file does not exist" << std::endl;
     return 1;
   }
- 
 
   std::cout << "Reading data from " << filename << " file " << std::endl;
   int num_of_line = pcafitter::numofline(filename);
@@ -291,16 +294,6 @@ int main (int argc, char ** argv)
 
   if (!useallsubsectors && !useallsubladders)
   {
-    std::cout << "Read constant from files (" << cfname << 
-      " and " << qfname << ")" << std::endl;
-    if (!file_exists(cfname) || !file_exists(qfname))
-    {
-      std::cerr << "Constants file does not exist" << std::endl;
-      return 1;
-    }
-    fitter.read_armmat(cfname.c_str(), cmtx);
-    fitter.read_armvct(qfname.c_str(), q);
-
     if ((subsec == "") && (sublad == ""))
     {
       int maxnumber;
@@ -328,6 +321,26 @@ int main (int argc, char ** argv)
     
     if (subsec != "")
     {
+      std::ostringstream cfnames, qfnames; 
+      cfnames << "c." << subsec << ".bin";
+      qfnames << "q." << subsec << ".bin";
+
+      if (!cfnameset)
+        cfname = cfnames.str();
+      
+      if (!qfnameset)
+        qfname = qfnames.str();
+
+      std::cout << "Read constant from files (" << cfname << 
+        " and " << qfname << ")" << std::endl;
+      if (!file_exists(cfname) || !file_exists(qfname))
+      {
+        std::cerr << "Constants file does not exist" << std::endl;
+        return 1;
+      }
+      fitter.read_armmat(cfname.c_str(), cmtx);
+      fitter.read_armvct(qfname.c_str(), q);
+
       arma::mat paramslt, coordslt;
     
       std::cout << "Using subsector " << subsec << std::endl;
@@ -344,6 +357,26 @@ int main (int argc, char ** argv)
     
     if (sublad != "")
     {
+      std::ostringstream cfnames, qfnames; 
+      cfnames << "c." << sublad << ".bin";
+      qfnames << "q." << sublad << ".bin";
+
+      if (!cfnameset)
+        cfname = cfnames.str();
+      
+      if (!qfnameset)
+        qfname = qfnames.str();
+
+      std::cout << "Read constant from files (" << cfname << 
+        " and " << qfname << ")" << std::endl;
+      if (!file_exists(cfname) || !file_exists(qfname))
+      {
+        std::cerr << "Constants file does not exist" << std::endl;
+        return 1;
+      }
+      fitter.read_armmat(cfname.c_str(), cmtx);
+      fitter.read_armvct(qfname.c_str(), q);
+
       arma::mat paramslt, coordslt;
 
       std::cout << "Using subladder " << sublad << std::endl;
