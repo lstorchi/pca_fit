@@ -148,7 +148,7 @@ void perform_main_computation (const bool fast, const bool verbose,
   double totvar = 0.0e0; 
   for (int i=0; i<fitter.get_coordim(); ++i)
   {
-    if (i < PARAMDIM)
+    if (i < fitter.get_paramdim())
       totvar += 100.0e0*(eigval(i)/totval);
 
     std::cout << i+1 << " ==> " << 100.0e0*(eigval(i)/totval) 
@@ -156,11 +156,11 @@ void perform_main_computation (const bool fast, const bool verbose,
   }
   std::cout << "PARAMDIM eigenvalues: " << totvar << std::endl;
 
-  std::cout << PARAMDIM << " X " << fitter.get_coordim() << std::endl;
+  std::cout << fitter.get_paramdim() << " X " << fitter.get_coordim() << std::endl;
 
-  arma::mat cmtx = arma::zeros<arma::mat>(PARAMDIM,
+  arma::mat cmtx = arma::zeros<arma::mat>(fitter.get_paramdim(),
       fitter.get_coordim());
-  arma::rowvec q = arma::zeros<arma::rowvec>(PARAMDIM);
+  arma::rowvec q = arma::zeros<arma::rowvec>(fitter.get_paramdim());
 
   std::cout << "Compute PCA constants " << std::endl;
   fitter.compute_pca_constants (param,
@@ -302,7 +302,7 @@ int main (int argc, char ** argv)
   ladder.set_size(num_of_ent,fitter.get_coordim());
   module.set_size(num_of_ent,fitter.get_coordim());
   coordin.set_size(num_of_ent,fitter.get_coordim());
-  paramin.set_size(num_of_ent,PARAMDIM);
+  paramin.set_size(num_of_ent,fitter.get_paramdim());
 
   std::map<std::string, int> subsectors, subladders;
   std::vector<std::string> subladderslist, subsectorslist;

@@ -4,8 +4,6 @@
 #define ENTDIM 8
 #define NUMOFLAYER (ENTDIM-2)
 
-#define PARAMDIM 5
-
 #define PTIDX 0
 #define PHIIDX 1
 #define D0IDX 2
@@ -34,7 +32,10 @@ class pcafitter
 
     int get_coordim () const;
     void set_coordim (int);
-    
+
+    int get_paramdim () const;
+    void set_paramdim (int);
+ 
     void write_to_file (const char * fname, 
         const arma::mat & vec, int idx);
     
@@ -82,7 +83,9 @@ class pcafitter
         arma::rowvec & q);
 
   private:
+
     int coordim_;
+    int paramdim_;
 };
 
 #endif

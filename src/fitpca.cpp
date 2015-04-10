@@ -66,7 +66,7 @@ void build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
     "phi_cmpt diff eta_orig eta_cmpt diff " << 
     "d0_orig d0_cmpt diff z0_orig z0_cmpt diff" << std::endl; 
 
-  arma::running_stat<double> pc[PARAMDIM];
+  arma::running_stat<double> pc[fitter.get_paramdim()];
   for (int i=0; i<(int)coordslt.n_rows; ++i)
   {
     double tantetha = (1.0e0 / etacmp[i]) ; 
@@ -116,7 +116,7 @@ void build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
 
   myfile.close();
 
-  for (int i=0; i<PARAMDIM; ++i)
+  for (int i=0; i<fitter.get_paramdim(); ++i)
      std::cout << "For " << pcafitter::paramidx_to_string(i) << " error " << 
        100.0*pc[i].mean() << " " << 100.0*pc[i].stddev() << std::endl;
 
@@ -281,7 +281,7 @@ int main (int argc, char ** argv)
   ladder.set_size(num_of_ent,fitter.get_coordim());
   module.set_size(num_of_ent,fitter.get_coordim());
   coord.set_size(num_of_ent,fitter.get_coordim());
-  param.set_size(num_of_ent,PARAMDIM);
+  param.set_size(num_of_ent,fitter.get_paramdim());
 
   std::map<std::string, int> subsectors, subladders;
   std::vector<std::string> subladderslist, subsectorslist;
