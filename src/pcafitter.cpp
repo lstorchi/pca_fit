@@ -51,10 +51,21 @@ namespace
 pcafitter::pcafitter()
 {
   coordim_ = 6*3;
+  paramdim_ = 5;
 }
 
 pcafitter::~pcafitter()
 {
+}
+
+int pcafitter::get_paramdim () const
+{
+  return paramdim_;
+}
+
+void pcafitter::set_paramdim (int i)
+{
+  paramdim_ = i;
 }
 
 int pcafitter::get_coordim () const
@@ -362,7 +373,7 @@ void pcafitter::extract_sub (const std::vector<std::string> & sublist,
       dim++;
 
   coord.set_size(dim,coordim_);
-  param.set_size(dim,PARAMDIM);
+  param.set_size(dim,paramdim_);
 
   int k = 0;
   it = sublist.begin();
@@ -372,7 +383,7 @@ void pcafitter::extract_sub (const std::vector<std::string> & sublist,
     {
       for (int j = 0; j < coordim_; ++j)
         coord(k,j) = coordin(i,j);
-      for (int j = 0; j < PARAMDIM; ++j)
+      for (int j = 0; j < paramdim_; ++j)
         param(k,j) = paramin (i,j);
       ++k;
     }
@@ -412,8 +423,8 @@ void pcafitter::compute_pca_constants (
 #endif
 
   // and so on ...
-  arma::mat hcap = arma::zeros<arma::mat>(coordim_,PARAMDIM);
-  arma::rowvec paramm = arma::zeros<arma::rowvec>(PARAMDIM);
+  arma::mat hcap = arma::zeros<arma::mat>(coordim_,paramdim_);
+  arma::rowvec paramm = arma::zeros<arma::rowvec>(paramdim_);
   arma::rowvec coordm = arma::zeros<arma::rowvec>(coordim_);
 
   //hcap = arma::cov()
@@ -455,7 +466,7 @@ void pcafitter::compute_pca_constants (
 
   //std::cout << hcap << std::endl;
 
-  for (int i=0; i<PARAMDIM; ++i)
+  for (int i=0; i<paramdim_; ++i)
     for (int l=0; l<coordim_; ++l)
       for (int m=0; m<coordim_; ++m)
         cmtx(i,l) += vi(l,m) * hcap (m,i);
@@ -465,7 +476,7 @@ void pcafitter::compute_pca_constants (
   std::cout << cmtx;
 #endif 
 
-  for (int i=0; i<PARAMDIM; ++i)
+  for (int i=0; i<paramdim_; ++i)
   {
     q(i) = paramm(i);
     for (int l=0; l<coordim_; ++l)
@@ -474,7 +485,7 @@ void pcafitter::compute_pca_constants (
 
 #ifdef DEBUG
   std::cout << "Q vector: " << std::endl;
-  for (int i=0; i<PARAMDIM; ++i)
+  for (int i=0; i<paramdim_; ++i)
     std::cout << q(i) << std::endl;
 #endif
 
