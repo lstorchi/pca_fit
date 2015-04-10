@@ -30,44 +30,19 @@ namespace pca
       
       static std::string paramidx_to_string (int i);
   
-      // remove it
-      static int numofline (const char * fname);
-  
       int get_coordim () const;
       void set_coordim (int);
   
       int get_paramdim () const;
       void set_paramdim (int);
-   
-      void write_to_file (const char * fname, 
-          const arma::mat & vec, int idx);
-      
-      void write_armmat (const char *, arma::mat & cmtx);
-      
-      void write_armvct (const char *, arma::rowvec & q);
-      
-      void read_armmat (const char *, arma::mat & cmtx);
-      
-      void read_armvct (const char *, arma::rowvec & q);
-      
+         
       void compute_parameters (const arma::mat & cmtx, 
         const arma::rowvec & q, 
         const arma::mat & coordslt, 
         double * oneoverptcmp, double * phicmp, 
         double * etacmp, double * z0cmp, 
         double * d0cmp);
-      
-      void reading_from_file (const char * filename, 
-          arma::mat & paramin, arma::mat & coordin,
-          arma::mat & layer, arma::mat & ladder, 
-          arma::mat & module, 
-          std::map<std::string, int> & subsectors, 
-          std::map<std::string, int> & subladders,
-          std::vector<std::string> & subsectorslist,
-          std::vector<std::string> & subladderslist,
-          int num_of_ent, bool usesegid, 
-          bool useonlyeven, bool useonlyodd);
-      
+            
       void select_bigger_sub (
           const std::map<std::string, int> & sublist, 
           bool verbose, int & maxnumber, std::string & slctsubsec );

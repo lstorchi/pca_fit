@@ -16,6 +16,7 @@
 #include <alloca.h>
 
 #include <pcafitter.hpp>
+#include <pcaffunctype.hpp>
 
 // lstorchi: basi code to fit tracks, using the PCA constants generated 
 //           by the related generatepca
@@ -260,7 +261,7 @@ int main (int argc, char ** argv)
   }
 
   std::cout << "Reading data from " << filename << " file " << std::endl;
-  int num_of_line = pca::pcafitter::numofline(filename);
+  int num_of_line = pca::numofline(filename);
   std::cout << "file has " << num_of_line << " line " << std::endl;
   int num_of_ent_read = (num_of_line-1)/ENTDIM;
 
@@ -287,7 +288,7 @@ int main (int argc, char ** argv)
   std::vector<std::string> subladderslist, subsectorslist;
 
 
-  fitter.reading_from_file (filename, param, coord, 
+  pca::reading_from_file (filename, param, coord, 
       layer, ladder, module, subsectors, subladders, 
       subsectorslist, subladderslist, num_of_ent_read, 
       usesegid, false, useonlyodd);
@@ -338,8 +339,8 @@ int main (int argc, char ** argv)
         std::cerr << "Constants file does not exist" << std::endl;
         return 1;
       }
-      fitter.read_armmat(cfname.c_str(), cmtx);
-      fitter.read_armvct(qfname.c_str(), q);
+      pca::read_armmat(cfname.c_str(), cmtx);
+      pca::read_armvct(qfname.c_str(), q);
 
       arma::mat paramslt, coordslt;
     
@@ -374,8 +375,8 @@ int main (int argc, char ** argv)
         std::cerr << "Constants file does not exist" << std::endl;
         return 1;
       }
-      fitter.read_armmat(cfname.c_str(), cmtx);
-      fitter.read_armvct(qfname.c_str(), q);
+      pca::read_armmat(cfname.c_str(), cmtx);
+      pca::read_armvct(qfname.c_str(), q);
 
       arma::mat paramslt, coordslt;
 
@@ -432,8 +433,8 @@ int main (int argc, char ** argv)
         std::cout << "Perfom fitting for " << *selected << std::endl;
 
         std::cout << "Read constants " << std::endl;
-        fitter.read_armmat(cfname.str().c_str(), cmtx);
-        fitter.read_armvct(qfname.str().c_str(), q);
+        pca::read_armmat(cfname.str().c_str(), cmtx);
+        pca::read_armvct(qfname.str().c_str(), q);
 
         arma::mat paramslt, coordslt;
     
