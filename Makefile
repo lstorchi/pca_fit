@@ -9,8 +9,8 @@
 
 all: 
 	$(MAKE) -C src
-	$(MAKE) -C rootfilereader
+	$(MAKE) -C ./progsrc/rootfilereader
 
 clean:
 	$(MAKE) clean -C src
-	$(MAKE) clean -C rootfilereader
+	$(MAKE) clean -C ./progsrc/rootfilereader

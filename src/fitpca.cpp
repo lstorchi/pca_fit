@@ -46,7 +46,7 @@ namespace
 
 void build_and_compare (arma::mat & paramslt, arma::mat & coordslt, 
      arma::mat & cmtx, arma::rowvec & q, bool verbose, 
-     const std::string & postfname, pcafitter & fitter)
+     const std::string & postfname, pca::pcafitter & fitter)
 {
   double * oneoverptcmp, * phicmp, * etacmp, * z0cmp, * d0cmp;
   oneoverptcmp = new double [(int)coordslt.n_rows];
@@ -117,7 +117,7 @@ void build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
   myfile.close();
 
   for (int i=0; i<fitter.get_paramdim(); ++i)
-     std::cout << "For " << pcafitter::paramidx_to_string(i) << " error " << 
+     std::cout << "For " << pca::pcafitter::paramidx_to_string(i) << " error " << 
        100.0*pc[i].mean() << " " << 100.0*pc[i].stddev() << std::endl;
 
   delete [] oneoverptcmp;
@@ -152,7 +152,7 @@ void usage (char * name)
 
 int main (int argc, char ** argv)
 {
-  pcafitter fitter;
+  pca::pcafitter fitter;
 
   std::string qfname = "q.bin";
   std::string cfname = "c.bin";
@@ -207,7 +207,7 @@ int main (int argc, char ** argv)
         verbose = true;
         break;
       case 'v':
-        std::cout << "Version: " << pcafitter::get_version_string() << std::endl;
+        std::cout << "Version: " << pca::pcafitter::get_version_string() << std::endl;
         exit(1);
         break;
       case 'h':
@@ -260,7 +260,7 @@ int main (int argc, char ** argv)
   }
 
   std::cout << "Reading data from " << filename << " file " << std::endl;
-  int num_of_line = pcafitter::numofline(filename);
+  int num_of_line = pca::pcafitter::numofline(filename);
   std::cout << "file has " << num_of_line << " line " << std::endl;
   int num_of_ent_read = (num_of_line-1)/ENTDIM;
 
