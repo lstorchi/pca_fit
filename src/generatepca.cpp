@@ -57,7 +57,7 @@ void usage (char * name)
 void perform_main_computation (const bool fast, const bool verbose, 
     const arma::mat & coord, const arma::mat & param, 
     const std::string & cfname, const std::string & qfname,
-    pcafitter & fitter)
+    pca::pcafitter & fitter)
 {
   // ordered 
   arma::vec eigval;
@@ -173,7 +173,7 @@ void perform_main_computation (const bool fast, const bool verbose,
 
 int main (int argc, char ** argv)
 {
-  pcafitter fitter; 
+  pca::pcafitter fitter; 
 
   bool fast = false;
   bool verbose = false;
@@ -223,7 +223,7 @@ int main (int argc, char ** argv)
         usage (argv[0]);
         break;
       case 'v':
-        std::cout << "Version: " << pcafitter::get_version_string() << std::endl;
+        std::cout << "Version: " << pca::pcafitter::get_version_string() << std::endl;
         exit(1);
         break;
       case 'a':
@@ -280,7 +280,7 @@ int main (int argc, char ** argv)
     return 1;
   }
                   
-  int num_of_line = pcafitter::numofline(filename);
+  int num_of_line = pca::pcafitter::numofline(filename);
   std::cout << "file has " << num_of_line << " line " << std::endl;
   int num_of_ent_read = (num_of_line-1)/ENTDIM;
 
