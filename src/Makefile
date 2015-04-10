@@ -9,33 +9,21 @@
 
 include ../config.mk
 
-//CFLAGS += -DUSEALLVALUES 
-//CFLAGS += -DDEBUG
-
 ifeq ($(CERN),yes)
   CFLAGS += -I/afs/cern.ch/user/l/$(USER)/armadillo-3.930.4/include
-  LIBS += -L/afs/cern.ch/user/l/$(USER)/armadillo-3.930.4 
 endif
 
 CFLAGS +=-I./ -I../include 
 
-LIBS += -larmadillo -lm
+LIBNAME = libpcafitter.a
 
-OBJG = pcafitter.o \
-       generatepca.o
+OBJ = $(LIBNAME)(pcafitter.o) \
+      $(LIBNAME)(utility.o) 
 
-OBJF = pcafitter.o \
-       fitpca.o 
+all: $(LIBNAME)
 
-all: generatepca fitpca
-
-generatepca: $(OBJG) 
-	g++ -o $@ $(OBJG) $(LIBS) -larmadillo -lm
-	mv -f $@ ../bin 
-
-fitpca: $(OBJF) 
-	g++ -o $@ $(OBJF) $(LIBS) -larmadillo -lm
-	mv -f $@ ../bin
+$(LIBNAME): $(OBJ)
+	mv -f $(LIBNAME) ../lib
 
 clean:
-	rm -f *.o  ../bin/generatepca ../bin/fitpca
+	rm -f *.o  ../lib/$(LIBNAME)

@@ -16,6 +16,7 @@
 #include <alloca.h>
 
 #include <pcafitter.hpp>
+#include <pcaffunctype.hpp>
 
 #define MINDIMLINIT 25
 
@@ -167,8 +168,8 @@ void perform_main_computation (const bool fast, const bool verbose,
       coord, cmtx, q);
 
   std::cout << "Write constant to file" << std::endl;
-  fitter.write_armmat(cfname.c_str(), cmtx);
-  fitter.write_armvct(qfname.c_str(), q);
+  pca::write_armmat(cfname.c_str(), cmtx);
+  pca::write_armvct(qfname.c_str(), q);
 }
 
 int main (int argc, char ** argv)
@@ -280,7 +281,7 @@ int main (int argc, char ** argv)
     return 1;
   }
                   
-  int num_of_line = pca::pcafitter::numofline(filename);
+  int num_of_line = pca::numofline(filename);
   std::cout << "file has " << num_of_line << " line " << std::endl;
   int num_of_ent_read = (num_of_line-1)/ENTDIM;
 
@@ -309,7 +310,7 @@ int main (int argc, char ** argv)
 
   // leggere file coordinate tracce simulate plus parametri
   std::cout << "Reading data from " << filename << " file " << std::endl;
-  fitter.reading_from_file (filename, paramin, coordin, 
+  pca::reading_from_file (filename, paramin, coordin, 
       layer, ladder, module, subsectors, subladders, 
       subsectorslist, subladderslist, num_of_ent_read, usesegid,
       useonlyeven, false);
@@ -328,11 +329,11 @@ int main (int argc, char ** argv)
   }
 
   std::cout << "Writing parameters to files" << std::endl;
-  fitter.write_to_file("oneoverpt.txt", paramin, PTIDX);
-  fitter.write_to_file("phi.txt", paramin, PHIIDX);
-  fitter.write_to_file("d0.txt", paramin, D0IDX);
-  fitter.write_to_file("cotetha2.txt", paramin, TETHAIDX);
-  fitter.write_to_file("z0.txt", paramin, Z0IDX);
+  pca::write_to_file("oneoverpt.txt", paramin, PTIDX);
+  pca::write_to_file("phi.txt", paramin, PHIIDX);
+  pca::write_to_file("d0.txt", paramin, D0IDX);
+  pca::write_to_file("cotetha2.txt", paramin, TETHAIDX);
+  pca::write_to_file("z0.txt", paramin, Z0IDX);
 
   if (!useallsubsectors && !useallsubladders)
   {
@@ -397,11 +398,11 @@ int main (int argc, char ** argv)
     
     // write date to file 
     std::cout << "Writing extracted parameters to files" << std::endl;
-    fitter.write_to_file("oneoverpt_selected.txt", param, PTIDX);
-    fitter.write_to_file("phi_selected.txt", param, PHIIDX);
-    fitter.write_to_file("d0_selected.txt", param, D0IDX);
-    fitter.write_to_file("cotetha2_selected.txt", param, TETHAIDX);
-    fitter.write_to_file("z0_selected.txt", param, Z0IDX);
+    pca::write_to_file("oneoverpt_selected.txt", param, PTIDX);
+    pca::write_to_file("phi_selected.txt", param, PHIIDX);
+    pca::write_to_file("d0_selected.txt", param, D0IDX);
+    pca::write_to_file("cotetha2_selected.txt", param, TETHAIDX);
+    pca::write_to_file("z0_selected.txt", param, Z0IDX);
 
     std::ostringstream cfname, qfname; 
     cfname << "c." << slctsubsec << ".bin";
