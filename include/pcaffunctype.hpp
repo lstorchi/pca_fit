@@ -12,6 +12,9 @@
 #define TETHAIDX 3
 #define Z0IDX 4
 
+#define SPLIT_COTTETHAIDX 0
+#define SPLIT_Z0IDX 1
+
 namespace pca
 {
   int numofline (const char * fname);
