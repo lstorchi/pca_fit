@@ -20,7 +20,7 @@
 
 #define MINDIMLINIT 25
 
-// lstorchi: basic quicj code to generate PCA constants
+// lstorchi: basic quick code to generate PCA constants
 
 namespace
 {
