@@ -4,12 +4,6 @@
 #define ENTDIM 8
 #define NUMOFLAYER (ENTDIM-2)
 
-#define PTIDX 0
-#define PHIIDX 1
-#define D0IDX 2
-#define TETHAIDX 3
-#define Z0IDX 4
-
 #include <armadillo>
 #include <vector>
 #include <map>
@@ -28,7 +22,8 @@ namespace pca
   
       static std::string get_version_string();
       
-      static std::string paramidx_to_string (int i);
+      bool set_paramidx (int i, const std::string &);
+      std::string paramidx_to_string (int i);
   
       int get_coordim () const;
       void set_coordim (int);
@@ -64,6 +59,8 @@ namespace pca
   
       int coordim_;
       int paramdim_;
+
+      std::map<int, std::string> paramname_;
   };
 };
 

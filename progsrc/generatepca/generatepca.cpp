@@ -256,6 +256,13 @@ int main (int argc, char ** argv)
   if (usesegid)
     fitter.set_coordim (6);
 
+  fitter.set_paramdim(5);
+  fitter.set_paramidx(PTIDX, "oneoverpt");
+  fitter.set_paramidx(PHIIDX, "phi");
+  fitter.set_paramidx(TETHAIDX, "cot(tetha/2)");
+  fitter.set_paramidx(Z0IDX, "z0");
+  fitter.set_paramidx(D0IDX, "d0");
+
   if (optind >= argc) 
     usage (argv[0]);
 

@@ -44,6 +44,7 @@ int pcafitter::get_paramdim () const
 void pcafitter::set_paramdim (int i)
 {
   paramdim_ = i;
+  paramname_.clear();
 }
 
 int pcafitter::get_coordim () const
@@ -65,29 +66,25 @@ std::string pcafitter::get_version_string( )
   return version.str();
 }
 
+bool pcafitter::set_paramidx (int i, const std::string & val)
+{ 
+  if (i < paramdim_)
+  {
+    paramname_[i] = val;
+
+    return true;
+  }
+
+ return false; 
+}
+
 std::string pcafitter::paramidx_to_string (int i)
 {
-  switch (i)
-  {
-    case PTIDX:
-      return "oneoverpt";
-      break;
-    case PHIIDX:
-      return "phi";
-      break;
-    case TETHAIDX:
-      return "cot(tetha/2)";
-      break;
-    case Z0IDX:
-      return "z0";
-      break;
-    case D0IDX:
-      return "d0";
-      break;
-    default:
-      return "";
-      break;
-  }
+  std::map<int, std::string>::iterator it;
+  if ((it = paramname_.find(i)) != paramname_.end())
+    return it->second;
+
+  return "";
 }
 
 void pcafitter::compute_parameters (const arma::mat & cmtx, 

@@ -118,7 +118,7 @@ void build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
   myfile.close();
 
   for (int i=0; i<fitter.get_paramdim(); ++i)
-     std::cout << "For " << pca::pcafitter::paramidx_to_string(i) << " error " << 
+     std::cout << "For " << fitter.paramidx_to_string(i) << " error " << 
        100.0*pc[i].mean() << " " << 100.0*pc[i].stddev() << std::endl;
 
   delete [] oneoverptcmp;
@@ -236,6 +236,13 @@ int main (int argc, char ** argv)
 
   if (usesegid)
     fitter.set_coordim(6);
+
+  fitter.set_paramdim(5);
+  fitter.set_paramidx(PTIDX, "oneoverpt");
+  fitter.set_paramidx(PHIIDX, "phi");
+  fitter.set_paramidx(TETHAIDX, "cot(tetha/2)");
+  fitter.set_paramidx(Z0IDX, "z0");
+  fitter.set_paramidx(D0IDX, "d0");
 
   if (optind >= argc) 
     usage (argv[0]);
