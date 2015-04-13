@@ -45,7 +45,7 @@ namespace
 
 }
 
-void build_and_compare (arma::mat & paramslt, arma::mat & coordslt, 
+bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt, 
      arma::mat & cmtx, arma::rowvec & q, bool verbose, 
      const std::string & postfname, pca::pcafitter & fitter)
 {
@@ -55,9 +55,23 @@ void build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
   etacmp = new double [(int)coordslt.n_rows];
   z0cmp = new double [(int)coordslt.n_rows];
   d0cmp = new double [(int)coordslt.n_rows];
-  fitter.compute_parameters (cmtx, q, coordslt, oneoverptcmp,
-      phicmp, etacmp, z0cmp, d0cmp);
 
+  double ** ptrs;
+  ptrs = new double* [fitter.get_paramdim()];
+  ptrs[PTIDX] = oneoverptcmp;
+  ptrs[PHIIDX] = phicmp;
+  ptrs[TETHAIDX] = etacmp;
+  ptrs[Z0IDX] = z0cmp;
+  ptrs[D0IDX] = d0cmp;
+
+  if (!fitter.compute_parameters (cmtx, q, coordslt, ptrs, 
+        fitter.get_paramdim()))
+  {
+    std::cerr << fitter.get_errmsg() << std::endl;
+    return false;
+  }
+
+  delete [] ptrs; 
 
   std::ostringstream fname;
   fname << "results." << postfname << ".txt";
@@ -82,10 +96,10 @@ void build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
         (fabs(phicmp[i] + paramslt(i, PHIIDX))/2.0));
     pc[TETHAIDX](fabs(etacmps - etaorig)/
         (fabs(etacmps + etaorig)/2.0));
-    pc[D0IDX](fabs(d0cmp[i] - paramslt(i, D0IDX))/
-        (fabs(d0cmp[i] + paramslt(i, D0IDX))/2.0));
     pc[Z0IDX](fabs(z0cmp[i] - paramslt(i, Z0IDX))/
         (fabs(z0cmp[i] + paramslt(i, Z0IDX))/2.0));
+    pc[D0IDX](fabs(d0cmp[i] - paramslt(i, D0IDX))/
+        (fabs(d0cmp[i] + paramslt(i, D0IDX))/2.0));
 
     myfile << 
       1.0e0/paramslt(i, PTIDX) << " " << 1.0e0/oneoverptcmp[i] << " " << 
@@ -126,6 +140,8 @@ void build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
   delete [] etacmp;
   delete [] z0cmp;
   delete [] d0cmp;
+
+  return true;
 } 
 
 void usage (char * name)
@@ -238,11 +254,31 @@ int main (int argc, char ** argv)
     fitter.set_coordim(6);
 
   fitter.set_paramdim(5);
-  fitter.set_paramidx(PTIDX, "oneoverpt");
-  fitter.set_paramidx(PHIIDX, "phi");
-  fitter.set_paramidx(TETHAIDX, "cot(tetha/2)");
-  fitter.set_paramidx(Z0IDX, "z0");
-  fitter.set_paramidx(D0IDX, "d0");
+  if (!fitter.set_paramidx(PTIDX, "oneoverpt"))
+  {
+    std::cerr << fitter.get_errmsg() << std::endl;
+    return EXIT_FAILURE;
+  }
+  if (!fitter.set_paramidx(PHIIDX, "phi"))
+  {
+    std::cerr << fitter.get_errmsg() << std::endl;
+    return EXIT_FAILURE;
+  }
+  if (!fitter.set_paramidx(TETHAIDX, "cot(tetha/2)"))
+  {
+    std::cerr << fitter.get_errmsg() << std::endl;
+    return EXIT_FAILURE;
+  }
+  if (!fitter.set_paramidx(Z0IDX, "z0"))
+  {
+    std::cerr << fitter.get_errmsg() << std::endl;
+    return EXIT_FAILURE;
+  }
+  if (!fitter.set_paramidx(D0IDX, "d0"))
+  {
+    std::cerr << fitter.get_errmsg() << std::endl;
+    return EXIT_FAILURE;
+  }
 
   if (optind >= argc) 
     usage (argv[0]);
@@ -264,7 +300,7 @@ int main (int argc, char ** argv)
   if (!file_exists(filename))
   {
     std::cerr << "Inout file does not exist" << std::endl;
-    return 1;
+    return EXIT_FAILURE;
   }
 
   std::cout << "Reading data from " << filename << " file " << std::endl;
@@ -344,7 +380,7 @@ int main (int argc, char ** argv)
       if (!file_exists(cfname) || !file_exists(qfname))
       {
         std::cerr << "Constants file does not exist" << std::endl;
-        return 1;
+        return EXIT_FAILURE;
       }
       pca::read_armmat(cfname.c_str(), cmtx);
       pca::read_armvct(qfname.c_str(), q);
@@ -359,8 +395,9 @@ int main (int argc, char ** argv)
 
       std::cout << " numevt: " << coordslt.n_rows << std::endl;
     
-      build_and_compare (paramslt, coordslt, cmtx, q, verbose, 
-          subsec, fitter);
+      if (!build_and_compare (paramslt, coordslt, cmtx, q, verbose, 
+            subsec, fitter))
+        return EXIT_FAILURE;
     }
     
     if (sublad != "")
@@ -380,7 +417,7 @@ int main (int argc, char ** argv)
       if (!file_exists(cfname) || !file_exists(qfname))
       {
         std::cerr << "Constants file does not exist" << std::endl;
-        return 1;
+        return EXIT_FAILURE;
       }
       pca::read_armmat(cfname.c_str(), cmtx);
       pca::read_armvct(qfname.c_str(), q);
@@ -395,8 +432,9 @@ int main (int argc, char ** argv)
 
       std::cout << " numevt: " << coordslt.n_rows << std::endl;
      
-      build_and_compare (paramslt, coordslt, cmtx, q, verbose, 
-          sublad, fitter);
+      if (!build_and_compare (paramslt, coordslt, cmtx, q, verbose, 
+            sublad, fitter))
+        return EXIT_FAILURE;
     }
   }
   else
@@ -449,14 +487,12 @@ int main (int argc, char ** argv)
             *selected, param, coord, paramslt,
             coordslt);
     
-        build_and_compare (paramslt, coordslt, cmtx, q, verbose, 
-            *selected, fitter);
+        if (!build_and_compare (paramslt, coordslt, cmtx, q, verbose, 
+              *selected, fitter))
+          return EXIT_FAILURE;
       }
     }
- 
-
-    // TODO
   }
  
-  return 0;
+  return EXIT_SUCCESS;
 }

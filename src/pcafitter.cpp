@@ -68,12 +68,16 @@ std::string pcafitter::get_version_string( )
 
 bool pcafitter::set_paramidx (int i, const std::string & val)
 { 
+  reset_error();
+
   if (i < paramdim_)
   {
     paramname_[i] = val;
 
     return true;
   }
+
+ set_errmsg (1, "invalid index");
 
  return false; 
 }
@@ -87,40 +91,31 @@ std::string pcafitter::paramidx_to_string (int i)
   return "";
 }
 
-void pcafitter::compute_parameters (const arma::mat & cmtx, 
+bool pcafitter::compute_parameters (const arma::mat & cmtx, 
     const arma::rowvec & q, 
     const arma::mat & coord, 
-    double * oneoverptcmp, double * phicmp, 
-    double * etacmp, double * z0cmp, 
-    double * d0cmp)
+    double ** paraptr, int paramdim)
 {
-  for (int i=0; i<(int)coord.n_rows; ++i)
+  reset_error();
+
+  if (paramdim != paramdim_)
   {
-    // 1 / pt 
-    oneoverptcmp[i] = q(PTIDX);
-    for (int k=0; k<coordim_; ++k)
-      oneoverptcmp[i] += cmtx(PTIDX,k)*coord(i,k);
-
-    // phi
-    phicmp[i] = q(PHIIDX);
-    for (int k=0; k<coordim_; ++k)
-      phicmp[i] += cmtx(PHIIDX,k)*coord(i,k);
-
-    // eta
-    etacmp[i] = q(TETHAIDX);
-    for (int k=0; k<coordim_; ++k)
-      etacmp[i] += cmtx(TETHAIDX,k)*coord(i,k);
-
-    // z0
-    z0cmp[i] = q(Z0IDX);
-    for (int k=0; k<coordim_; ++k)
-      z0cmp[i] += cmtx(Z0IDX,k)*coord(i,k);
-
-    // d0
-    d0cmp[i] = q(D0IDX);
-    for (int k=0; k<coordim_; ++k)
-      d0cmp[i] += cmtx(D0IDX,k)*coord(i,k);
+    set_errmsg (2, "invalid number of parameters");
+    return false;
   }
+
+  for (int j=0; j<paramdim; ++j)
+  {
+    double *ptr = paraptr[j];
+    for (int i=0; i<(int)coord.n_rows; ++i)
+    {
+      ptr[i] = q(j);
+      for (int k=0; k<coordim_; ++k)
+        ptr[i] += cmtx(j,k)*coord(i,k);
+    }
+  }
+
+  return true;
 }
 
 
@@ -277,7 +272,29 @@ void pcafitter::compute_pca_constants (
 
 }
 
+const std::string & pcafitter::get_errmsg () const
+{
+  return errmsg_;
+}
+
+int pcafitter::get_errnum() const
+{
+  return errnum_;
+} 
+
 ///////////////////////////////////////////////////////////////////////////////
 //  PRIVATE
 ///////////////////////////////////////////////////////////////////////////////
 
+ 
+void pcafitter::set_errmsg (int num, const std::string & msg)
+{
+  errnum_ = num;
+  errmsg_ = msg;
+}
+
+void pcafitter::reset_error ()
+{
+  errnum_ = 0;
+  errmsg_ = "";
+}
