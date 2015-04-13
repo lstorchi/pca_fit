@@ -21,13 +21,13 @@ CFLAGS +=-I./ -I../../include
 
 LIBS += -larmadillo -lm
 
-OBJ = fitpca.o
+OBJ = fitpca_split.o
 
-all: fitpca 
+all: fitpca_split 
 
-fitpca: $(OBJ) 
+fitpca_split: $(OBJ) 
 	g++ -o $@ $(OBJ) -L../../lib -lpcafitter $(LIBS) 
 	mv -f $@ ../../bin 
 
 clean:
-	rm -f *.o  ../../bin/fitpca
+	rm -f *.o  ../../bin/fitpca_split
