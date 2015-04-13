@@ -5,6 +5,13 @@
 #include <vector>
 #include <map>
 
+// to be moved
+#define PTIDX 0
+#define PHIIDX 1
+#define D0IDX 2
+#define TETHAIDX 3
+#define Z0IDX 4
+
 namespace pca
 {
   int numofline (const char * fname);
