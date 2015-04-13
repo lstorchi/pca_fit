@@ -40,6 +40,11 @@ namespace pca
           std::vector<std::string> & subladderslist,
           int num_of_ent, bool usesegid, 
           bool useonlyeven, bool useonlyodd);
+
+  void reading_from_file_split_rz (const char * filename, 
+          arma::mat & paramin, arma::mat & coordin,
+          int num_of_ent, bool useonlyeven, bool useonlyodd);
+
 };
   
 #endif
