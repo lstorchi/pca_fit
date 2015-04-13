@@ -9,8 +9,8 @@
 
 include ../../config.mk
 
-//CFLAGS += -DUSEALLVALUES 
-//CFLAGS += -DDEBUG
+#CFLAGS += -DUSEALLVALUES 
+#CFLAGS += -DDEBUG
 
 ifeq ($(CERN),yes)
   CFLAGS += -I/afs/cern.ch/user/l/$(USER)/armadillo-3.930.4/include
@@ -30,4 +30,4 @@ generatepca: $(OBJ)
 	mv -f $@ ../../bin 
 
 clean:
-	rm -f *.o  ../../bin/generatepca ../../bin/fitpca
+	rm -f *.o  ../../bin/generatepca 
