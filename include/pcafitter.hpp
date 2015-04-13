@@ -31,13 +31,11 @@ namespace pca
       int get_paramdim () const;
       void set_paramdim (int);
          
-      void compute_parameters (const arma::mat & cmtx, 
+      bool compute_parameters (const arma::mat & cmtx, 
         const arma::rowvec & q, 
         const arma::mat & coordslt, 
-        double * oneoverptcmp, double * phicmp, 
-        double * etacmp, double * z0cmp, 
-        double * d0cmp);
-            
+        double ** paramptr, int paramdim);
+           
       void select_bigger_sub (
           const std::map<std::string, int> & sublist, 
           bool verbose, int & maxnumber, std::string & slctsubsec );
@@ -54,13 +52,22 @@ namespace pca
           const arma::mat & coord,
           arma::mat & cmtx, 
           arma::rowvec & q);
+
+      const std::string & get_errmsg () const;
+      int get_errnum() const;
   
     private:
   
+      int errnum_;
       int coordim_;
       int paramdim_;
 
+      std::string errmsg_;
+
       std::map<int, std::string> paramname_;
+
+      void set_errmsg (int , const std::string &);
+      void reset_error ();
   };
 };
 

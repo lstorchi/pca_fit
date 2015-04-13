@@ -257,11 +257,31 @@ int main (int argc, char ** argv)
     fitter.set_coordim (6);
 
   fitter.set_paramdim(5);
-  fitter.set_paramidx(PTIDX, "oneoverpt");
-  fitter.set_paramidx(PHIIDX, "phi");
-  fitter.set_paramidx(TETHAIDX, "cot(tetha/2)");
-  fitter.set_paramidx(Z0IDX, "z0");
-  fitter.set_paramidx(D0IDX, "d0");
+  if (!fitter.set_paramidx(PTIDX, "oneoverpt"))
+  {
+    std::cerr << fitter.get_errmsg() << std::endl;
+    return EXIT_FAILURE;
+  }
+  if (!fitter.set_paramidx(PHIIDX, "phi"))
+  {
+    std::cerr << fitter.get_errmsg() << std::endl;
+    return EXIT_FAILURE;
+  }
+  if (!fitter.set_paramidx(TETHAIDX, "cot(tetha/2)"))
+  {
+    std::cerr << fitter.get_errmsg() << std::endl;
+    return EXIT_FAILURE;
+  }
+  if (!fitter.set_paramidx(Z0IDX, "z0"))
+  {
+    std::cerr << fitter.get_errmsg() << std::endl;
+    return EXIT_FAILURE;
+  }
+  if (!fitter.set_paramidx(D0IDX, "d0"))
+  {
+    std::cerr << fitter.get_errmsg() << std::endl;
+    return EXIT_FAILURE;
+  }
 
   if (optind >= argc) 
     usage (argv[0]);
@@ -285,7 +305,7 @@ int main (int argc, char ** argv)
   if (!file_exists(filename))
   {
     std::cerr << "Inout file does not exist" << std::endl;
-    return 1;
+    return EXIT_FAILURE;
   }
                   
   int num_of_line = pca::numofline(filename);
@@ -478,5 +498,5 @@ int main (int argc, char ** argv)
     std::cout << "Used tracks: " << usedamnt << std::endl;
   }
 
-  return 0;
+  return EXIT_SUCCESS;
 }
