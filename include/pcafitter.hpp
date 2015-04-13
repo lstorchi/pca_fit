@@ -10,7 +10,7 @@
 
 // lstorchi: this should be moved into include as soon as the utility code should be
 //           a class... This is not a proper class, just a way to collect some functions 
-//
+//           as soon as have time please rewrite it and move main_computation here ... 
 
 namespace pca
 {
