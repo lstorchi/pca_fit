@@ -215,8 +215,9 @@ int main (int argc, char ** argv)
   coord.set_size(num_of_ent,fitter.get_coordim());
   param.set_size(num_of_ent,fitter.get_paramdim());
 
-  pca::reading_from_file_split_rz (filename, 
-     param, coord, num_of_ent, false, useonlyodd);
+  pca::reading_from_file_split (filename, 
+     param, coord, num_of_ent, false, useonlyodd,
+     true, false);
 
   pca::read_armmat(cfname.c_str(), cmtx);
   pca::read_armvct(qfname.c_str(), q);

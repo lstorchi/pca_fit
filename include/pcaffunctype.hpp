@@ -15,6 +15,9 @@
 #define SPLIT_COTTETHAIDX 0
 #define SPLIT_Z0IDX 1
 
+#define SPLIT_PTIDX 0
+#define SPLIT_PHIIDX 1
+
 namespace pca
 {
   int numofline (const char * fname);
@@ -41,9 +44,10 @@ namespace pca
           int num_of_ent, bool usesegid, 
           bool useonlyeven, bool useonlyodd);
 
-  void reading_from_file_split_rz (const char * filename, 
+  void reading_from_file_split (const char * filename, 
           arma::mat & paramin, arma::mat & coordin,
-          int num_of_ent, bool useonlyeven, bool useonlyodd);
+          int num_of_ent, bool useonlyeven, bool useonlyodd, 
+          bool rzread, bool rphiread);
 
   bool file_exists(const std::string& filename);
 
