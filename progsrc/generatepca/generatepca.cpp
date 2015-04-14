@@ -9,7 +9,6 @@
 // Loriano: let's try Armadillo quick code 
 #include <armadillo>
 #include <cassert>
-#include <sys/stat.h>
 
 #include <getopt.h>
 #include <unistd.h>
@@ -21,18 +20,6 @@
 #define MINDIMLINIT 25
 
 // lstorchi: basic quick code to generate PCA constants
-
-namespace
-{
-  bool file_exists(const std::string& filename)
-  {
-    struct stat buf;
-    if (stat(filename.c_str(), &buf) != -1)
-      return true;
-                
-    return false;
-  }
-}
 
 void usage (char * name)
 {
@@ -302,7 +289,7 @@ int main (int argc, char ** argv)
   strcpy (filename, argv[optind]);
 
   // leggere file coordinate tracce simulate plus parametri
-  if (!file_exists(filename))
+  if (!pca::file_exists(filename))
   {
     std::cerr << "Inout file does not exist" << std::endl;
     return EXIT_FAILURE;

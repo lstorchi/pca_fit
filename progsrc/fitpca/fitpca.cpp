@@ -9,7 +9,6 @@
 // Loriano: let's try Armadillo quick code 
 #include <armadillo>
 #include <cassert>
-#include <sys/stat.h>
 
 #include <getopt.h>
 #include <unistd.h>
@@ -20,30 +19,6 @@
 
 // lstorchi: basi code to fit tracks, using the PCA constants generated 
 //           by the related generatepca
-
-namespace
-{
-  bool file_exists(const std::string& filename)
-  {
-    struct stat buf;
-    if (stat(filename.c_str(), &buf) != -1)
-      return true;
-                
-    return false;
-  }
-
-
-  double delta_phi(double phi1, double phi2) // http://cmslxr.fnal.gov/source/DataFormats/Math/interface/deltaPhi.h
-  { 
-    double result = phi1 - phi2;
-    
-    while (result > M_PI) result -= 2*M_PI;
-    while (result <= -M_PI) result += 2*M_PI;
-    
-    return result;
-  }
-
-}
 
 bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt, 
      arma::mat & cmtx, arma::rowvec & q, bool verbose, 
@@ -88,7 +63,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
     double etacmps = -1.0e0 * log (tantetha);
     tantetha = (1.0e0 / paramslt(i, TETHAIDX));
     double etaorig = -1.0e0 * log (tantetha); 
-    double deltaphi = delta_phi(phicmp[i], paramslt(i, PHIIDX)); 
+    double deltaphi = pca::delta_phi(phicmp[i], paramslt(i, PHIIDX)); 
   
     pc[PTIDX](fabs(1.0e0/oneoverptcmp[i] - 1.0e0/paramslt(i, PTIDX))/
         (fabs(1.0e0/oneoverptcmp[i] + 1.0e0/paramslt(i, PTIDX))/2.0));
@@ -297,7 +272,7 @@ int main (int argc, char ** argv)
   arma::rowvec q;
 
   // leggere file coordinate tracce simulate plus parametri
-  if (!file_exists(filename))
+  if (!pca::file_exists(filename))
   {
     std::cerr << "Inout file does not exist" << std::endl;
     return EXIT_FAILURE;
@@ -377,7 +352,7 @@ int main (int argc, char ** argv)
 
       std::cout << "Read constant from files (" << cfname << 
         " and " << qfname << ")" << std::endl;
-      if (!file_exists(cfname) || !file_exists(qfname))
+      if (!pca::file_exists(cfname) || !pca::file_exists(qfname))
       {
         std::cerr << "Constants file does not exist" << std::endl;
         return EXIT_FAILURE;
@@ -414,7 +389,7 @@ int main (int argc, char ** argv)
 
       std::cout << "Read constant from files (" << cfname << 
         " and " << qfname << ")" << std::endl;
-      if (!file_exists(cfname) || !file_exists(qfname))
+      if (!pca::file_exists(cfname) || !pca::file_exists(qfname))
       {
         std::cerr << "Constants file does not exist" << std::endl;
         return EXIT_FAILURE;
@@ -473,7 +448,7 @@ int main (int argc, char ** argv)
       cfname << "c." << *selected << ".bin";
       qfname << "q." << *selected << ".bin";
 
-      if (file_exists(cfname.str()) && file_exists(qfname.str()))
+      if (pca::file_exists(cfname.str()) && pca::file_exists(qfname.str()))
       {
         std::cout << "Perfom fitting for " << *selected << std::endl;
 
