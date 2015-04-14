@@ -42,6 +42,8 @@ void usage (char * name)
   std::cerr << " -v, --version              : print version and exit" << std::endl;
   std::cerr << " -j, --jump-tracks          : generate the constants using only even tracks" << std::endl;
   std::cerr << " -p, --dump-allcoords       : dump all stub coordinates to a file" << std::endl;
+  std::cerr << " -z, --rz-plane             : use rz plane view" << std::endl;
+  std::cerr << " -r, --rphi-plane           : use r-phi plane view" << std::endl;
 
   exit(1);
 }
@@ -110,6 +112,8 @@ int main (int argc, char ** argv)
 
   bool useonlyeven = false;
   bool printallcoords = false;
+  bool rzplane = false;
+  bool rphiplane = false;
 
   while (1)
   {
@@ -119,16 +123,24 @@ int main (int argc, char ** argv)
       {"version", 0, NULL, 'v'},
       {"jump-tracks", 0, NULL, 'j'},
       {"dump-allcoords", 0, NULL, 'p'},
+      {"rz-plane", 0, NULL, 'z'},
+      {"rphi-plane", 0, NULL, 'r'},
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "hvjp", long_options, &option_index);
+    c = getopt_long (argc, argv, "hvjpzr", long_options, &option_index);
 
     if (c == -1)
       break;
 
     switch (c)
     {
+      case 'z':
+        rzplane = true;
+        break;
+      case 'r':
+        rphiplane = true;
+        break;
       case 'p':
         printallcoords = true;
         break;
@@ -148,23 +160,46 @@ int main (int argc, char ** argv)
     } 
   }
 
+  if (optind >= argc) 
+    usage (argv[0]);
+
+  if ((rzplane && rphiplane) ||
+      (!rzplane && !rphiplane))
+  {
+    std::cerr << "r-phi or r-z plane ?" << std::endl;
+    usage (argv[0]);
+  }
+
   // R-z
   fitter.set_coordim (2*6);
 
   fitter.set_paramdim(2);
-  if (!fitter.set_paramidx(SPLIT_COTTETHAIDX, "cot(tetha/2)"))
+  if (rzplane)
   {
-    std::cerr << fitter.get_errmsg() << std::endl;
-    return EXIT_FAILURE;
+    if (!fitter.set_paramidx(SPLIT_COTTETHAIDX, "cot(tetha/2)"))
+    {
+      std::cerr << fitter.get_errmsg() << std::endl;
+      return EXIT_FAILURE;
+    }
+    if (!fitter.set_paramidx(SPLIT_Z0IDX, "z0"))
+    {
+      std::cerr << fitter.get_errmsg() << std::endl;
+      return EXIT_FAILURE;
+    }
   }
-  if (!fitter.set_paramidx(SPLIT_Z0IDX, "z0"))
+  else if (rphiplane)
   {
-    std::cerr << fitter.get_errmsg() << std::endl;
-    return EXIT_FAILURE;
+    if (!fitter.set_paramidx(SPLIT_PHIIDX, "phi"))
+    {
+      std::cerr << fitter.get_errmsg() << std::endl;
+      return EXIT_FAILURE;
+    }
+    if (!fitter.set_paramidx(SPLIT_PTIDX, "1/pt"))
+    {
+      std::cerr << fitter.get_errmsg() << std::endl;
+      return EXIT_FAILURE;
+    }
   }
-
-  if (optind >= argc) 
-    usage (argv[0]);
 
   char * filename = (char *) alloca (strlen(argv[optind]) + 1);
   strcpy (filename, argv[optind]);
@@ -199,8 +234,22 @@ int main (int argc, char ** argv)
 
   // leggere file coordinate tracce simulate plus parametri
   std::cout << "Reading data from " << filename << " file " << std::endl;
-  pca::reading_from_file_split_rz (filename, paramin, coordin, 
-       num_of_ent_read, useonlyeven, false);
+
+  pca::reading_from_file_split (filename, paramin, coordin, 
+       num_of_ent_read, useonlyeven, false, rzplane, rphiplane);
+
+  std::cout << "Writing parameters to files" << std::endl;
+
+  if (rzplane)
+  {
+    pca::write_to_file("cottetha.txt", paramin, SPLIT_COTTETHAIDX);
+    pca::write_to_file("z0.txt", paramin, SPLIT_Z0IDX);
+  }
+  else if (rphiplane)
+  {
+    pca::write_to_file("phi.txt", paramin, SPLIT_PHIIDX);
+    pca::write_to_file("oneoverpt.txt", paramin, SPLIT_PTIDX);
+  }
 
   if (printallcoords)
   {
@@ -212,10 +261,6 @@ int main (int argc, char ** argv)
                     coordin(i, j+1) << std::endl;
     myfilect.close();
   }
-
-  std::cout << "Writing parameters to files" << std::endl;
-  pca::write_to_file("cottetha.txt", paramin, SPLIT_COTTETHAIDX);
-  pca::write_to_file("z0.txt", paramin, SPLIT_Z0IDX);
 
   perform_main_computation (coordin, paramin,
       "c.bin", "q.bin", fitter);

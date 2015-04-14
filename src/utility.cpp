@@ -264,9 +264,10 @@ int pca::numofline (const char * fname)
   return number_of_lines;
 }
 
-void pca::reading_from_file_split_rz (const char * filename, 
+void pca::reading_from_file_split (const char * filename, 
      arma::mat & paramin, arma::mat & coordin, 
-     int num_of_ent, bool useonlyeven, bool useonlyodd)
+     int num_of_ent, bool useonlyeven, bool useonlyodd,
+     bool rzplane, bool rphiplane)
 {
   std::string line;
   std::ifstream mytfp;
@@ -306,8 +307,19 @@ void pca::reading_from_file_split_rz (const char * filename,
       if (check_to_read (useonlyeven,useonlyodd,i))
       {
         double ri = sqrt(pow(x, 2.0) + pow (y, 2.0));
-        coordin(counter, j*2) = z;
-        coordin(counter, j*2+1) = ri;
+
+        if (rzplane)
+        {
+          coordin(counter, j*2) = z;
+          coordin(counter, j*2+1) = ri;
+        }
+        else if (rphiplane)
+        {
+          double phii = asin(y/ri);
+
+          coordin(counter, j*2+1) = ri;
+          coordin(counter, j*2) = phii;
+        }
       }
     }
       
@@ -322,11 +334,19 @@ void pca::reading_from_file_split_rz (const char * filename,
 
     if (check_to_read (useonlyeven,useonlyodd,i))
     {
-      paramin(counter, SPLIT_Z0IDX) = z0read;
-      // lstorchi: I use this to diretcly convert input parameters into
-      //     better parameters for the fitting 
-      // cot (tetha/2) = 1 / e^(-eta)
-      paramin(counter, SPLIT_COTTETHAIDX) = 1.0e0 / exp (-1.0e0 * valread);
+      if (rzplane)
+      {
+        paramin(counter, SPLIT_Z0IDX) = z0read;
+        // lstorchi: I use this to diretcly convert input parameters into
+        //     better parameters for the fitting 
+        // cot (tetha/2) = 1 / e^(-eta)
+        paramin(counter, SPLIT_COTTETHAIDX) = 1.0e0 / exp (-1.0e0 * valread);
+      }
+      else if (rphiplane)
+      {
+        paramin(counter, SPLIT_PHIIDX) = phiread;
+        paramin(counter, SPLIT_PTIDX) = 1.0e0 / valr;
+      }
 
       ++counter;
     }
@@ -335,3 +355,4 @@ void pca::reading_from_file_split_rz (const char * filename,
   mytfp.close();
 
 }
+
