@@ -11,6 +11,8 @@
 #include <pcafitter.hpp>
 #include <pcaffunctype.hpp>
 
+#include <sys/stat.h>
+
 namespace
 {
   bool check_to_read (bool useonlyeven, bool useonlyodd, int i)
@@ -38,6 +40,26 @@ namespace
 
 
 using namespace pca;
+
+bool pca::file_exists(const std::string& filename)
+{
+  struct stat buf;
+  if (stat(filename.c_str(), &buf) != -1)
+    return true;
+              
+  return false;
+}
+
+double pca::delta_phi(double phi1, double phi2) // http://cmslxr.fnal.gov/source/DataFormats/Math/interface/deltaPhi.h
+{ 
+  double result = phi1 - phi2;
+  
+  while (result > M_PI) result -= 2*M_PI;
+  while (result <= -M_PI) result += 2*M_PI;
+  
+  return result;
+}
+
 
 void pca::read_armmat (const char * fname, arma::mat & cmtx)
 {
@@ -242,3 +264,74 @@ int pca::numofline (const char * fname)
   return number_of_lines;
 }
 
+void pca::reading_from_file_split_rz (const char * filename, 
+     arma::mat & paramin, arma::mat & coordin, 
+     int num_of_ent, bool useonlyeven, bool useonlyodd)
+{
+  std::string line;
+  std::ifstream mytfp;
+  mytfp.open (filename, std::ios::in);
+
+  if (useonlyeven && useonlyodd)
+  {
+    useonlyeven = false;
+    useonlyodd = false;
+  }
+
+  int counter = 0;
+  std::getline (mytfp, line);
+  for (int i = 0; i < num_of_ent; ++i)
+  {
+    int fake1, fake2;
+    // valori aggiunti solo di controllo 
+    mytfp >> fake1 >> fake2 ;
+#ifdef DEBUG    
+    std::cout << fake1 << " " << fake2 << std::endl;
+#endif
+    std::ostringstream osss, ossl;
+    osss << std::setfill('0');
+    ossl << std::setfill('0');
+    
+    for (int j = 0; j < NUMOFLAYER; ++j)
+    {
+      int a, b, c, segid;
+      double x, y, z;
+
+      mytfp >> x >> 
+               y >> 
+               z >> 
+               a >> b >> c >> segid; // segid I am reading because can be used as local ccordinate ?
+                                       // in case of l1tkstubs is the tp value here 
+ 
+      if (check_to_read (useonlyeven,useonlyodd,i))
+      {
+        double ri = sqrt(pow(x, 2.0) + pow (y, 2.0));
+        coordin(counter, j*2) = z;
+        coordin(counter, j*2+1) = ri;
+      }
+    }
+      
+      
+    double valread, valr, phiread, d0read, z0read;
+
+    mytfp >> valr >> 
+             phiread >> 
+             d0read >> 
+             valread >> 
+             z0read;
+
+    if (check_to_read (useonlyeven,useonlyodd,i))
+    {
+      paramin(counter, SPLIT_Z0IDX) = z0read;
+      // lstorchi: I use this to diretcly convert input parameters into
+      //     better parameters for the fitting 
+      // cot (tetha/2) = 1 / e^(-eta)
+      paramin(counter, SPLIT_COTTETHAIDX) = 1.0e0 / exp (-1.0e0 * valread);
+
+      ++counter;
+    }
+  }
+
+  mytfp.close();
+
+}

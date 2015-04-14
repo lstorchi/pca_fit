@@ -45,6 +45,10 @@ namespace pca
           arma::mat & paramin, arma::mat & coordin,
           int num_of_ent, bool useonlyeven, bool useonlyodd);
 
+  bool file_exists(const std::string& filename);
+
+  double delta_phi(double phi1, double phi2);
+
 };
   
 #endif
