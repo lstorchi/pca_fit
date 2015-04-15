@@ -27,7 +27,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
   double ** ptrs;
   ptrs = new double* [fitter.get_paramdim()];
 
-  double * cotethacmp, * z0cmp, * ptcmp, * phicmp;
+  double * cotethacmp, * z0cmp, * oneoverptcmp, * phicmp;
 
   if (rzplane)
   {
@@ -39,10 +39,10 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
   }
   else if (rphiplane)
   {
-    ptcmp = new double [(int)coordslt.n_rows];
+    oneoverptcmp = new double [(int)coordslt.n_rows];
     phicmp = new double [(int)coordslt.n_rows];
   
-    ptrs[SPLIT_PTIDX] = ptcmp;
+    ptrs[SPLIT_ONEOVERPTIDX] = oneoverptcmp;
     ptrs[SPLIT_PHIIDX] = phicmp;
   }
 
@@ -104,30 +104,30 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
   else if (rphiplane)
   {
     std::ofstream myfile(fname.str().c_str());
-    myfile << "pt_orig pt_fitt diff phi_orig phi_fitt diff" << std::endl; 
+    myfile << "1/pt_orig 1/pt_fitt diff phi_orig phi_fitt diff" << std::endl; 
     
     arma::running_stat<double> pc[fitter.get_paramdim()];
     for (int i=0; i<(int)coordslt.n_rows; ++i)
     {
       pc[SPLIT_PHIIDX](fabs(phicmp[i] - paramslt(i, SPLIT_PHIIDX))/
           (fabs(phicmp[i] + paramslt(i, SPLIT_PHIIDX))/2.0));
-      pc[SPLIT_PTIDX](fabs(1.0e0/ptcmp[i] - 1.0e0/paramslt(i, SPLIT_PTIDX))/
-          (fabs(1.0e0/ptcmp[i] + 1.0e0/paramslt(i, SPLIT_PTIDX))/2.0));
+      pc[SPLIT_ONEOVERPTIDX](fabs(1.0e0/oneoverptcmp[i] - 1.0e0/paramslt(i, SPLIT_ONEOVERPTIDX))/
+          (fabs(1.0e0/oneoverptcmp[i] + 1.0e0/paramslt(i, SPLIT_ONEOVERPTIDX))/2.0));
 
       pcabsolute[SPLIT_PHIIDX](phicmp[i] - paramslt(i, SPLIT_PHIIDX));
-      pcabsolute[SPLIT_PTIDX](1.0e0/ptcmp[i] - 1.0e0/paramslt(i, SPLIT_PTIDX));
+      pcabsolute[SPLIT_ONEOVERPTIDX](oneoverptcmp[i] - paramslt(i, SPLIT_ONEOVERPTIDX));
  
       myfile << 
-        1.0e0/paramslt(i, SPLIT_PTIDX) << " " << 1.0e0/ptcmp[i] << " " <<
-        (1.0e0/ptcmp[i] - 1.0e0/paramslt(i, SPLIT_PTIDX)) <<  " " <<
+        paramslt(i, SPLIT_ONEOVERPTIDX) << " " << oneoverptcmp[i] << " " <<
+        (oneoverptcmp[i] - paramslt(i, SPLIT_ONEOVERPTIDX)) <<  " " <<
         paramslt(i, SPLIT_PHIIDX) << " " << phicmp[i] << " " <<
         (phicmp[i] - paramslt(i, SPLIT_PHIIDX)) << std::endl;
     
       if (verbose)
       {
         std::cout << "For track : " << i+1 << std::endl;
-        std::cout << " pt           fitt " << 1.0e0/ptcmp[i] << std::endl;
-        std::cout << " pt           orig " << 1.0e0/paramslt(i, SPLIT_PTIDX)  << std::endl;
+        std::cout << " 1/pt         fitt " << oneoverptcmp[i] << std::endl;
+        std::cout << " 1/pt         orig " << paramslt(i, SPLIT_ONEOVERPTIDX)  << std::endl;
         std::cout << " phi          fitt " << phicmp[i] << std::endl;
         std::cout << " phi          orig " << paramslt(i, SPLIT_PHIIDX) << std::endl;
       }
@@ -147,7 +147,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
   }
   else if (rphiplane)
   {
-    delete [] ptcmp;
+    delete [] oneoverptcmp;
     delete [] phicmp;
   }
 
@@ -161,8 +161,8 @@ void usage (char * name)
   std::cerr << " -h, --help               : display this help and exit" << std::endl;
   std::cerr << " -V, --verbose            : verbose option on" << std::endl;
   std::cerr << " -v, --version            : print version and exit" << std::endl;
-  std::cerr << " -c, --cmtx=[fillename]   : CMTX filename [default is c.<selectedsubsecid>.bin]" << std::endl;
-  std::cerr << " -q, --qvct=[fillename]   : QVCT filename [default is q.<selectedsubsecid>.bin]" << std::endl;
+  std::cerr << " -c, --cmtx=[fillename]   : CMTX filename [default is c.bin]" << std::endl;
+  std::cerr << " -q, --qvct=[fillename]   : QVCT filename [default is q.bin]" << std::endl;
   std::cerr << " -j, --jump-tracks        : perform the fittin only for odd tracks" << std::endl;
   std::cerr << " -z, --rz-plane           : use rz plane view" << std::endl;
   std::cerr << " -r, --rphi-plane         : use r-phi plane view" << std::endl;
@@ -270,7 +270,7 @@ int main (int argc, char ** argv)
       std::cerr << fitter.get_errmsg() << std::endl;
       return EXIT_FAILURE;
     }
-    if (!fitter.set_paramidx(SPLIT_PTIDX, "1/pt"))
+    if (!fitter.set_paramidx(SPLIT_ONEOVERPTIDX, "1/pt"))
     {
       std::cerr << fitter.get_errmsg() << std::endl;
       return EXIT_FAILURE;

@@ -23,7 +23,7 @@ OBJ = $(LIBNAME)(pcafitter.o) \
 all: $(LIBNAME)
 
 $(LIBNAME): $(OBJ)
-	mv -f $(LIBNAME) ../lib
+	cp -f $(LIBNAME) ../lib
 
 clean:
-	rm -f *.o  ../lib/$(LIBNAME)
+	rm -f *.o  $(LIBNAME) ../lib/$(LIBNAME)

@@ -6,20 +6,20 @@
 #include <map>
 
 // to be moved
-#define PTIDX 0
+#define ONEOVERPTIDX 0
 #define PHIIDX 1
 #define D0IDX 2
-#define TETHAIDX 3
+#define COTTETHAIDX 3
 #define Z0IDX 4
 
 #define SPLIT_COTTETHAIDX 0
 #define SPLIT_Z0IDX 1
 
-#define SPLIT_PTIDX 0
+#define SPLIT_ONEOVERPTIDX 0
 #define SPLIT_PHIIDX 1
 
 #define ETAMIN -1.000e0
-#define ETAMAX -0.650e0
+#define ETAMAX -0.300e0
 
 namespace pca
 {

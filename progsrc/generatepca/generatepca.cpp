@@ -244,7 +244,7 @@ int main (int argc, char ** argv)
     fitter.set_coordim (6);
 
   fitter.set_paramdim(5);
-  if (!fitter.set_paramidx(PTIDX, "oneoverpt"))
+  if (!fitter.set_paramidx(ONEOVERPTIDX, "oneoverpt"))
   {
     std::cerr << fitter.get_errmsg() << std::endl;
     return EXIT_FAILURE;
@@ -254,7 +254,7 @@ int main (int argc, char ** argv)
     std::cerr << fitter.get_errmsg() << std::endl;
     return EXIT_FAILURE;
   }
-  if (!fitter.set_paramidx(TETHAIDX, "cot(tetha/2)"))
+  if (!fitter.set_paramidx(COTTETHAIDX, "cot(tetha)"))
   {
     std::cerr << fitter.get_errmsg() << std::endl;
     return EXIT_FAILURE;
@@ -343,10 +343,10 @@ int main (int argc, char ** argv)
   }
 
   std::cout << "Writing parameters to files" << std::endl;
-  pca::write_to_file("oneoverpt.txt", paramin, PTIDX);
+  pca::write_to_file("oneoverpt.txt", paramin, ONEOVERPTIDX);
   pca::write_to_file("phi.txt", paramin, PHIIDX);
   pca::write_to_file("d0.txt", paramin, D0IDX);
-  pca::write_to_file("cotetha2.txt", paramin, TETHAIDX);
+  pca::write_to_file("cotetha.txt", paramin, COTTETHAIDX);
   pca::write_to_file("z0.txt", paramin, Z0IDX);
 
   if (!useallsubsectors && !useallsubladders)
@@ -412,10 +412,10 @@ int main (int argc, char ** argv)
     
     // write date to file 
     std::cout << "Writing extracted parameters to files" << std::endl;
-    pca::write_to_file("oneoverpt_selected.txt", param, PTIDX);
+    pca::write_to_file("oneoverpt_selected.txt", param, ONEOVERPTIDX);
     pca::write_to_file("phi_selected.txt", param, PHIIDX);
     pca::write_to_file("d0_selected.txt", param, D0IDX);
-    pca::write_to_file("cotetha2_selected.txt", param, TETHAIDX);
+    pca::write_to_file("cotetha_selected.txt", param, COTTETHAIDX);
     pca::write_to_file("z0_selected.txt", param, Z0IDX);
 
     std::ostringstream cfname, qfname; 

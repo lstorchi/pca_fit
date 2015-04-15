@@ -24,18 +24,18 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
      arma::mat & cmtx, arma::rowvec & q, bool verbose, 
      const std::string & postfname, pca::pcafitter & fitter)
 {
-  double * oneoverptcmp, * phicmp, * etacmp, * z0cmp, * d0cmp;
+  double * oneoverptcmp, * phicmp, * cottethacmp, * z0cmp, * d0cmp;
   oneoverptcmp = new double [(int)coordslt.n_rows];
   phicmp = new double [(int)coordslt.n_rows];
-  etacmp = new double [(int)coordslt.n_rows];
+  cottethacmp = new double [(int)coordslt.n_rows];
   z0cmp = new double [(int)coordslt.n_rows];
   d0cmp = new double [(int)coordslt.n_rows];
 
   double ** ptrs;
   ptrs = new double* [fitter.get_paramdim()];
-  ptrs[PTIDX] = oneoverptcmp;
+  ptrs[ONEOVERPTIDX] = oneoverptcmp;
   ptrs[PHIIDX] = phicmp;
-  ptrs[TETHAIDX] = etacmp;
+  ptrs[COTTETHAIDX] = cottethacmp;
   ptrs[Z0IDX] = z0cmp;
   ptrs[D0IDX] = d0cmp;
 
@@ -59,30 +59,30 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
   arma::running_stat<double> pc[fitter.get_paramdim()];
   for (int i=0; i<(int)coordslt.n_rows; ++i)
   {
-    double tantetha = (1.0e0 / etacmp[i]) ; 
-    double etacmps = -1.0e0 * log (tantetha);
-    tantetha = (1.0e0 / paramslt(i, TETHAIDX));
-    double etaorig = -1.0e0 * log (tantetha); 
+    double tetha = atan((1.0e0 / cottethacmp[i])); 
+    double etacmp = -1.0e0 * log (tan(tetha/2.0e0));
+    tetha = atan((1.0e0 / paramslt(i, COTTETHAIDX)));
+    double etaorig = -1.0e0 * log (tan(tetha/2.0e0)); 
     double deltaphi = pca::delta_phi(phicmp[i], paramslt(i, PHIIDX)); 
   
-    pc[PTIDX](fabs(1.0e0/oneoverptcmp[i] - 1.0e0/paramslt(i, PTIDX))/
-        (fabs(1.0e0/oneoverptcmp[i] + 1.0e0/paramslt(i, PTIDX))/2.0));
+    pc[ONEOVERPTIDX](fabs(1.0e0/oneoverptcmp[i] - 1.0e0/paramslt(i, ONEOVERPTIDX))/
+        (fabs(1.0e0/oneoverptcmp[i] + 1.0e0/paramslt(i, ONEOVERPTIDX))/2.0));
     pc[PHIIDX](fabs(deltaphi)/
         (fabs(phicmp[i] + paramslt(i, PHIIDX))/2.0));
-    pc[TETHAIDX](fabs(etacmps - etaorig)/
-        (fabs(etacmps + etaorig)/2.0));
+    pc[COTTETHAIDX](fabs(etacmp - etaorig)/
+        (fabs(etacmp + etaorig)/2.0));
     pc[Z0IDX](fabs(z0cmp[i] - paramslt(i, Z0IDX))/
         (fabs(z0cmp[i] + paramslt(i, Z0IDX))/2.0));
     pc[D0IDX](fabs(d0cmp[i] - paramslt(i, D0IDX))/
         (fabs(d0cmp[i] + paramslt(i, D0IDX))/2.0));
 
     myfile << 
-      1.0e0/paramslt(i, PTIDX) << " " << 1.0e0/oneoverptcmp[i] << " " << 
-      (1.0e0/oneoverptcmp[i] - 1.0e0/paramslt(i, PTIDX)) << " " << 
+      1.0e0/paramslt(i, ONEOVERPTIDX) << " " << 1.0e0/oneoverptcmp[i] << " " << 
+      (1.0e0/oneoverptcmp[i] - 1.0e0/paramslt(i, ONEOVERPTIDX)) << " " << 
       paramslt(i, PHIIDX) << " " << phicmp[i] << " " <<
       deltaphi << " " << 
-      etaorig << " " << etacmps << " " <<
-      (etacmps - etaorig) << " " <<
+      etaorig << " " << etacmp << " " <<
+      (etacmp - etaorig) << " " <<
       paramslt(i, D0IDX) << " " << d0cmp[i] << " " <<
       (d0cmp[i] - paramslt(i, D0IDX)) << " " <<
       paramslt(i, Z0IDX) << " " << z0cmp[i] << " " <<
@@ -92,10 +92,10 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
     {
       std::cout << "For track : " << i+1 << std::endl;
       std::cout << " pt           cmpt " << 1.0e0/oneoverptcmp[i] << std::endl;
-      std::cout << " pt           calc " << 1.0e0/paramslt(i, PTIDX) << std::endl;
+      std::cout << " pt           calc " << 1.0e0/paramslt(i, ONEOVERPTIDX) << std::endl;
       std::cout << " phi          cmpt " << phicmp[i] << std::endl;
       std::cout << " phi          calc " << paramslt(i, PHIIDX) << std::endl;
-      std::cout << " eta          cmpt " << etacmps << std::endl;
+      std::cout << " eta          cmpt " << etacmp << std::endl;
       std::cout << " eta          calc " << etaorig << std::endl;
       std::cout << " d0           cmpt " << d0cmp[i] << std::endl;
       std::cout << " d0           calc " << paramslt(i, D0IDX) << std::endl;
@@ -111,8 +111,8 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
        100.0*pc[i].mean() << " " << 100.0*pc[i].stddev() << std::endl;
 
   delete [] oneoverptcmp;
+  delete [] cottethacmp;
   delete [] phicmp;
-  delete [] etacmp;
   delete [] z0cmp;
   delete [] d0cmp;
 
@@ -229,7 +229,7 @@ int main (int argc, char ** argv)
     fitter.set_coordim(6);
 
   fitter.set_paramdim(5);
-  if (!fitter.set_paramidx(PTIDX, "oneoverpt"))
+  if (!fitter.set_paramidx(ONEOVERPTIDX, "oneoverpt"))
   {
     std::cerr << fitter.get_errmsg() << std::endl;
     return EXIT_FAILURE;
@@ -239,7 +239,7 @@ int main (int argc, char ** argv)
     std::cerr << fitter.get_errmsg() << std::endl;
     return EXIT_FAILURE;
   }
-  if (!fitter.set_paramidx(TETHAIDX, "cot(tetha/2)"))
+  if (!fitter.set_paramidx(COTTETHAIDX, "cot(tetha/2)"))
   {
     std::cerr << fitter.get_errmsg() << std::endl;
     return EXIT_FAILURE;
