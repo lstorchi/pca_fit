@@ -36,6 +36,11 @@ namespace
         
     return false;
   }
+
+  double cot (double x)
+  {
+    return tan(M_PI_2 - x);
+  }
 }
 
 
@@ -238,10 +243,12 @@ void pca::reading_from_file (const char * filename,
       paramin(counter, Z0IDX) = z0read;
       // lstorchi: I use this to diretcly convert input parameters into
       //     better parameters for the fitting 
-      // cot (tetha/2) = 1 / e^(-eta)
-      paramin(counter, TETHAIDX) = 1.0e0 / exp (-1.0e0 * etaread);
+      // eta = -ln[tan(tetha / 2)]
+      // tetha = 2 * arctan (e^(-eta))
+      // cotan (tetha) = cotan (2 * arctan (e^(-eta)))
+      paramin(counter, COTTETHAIDX) =  cot(2.0 * atan (exp (-1.0e0 * etaread)));
       // use 1/pt 
-      paramin(counter, PTIDX) = 1.0e0 / ptread;
+      paramin(counter, ONEOVERPTIDX) = 1.0e0 / ptread;
 
       ++counter;
     }
@@ -351,13 +358,18 @@ void pca::reading_from_file_split (const pca::pcafitter & fitter,
         paramread(counter, SPLIT_Z0IDX) = z0read;
         // lstorchi: I use this to diretcly convert input parameters into
         //     better parameters for the fitting 
-        // cot (tetha/2) = 1 / e^(-eta)
-        paramread(counter, SPLIT_COTTETHAIDX) = 1.0e0 / exp (-1.0e0 * etaread);
+        // eta = -ln[tan(tetha / 2)]
+        // tetha = 2 * arctan (e^(-eta))
+        // cotan (tetha) = cotan (2 * arctan (e^(-eta)))
+        paramread(counter, SPLIT_COTTETHAIDX) =  cot(2.0 * atan (exp (-1.0e0 * etaread)));
+        double tetha = atan(1.0 /  paramread(counter, SPLIT_COTTETHAIDX));
+        std::cout << etaread << " " << tetha << std::endl;
       }
       else if (rphiplane)
       {
         paramread(counter, SPLIT_PHIIDX) = phiread;
-        paramread(counter, SPLIT_PTIDX) = 1.0e0 / ptread;
+        // use 1/pt
+        paramread(counter, SPLIT_ONEOVERPTIDX) = 1.0e0 / ptread;
       }
 
       ++counter;

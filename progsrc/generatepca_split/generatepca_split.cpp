@@ -194,7 +194,7 @@ int main (int argc, char ** argv)
       std::cerr << fitter.get_errmsg() << std::endl;
       return EXIT_FAILURE;
     }
-    if (!fitter.set_paramidx(SPLIT_PTIDX, "1/pt"))
+    if (!fitter.set_paramidx(SPLIT_ONEOVERPTIDX, "1/pt"))
     {
       std::cerr << fitter.get_errmsg() << std::endl;
       return EXIT_FAILURE;
@@ -251,7 +251,7 @@ int main (int argc, char ** argv)
   else if (rphiplane)
   {
     pca::write_to_file("phi.txt", paramin, SPLIT_PHIIDX);
-    pca::write_to_file("oneoverpt.txt", paramin, SPLIT_PTIDX);
+    pca::write_to_file("oneoverpt.txt", paramin, SPLIT_ONEOVERPTIDX);
   }
 
   if (printallcoords)
