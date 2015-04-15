@@ -18,6 +18,9 @@
 #define SPLIT_PTIDX 0
 #define SPLIT_PHIIDX 1
 
+#define ETAMIN -1.000e0
+#define ETAMAX -0.650e0
+
 namespace pca
 {
   int numofline (const char * fname);
@@ -44,10 +47,11 @@ namespace pca
           int num_of_ent, bool usesegid, 
           bool useonlyeven, bool useonlyodd);
 
-  void reading_from_file_split (const char * filename, 
+  void reading_from_file_split (const pca::pcafitter &, const char * filename, 
           arma::mat & paramin, arma::mat & coordin,
           int num_of_ent, bool useonlyeven, bool useonlyodd, 
-          bool rzread, bool rphiread);
+          bool rzread, bool rphiread, double etamin,
+          double etamax);
 
   bool file_exists(const std::string& filename);
 

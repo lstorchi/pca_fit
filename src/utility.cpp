@@ -223,12 +223,12 @@ void pca::reading_from_file (const char * filename,
         subladders[ossl.str()] += 1;
     }
     
-    double valread, valr, phiread, d0read, z0read;
+    double ptread, phiread, d0read, etaread, z0read;
 
-    mytfp >> valr >> 
+    mytfp >> ptread >> 
              phiread >> 
              d0read >> 
-             valread >> 
+             etaread >> 
              z0read;
     
     if (check_to_read (useonlyeven,useonlyodd,i))
@@ -239,9 +239,9 @@ void pca::reading_from_file (const char * filename,
       // lstorchi: I use this to diretcly convert input parameters into
       //     better parameters for the fitting 
       // cot (tetha/2) = 1 / e^(-eta)
-      paramin(counter, TETHAIDX) = 1.0e0 / exp (-1.0e0 * valread);
+      paramin(counter, TETHAIDX) = 1.0e0 / exp (-1.0e0 * etaread);
       // use 1/pt 
-      paramin(counter, PTIDX) = 1.0e0 / valr;
+      paramin(counter, PTIDX) = 1.0e0 / ptread;
 
       ++counter;
     }
@@ -264,14 +264,25 @@ int pca::numofline (const char * fname)
   return number_of_lines;
 }
 
-void pca::reading_from_file_split (const char * filename, 
+void pca::reading_from_file_split (const pca::pcafitter & fitter, 
+     const char * filename, 
      arma::mat & paramin, arma::mat & coordin, 
      int num_of_ent, bool useonlyeven, bool useonlyodd,
-     bool rzplane, bool rphiplane)
+     bool rzplane, bool rphiplane, 
+     double etamin, double etamax)
 {
+  int extdim = 9;
   std::string line;
   std::ifstream mytfp;
   mytfp.open (filename, std::ios::in);
+
+  arma::mat paramread;
+  arma::mat coordread;
+  arma::vec etavals;
+
+  coordread.set_size(num_of_ent, fitter.get_coordim());
+  paramread.set_size(num_of_ent, fitter.get_paramdim());
+  etavals.set_size(num_of_ent);
 
   if (useonlyeven && useonlyodd)
   {
@@ -310,49 +321,85 @@ void pca::reading_from_file_split (const char * filename,
 
         if (rzplane)
         {
-          coordin(counter, j*2) = z;
-          coordin(counter, j*2+1) = ri;
+          coordread(counter, j*2) = z;
+          coordread(counter, j*2+1) = ri;
         }
         else if (rphiplane)
         {
           double phii = asin(y/ri);
 
-          coordin(counter, j*2+1) = ri;
-          coordin(counter, j*2) = phii;
+          coordread(counter, j*2) = phii;
+          coordread(counter, j*2+1) = ri;
         }
       }
     }
       
-      
-    double valread, valr, phiread, d0read, z0read;
+    double ptread, phiread, d0read, etaread, z0read;
 
-    mytfp >> valr >> 
+    mytfp >> ptread >> 
              phiread >> 
              d0read >> 
-             valread >> 
+             etaread >> 
              z0read;
 
     if (check_to_read (useonlyeven,useonlyodd,i))
     {
+      etavals(counter) = etaread;
+
       if (rzplane)
       {
-        paramin(counter, SPLIT_Z0IDX) = z0read;
+        paramread(counter, SPLIT_Z0IDX) = z0read;
         // lstorchi: I use this to diretcly convert input parameters into
         //     better parameters for the fitting 
         // cot (tetha/2) = 1 / e^(-eta)
-        paramin(counter, SPLIT_COTTETHAIDX) = 1.0e0 / exp (-1.0e0 * valread);
+        paramread(counter, SPLIT_COTTETHAIDX) = 1.0e0 / exp (-1.0e0 * etaread);
       }
       else if (rphiplane)
       {
-        paramin(counter, SPLIT_PHIIDX) = phiread;
-        paramin(counter, SPLIT_PTIDX) = 1.0e0 / valr;
+        paramread(counter, SPLIT_PHIIDX) = phiread;
+        paramread(counter, SPLIT_PTIDX) = 1.0e0 / ptread;
       }
 
       ++counter;
     }
   }
 
-  mytfp.close();
+  assert (coordread.n_rows == paramread.n_rows);
+  assert (etavals.n_rows == paramread.n_rows);
 
+  extdim = 0;
+  for (int i=0; i<(int)etavals.n_rows; ++i)
+    if ((etavals(i) <= etamax) && (etavals(i) >= etamin))
+      ++extdim;
+
+  coordin.resize(extdim, fitter.get_coordim());
+  paramin.resize(extdim, fitter.get_paramdim());
+
+  //std::cout << "extdim: " << extdim << std::endl;
+
+  counter = 0;
+  for (int i=0; i<(int)etavals.n_rows; ++i)
+  {
+    if ((etavals(i) <= etamax) && (etavals(i) >= etamin))
+    {
+      for (int j=0; j<(int)paramread.n_cols; ++j)
+      {
+        paramin(counter, j) = paramread(i, j);
+        //std::cout << "Track: " << counter+1 << std::endl;
+        //std::cout <<  paramin(counter, j) << " from " << 
+        //  paramread(i, j) << std::endl;
+      }
+
+
+      for (int j=0; j<(int)coordread.n_cols; ++j)
+        coordin(counter, j) = coordread(i, j);
+
+      ++counter;
+    }
+  }
+
+  //std::cout << "counter: " << counter << std::endl;
+
+  mytfp.close();
 }
 

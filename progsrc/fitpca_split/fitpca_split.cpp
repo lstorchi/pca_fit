@@ -59,17 +59,18 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
   fname << "results.txt";
 
   arma::running_stat<double> pc[fitter.get_paramdim()];
+  arma::running_stat<double> pcabsolute[fitter.get_paramdim()];
   std::ofstream myfile(fname.str().c_str());
 
   if (rzplane)
   {
-    myfile << "eta_orig eta_cmpt diff z0_orig z0_cmpt diff" << std::endl; 
+    myfile << "eta_orig eta_fitt diff z0_orig z0_fitt diff" << std::endl; 
     
     for (int i=0; i<(int)coordslt.n_rows; ++i)
     {
-      double tantetha = (1.0e0 / cotethacmp[i]) ; 
-      double etacmps = -1.0e0 * log (tantetha);
-      tantetha = (1.0e0 / paramslt(i, SPLIT_COTTETHAIDX));
+      double tantethacmp = (1.0e0 / cotethacmp[i]) ; 
+      double etacmps = -1.0e0 * log (tantethacmp);
+      double tantetha = (1.0e0 / paramslt(i, SPLIT_COTTETHAIDX));
       double etaorig = -1.0e0 * log (tantetha); 
     
       pc[SPLIT_COTTETHAIDX](fabs(etacmps - etaorig)/
@@ -77,6 +78,9 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
       pc[SPLIT_Z0IDX](fabs(z0cmp[i] - paramslt(i, SPLIT_Z0IDX))/
           (fabs(z0cmp[i] + paramslt(i, SPLIT_Z0IDX))/2.0));
     
+      pcabsolute[SPLIT_COTTETHAIDX](etacmps - etaorig);
+      pcabsolute[SPLIT_Z0IDX](z0cmp[i] - paramslt(i, SPLIT_Z0IDX));
+   
       myfile << 
         etaorig << " " << etacmps << " " <<
         (etacmps - etaorig) << " " <<
@@ -86,26 +90,32 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
       if (verbose)
       {
         std::cout << "For track : " << i+1 << std::endl;
-        std::cout << " eta          cmpt " << etacmps << std::endl;
-        std::cout << " eta          calc " << etaorig << std::endl;
-        std::cout << " z0           cmpt " << z0cmp[i] << std::endl;
-        std::cout << " z0           calc " << paramslt(i, SPLIT_Z0IDX) << std::endl;
+        std::cout << " cotethacmp   fitt " << cotethacmp[i] << std::endl;
+        std::cout << " cotetha      orig " << paramslt(i, SPLIT_COTTETHAIDX) << std::endl;
+        std::cout << " tantetha     fitt " << tantethacmp << std::endl;
+        std::cout << " tantetha     orig " << tantetha << std::endl;
+        std::cout << " eta          fitt " << etacmps << std::endl;
+        std::cout << " eta          orig " << etaorig << std::endl;
+        std::cout << " z0           fitt " << z0cmp[i] << std::endl;
+        std::cout << " z0           orig " << paramslt(i, SPLIT_Z0IDX) << std::endl;
       }
     }
   }
   else if (rphiplane)
   {
     std::ofstream myfile(fname.str().c_str());
-    myfile << "pt_orig pt_cmpt diff phi_orig phi_cmpt diff" << std::endl; 
+    myfile << "pt_orig pt_fitt diff phi_orig phi_fitt diff" << std::endl; 
     
     arma::running_stat<double> pc[fitter.get_paramdim()];
     for (int i=0; i<(int)coordslt.n_rows; ++i)
     {
       pc[SPLIT_PHIIDX](fabs(phicmp[i] - paramslt(i, SPLIT_PHIIDX))/
           (fabs(phicmp[i] + paramslt(i, SPLIT_PHIIDX))/2.0));
-
       pc[SPLIT_PTIDX](fabs(1.0e0/ptcmp[i] - 1.0e0/paramslt(i, SPLIT_PTIDX))/
           (fabs(1.0e0/ptcmp[i] + 1.0e0/paramslt(i, SPLIT_PTIDX))/2.0));
+
+      pcabsolute[SPLIT_PHIIDX](phicmp[i] - paramslt(i, SPLIT_PHIIDX));
+      pcabsolute[SPLIT_PTIDX](1.0e0/ptcmp[i] - 1.0e0/paramslt(i, SPLIT_PTIDX));
  
       myfile << 
         1.0e0/paramslt(i, SPLIT_PTIDX) << " " << 1.0e0/ptcmp[i] << " " <<
@@ -116,10 +126,10 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
       if (verbose)
       {
         std::cout << "For track : " << i+1 << std::endl;
-        std::cout << " pt           cmpt " << 1.0e0/ptcmp[i] << std::endl;
-        std::cout << " pt           calc " << 1.0e0/paramslt(i, SPLIT_PTIDX)  << std::endl;
-        std::cout << " phi          cmpt " << phicmp[i] << std::endl;
-        std::cout << " phi          calc " << paramslt(i, SPLIT_PHIIDX) << std::endl;
+        std::cout << " pt           fitt " << 1.0e0/ptcmp[i] << std::endl;
+        std::cout << " pt           orig " << 1.0e0/paramslt(i, SPLIT_PTIDX)  << std::endl;
+        std::cout << " phi          fitt " << phicmp[i] << std::endl;
+        std::cout << " phi          orig " << paramslt(i, SPLIT_PHIIDX) << std::endl;
       }
     }
   }
@@ -128,7 +138,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
 
   for (int i=0; i<fitter.get_paramdim(); ++i)
      std::cout << "For " << fitter.paramidx_to_string(i) << " error " << 
-       100.0*pc[i].mean() << " " << 100.0*pc[i].stddev() << std::endl;
+       pcabsolute[i].mean() << " " << pcabsolute[i].stddev() << std::endl;
 
   if (rzplane)
   {
@@ -306,9 +316,11 @@ int main (int argc, char ** argv)
   coord.set_size(num_of_ent,fitter.get_coordim());
   param.set_size(num_of_ent,fitter.get_paramdim());
 
-  pca::reading_from_file_split (filename, 
+  std::cout << "Reading from file" << std::endl;
+  pca::reading_from_file_split (fitter, filename, 
      param, coord, num_of_ent, false, useonlyodd,
-     rzplane, rphiplane);
+     rzplane, rphiplane, ETAMIN, ETAMAX);
+  std::cout << "Using " << param.n_rows << " tracks" << std::endl;
 
   pca::read_armmat(cfname.c_str(), cmtx);
   pca::read_armvct(qfname.c_str(), q);
