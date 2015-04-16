@@ -68,10 +68,20 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
     
     for (int i=0; i<(int)coordslt.n_rows; ++i)
     {
-      double tantethacmp = (1.0e0 / cotethacmp[i]) ; 
-      double etacmps = -1.0e0 * log (tantethacmp);
-      double tantetha = (1.0e0 / paramslt(i, SPLIT_COTTETHAIDX));
-      double etaorig = -1.0e0 * log (tantetha); 
+      double tethacmp = atan(1.0e0 / cotethacmp[i]) ; 
+      double etacmps = 0.0e0, tantetha2;
+      tantetha2 = tan (tethacmp/2.0e0); 
+      if (tantetha2 < 0.0)
+        etacmps = 1.0e0 * log (-1.0e0 * tantetha2);
+      else
+        etacmps = -1.0e0 * log (tantetha2);
+      double tetha = atan(1.0e0 / paramslt(i, SPLIT_COTTETHAIDX));
+      double etaorig = 0.0e0;
+      tantetha2 = tan (tetha/2.0e0);
+      if (tantetha2 < 0.0)
+        etaorig = 1.0e0 * log (-1.0e0 * tantetha2);
+      else
+        etaorig = -1.0e0 * log (tantetha2);
     
       pc[SPLIT_COTTETHAIDX](fabs(etacmps - etaorig)/
           (fabs(etacmps + etaorig)/2.0));
@@ -90,10 +100,12 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
       if (verbose)
       {
         std::cout << "For track : " << i+1 << std::endl;
-        std::cout << " cotethacmp   fitt " << cotethacmp[i] << std::endl;
+        std::cout << " cotetha      fitt " << cotethacmp[i] << std::endl;
         std::cout << " cotetha      orig " << paramslt(i, SPLIT_COTTETHAIDX) << std::endl;
-        std::cout << " tantetha     fitt " << tantethacmp << std::endl;
-        std::cout << " tantetha     orig " << tantetha << std::endl;
+        std::cout << " tetha rad    fitt " << tethacmp << std::endl;
+        std::cout << " tetha rad    orig " << tetha << std::endl;
+        std::cout << " tetha deg    fitt " << tethacmp*(180.0e0/M_PI) << std::endl;
+        std::cout << " tetha deg    orig " << tetha*(180.0e0/M_PI) << std::endl;
         std::cout << " eta          fitt " << etacmps << std::endl;
         std::cout << " eta          orig " << etaorig << std::endl;
         std::cout << " z0           fitt " << z0cmp[i] << std::endl;
@@ -252,7 +264,7 @@ int main (int argc, char ** argv)
   fitter.set_paramdim(2);
   if (rzplane)
   {
-    if (!fitter.set_paramidx(SPLIT_COTTETHAIDX, "cot(tetha/2)"))
+    if (!fitter.set_paramidx(SPLIT_COTTETHAIDX, "cot(tetha)"))
     {
       std::cerr << fitter.get_errmsg() << std::endl;
       return EXIT_FAILURE;
