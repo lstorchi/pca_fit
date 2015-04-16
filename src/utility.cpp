@@ -362,8 +362,9 @@ void pca::reading_from_file_split (const pca::pcafitter & fitter,
         // tetha = 2 * arctan (e^(-eta))
         // cotan (tetha) = cotan (2 * arctan (e^(-eta)))
         paramread(counter, SPLIT_COTTETHAIDX) =  cot(2.0 * atan (exp (-1.0e0 * etaread)));
-        double tetha = atan(1.0 /  paramread(counter, SPLIT_COTTETHAIDX));
-        std::cout << etaread << " " << tetha << std::endl;
+        //double tetha = atan(1.0 /  paramread(counter, SPLIT_COTTETHAIDX));
+        //std::cout << etaread << " " << tetha * (180/M_PI) << std::endl;
+        //just to visualize pseudorapidity 
       }
       else if (rphiplane)
       {
