@@ -60,9 +60,19 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
   for (int i=0; i<(int)coordslt.n_rows; ++i)
   {
     double tetha = atan((1.0e0 / cottethacmp[i])); 
-    double etacmp = -1.0e0 * log (tan(tetha/2.0e0));
+    double tantetha2 = tan (tetha/2.0e0);
+    double etacmp = 0.0;
+    if (tantetha2 < 0.0)
+      etacmp = 1.0e0 * log (-1.0e0 * tantetha2);
+    else
+      etacmp = -1.0e0 * log (tantetha2);
     tetha = atan((1.0e0 / paramslt(i, COTTETHAIDX)));
-    double etaorig = -1.0e0 * log (tan(tetha/2.0e0)); 
+    tantetha2 = tan (tetha/2.0e0);
+    double etaorig = 0.0e0;
+    if (tantetha2 < 0.0)
+      etaorig = 1.0e0 * log (-1.0e0 * tantetha2);
+    else
+      etaorig = -1.0e0 * log (tantetha2);
     double deltaphi = pca::delta_phi(phicmp[i], paramslt(i, PHIIDX)); 
   
     pc[ONEOVERPTIDX](fabs(1.0e0/oneoverptcmp[i] - 1.0e0/paramslt(i, ONEOVERPTIDX))/

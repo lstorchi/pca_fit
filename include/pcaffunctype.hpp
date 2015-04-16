@@ -57,6 +57,10 @@ namespace pca
 
   double delta_phi(double phi1, double phi2);
 
+  double cot (double);
+
+  double atanall (double);
+
 };
   
 #endif

@@ -36,15 +36,15 @@ namespace
         
     return false;
   }
-
-  double cot (double x)
-  {
-    return tan(M_PI_2 - x);
-  }
 }
 
 
 using namespace pca;
+
+double pca::cot (double x)
+{
+  return tan(M_PI_2 - x);
+}
 
 bool pca::file_exists(const std::string& filename)
 {

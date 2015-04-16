@@ -176,7 +176,7 @@ int main (int argc, char ** argv)
   fitter.set_paramdim(2);
   if (rzplane)
   {
-    if (!fitter.set_paramidx(SPLIT_COTTETHAIDX, "cot(tetha/2)"))
+    if (!fitter.set_paramidx(SPLIT_COTTETHAIDX, "cot(tetha)"))
     {
       std::cerr << fitter.get_errmsg() << std::endl;
       return EXIT_FAILURE;
