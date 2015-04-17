@@ -10,7 +10,7 @@
 include ../config.mk
 
 ifeq ($(CERN),yes)
-  CFLAGS += -I/afs/cern.ch/user/l/$(USER)/armadillo-3.930.4/include
+  CFLAGS += -I$(ARMAINCPATH)
 endif
 
 CFLAGS +=-I./ -I../include 

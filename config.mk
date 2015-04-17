@@ -18,13 +18,15 @@ DEBUG=no
 # CERN 
 # yes if in lxplus
 # no
-CERN = no
+CERN = yes
 
 # if needed you sould specify here armadillo library path 
 #CFLAGS += -I/afs/cern.ch/user/l/$(USER)/armadillo-3.930.4/include
 #LIBS += -L/afs/cern.ch/user/l/$(USER)/armadillo-3.930.4 
 CFLAGS =
 LIBS =
+ARMALIBPATH = /afs/cern.ch/user/l/lstorchi/armadillo-3.930.4
+ARMAINCPATH = /afs/cern.ch/user/l/lstorchi/armadillo-3.930.4/include
 
 CC = gcc
 CXX = g++

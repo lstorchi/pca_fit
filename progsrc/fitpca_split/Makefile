@@ -13,8 +13,8 @@ include ../../config.mk
 #CFLAGS += -DDEBUG
 
 ifeq ($(CERN),yes)
-  CFLAGS += -I/afs/cern.ch/user/l/$(USER)/armadillo-3.930.4/include
-  LIBS += -L/afs/cern.ch/user/l/$(USER)/armadillo-3.930.4 
+  CFLAGS += -I$(ARMAINCPATH)
+  LIBS += -L$(ARMALIBPATH)
 endif
 
 CFLAGS +=-I./ -I../../include 
