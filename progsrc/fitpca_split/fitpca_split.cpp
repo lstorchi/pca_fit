@@ -116,30 +116,33 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
   else if (rphiplane)
   {
     std::ofstream myfile(fname.str().c_str());
-    myfile << "1/pt_orig 1/pt_fitt diff phi_orig phi_fitt diff" << std::endl; 
+    myfile << "pt_orig pt_fitt diff phi_orig phi_fitt diff" << std::endl; 
     
     arma::running_stat<double> pc[fitter.get_paramdim()];
     for (int i=0; i<(int)coordslt.n_rows; ++i)
     {
+      double ptorig = 1.0e0 / paramslt(i, SPLIT_ONEOVERPTIDX);
+      double ptcmp = 1.0e0 / oneoverptcmp[i];
+
       pc[SPLIT_PHIIDX](fabs(phicmp[i] - paramslt(i, SPLIT_PHIIDX))/
           (fabs(phicmp[i] + paramslt(i, SPLIT_PHIIDX))/2.0));
-      pc[SPLIT_ONEOVERPTIDX](fabs(1.0e0/oneoverptcmp[i] - 1.0e0/paramslt(i, SPLIT_ONEOVERPTIDX))/
-          (fabs(1.0e0/oneoverptcmp[i] + 1.0e0/paramslt(i, SPLIT_ONEOVERPTIDX))/2.0));
+      pc[SPLIT_ONEOVERPTIDX](fabs(ptcmp - ptorig)/
+          (fabs(ptcmp + ptorig)/2.0));
 
       pcabsolute[SPLIT_PHIIDX](phicmp[i] - paramslt(i, SPLIT_PHIIDX));
-      pcabsolute[SPLIT_ONEOVERPTIDX](oneoverptcmp[i] - paramslt(i, SPLIT_ONEOVERPTIDX));
+      pcabsolute[SPLIT_ONEOVERPTIDX](ptcmp - ptorig);
  
       myfile << 
-        paramslt(i, SPLIT_ONEOVERPTIDX) << " " << oneoverptcmp[i] << " " <<
-        (oneoverptcmp[i] - paramslt(i, SPLIT_ONEOVERPTIDX)) <<  " " <<
+        ptorig << " " << ptcmp << " " <<
+        (ptcmp - ptorig) <<  " " <<
         paramslt(i, SPLIT_PHIIDX) << " " << phicmp[i] << " " <<
         (phicmp[i] - paramslt(i, SPLIT_PHIIDX)) << std::endl;
     
       if (verbose)
       {
         std::cout << "For track : " << i+1 << std::endl;
-        std::cout << " 1/pt         fitt " << oneoverptcmp[i] << std::endl;
-        std::cout << " 1/pt         orig " << paramslt(i, SPLIT_ONEOVERPTIDX)  << std::endl;
+        std::cout << " pt           fitt " << ptcmp << std::endl;
+        std::cout << " pt           orig " << ptorig << std::endl;
         std::cout << " phi          fitt " << phicmp[i] << std::endl;
         std::cout << " phi          orig " << paramslt(i, SPLIT_PHIIDX) << std::endl;
       }
