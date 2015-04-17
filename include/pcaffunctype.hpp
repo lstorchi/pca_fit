@@ -18,8 +18,8 @@
 #define SPLIT_ONEOVERPTIDX 0
 #define SPLIT_PHIIDX 1
 
-#define ETAMIN -1.000e0
-#define ETAMAX -0.300e0
+#define ETAMIN -0.800e0
+#define ETAMAX -0.100e0
 
 namespace pca
 {
