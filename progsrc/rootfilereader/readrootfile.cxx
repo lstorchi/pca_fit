@@ -47,6 +47,8 @@ void print_bankstub_new (TFile * inputFile, std::ostream& ss, unsigned int maxtr
   std::vector<float> stubx, * p_stubx, stuby, * p_stuby, stubz, * p_stubz,
     pt, * p_pt, x0, * p_x0, y0, * p_y0, z0, * p_z0, eta, * p_eta,
     phi, * p_phi;
+  std::vector<float> pdg, * p_pdg;
+
   p_stubx = &stubx;
   p_stuby = &stuby;
   p_stubz = &stubz;
@@ -56,6 +58,7 @@ void print_bankstub_new (TFile * inputFile, std::ostream& ss, unsigned int maxtr
   p_z0 = &z0;
   p_eta = &eta;
   p_phi = &phi;
+  p_pdg = &pdg;
 
   TT->SetBranchAddress("STUB_x", &p_stubx);
   TT->SetBranchAddress("STUB_y", &p_stuby);
@@ -68,6 +71,9 @@ void print_bankstub_new (TFile * inputFile, std::ostream& ss, unsigned int maxtr
   TT->SetBranchAddress("STUB_etaGEN", &p_eta);
   TT->SetBranchAddress("STUB_PHI0", &p_phi);
 
+  TT->SetBranchAddress("STUB_pdg", &p_pdg);
+
+
   unsigned int countevt = 0;
   Int_t nevent = TT->GetEntries(); 
   ss << "We got " << nevent << " events in BankStubs" << std::endl; 
@@ -78,6 +84,7 @@ void print_bankstub_new (TFile * inputFile, std::ostream& ss, unsigned int maxtr
   std::ofstream d0file("d0_BankStubs.txt");
   std::ofstream etafile("eta_BankStubs.txt");
   std::ofstream z0file("z0_BankStubs.txt");
+
   for (Int_t i=0; i<nevent; ++i) 
   { 
      TT->GetEntry(i);
@@ -91,6 +98,7 @@ void print_bankstub_new (TFile * inputFile, std::ostream& ss, unsigned int maxtr
      assert (moduleid.size() == z0.size());
      assert (moduleid.size() == eta.size());
      assert (moduleid.size() == phi.size());
+     assert (moduleid.size() == pdg.size());
 
      bool allAreEqual = ((std::find_if(z0.begin() + 1, z0.end(), 
         std::bind1st(std::not_equal_to<int>(), z0.front())) == z0.end()) &&
@@ -136,7 +144,7 @@ void print_bankstub_new (TFile * inputFile, std::ostream& ss, unsigned int maxtr
         int segid = value; // QA is just this ? from the source code seems so, I need to / by 10 ?
 
         ss << layer << " " << ladder << " " << 
-          module << " " << segid << " " << std::endl;
+          module << " " << segid << " " << pdg[j] << std::endl;
        }
        --j;
 
