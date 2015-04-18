@@ -34,6 +34,26 @@ usage: ./bin/readrootfile [options] rootfile
  -l, --l1tk-stubs         : extract l1tkstubs
  -m, --max-tracks[=value] : max value of tracks to be extracted
 
+usage: ./bin/fitpca_split [options] coordinatesfile 
+
+ -h, --help               : display this help and exit
+ -V, --verbose            : verbose option on
+ -v, --version            : print version and exit
+ -c, --cmtx=[fillename]   : CMTX filename [default is c.bin]
+ -q, --qvct=[fillename]   : QVCT filename [default is q.bin]
+ -j, --jump-tracks        : perform the fittin only for odd tracks
+ -z, --rz-plane           : use rz plane view
+ -r, --rphi-plane         : use r-phi plane view
+
+usage: ./bin/generatepca_split [options] coordinatesfile 
+
+ -h, --help                 : display this help and exit
+ -v, --version              : print version and exit
+ -j, --jump-tracks          : generate the constants using only even tracks
+ -p, --dump-allcoords       : dump all stub coordinates to a file
+ -z, --rz-plane             : use rz plane view
+ -r, --rphi-plane           : use r-phi plane view
+
 usage: ./bin/generatepca [options] coordinatesfile 
 
  -h, --help                 : display this help and exit
@@ -68,59 +88,8 @@ usage: ./bin/fitpca [options] coordinatesfile
  -r, --all-subladders     : perform the fitting for all subladders
  -j, --jump-tracks        : perform the fittin only for odd tracks
 
+
 Example: 
 
-$ ./readrootfile -n DistrD0.root
-
-$ ./generatepca -l ./bankstub.txt 
-file has 57513 line 
-file has 7189 entries 
-Reading data from ./bankstub.txt file 
-Writing parameters to files
-Looking for bigger subladder
-We  found 323 subladders 
-Selected subladder 050531-060727-071027-081412-091812-102212 numevt: 566
-Printout selected coordinates 
-Writing extracted parameters to files
-Perform PCA 
-566 18
-Writing Scoreplot
-Eigenvalues: 
-1 ==> 42.6131% value: 9.25344
-2 ==> 35.3698% value: 7.68055
-3 ==> 11.0057% value: 2.3899
-4 ==> 8.00011% value: 1.73722
-5 ==> 2.01361% value: 0.437254
-6 ==> 0.611055% value: 0.132691
-7 ==> 0.345963% value: 0.0751258
-8 ==> 0.0323133% value: 0.00701683
-9 ==> 0.0081556% value: 0.00177099
-10 ==> 7.44796e-05% value: 1.61732e-05
-11 ==> 3.20987e-05% value: 6.97024e-06
-12 ==> 2.26398e-05% value: 4.91622e-06
-13 ==> 3.67272e-07% value: 7.97531e-08
-14 ==> 3.92246e-09% value: 8.51763e-10
-15 ==> 3.79906e-09% value: 8.24967e-10
-16 ==> 3.63372e-09% value: 7.89062e-10
-17 ==> 3.55366e-09% value: 7.71677e-10
-18 ==> 3.17073e-09% value: 6.88524e-10
-PARAMDIM eigenvalues: 99.0024
-5 X 18
-Compute PCA constants 
-Write constant to file
-
-
-$ ./fitpca -l
-050531-060727-071027-081412-091812-102212 bankstub.txt 
-Reading data from bankstub.txt file 
-file has 57513 line 
-file has 7189 entries 
-Read constant from files (c.bin and q.bin)
-Using subladder 050531-060727-071027-081412-091812-102212
- numevt: 566
-For oneoverpt error 0.397443 0.383462
-For phi error 0.0308142 0.0254996
-For d0 error 16.2527 4.4808
-For cot(tetha/2) error 16.7014 0.978
-For z0 error 12.0398 7.27
+TODO
 
