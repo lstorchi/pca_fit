@@ -8,6 +8,8 @@
 #include <armadillo>
 #include <cassert>
 
+#include <set>
+
 #include <pcafitter.hpp>
 #include <pcaffunctype.hpp>
 
@@ -171,14 +173,14 @@ void pca::reading_from_file (const char * filename,
     
     for (int j = 0; j < NUMOFLAYER; ++j)
     {
-      int a, b, c, segid;
+      int a, b, c, segid, pid;
       double x, y, z;
 
       mytfp >> x >> 
                y >> 
                z >> 
-               a >> b >> c >> segid; // segid I am reading because can be used as local ccordinate ?
-                                       // in case of l1tkstubs is the tp value here 
+               a >> b >> c >> segid >> pid; // segid I am reading because can be used as local ccordinate ?
+                                            // in case of l1tkstubs is the tp value here 
  
       if (check_to_read (useonlyeven,useonlyodd,i))
       {
@@ -271,12 +273,13 @@ int pca::numofline (const char * fname)
   return number_of_lines;
 }
 
-void pca::reading_from_file_split (const pca::pcafitter & fitter, 
+bool pca::reading_from_file_split (const pca::pcafitter & fitter, 
      const char * filename, 
      arma::mat & paramin, arma::mat & coordin, 
      int num_of_ent, bool useonlyeven, bool useonlyodd,
      bool rzplane, bool rphiplane, 
-     double etamin, double etamax)
+     double etamin, double etamax, 
+     bool chargeoverpt)
 {
   int extdim = 9;
   std::string line;
@@ -310,18 +313,24 @@ void pca::reading_from_file_split (const pca::pcafitter & fitter,
     std::ostringstream osss, ossl;
     osss << std::setfill('0');
     ossl << std::setfill('0');
+
+    std::set<int> pidset;
     
     for (int j = 0; j < NUMOFLAYER; ++j)
     {
-      int a, b, c, segid;
+      int a, b, c, segid, pid;
       double x, y, z;
 
       mytfp >> x >> 
                y >> 
                z >> 
-               a >> b >> c >> segid; // segid I am reading because can be used as local ccordinate ?
-                                       // in case of l1tkstubs is the tp value here 
+               a >> b >> c >> segid >> pid; // segid I am reading because can be used as local ccordinate ?
+                                            // in case of l1tkstubs is the tp value here 
+                                            // pid is particle id (charge)
  
+
+      pidset.insert(pid);
+
       if (check_to_read (useonlyeven,useonlyodd,i))
       {
         double ri = sqrt(pow(x, 2.0) + pow (y, 2.0));
@@ -370,7 +379,21 @@ void pca::reading_from_file_split (const pca::pcafitter & fitter,
       {
         paramread(counter, SPLIT_PHIIDX) = phiread;
         // use 1/pt
-        paramread(counter, SPLIT_ONEOVERPTIDX) = 1.0e0 / ptread;
+        if (chargeoverpt)
+        {
+          if (pidset.size() != 1)
+          {
+            std::cerr << "pid values differ" << std::endl;
+            return false;
+          }
+
+          if (*(pidset.begin()) < 0)
+            paramread(counter, SPLIT_ONEOVERPTIDX) = -1.0e0 / ptread;
+          else
+            paramread(counter, SPLIT_ONEOVERPTIDX) = 1.0e0 / ptread;
+        }
+        else
+          paramread(counter, SPLIT_ONEOVERPTIDX) = 1.0e0 / ptread;
       }
 
       ++counter;
@@ -414,5 +437,7 @@ void pca::reading_from_file_split (const pca::pcafitter & fitter,
   //std::cout << "counter: " << counter << std::endl;
 
   mytfp.close();
+
+  return true;
 }
 

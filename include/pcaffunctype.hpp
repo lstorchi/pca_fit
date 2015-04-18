@@ -47,11 +47,11 @@ namespace pca
           int num_of_ent, bool usesegid, 
           bool useonlyeven, bool useonlyodd);
 
-  void reading_from_file_split (const pca::pcafitter &, const char * filename, 
+  bool reading_from_file_split (const pca::pcafitter &, const char * filename, 
           arma::mat & paramin, arma::mat & coordin,
           int num_of_ent, bool useonlyeven, bool useonlyodd, 
           bool rzread, bool rphiread, double etamin,
-          double etamax);
+          double etamax, bool chargeoverpt);
 
   bool file_exists(const std::string& filename);
 

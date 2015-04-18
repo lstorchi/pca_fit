@@ -332,9 +332,10 @@ int main (int argc, char ** argv)
   param.set_size(num_of_ent,fitter.get_paramdim());
 
   std::cout << "Reading from file" << std::endl;
-  pca::reading_from_file_split (fitter, filename, 
-     param, coord, num_of_ent, false, useonlyodd,
-     rzplane, rphiplane, ETAMIN, ETAMAX);
+  if (!pca::reading_from_file_split (fitter, filename, 
+       param, coord, num_of_ent, false, useonlyodd,
+       rzplane, rphiplane, ETAMIN, ETAMAX, true))
+    return EXIT_FAILURE;
   std::cout << "Using " << param.n_rows << " tracks" << std::endl;
 
   pca::read_armmat(cfname.c_str(), cmtx);
