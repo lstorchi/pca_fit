@@ -235,9 +235,10 @@ int main (int argc, char ** argv)
   // leggere file coordinate tracce simulate plus parametri
   std::cout << "Reading data from " << filename << " file " << std::endl;
 
-  pca::reading_from_file_split (fitter, filename, paramin, coordin, 
-       num_of_ent_read, useonlyeven, false, rzplane, rphiplane, 
-       ETAMIN, ETAMAX);
+  if (!pca::reading_from_file_split (fitter, filename, paramin, coordin, 
+         num_of_ent_read, useonlyeven, false, rzplane, rphiplane, 
+         ETAMIN, ETAMAX, true))
+    return EXIT_FAILURE;
 
   std::cout << "Using " << paramin.n_rows << " tracks" << std::endl;
 
