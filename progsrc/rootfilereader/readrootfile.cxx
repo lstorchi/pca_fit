@@ -37,6 +37,8 @@ void usage (char * name)
 
 void print_bankstub_new (TFile * inputFile, std::ostream& ss, unsigned int maxtracks)
 {
+  bool usecharge = false;
+
   TChain* TT = (TChain*) inputFile->Get("BankStubs");
 
   std::vector<int> moduleid, * p_moduleid; 
@@ -71,8 +73,8 @@ void print_bankstub_new (TFile * inputFile, std::ostream& ss, unsigned int maxtr
   TT->SetBranchAddress("STUB_etaGEN", &p_eta);
   TT->SetBranchAddress("STUB_PHI0", &p_phi);
 
-  TT->SetBranchAddress("STUB_pdg", &p_pdg);
-
+  if (usecharge)
+    TT->SetBranchAddress("STUB_pdg", &p_pdg);
 
   unsigned int countevt = 0;
   Int_t nevent = TT->GetEntries(); 
@@ -98,7 +100,8 @@ void print_bankstub_new (TFile * inputFile, std::ostream& ss, unsigned int maxtr
      assert (moduleid.size() == z0.size());
      assert (moduleid.size() == eta.size());
      assert (moduleid.size() == phi.size());
-     assert (moduleid.size() == pdg.size());
+     if (usecharge)
+       assert (moduleid.size() == pdg.size());
 
      bool allAreEqual = ((std::find_if(z0.begin() + 1, z0.end(), 
         std::bind1st(std::not_equal_to<int>(), z0.front())) == z0.end()) &&
@@ -143,8 +146,12 @@ void print_bankstub_new (TFile * inputFile, std::ostream& ss, unsigned int maxtr
         value = value-module*100;
         int segid = value; // QA is just this ? from the source code seems so, I need to / by 10 ?
 
-        ss << layer << " " << ladder << " " << 
-          module << " " << segid << " " << pdg[j] << std::endl;
+        if (usecharge)
+          ss << layer << " " << ladder << " " << 
+            module << " " << segid << " " << pdg[j] << std::endl;
+        else
+          ss << layer << " " << ladder << " " << 
+            module << " " << segid << std::endl;
        }
        --j;
 
