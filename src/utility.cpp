@@ -327,17 +327,17 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
                  y >> 
                  z >> 
                  a >> b >> c >> segid >> pid; // segid I am reading because can be used as local ccordinate ?
-                                            // in case of l1tkstubs is the tp value here 
-                                            // pid is particle id (charge)
+                                              // in case of l1tkstubs is the tp value here 
+                                              // pid is particle id (charge)
       }
       else
       {
         mytfp >> x >> 
                  y >> 
                  z >> 
-                 a >> b >> c >> segid >> pid; // segid I am reading because can be used as local ccordinate ?
-                                            // in case of l1tkstubs is the tp value here 
-                                            // pid is particle id (charge)
+                 a >> b >> c >> segid; // segid I am reading because can be used as local ccordinate ?
+                                              // in case of l1tkstubs is the tp value here 
+                                              // pid is particle id (charge)
       }
 
 
