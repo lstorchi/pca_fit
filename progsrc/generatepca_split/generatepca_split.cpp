@@ -44,6 +44,8 @@ void usage (char * name)
   std::cerr << " -p, --dump-allcoords       : dump all stub coordinates to a file" << std::endl;
   std::cerr << " -z, --rz-plane             : use rz plane view" << std::endl;
   std::cerr << " -r, --rphi-plane           : use r-phi plane view" << std::endl;
+  std::cerr << " -e, --use-charge           : read charge from coordinatesfile, and use it if" << std::endl; 
+  std::cerr << "                              rphi-plane has been selected" << std::endl; 
 
   exit(1);
 }
@@ -126,10 +128,11 @@ int main (int argc, char ** argv)
       {"dump-allcoords", 0, NULL, 'p'},
       {"rz-plane", 0, NULL, 'z'},
       {"rphi-plane", 0, NULL, 'r'},
+      {"use-charge", 0, NULL, 'e'},
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "hvjpzr", long_options, &option_index);
+    c = getopt_long (argc, argv, "ehvjpzr", long_options, &option_index);
 
     if (c == -1)
       break;
@@ -154,6 +157,9 @@ int main (int argc, char ** argv)
       case 'v':
         std::cout << "Version: " << pca::pcafitter::get_version_string() << std::endl;
         exit(1);
+        break;
+      case 'e':
+        usecharge = true;
         break;
       default:
         usage (argv[0]);
@@ -195,10 +201,22 @@ int main (int argc, char ** argv)
       std::cerr << fitter.get_errmsg() << std::endl;
       return EXIT_FAILURE;
     }
-    if (!fitter.set_paramidx(SPLIT_ONEOVERPTIDX, "1/pt"))
+
+    if (usecharge)
     {
-      std::cerr << fitter.get_errmsg() << std::endl;
-      return EXIT_FAILURE;
+      if (!fitter.set_paramidx(SPLIT_ONEOVERPTIDX, "q/pt"))
+      {
+        std::cerr << fitter.get_errmsg() << std::endl;
+        return EXIT_FAILURE;
+      }
+    }
+    else
+    {
+      if (!fitter.set_paramidx(SPLIT_ONEOVERPTIDX, "1/pt"))
+      {
+        std::cerr << fitter.get_errmsg() << std::endl;
+        return EXIT_FAILURE;
+      }
     }
   }
 
