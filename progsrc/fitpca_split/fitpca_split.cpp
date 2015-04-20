@@ -22,7 +22,8 @@
 
 bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt, 
      arma::mat & cmtx, arma::rowvec & q, bool verbose, 
-     pca::pcafitter & fitter, bool rzplane, bool rphiplane)
+     pca::pcafitter & fitter, bool rzplane, bool rphiplane,
+     bool usecharge)
 {
   double ** ptrs;
   ptrs = new double* [fitter.get_paramdim()];
@@ -116,35 +117,71 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
   else if (rphiplane)
   {
     std::ofstream myfile(fname.str().c_str());
-    myfile << "pt_orig pt_fitt diff phi_orig phi_fitt diff" << std::endl; 
-    
     arma::running_stat<double> pc[fitter.get_paramdim()];
-    for (int i=0; i<(int)coordslt.n_rows; ++i)
+
+    if (usecharge)
     {
-      double ptorig = 1.0e0 / paramslt(i, SPLIT_ONEOVERPTIDX);
-      double ptcmp = 1.0e0 / oneoverptcmp[i];
-
-      pc[SPLIT_PHIIDX](fabs(phicmp[i] - paramslt(i, SPLIT_PHIIDX))/
-          (fabs(phicmp[i] + paramslt(i, SPLIT_PHIIDX))/2.0));
-      pc[SPLIT_ONEOVERPTIDX](fabs(ptcmp - ptorig)/
-          (fabs(ptcmp + ptorig)/2.0));
-
-      pcabsolute[SPLIT_PHIIDX](phicmp[i] - paramslt(i, SPLIT_PHIIDX));
-      pcabsolute[SPLIT_ONEOVERPTIDX](ptcmp - ptorig);
+      myfile << "q/pt_orig q/pt_fitt diff phi_orig phi_fitt diff" << std::endl; 
  
-      myfile << 
-        ptorig << " " << ptcmp << " " <<
-        (ptcmp - ptorig) <<  " " <<
-        paramslt(i, SPLIT_PHIIDX) << " " << phicmp[i] << " " <<
-        (phicmp[i] - paramslt(i, SPLIT_PHIIDX)) << std::endl;
-    
-      if (verbose)
+      for (int i=0; i<(int)coordslt.n_rows; ++i)
       {
-        std::cout << "For track : " << i+1 << std::endl;
-        std::cout << " pt           fitt " << ptcmp << std::endl;
-        std::cout << " pt           orig " << ptorig << std::endl;
-        std::cout << " phi          fitt " << phicmp[i] << std::endl;
-        std::cout << " phi          orig " << paramslt(i, SPLIT_PHIIDX) << std::endl;
+        double qoverptorig = paramslt(i, SPLIT_ONEOVERPTIDX);
+        double qoverptcmp = oneoverptcmp[i];
+      
+        pc[SPLIT_PHIIDX](fabs(phicmp[i] - paramslt(i, SPLIT_PHIIDX))/
+            (fabs(phicmp[i] + paramslt(i, SPLIT_PHIIDX))/2.0));
+        pc[SPLIT_ONEOVERPTIDX](fabs(qoverptcmp - qoverptorig)/
+            (fabs(qoverptcmp + qoverptorig)/2.0));
+      
+        pcabsolute[SPLIT_PHIIDX](phicmp[i] - paramslt(i, SPLIT_PHIIDX));
+        pcabsolute[SPLIT_ONEOVERPTIDX](qoverptcmp - qoverptorig);
+      
+        myfile << 
+          qoverptorig << " " << qoverptcmp << " " <<
+          (qoverptcmp - qoverptorig) <<  " " <<
+          paramslt(i, SPLIT_PHIIDX) << " " << phicmp[i] << " " <<
+          (phicmp[i] - paramslt(i, SPLIT_PHIIDX)) << std::endl;
+      
+        if (verbose)
+        {
+          std::cout << "For track : " << i+1 << std::endl;
+          std::cout << " q/pt         fitt " << qoverptcmp << std::endl;
+          std::cout << " q/pt         orig " << qoverptorig << std::endl;
+          std::cout << " phi          fitt " << phicmp[i] << std::endl;
+          std::cout << " phi          orig " << paramslt(i, SPLIT_PHIIDX) << std::endl;
+        }
+      }
+    }
+    else 
+    {
+      myfile << "pt_orig pt_fitt diff phi_orig phi_fitt diff" << std::endl; 
+      for (int i=0; i<(int)coordslt.n_rows; ++i)
+      {
+        double ptorig = 1.0e0 / paramslt(i, SPLIT_ONEOVERPTIDX);
+        double ptcmp = 1.0e0 / oneoverptcmp[i];
+      
+        pc[SPLIT_PHIIDX](fabs(phicmp[i] - paramslt(i, SPLIT_PHIIDX))/
+            (fabs(phicmp[i] + paramslt(i, SPLIT_PHIIDX))/2.0));
+        pc[SPLIT_ONEOVERPTIDX](fabs(ptcmp - ptorig)/
+            (fabs(ptcmp + ptorig)/2.0));
+      
+        pcabsolute[SPLIT_PHIIDX](phicmp[i] - paramslt(i, SPLIT_PHIIDX));
+        pcabsolute[SPLIT_ONEOVERPTIDX](ptcmp - ptorig);
+      
+        myfile << 
+          ptorig << " " << ptcmp << " " <<
+          (ptcmp - ptorig) <<  " " <<
+          paramslt(i, SPLIT_PHIIDX) << " " << phicmp[i] << " " <<
+          (phicmp[i] - paramslt(i, SPLIT_PHIIDX)) << std::endl;
+      
+        if (verbose)
+        {
+          std::cout << "For track : " << i+1 << std::endl;
+          std::cout << " pt           fitt " << ptcmp << std::endl;
+          std::cout << " pt           orig " << ptorig << std::endl;
+          std::cout << " phi          fitt " << phicmp[i] << std::endl;
+          std::cout << " phi          orig " << paramslt(i, SPLIT_PHIIDX) << std::endl;
+        }
       }
     }
   }
@@ -181,6 +218,8 @@ void usage (char * name)
   std::cerr << " -j, --jump-tracks        : perform the fittin only for odd tracks" << std::endl;
   std::cerr << " -z, --rz-plane           : use rz plane view" << std::endl;
   std::cerr << " -r, --rphi-plane         : use r-phi plane view" << std::endl;
+  std::cerr << " -e, --use-charge         : read charge from coordinatesfile, and use it if" << std::endl; 
+  std::cerr << "                            rphi-plane has been selected" << std::endl; 
 
   exit(1);
 }
@@ -211,10 +250,11 @@ int main (int argc, char ** argv)
       {"jump-tracks", 0, NULL, 'j'},
       {"rz-plane", 0, NULL, 'z'},
       {"rphi-plane", 0, NULL, 'r'},
+      {"use-charge", 0, NULL, 'e'},
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "zrhVc:q:s:j", long_options, &option_index);
+    c = getopt_long (argc, argv, "ezrhVc:q:s:j", long_options, &option_index);
 
     if (c == -1)
       break;
@@ -245,6 +285,9 @@ int main (int argc, char ** argv)
         break;
       case 'q':
         qfname = optarg;
+        break;
+      case 'e':
+        usecharge = true;
         break;
       default:
         usage (argv[0]);
@@ -286,10 +329,21 @@ int main (int argc, char ** argv)
       std::cerr << fitter.get_errmsg() << std::endl;
       return EXIT_FAILURE;
     }
-    if (!fitter.set_paramidx(SPLIT_ONEOVERPTIDX, "1/pt"))
+    if (usecharge)
     {
-      std::cerr << fitter.get_errmsg() << std::endl;
-      return EXIT_FAILURE;
+      if (!fitter.set_paramidx(SPLIT_ONEOVERPTIDX, "q/pt"))
+      {
+        std::cerr << fitter.get_errmsg() << std::endl;
+        return EXIT_FAILURE;
+      }
+    }
+    else
+    {
+      if (!fitter.set_paramidx(SPLIT_ONEOVERPTIDX, "1/pt"))
+      {
+        std::cerr << fitter.get_errmsg() << std::endl;
+        return EXIT_FAILURE;
+      }
     }
   }
 
@@ -343,7 +397,7 @@ int main (int argc, char ** argv)
   pca::read_armvct(qfname.c_str(), q);
 
   if (!build_and_compare (param, coord, cmtx, q, verbose, 
-          fitter, rzplane, rphiplane))
+          fitter, rzplane, rphiplane, usecharge))
     return EXIT_FAILURE;
 
   return EXIT_SUCCESS;
