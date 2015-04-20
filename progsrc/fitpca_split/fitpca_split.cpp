@@ -197,6 +197,7 @@ int main (int argc, char ** argv)
   bool useonlyodd = false;
   bool rzplane = false;
   bool rphiplane = false;
+  bool usecharge = false;
 
   while (1)
   {
@@ -334,7 +335,7 @@ int main (int argc, char ** argv)
   std::cout << "Reading from file" << std::endl;
   if (!pca::reading_from_file_split (fitter, filename, 
        param, coord, num_of_ent, false, useonlyodd,
-       rzplane, rphiplane, ETAMIN, ETAMAX, true))
+       rzplane, rphiplane, ETAMIN, ETAMAX, usecharge))
     return EXIT_FAILURE;
   std::cout << "Using " << param.n_rows << " tracks" << std::endl;
 
