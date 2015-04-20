@@ -321,13 +321,25 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
       int a, b, c, segid, pid;
       double x, y, z;
 
-      mytfp >> x >> 
-               y >> 
-               z >> 
-               a >> b >> c >> segid >> pid; // segid I am reading because can be used as local ccordinate ?
+      if (chargeoverpt)
+      {
+        mytfp >> x >> 
+                 y >> 
+                 z >> 
+                 a >> b >> c >> segid >> pid; // segid I am reading because can be used as local ccordinate ?
                                             // in case of l1tkstubs is the tp value here 
                                             // pid is particle id (charge)
- 
+      }
+      else
+      {
+        mytfp >> x >> 
+                 y >> 
+                 z >> 
+                 a >> b >> c >> segid >> pid; // segid I am reading because can be used as local ccordinate ?
+                                            // in case of l1tkstubs is the tp value here 
+                                            // pid is particle id (charge)
+      }
+
 
       pidset.insert(pid);
 
@@ -342,7 +354,7 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
         }
         else if (rphiplane)
         {
-          double phii = asin(y/ri);
+          double phii = acos(x/ri);
 
           coordread(counter, j*2) = phii;
           coordread(counter, j*2+1) = ri;
