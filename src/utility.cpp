@@ -343,21 +343,24 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
 
       pidset.insert(pid);
 
-      if (check_to_read (useonlyeven,useonlyodd,i))
+      if (pid >= 0)
       {
-        double ri = sqrt(pow(x, 2.0) + pow (y, 2.0));
-
-        if (rzplane)
+        if (check_to_read (useonlyeven,useonlyodd,i))
         {
-          coordread(counter, j*2) = z;
-          coordread(counter, j*2+1) = ri;
-        }
-        else if (rphiplane)
-        {
-          double phii = acos(x/ri);
-
-          coordread(counter, j*2) = phii;
-          coordread(counter, j*2+1) = ri;
+          double ri = sqrt(pow(x, 2.0) + pow (y, 2.0));
+        
+          if (rzplane)
+          {
+            coordread(counter, j*2) = z;
+            coordread(counter, j*2+1) = ri;
+          }
+          else if (rphiplane)
+          {
+            double phii = acos(x/ri);
+        
+            coordread(counter, j*2) = phii;
+            coordread(counter, j*2+1) = ri;
+          }
         }
       }
     }
@@ -389,26 +392,30 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
       }
       else if (rphiplane)
       {
-        paramread(counter, SPLIT_PHIIDX) = phiread;
-        // use 1/pt
-        if (chargeoverpt)
+        if (*(pidset.begin()) >= 0)
         {
-          if (pidset.size() != 1)
+          paramread(counter, SPLIT_PHIIDX) = phiread;
+          // use 1/pt
+          if (chargeoverpt)
           {
-            std::cerr << "pid values differ" << std::endl;
-            return false;
+            if (pidset.size() != 1)
+            {
+              std::cerr << "pid values differ" << std::endl;
+              return false;
+            }
+         
+            if (*(pidset.begin()) < 0)
+              paramread(counter, SPLIT_ONEOVERPTIDX) = -1.0e0 / ptread;
+            else
+              paramread(counter, SPLIT_ONEOVERPTIDX) = 1.0e0 / ptread;
           }
-
-          if (*(pidset.begin()) < 0)
-            paramread(counter, SPLIT_ONEOVERPTIDX) = -1.0e0 / ptread;
           else
             paramread(counter, SPLIT_ONEOVERPTIDX) = 1.0e0 / ptread;
         }
-        else
-          paramread(counter, SPLIT_ONEOVERPTIDX) = 1.0e0 / ptread;
       }
 
-      ++counter;
+      if (*(pidset.begin()) >= 0.0)
+        ++counter;
     }
   }
 
