@@ -44,8 +44,8 @@ void usage (char * name)
   std::cerr << " -p, --dump-allcoords       : dump all stub coordinates to a file" << std::endl;
   std::cerr << " -z, --rz-plane             : use rz plane view" << std::endl;
   std::cerr << " -r, --rphi-plane           : use r-phi plane view" << std::endl;
-  std::cerr << " -e, --use-charge           : read charge from coordinatesfile, and use it if" << std::endl; 
-  std::cerr << "                              rphi-plane has been selected" << std::endl; 
+  std::cerr << " -e, --not-use-charge       : do not read charge from coordinatesfile, by default " << std::endl;
+  std::cerr << "                              we will  use it if rphi-plane has been selected" << std::endl; 
 
   exit(1);
 }
@@ -116,7 +116,7 @@ int main (int argc, char ** argv)
   bool printallcoords = false;
   bool rzplane = false;
   bool rphiplane = false;
-  bool usecharge = false;
+  bool usecharge = true;
 
   while (1)
   {
@@ -128,7 +128,7 @@ int main (int argc, char ** argv)
       {"dump-allcoords", 0, NULL, 'p'},
       {"rz-plane", 0, NULL, 'z'},
       {"rphi-plane", 0, NULL, 'r'},
-      {"use-charge", 0, NULL, 'e'},
+      {"not-use-charge", 0, NULL, 'e'},
       {0, 0, 0, 0}
     };
 
@@ -159,7 +159,7 @@ int main (int argc, char ** argv)
         exit(1);
         break;
       case 'e':
-        usecharge = true;
+        usecharge = false;
         break;
       default:
         usage (argv[0]);
