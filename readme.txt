@@ -13,9 +13,7 @@ README (Loriano Storchi) loriano@storchi.org
   $ git clone https://bitbucket.org/lstorchi/gf_fit PCA
   $ cd PCA 
   
-  to use rel_0_2_0 (HEAD should be now safe enough to be used)  
-
-  $ git checkout rel_0_2_0       
+  HEAD should be now safe enough to be used
 
   b) Download the armadillo library from http://arma.sourceforge.net/download.html 
   
@@ -33,6 +31,8 @@ usage: ./bin/readrootfile [options] rootfile
  -n, --bank-stubs-new     : extract bankstubs new version
  -l, --l1tk-stubs         : extract l1tkstubs
  -m, --max-tracks[=value] : max value of tracks to be extracted
+
+split r-phi and r-z plane:
 
 usage: ./bin/fitpca_split [options] coordinatesfile 
 
@@ -53,6 +53,8 @@ usage: ./bin/generatepca_split [options] coordinatesfile
  -p, --dump-allcoords       : dump all stub coordinates to a file
  -z, --rz-plane             : use rz plane view
  -r, --rphi-plane           : use r-phi plane view
+
+old approach to use specific sub-towe and / or sub-sub-tower 
 
 usage: ./bin/generatepca [options] coordinatesfile 
 
