@@ -29,16 +29,16 @@ void usage (char * name)
   std::cerr << " -h, --help               : display this help and exit" << std::endl;
   std::cerr << " -b, --bank-stubs         : extract bankstubs" << std::endl;
   std::cerr << " -n, --bank-stubs-new     : extract bankstubs new version" << std::endl;
+  std::cerr << " -e, --not-use-charge     : if new version is true by default read also charge" << std::endl;
   std::cerr << " -l, --l1tk-stubs         : extract l1tkstubs" << std::endl;
   std::cerr << " -m, --max-tracks[=value] : max value of tracks to be extracted" << std::endl;
 
   exit(1);
 }
 
-void print_bankstub_new (TFile * inputFile, std::ostream& ss, unsigned int maxtracks)
+void print_bankstub_new (TFile * inputFile, std::ostream& ss, unsigned int maxtracks,
+    bool usecharge)
 {
-  bool usecharge = false;
-
   TChain* TT = (TChain*) inputFile->Get("BankStubs");
 
   std::vector<int> moduleid, * p_moduleid; 
@@ -530,7 +530,8 @@ void readandtest (const std::string & fname, bool tkstubs,
   if (bkstubsnew)
   {
     std::ofstream bankstbfile("bankstub.txt");
-    print_bankstub_new (inputFile, bankstbfile, (unsigned int)maxtracks);
+    print_bankstub_new (inputFile, bankstbfile, (unsigned int)maxtracks,
+        usecharge);
     bankstbfile.close();
   }
 
@@ -548,6 +549,7 @@ void readandtest (const std::string & fname, bool tkstubs,
 # ifndef __CINT__
 int main(int argc, char ** argv) 
 {
+  bool usecharge = trues;
   bool tkstubs = false;
   bool bkstubs = false;
   bool bkstubsnew = false;
@@ -562,10 +564,11 @@ int main(int argc, char ** argv)
       {"bank-stubs-new", 0, NULL, 'n'},
       {"l1tk-stubs", 0, NULL, 'l'},
       {"max-track", 0, NULL, 'm'}, 
+      {"not-use-charge", 0, NULL, 'e'},
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "nhlbm:", long_options, &option_index);
+    c = getopt_long (argc, argv, "enhlbm:", long_options, &option_index);
 
     if (c == -1)
       break;
@@ -586,6 +589,9 @@ int main(int argc, char ** argv)
         break;
       case 'm':
         maxtracks = atoi(optarg);
+        break;
+      case 'e':
+        usecharge = false;
         break;
       default:
         usage (argv[0]);
