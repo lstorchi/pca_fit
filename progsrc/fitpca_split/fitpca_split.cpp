@@ -218,8 +218,8 @@ void usage (char * name)
   std::cerr << " -j, --jump-tracks        : perform the fittin only for odd tracks" << std::endl;
   std::cerr << " -z, --rz-plane           : use rz plane view" << std::endl;
   std::cerr << " -r, --rphi-plane         : use r-phi plane view" << std::endl;
-  std::cerr << " -e, --use-charge         : read charge from coordinatesfile, and use it if" << std::endl; 
-  std::cerr << "                            rphi-plane has been selected" << std::endl; 
+  std::cerr << " -e, --not-use-charge     : do not read charge from coordinatesfile, by default " << std::endl;
+  std::cerr << "                            and use it if rphi-plane has been selected" << std::endl; 
 
   exit(1);
 }
@@ -236,7 +236,7 @@ int main (int argc, char ** argv)
   bool useonlyodd = false;
   bool rzplane = false;
   bool rphiplane = false;
-  bool usecharge = false;
+  bool usecharge = true;
 
   while (1)
   {
@@ -250,7 +250,7 @@ int main (int argc, char ** argv)
       {"jump-tracks", 0, NULL, 'j'},
       {"rz-plane", 0, NULL, 'z'},
       {"rphi-plane", 0, NULL, 'r'},
-      {"use-charge", 0, NULL, 'e'},
+      {"not-use-charge", 0, NULL, 'e'},
       {0, 0, 0, 0}
     };
 
@@ -287,7 +287,7 @@ int main (int argc, char ** argv)
         qfname = optarg;
         break;
       case 'e':
-        usecharge = true;
+        usecharge = false;
         break;
       default:
         usage (argv[0]);
