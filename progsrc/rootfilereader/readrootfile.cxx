@@ -549,7 +549,7 @@ void readandtest (const std::string & fname, bool tkstubs,
 # ifndef __CINT__
 int main(int argc, char ** argv) 
 {
-  bool usecharge = trues;
+  bool usecharge = true;
   bool tkstubs = false;
   bool bkstubs = false;
   bool bkstubsnew = false;
