@@ -454,7 +454,7 @@ void print_l1tkstub (TFile * inputFile, std::ostream & ss, unsigned int maxtrack
 }
 
 void readandtest (const std::string & fname, bool tkstubs, 
-    bool bkstubs, bool bkstubsnew, int maxtracks)
+    bool bkstubs, bool bkstubsnew, int maxtracks, bool usecharge)
 {
   //TFile* inputFile = new TFile(fname.c_str(),"READ");
   // use xrootd as suggested 
@@ -602,7 +602,7 @@ int main(int argc, char ** argv)
   if (optind >= argc) 
     usage (argv[0]);
 
-  readandtest(argv[optind], tkstubs, bkstubs, bkstubsnew, maxtracks);
+  readandtest(argv[optind], tkstubs, bkstubs, bkstubsnew, maxtracks, usecharge);
 
   return 0;
 }
