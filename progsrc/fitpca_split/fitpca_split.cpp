@@ -20,6 +20,7 @@
 // lstorchi: basi code to fit tracks, using the PCA constants generated 
 //           by the related generatepca
 
+
 bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt, 
      arma::mat & cmtx, arma::rowvec & q, bool verbose, 
      pca::pcafitter & fitter, bool rzplane, bool rphiplane,
@@ -210,17 +211,18 @@ void usage (char * name)
 {
   std::cerr << "usage: " << name << " [options] coordinatesfile " << std::endl;
   std::cerr << std::endl;
-  std::cerr << " -h, --help               : display this help and exit" << std::endl;
-  std::cerr << " -V, --verbose            : verbose option on" << std::endl;
-  std::cerr << " -v, --version            : print version and exit" << std::endl;
-  std::cerr << " -c, --cmtx=[fillename]   : CMTX filename [default is c.[rz/rphi].bin]" << std::endl;
-  std::cerr << " -q, --qvct=[fillename]   : QVCT filename [default is q.[rz/rphi].bin]" << std::endl;
-  std::cerr << " -j, --jump-tracks        : perform the fittin only for odd tracks" << std::endl;
-  std::cerr << " -z, --rz-plane           : use rz plane view" << std::endl;
-  std::cerr << " -r, --rphi-plane         : use r-phi plane view" << std::endl;
-  std::cerr << " -e, --not-use-charge     : do not read charge from coordinatesfile, by default " << std::endl;
-  std::cerr << "                            and use it if rphi-plane has been selected" << std::endl; 
-  std::cerr << " -g, --charge-sign=[+/-]    : use only + particle or - paricle " << std::endl;
+  std::cerr << " -h, --help                      : display this help and exit" << std::endl;
+  std::cerr << " -V, --verbose                   : verbose option on" << std::endl;
+  std::cerr << " -v, --version                   : print version and exit" << std::endl;
+  std::cerr << " -c, --cmtx=[fillename]          : CMTX filename [default is c.[rz/rphi].bin]" << std::endl;
+  std::cerr << " -q, --qvct=[fillename]          : QVCT filename [default is q.[rz/rphi].bin]" << std::endl;
+  std::cerr << " -j, --jump-tracks               : perform the fittin only for odd tracks" << std::endl;
+  std::cerr << " -z, --rz-plane                  : use rz plane view" << std::endl;
+  std::cerr << " -r, --rphi-plane                : use r-phi plane view" << std::endl;
+  std::cerr << " -e, --not-use-charge            : do not read charge from coordinatesfile, by default " << std::endl;
+  std::cerr << "                                   and use it if rphi-plane has been selected" << std::endl; 
+  std::cerr << " -g, --charge-sign=[+/-]         : use only + particle or - paricle " << std::endl;
+  std::cerr << " -t, --eta-range=[etamin,etamax] : specify the eta range to use " << std::endl;
 
   exit(1);
 }
@@ -255,16 +257,19 @@ int main (int argc, char ** argv)
       {"rphi-plane", 0, NULL, 'r'},
       {"not-use-charge", 0, NULL, 'e'},
       {"charge-sign", 1, NULL, 'g'},
+      {"eta-range", 1, NULL, 't'},
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "ezrhVg:c:q:s:j", long_options, &option_index);
+    c = getopt_long (argc, argv, "ezrhVjt:g:c:q:s:", long_options, &option_index);
 
     if (c == -1)
       break;
 
     switch (c)
     {
+      case 't':
+        break;
       case 'g':
         if (strlen(optarg) > 1)
           usage (argv[0]);
