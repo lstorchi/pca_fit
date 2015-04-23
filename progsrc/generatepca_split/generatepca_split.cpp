@@ -46,6 +46,7 @@ void usage (char * name)
   std::cerr << " -r, --rphi-plane           : use r-phi plane view" << std::endl;
   std::cerr << " -e, --not-use-charge       : do not read charge from coordinatesfile, by default " << std::endl;
   std::cerr << "                              we will  use it if rphi-plane has been selected" << std::endl; 
+  std::cerr << " -g, --charge-sign=[+/-]    : use only + particle or - paricle " << std::endl;
 
   exit(1);
 }
@@ -263,15 +264,22 @@ int main (int argc, char ** argv)
 
   std::cout << "Writing parameters to files" << std::endl;
 
+  std::ostringstream cfname, qfname; 
+
   if (rzplane)
   {
     pca::write_to_file("cottetha.txt", paramin, SPLIT_COTTETHAIDX);
     pca::write_to_file("z0.txt", paramin, SPLIT_Z0IDX);
+    cfname << "c.rz.bin";
+    qfname << "q.rz.bin";
+
   }
   else if (rphiplane)
   {
     pca::write_to_file("phi.txt", paramin, SPLIT_PHIIDX);
     pca::write_to_file("oneoverpt.txt", paramin, SPLIT_ONEOVERPTIDX);
+    cfname << "c.rphi.bin";
+    qfname << "q.rphi.bin";
   }
 
   if (printallcoords)
@@ -286,7 +294,7 @@ int main (int argc, char ** argv)
   }
 
   perform_main_computation (coordin, paramin,
-      "c.bin", "q.bin", fitter);
+      cfname.str(), qfname.str(), fitter);
 
   return EXIT_SUCCESS;
 }
