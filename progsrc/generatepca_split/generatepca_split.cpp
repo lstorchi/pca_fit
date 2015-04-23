@@ -38,15 +38,16 @@ void usage (char * name)
 {
   std::cerr << "usage: " << name << " [options] coordinatesfile " << std::endl;
   std::cerr << std::endl;
-  std::cerr << " -h, --help                 : display this help and exit" << std::endl;
-  std::cerr << " -v, --version              : print version and exit" << std::endl;
-  std::cerr << " -j, --jump-tracks          : generate the constants using only even tracks" << std::endl;
-  std::cerr << " -p, --dump-allcoords       : dump all stub coordinates to a file" << std::endl;
-  std::cerr << " -z, --rz-plane             : use rz plane view" << std::endl;
-  std::cerr << " -r, --rphi-plane           : use r-phi plane view" << std::endl;
-  std::cerr << " -e, --not-use-charge       : do not read charge from coordinatesfile, by default " << std::endl;
-  std::cerr << "                              we will  use it if rphi-plane has been selected" << std::endl; 
-  std::cerr << " -g, --charge-sign=[+/-]    : use only + particle or - paricle " << std::endl;
+  std::cerr << " -h, --help                      : display this help and exit" << std::endl;
+  std::cerr << " -v, --version                   : print version and exit" << std::endl;
+  std::cerr << " -j, --jump-tracks               : generate the constants using only even tracks" << std::endl;
+  std::cerr << " -p, --dump-allcoords            : dump all stub coordinates to a file" << std::endl;
+  std::cerr << " -z, --rz-plane                  : use rz plane view" << std::endl;
+  std::cerr << " -r, --rphi-plane                : use r-phi plane view" << std::endl;
+  std::cerr << " -e, --not-use-charge            : do not read charge from coordinatesfile, by default " << std::endl;
+  std::cerr << "                                   we will  use it if rphi-plane has been selected" << std::endl; 
+  std::cerr << " -g, --charge-sign=[+/-]         : use only + particle or - paricle " << std::endl;
+  std::cerr << " -t, --eta-range=[etamin,etamax] : specify the eta range to use " << std::endl;
 
   exit(1);
 }
@@ -132,16 +133,19 @@ int main (int argc, char ** argv)
       {"rphi-plane", 0, NULL, 'r'},
       {"not-use-charge", 0, NULL, 'e'},
       {"charge-sign", 1, NULL, 'g'},
+      {"eta-range", 1, NULL, 't'},
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "ehvjpzrg:", long_options, &option_index);
+    c = getopt_long (argc, argv, "ehvjpzrg:t:", long_options, &option_index);
 
     if (c == -1)
       break;
 
     switch (c)
     {
+      case 't':
+        break;
       case 'g':
         if (strlen(optarg) > 1)
           usage (argv[0]);

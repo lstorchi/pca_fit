@@ -2,6 +2,8 @@
 #define _PCAFFUNCTYPE_INC_
 
 #include <armadillo>
+
+#include <string>
 #include <vector>
 #include <map>
 
@@ -24,6 +26,9 @@
 namespace pca
 {
   int numofline (const char * fname);
+
+  void tokenize (const std::string & str, std::vector<std::string> & tokens,
+      const std::string & delimiters = " ");
 
   void write_to_file (const char * fname, 
       const arma::mat & vec, int idx);
