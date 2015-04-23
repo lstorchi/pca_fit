@@ -118,6 +118,7 @@ int main (int argc, char ** argv)
   bool rzplane = false;
   bool rphiplane = false;
   bool usecharge = true;
+  int chargesign = 0;
 
   while (1)
   {
@@ -130,16 +131,29 @@ int main (int argc, char ** argv)
       {"rz-plane", 0, NULL, 'z'},
       {"rphi-plane", 0, NULL, 'r'},
       {"not-use-charge", 0, NULL, 'e'},
+      {"charge-sign", 1, NULL, 'g'},
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "ehvjpzr", long_options, &option_index);
+    c = getopt_long (argc, argv, "ehvjpzrg:", long_options, &option_index);
 
     if (c == -1)
       break;
 
     switch (c)
     {
+      case 'g':
+        if (strlen(optarg) > 1)
+          usage (argv[0]);
+        
+        if (*optarg == '-')
+          chargesign = -1;
+        else if (*optarg == '+')
+          chargesign = +1;
+        else
+          usage (argv[0]);
+
+        break;
       case 'z':
         rzplane = true;
         break;
@@ -257,7 +271,7 @@ int main (int argc, char ** argv)
 
   if (!pca::reading_from_file_split (fitter, filename, paramin, coordin, 
          num_of_ent_read, useonlyeven, false, rzplane, rphiplane, 
-         ETAMIN, ETAMAX, usecharge))
+         ETAMIN, ETAMAX, usecharge, chargesign))
     return EXIT_FAILURE;
 
   std::cout << "Using " << paramin.n_rows << " tracks" << std::endl;

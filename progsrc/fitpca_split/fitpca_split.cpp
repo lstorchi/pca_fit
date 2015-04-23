@@ -220,6 +220,7 @@ void usage (char * name)
   std::cerr << " -r, --rphi-plane         : use r-phi plane view" << std::endl;
   std::cerr << " -e, --not-use-charge     : do not read charge from coordinatesfile, by default " << std::endl;
   std::cerr << "                            and use it if rphi-plane has been selected" << std::endl; 
+  std::cerr << " -g, --charge-sign=[+/-]    : use only + particle or - paricle " << std::endl;
 
   exit(1);
 }
@@ -238,6 +239,8 @@ int main (int argc, char ** argv)
   bool rphiplane = false;
   bool usecharge = true;
 
+  int chargesign = 0;
+
   while (1)
   {
     int c, option_index;
@@ -251,16 +254,29 @@ int main (int argc, char ** argv)
       {"rz-plane", 0, NULL, 'z'},
       {"rphi-plane", 0, NULL, 'r'},
       {"not-use-charge", 0, NULL, 'e'},
+      {"charge-sign", 1, NULL, 'g'},
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "ezrhVc:q:s:j", long_options, &option_index);
+    c = getopt_long (argc, argv, "ezrhVg:c:q:s:j", long_options, &option_index);
 
     if (c == -1)
       break;
 
     switch (c)
     {
+      case 'g':
+        if (strlen(optarg) > 1)
+          usage (argv[0]);
+
+        if (*optarg == '-')
+          chargesign = -1;
+        else if (*optarg == '+')
+          chargesign = +1;
+        else
+          usage (argv[0]);
+
+        break;
       case 'z':
         rzplane = true;
         break;
@@ -389,7 +405,8 @@ int main (int argc, char ** argv)
   std::cout << "Reading from file" << std::endl;
   if (!pca::reading_from_file_split (fitter, filename, 
        param, coord, num_of_ent, false, useonlyodd,
-       rzplane, rphiplane, ETAMIN, ETAMAX, usecharge))
+       rzplane, rphiplane, ETAMIN, ETAMAX, usecharge, 
+       chargesign))
     return EXIT_FAILURE;
   std::cout << "Using " << param.n_rows << " tracks" << std::endl;
 
