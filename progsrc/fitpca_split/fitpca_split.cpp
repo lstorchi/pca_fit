@@ -213,8 +213,8 @@ void usage (char * name)
   std::cerr << " -h, --help               : display this help and exit" << std::endl;
   std::cerr << " -V, --verbose            : verbose option on" << std::endl;
   std::cerr << " -v, --version            : print version and exit" << std::endl;
-  std::cerr << " -c, --cmtx=[fillename]   : CMTX filename [default is c.bin]" << std::endl;
-  std::cerr << " -q, --qvct=[fillename]   : QVCT filename [default is q.bin]" << std::endl;
+  std::cerr << " -c, --cmtx=[fillename]   : CMTX filename [default is c.[rz/rphi].bin]" << std::endl;
+  std::cerr << " -q, --qvct=[fillename]   : QVCT filename [default is q.[rz/rphi].bin]" << std::endl;
   std::cerr << " -j, --jump-tracks        : perform the fittin only for odd tracks" << std::endl;
   std::cerr << " -z, --rz-plane           : use rz plane view" << std::endl;
   std::cerr << " -r, --rphi-plane         : use r-phi plane view" << std::endl;
@@ -228,8 +228,8 @@ int main (int argc, char ** argv)
 {
   pca::pcafitter fitter;
 
-  std::string qfname = "q.bin";
-  std::string cfname = "c.bin";
+  std::string qfname;
+  std::string cfname;
   std::string subsec = "";
   std::string sublad = "";
   bool verbose = false;
@@ -392,6 +392,17 @@ int main (int argc, char ** argv)
        rzplane, rphiplane, ETAMIN, ETAMAX, usecharge))
     return EXIT_FAILURE;
   std::cout << "Using " << param.n_rows << " tracks" << std::endl;
+
+  if (rzplane)
+  {
+    cfname = "c.rz.bin";
+    qfname = "q.rz.bin";
+  }
+  else if (rphiplane)
+  {
+    cfname = "c.rphi.bin";
+    qfname = "q.rphi.bin";
+  }
 
   pca::read_armmat(cfname.c_str(), cmtx);
   pca::read_armvct(qfname.c_str(), q);
