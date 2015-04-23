@@ -51,7 +51,7 @@ namespace pca
           arma::mat & paramin, arma::mat & coordin,
           int num_of_ent, bool useonlyeven, bool useonlyodd, 
           bool rzread, bool rphiread, double etamin,
-          double etamax, bool chargeoverpt);
+          double etamax, bool chargeoverpt, int chargesign);
 
   bool file_exists(const std::string& filename);
 

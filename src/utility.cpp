@@ -38,6 +38,24 @@ namespace
         
     return false;
   }
+
+  bool check_charge_sign (int chargesign, std::set<int> & pidset)
+  {
+    if (pidset.size() == 1)
+    {
+      if (chargesign == 0)
+        return true;
+
+      // make it clear 
+      if ((chargesign == -1) && (*pidset.begin() < 0))
+        return true;
+
+      if ((chargesign == 1) && (*pidset.begin() > 0))
+        return true;
+    }
+
+    return false;
+  }
 }
 
 
@@ -279,7 +297,7 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
      int num_of_ent, bool useonlyeven, bool useonlyodd,
      bool rzplane, bool rphiplane, 
      double etamin, double etamax, 
-     bool chargeoverpt)
+     bool chargeoverpt, int chargesign)
 {
   int extdim = 9;
   std::string line;
@@ -343,7 +361,7 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
 
       pidset.insert(pid);
 
-      if (pid >= 0)
+      if (check_charge_sign(chargesign, pidset))
       {
         if (check_to_read (useonlyeven,useonlyodd,i))
         {
@@ -392,7 +410,7 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
       }
       else if (rphiplane)
       {
-        if (*(pidset.begin()) >= 0)
+        if (check_charge_sign(chargesign, pidset))
         {
           paramread(counter, SPLIT_PHIIDX) = phiread;
           // use 1/pt
@@ -414,7 +432,7 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
         }
       }
 
-      if (*(pidset.begin()) >= 0.0)
+      if (check_charge_sign(chargesign, pidset))
         ++counter;
     }
   }
