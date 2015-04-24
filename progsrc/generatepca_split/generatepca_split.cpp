@@ -47,7 +47,7 @@ void usage (char * name)
   std::cerr << " -e, --not-use-charge            : do not read charge from coordinatesfile, by default " << std::endl;
   std::cerr << "                                   we will  use it if rphi-plane has been selected" << std::endl; 
   std::cerr << " -g, --charge-sign=[+/-]         : use only + particle or - paricle " << std::endl;
-  std::cerr << " -t, --eta-range=[etamin,etamax] : specify the eta range to use " << std::endl;
+  std::cerr << " -t, --eta-range="etamin,etamax" : specify the eta range to use " << std::endl;
 
   exit(1);
 }
@@ -119,7 +119,12 @@ int main (int argc, char ** argv)
   bool rzplane = false;
   bool rphiplane = false;
   bool usecharge = true;
+
   int chargesign = 0;
+
+  double etamin = -1.0e0 * INFINITY, etamax = +1.0e0 * INFINITY;
+
+  std::vector<std::string> tokens;
 
   while (1)
   {
@@ -145,6 +150,13 @@ int main (int argc, char ** argv)
     switch (c)
     {
       case 't':
+        pca::tokenize (optarg, tokens, ";");
+        if (tokens.size() != 2)
+          usage (argv[0]);
+
+        etamin = atof(tokens[0].c_str());
+        etamax = atof(tokens[1].c_str());
+
         break;
       case 'g':
         if (strlen(optarg) > 1)
@@ -275,7 +287,7 @@ int main (int argc, char ** argv)
 
   if (!pca::reading_from_file_split (fitter, filename, paramin, coordin, 
          num_of_ent_read, useonlyeven, false, rzplane, rphiplane, 
-         ETAMIN, ETAMAX, usecharge, chargesign))
+         etamin, etamax, usecharge, chargesign))
     return EXIT_FAILURE;
 
   std::cout << "Using " << paramin.n_rows << " tracks" << std::endl;
