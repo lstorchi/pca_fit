@@ -223,6 +223,8 @@ void usage (char * name)
   std::cerr << "                                   and use it if rphi-plane has been selected" << std::endl; 
   std::cerr << " -g, --charge-sign=[+/-]         : use only + particle or - paricle " << std::endl;
   std::cerr << " -t, --eta-range=\"etamin;etamax\" : specify the eta range to use " << std::endl;
+  std::cerr << " -x, --exclude-s-module          : exclude S-module (last three layer) so 6 coordinates inseatd of 12 "
+    << std::endl;
 
   exit(1);
 }
@@ -247,6 +249,8 @@ int main (int argc, char ** argv)
 
   std::vector<std::string> tokens;
 
+  bool excludesmodule = false;
+
   while (1)
   {
     int c, option_index;
@@ -262,16 +266,20 @@ int main (int argc, char ** argv)
       {"not-use-charge", 0, NULL, 'e'},
       {"charge-sign", 1, NULL, 'g'},
       {"eta-range", 1, NULL, 't'},
+      {"exclude-s-module", 0, NULL, 'x'},
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "ezrhVjt:g:c:q:s:", long_options, &option_index);
+    c = getopt_long (argc, argv, "xezrhVjt:g:c:q:s:", long_options, &option_index);
 
     if (c == -1)
       break;
 
     switch (c)
     {
+      case 'x':
+        excludesmodule = true;
+        break;
       case 't':
         pca::tokenize (optarg, tokens, ";");
         if (tokens.size() != 2)
@@ -338,7 +346,10 @@ int main (int argc, char ** argv)
   }
 
   // R-z
-  fitter.set_coordim (2*6);
+  if (excludesmodule && rzplane)
+    fitter.set_coordim (2*3);
+  else
+    fitter.set_coordim (2*6);
 
   fitter.set_paramdim(2);
   if (rzplane)
@@ -422,7 +433,7 @@ int main (int argc, char ** argv)
   if (!pca::reading_from_file_split (fitter, filename, 
        param, coord, num_of_ent, false, useonlyodd,
        rzplane, rphiplane, etamin, etamax, usecharge, 
-       chargesign))
+       chargesign, excludesmodule))
     return EXIT_FAILURE;
   std::cout << "Using " << param.n_rows << " tracks" << std::endl;
 

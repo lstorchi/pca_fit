@@ -315,7 +315,8 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
      int num_of_ent, bool useonlyeven, bool useonlyodd,
      bool rzplane, bool rphiplane, 
      double etamin, double etamax, 
-     bool chargeoverpt, int chargesign)
+     bool chargeoverpt, int chargesign, 
+     bool excludesmodule)
 {
   int extdim = 9;
   std::string line;
@@ -376,6 +377,9 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
                                               // pid is particle id (charge)
       }
 
+      if (excludesmodule)
+        if (j > 2)
+          continue;
 
       pidset.insert(pid);
 
