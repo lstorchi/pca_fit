@@ -24,12 +24,13 @@
 bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt, 
      arma::mat & cmtx, arma::rowvec & q, bool verbose, 
      pca::pcafitter & fitter, bool rzplane, bool rphiplane,
-     bool usecharge)
+     bool usecharge, bool usealsod0)
 {
   double ** ptrs;
   ptrs = new double* [fitter.get_paramdim()];
 
-  double * cotethacmp, * z0cmp, * oneoverptcmp, * phicmp;
+  double * cotethacmp, * z0cmp, * oneoverptcmp, * phicmp, 
+         * d0cmp;
 
   if (rzplane)
   {
@@ -43,9 +44,12 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
   {
     oneoverptcmp = new double [(int)coordslt.n_rows];
     phicmp = new double [(int)coordslt.n_rows];
+    if (usealsod0)
+      d0cmp = new double [(int)coordslt.n_rows];
   
     ptrs[SPLIT_ONEOVERPTIDX] = oneoverptcmp;
     ptrs[SPLIT_PHIIDX] = phicmp;
+    ptrs[SPLIT_D0IDX] = d0cmp;
   }
 
   if (!fitter.compute_parameters (cmtx, q, coordslt, ptrs, 
@@ -122,7 +126,11 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
 
     if (usecharge)
     {
-      myfile << "q/pt_orig q/pt_fitt diff phi_orig phi_fitt diff" << std::endl; 
+      if (usealsod0)
+        myfile << "q/pt_orig q/pt_fitt diff phi_orig phi_fitt diff " <<
+         " d0_orig d0_fitt diff" << std::endl;
+      else
+        myfile << "q/pt_orig q/pt_fitt diff phi_orig phi_fitt diff" << std::endl; 
  
       for (int i=0; i<(int)coordslt.n_rows; ++i)
       {
@@ -136,12 +144,28 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
       
         pcabsolute[SPLIT_PHIIDX](phicmp[i] - paramslt(i, SPLIT_PHIIDX));
         pcabsolute[SPLIT_ONEOVERPTIDX](qoverptcmp - qoverptorig);
+
+        if (usealsod0) 
+        {
+          pc[SPLIT_D0IDX](fabs(d0cmp[i] - paramslt(i, SPLIT_D0IDX))/
+              (fabs(d0cmp[i] + paramslt(i, SPLIT_D0IDX))/2.0));
+          pcabsolute[SPLIT_D0IDX](d0cmp[i] - paramslt(i, SPLIT_D0IDX));
+        }
       
-        myfile << 
-          qoverptorig << " " << qoverptcmp << " " <<
-          (qoverptcmp - qoverptorig) <<  " " <<
-          paramslt(i, SPLIT_PHIIDX) << " " << phicmp[i] << " " <<
-          (phicmp[i] - paramslt(i, SPLIT_PHIIDX)) << std::endl;
+        if (usealsod0)
+          myfile << 
+            qoverptorig << " " << qoverptcmp << " " <<
+            (qoverptcmp - qoverptorig) <<  " " <<
+            paramslt(i, SPLIT_PHIIDX) << " " << phicmp[i] << " " <<
+            (phicmp[i] - paramslt(i, SPLIT_PHIIDX)) << " " << 
+            paramslt(i, SPLIT_D0IDX) << " " << d0cmp[i] << " " <<
+            d0cmp[i] - paramslt(i, SPLIT_D0IDX) << std::endl;
+        else
+          myfile << 
+            qoverptorig << " " << qoverptcmp << " " <<
+            (qoverptcmp - qoverptorig) <<  " " <<
+            paramslt(i, SPLIT_PHIIDX) << " " << phicmp[i] << " " <<
+            (phicmp[i] - paramslt(i, SPLIT_PHIIDX)) << std::endl;
       
         if (verbose)
         {
@@ -150,12 +174,19 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
           std::cout << " q/pt         orig " << qoverptorig << std::endl;
           std::cout << " phi          fitt " << phicmp[i] << std::endl;
           std::cout << " phi          orig " << paramslt(i, SPLIT_PHIIDX) << std::endl;
+          std::cout << " d0           fitt " << d0cmp[i] << std::endl;
+          std::cout << " d0           orig " << paramslt(i, SPLIT_D0IDX) << std::endl;
         }
       }
     }
     else 
     {
-      myfile << "pt_orig pt_fitt diff phi_orig phi_fitt diff" << std::endl; 
+      if (usealsod0)
+        myfile << "pt_orig pt_fitt diff phi_orig phi_fitt diff " <<
+         " d0_orig d0_fitt diff" << std::endl;
+      else
+        myfile << "pt_orig pt_fitt diff phi_orig phi_fitt diff" << std::endl; 
+
       for (int i=0; i<(int)coordslt.n_rows; ++i)
       {
         double ptorig = 1.0e0 / paramslt(i, SPLIT_ONEOVERPTIDX);
@@ -168,12 +199,28 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
       
         pcabsolute[SPLIT_PHIIDX](phicmp[i] - paramslt(i, SPLIT_PHIIDX));
         pcabsolute[SPLIT_ONEOVERPTIDX](ptcmp - ptorig);
-      
-        myfile << 
-          ptorig << " " << ptcmp << " " <<
-          (ptcmp - ptorig) <<  " " <<
-          paramslt(i, SPLIT_PHIIDX) << " " << phicmp[i] << " " <<
-          (phicmp[i] - paramslt(i, SPLIT_PHIIDX)) << std::endl;
+
+        if (usealsod0) 
+        {
+          pc[SPLIT_D0IDX](fabs(d0cmp[i] - paramslt(i, SPLIT_D0IDX))/
+              (fabs(d0cmp[i] + paramslt(i, SPLIT_D0IDX))/2.0));
+          pcabsolute[SPLIT_D0IDX](d0cmp[i] - paramslt(i, SPLIT_D0IDX));
+        }
+  
+        if (usealsod0)
+          myfile << 
+            ptorig << " " << ptcmp << " " <<
+            (ptcmp - ptorig) <<  " " <<
+            paramslt(i, SPLIT_PHIIDX) << " " << phicmp[i] << " " <<
+            (phicmp[i] - paramslt(i, SPLIT_PHIIDX)) << " " << 
+            paramslt(i, SPLIT_D0IDX) << " " << d0cmp[i] << " " <<  
+            d0cmp[i] - paramslt(i, SPLIT_D0IDX) << std::endl;
+        else
+          myfile << 
+            ptorig << " " << ptcmp << " " <<
+            (ptcmp - ptorig) <<  " " <<
+            paramslt(i, SPLIT_PHIIDX) << " " << phicmp[i] << " " <<
+            (phicmp[i] - paramslt(i, SPLIT_PHIIDX)) << std::endl;
       
         if (verbose)
         {
@@ -182,6 +229,8 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
           std::cout << " pt           orig " << ptorig << std::endl;
           std::cout << " phi          fitt " << phicmp[i] << std::endl;
           std::cout << " phi          orig " << paramslt(i, SPLIT_PHIIDX) << std::endl;
+          std::cout << " d0           fitt " << d0cmp[i] << std::endl;
+          std::cout << " d0           orig " << paramslt(i, SPLIT_D0IDX) << std::endl;
         }
       }
     }
@@ -225,6 +274,7 @@ void usage (char * name)
   std::cerr << " -t, --eta-range=\"etamin;etamax\" : specify the eta range to use " << std::endl;
   std::cerr << " -x, --exclude-s-module          : exclude S-module (last three layer) so 6 coordinates inseatd of 12 "
     << std::endl;
+  std::cerr << " -d, --use-d0                    : use also d0 param in r-phi plane " << std::endl;
 
   exit(1);
 }
@@ -242,6 +292,7 @@ int main (int argc, char ** argv)
   bool rzplane = false;
   bool rphiplane = false;
   bool usecharge = true;
+  bool usealsod0 = false;
 
   double etamin = -1.0e0 * INFINITY, etamax = +1.0e0 * INFINITY;
 
@@ -270,13 +321,16 @@ int main (int argc, char ** argv)
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "xezrhVjt:g:c:q:s:", long_options, &option_index);
+    c = getopt_long (argc, argv, "dxezrhVjt:g:c:q:s:", long_options, &option_index);
 
     if (c == -1)
       break;
 
     switch (c)
     {
+      case 'd':
+        usealsod0 = true;
+        break;
       case 'x':
         excludesmodule = true;
         break;
@@ -351,7 +405,11 @@ int main (int argc, char ** argv)
   else
     fitter.set_coordim (2*6);
 
-  fitter.set_paramdim(2);
+  if (usealsod0 && rphiplane)
+    fitter.set_paramdim(3);
+  else
+    fitter.set_paramdim(2);
+
   if (rzplane)
   {
     if (!fitter.set_paramidx(SPLIT_COTTETHAIDX, "cot(tetha)"))
@@ -372,6 +430,16 @@ int main (int argc, char ** argv)
       std::cerr << fitter.get_errmsg() << std::endl;
       return EXIT_FAILURE;
     }
+
+    if (usealsod0)
+    { 
+      if (!fitter.set_paramidx(SPLIT_D0IDX, "d0"))
+      {
+        std::cerr << fitter.get_errmsg() << std::endl;
+        return EXIT_FAILURE;
+      }
+    }
+
     if (usecharge)
     {
       if (!fitter.set_paramidx(SPLIT_ONEOVERPTIDX, "q/pt"))
@@ -433,7 +501,7 @@ int main (int argc, char ** argv)
   if (!pca::reading_from_file_split (fitter, filename, 
        param, coord, num_of_ent, false, useonlyodd,
        rzplane, rphiplane, etamin, etamax, usecharge, 
-       chargesign, excludesmodule))
+       chargesign, excludesmodule, usealsod0))
     return EXIT_FAILURE;
   std::cout << "Using " << param.n_rows << " tracks" << std::endl;
 
@@ -452,7 +520,7 @@ int main (int argc, char ** argv)
   pca::read_armvct(qfname.c_str(), q);
 
   if (!build_and_compare (param, coord, cmtx, q, verbose, 
-          fitter, rzplane, rphiplane, usecharge))
+          fitter, rzplane, rphiplane, usecharge, usealsod0))
     return EXIT_FAILURE;
 
   return EXIT_SUCCESS;

@@ -50,6 +50,7 @@ void usage (char * name)
   std::cerr << " -t, --eta-range=\"etamin,etamax\" : specify the eta range to use " << std::endl;
   std::cerr << " -x, --exclude-s-module          : exclude S-module (last three layer) so 6 coordinates inseatd of 12 " 
     << std::endl;
+  std::cerr << " -d, --use-d0                    : use also d0 param in r-phi plane " << std::endl;
 
   exit(1);
 }
@@ -121,6 +122,7 @@ int main (int argc, char ** argv)
   bool rzplane = false;
   bool rphiplane = false;
   bool usecharge = true;
+  bool usealsod0 = false;
 
   int chargesign = 0;
 
@@ -144,16 +146,20 @@ int main (int argc, char ** argv)
       {"charge-sign", 1, NULL, 'g'},
       {"eta-range", 1, NULL, 't'},
       {"exclude-s-module", 0, NULL, 'x'},
+      {"use-d0", 0, NULL, 'd'},
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "xehvjpzrg:t:", long_options, &option_index);
+    c = getopt_long (argc, argv, "dxehvjpzrg:t:", long_options, &option_index);
 
     if (c == -1)
       break;
 
     switch (c)
     {
+      case 'd':
+        usealsod0 = true;
+        break;
       case 'x':
         excludesmodule = true;
         break;
@@ -222,7 +228,11 @@ int main (int argc, char ** argv)
   else
     fitter.set_coordim (2*6);
 
-  fitter.set_paramdim(2);
+  if (usealsod0 && rphiplane)
+    fitter.set_paramdim(3);
+  else
+    fitter.set_paramdim(2);
+
   if (rzplane)
   {
     if (!fitter.set_paramidx(SPLIT_COTTETHAIDX, "cot(tetha)"))
@@ -242,6 +252,15 @@ int main (int argc, char ** argv)
     {
       std::cerr << fitter.get_errmsg() << std::endl;
       return EXIT_FAILURE;
+    }
+
+    if (usealsod0)
+    {
+      if (!fitter.set_paramidx(SPLIT_D0IDX, "d0"))
+      {
+        std::cerr << fitter.get_errmsg() << std::endl;
+        return EXIT_FAILURE;
+      }
     }
 
     if (usecharge)
@@ -298,7 +317,8 @@ int main (int argc, char ** argv)
 
   if (!pca::reading_from_file_split (fitter, filename, paramin, coordin, 
          num_of_ent_read, useonlyeven, false, rzplane, rphiplane, 
-         etamin, etamax, usecharge, chargesign, excludesmodule))
+         etamin, etamax, usecharge, chargesign, excludesmodule, 
+         usealsod0))
     return EXIT_FAILURE;
 
   std::cout << "Using " << paramin.n_rows << " tracks" << std::endl;

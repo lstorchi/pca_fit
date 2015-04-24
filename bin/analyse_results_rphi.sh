@@ -18,3 +18,10 @@ python histo.py phi_orig $VALDPT >  phi_orig.hist
 python histo.py phi_pred $VALDPT >  phi_pred.hist
 tail -n +2 $1 | awk '{print $6}' > phi_diff
 python histo.py phi_diff $VALDPT > phi_diff.hist
+
+tail -n +2 $1 | awk '{print $7}' > d0_orig
+tail -n +2 $1 | awk '{print $8}' > d0_pred
+python histo.py d0_orig $VALDPT >  d0_orig.hist
+python histo.py d0_pred $VALDPT >  d0_pred.hist
+tail -n +2 $1 | awk '{print $9}' > d0_diff
+python histo.py d0_diff $VALDPT > d0_diff.hist
