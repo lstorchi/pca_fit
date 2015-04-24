@@ -222,7 +222,7 @@ void usage (char * name)
   std::cerr << " -e, --not-use-charge            : do not read charge from coordinatesfile, by default " << std::endl;
   std::cerr << "                                   and use it if rphi-plane has been selected" << std::endl; 
   std::cerr << " -g, --charge-sign=[+/-]         : use only + particle or - paricle " << std::endl;
-  std::cerr << " -t, --eta-range="etamin;etamax" : specify the eta range to use " << std::endl;
+  std::cerr << " -t, --eta-range=\"etamin;etamax\" : specify the eta range to use " << std::endl;
 
   exit(1);
 }
