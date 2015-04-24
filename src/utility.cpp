@@ -316,7 +316,7 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
      bool rzplane, bool rphiplane, 
      double etamin, double etamax, 
      bool chargeoverpt, int chargesign, 
-     bool excludesmodule)
+     bool excludesmodule, bool usealsod0)
 {
   int extdim = 9;
   std::string line;
@@ -451,6 +451,9 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
           }
           else
             paramread(counter, SPLIT_ONEOVERPTIDX) = 1.0e0 / ptread;
+
+          if (usealsod0)
+            paramread(counter, SPLIT_D0IDX) = d0read;
         }
       }
 
