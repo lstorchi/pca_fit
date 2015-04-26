@@ -17,7 +17,7 @@
 #include "TBranch.h" 
 #include "TBasket.h"
 
-#define STOPAFTERMAXEVT 2000000
+#define STOPAFTERMAXEVT INFINITY
 
 // lstorchi: as all the code here is a very quick implementation
 //    of a simil stubs extractors
