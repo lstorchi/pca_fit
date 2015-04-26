@@ -47,7 +47,7 @@ void usage (char * name)
   std::cerr << " -e, --not-use-charge            : do not read charge from coordinatesfile, by default " << std::endl;
   std::cerr << "                                   we will  use it if rphi-plane has been selected" << std::endl; 
   std::cerr << " -g, --charge-sign=[+/-]         : use only + particle or - paricle " << std::endl;
-  std::cerr << " -t, --eta-range=\"etamin,etamax\" : specify the eta range to use " << std::endl;
+  std::cerr << " -t, --eta-range=\"etamin;etamax\" : specify the eta range to use " << std::endl;
   std::cerr << " -x, --exclude-s-module          : exclude S-module (last three layer) so 6 coordinates inseatd of 12 " 
     << std::endl;
   std::cerr << " -d, --use-d0                    : use also d0 param in r-phi plane " << std::endl;
