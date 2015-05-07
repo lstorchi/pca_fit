@@ -13,7 +13,7 @@ all:
 	$(MAKE) -C ./progsrc/fitpca
 	$(MAKE) -C ./progsrc/generatepca_split
 	$(MAKE) -C ./progsrc/fitpca_split
-	$(MAKE) -C ./progsrc/rootfilereader
+	$(MAKE) -C ./progsrc/readrootfile
 
 clean:
 	$(MAKE) clean -C src
@@ -21,4 +21,4 @@ clean:
 	$(MAKE) clean -C ./progsrc/fitpca
 	$(MAKE) clean -C ./progsrc/generatepca_split
 	$(MAKE) clean -C ./progsrc/fitpca_split
-	$(MAKE) clean -C ./progsrc/rootfilereader
+	$(MAKE) clean -C ./progsrc/readrootfile
