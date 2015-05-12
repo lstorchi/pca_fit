@@ -315,6 +315,7 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
      int num_of_ent, bool useonlyeven, bool useonlyodd,
      bool rzplane, bool rphiplane, 
      double etamin, double etamax, 
+     double ptmin, double ptmax,
      bool chargeoverpt, int chargesign, 
      bool excludesmodule, bool usealsod0)
 {
@@ -326,10 +327,12 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
   arma::mat paramread;
   arma::mat coordread;
   arma::vec etavals;
+  arma::vec ptvals;
 
   coordread.set_size(num_of_ent, fitter.get_coordim());
   paramread.set_size(num_of_ent, fitter.get_paramdim());
   etavals.set_size(num_of_ent);
+  ptvals.set_size(num_of_ent);
 
   if (useonlyeven && useonlyodd)
   {
@@ -416,6 +419,7 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
     if (check_to_read (useonlyeven,useonlyodd,i))
     {
       etavals(counter) = etaread;
+      ptvals(counter) = ptread;
 
       if (rzplane)
       {
@@ -464,11 +468,13 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
 
   assert (coordread.n_rows == paramread.n_rows);
   assert (etavals.n_rows == paramread.n_rows);
+  assert (ptvals.n_rows == paramread.n_rows);
 
   extdim = 0;
   for (int i=0; i<(int)etavals.n_rows; ++i)
     if ((etavals(i) <= etamax) && (etavals(i) >= etamin))
-      ++extdim;
+      if ((ptvals(i) <= ptmax) && (ptvals(i) >= ptmin))
+        ++extdim;
 
   coordin.resize(extdim, fitter.get_coordim());
   paramin.resize(extdim, fitter.get_paramdim());
@@ -480,19 +486,21 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
   {
     if ((etavals(i) <= etamax) && (etavals(i) >= etamin))
     {
-      for (int j=0; j<(int)paramread.n_cols; ++j)
+      if ((ptvals(i) <= ptmax) && (ptvals(i) >= ptmin))
       {
-        paramin(counter, j) = paramread(i, j);
-        //std::cout << "Track: " << counter+1 << std::endl;
-        //std::cout <<  paramin(counter, j) << " from " << 
-        //  paramread(i, j) << std::endl;
+        for (int j=0; j<(int)paramread.n_cols; ++j)
+        {
+          paramin(counter, j) = paramread(i, j);
+          //std::cout << "Track: " << counter+1 << std::endl;
+          //std::cout <<  paramin(counter, j) << " from " << 
+          //  paramread(i, j) << std::endl;
+        }
+        
+        for (int j=0; j<(int)coordread.n_cols; ++j)
+          coordin(counter, j) = coordread(i, j);
+        
+        ++counter;
       }
-
-
-      for (int j=0; j<(int)coordread.n_cols; ++j)
-        coordin(counter, j) = coordread(i, j);
-
-      ++counter;
     }
   }
 

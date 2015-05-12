@@ -272,6 +272,7 @@ void usage (char * name)
   std::cerr << "                                   and use it if rphi-plane has been selected" << std::endl; 
   std::cerr << " -g, --charge-sign=[+/-]         : use only + particle or - paricle " << std::endl;
   std::cerr << " -t, --eta-range=\"etamin;etamax\" : specify the eta range to use " << std::endl;
+  std::cerr << " -n, --pt-range=\"ptmin;ptmax\"    : specify the pt range to use " << std::endl;
   std::cerr << " -x, --exclude-s-module          : exclude S-module (last three layer) so 6 coordinates inseatd of 12 "
     << std::endl;
   std::cerr << " -d, --use-d0                    : use also d0 param in r-phi plane " << std::endl;
@@ -295,6 +296,7 @@ int main (int argc, char ** argv)
   bool usealsod0 = false;
 
   double etamin = -1.0e0 * INFINITY, etamax = +1.0e0 * INFINITY;
+  double ptmin = -1.0e0 * INFINITY, ptmax = +1.0e0 * INFINITY;
 
   int chargesign = 0;
 
@@ -317,11 +319,12 @@ int main (int argc, char ** argv)
       {"not-use-charge", 0, NULL, 'e'},
       {"charge-sign", 1, NULL, 'g'},
       {"eta-range", 1, NULL, 't'},
+      {"pt-range", 1, NULL, 'n'},
       {"exclude-s-module", 0, NULL, 'x'},
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "dxezrhVjt:g:c:q:s:", long_options, &option_index);
+    c = getopt_long (argc, argv, "dxezrhVjt:g:c:q:s:n:", long_options, &option_index);
 
     if (c == -1)
       break;
@@ -334,7 +337,18 @@ int main (int argc, char ** argv)
       case 'x':
         excludesmodule = true;
         break;
+      case 'n':
+        tokens.clear();
+        pca::tokenize (optarg, tokens, ";");
+        if (tokens.size() != 2)
+          usage (argv[0]);
+
+        ptmin = atof(tokens[0].c_str());
+        ptmax = atof(tokens[1].c_str());
+
+        break;
       case 't':
+        tokens.clear();
         pca::tokenize (optarg, tokens, ";");
         if (tokens.size() != 2)
           usage (argv[0]);
@@ -500,8 +514,8 @@ int main (int argc, char ** argv)
   std::cout << "Reading from file" << std::endl;
   if (!pca::reading_from_file_split (fitter, filename, 
        param, coord, num_of_ent, false, useonlyodd,
-       rzplane, rphiplane, etamin, etamax, usecharge, 
-       chargesign, excludesmodule, usealsod0))
+       rzplane, rphiplane, etamin, etamax, ptmin, ptmax, 
+       usecharge, chargesign, excludesmodule, usealsod0))
     return EXIT_FAILURE;
   std::cout << "Using " << param.n_rows << " tracks" << std::endl;
 

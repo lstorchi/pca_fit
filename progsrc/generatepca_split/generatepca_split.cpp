@@ -48,8 +48,9 @@ void usage (char * name)
   std::cerr << "                                   we will  use it if rphi-plane has been selected" << std::endl; 
   std::cerr << " -g, --charge-sign=[+/-]         : use only + particle or - paricle " << std::endl;
   std::cerr << " -t, --eta-range=\"etamin;etamax\" : specify the eta range to use " << std::endl;
+  std::cerr << " -n, --pt-range=\"ptmin;ptmax\"    : specify the pt range to use " << std::endl;
   std::cerr << " -x, --exclude-s-module          : exclude S-module (last three layer) so 6 coordinates inseatd of 12 " 
-    << std::endl;
+    << std::endl;                                  
   std::cerr << " -d, --use-d0                    : use also d0 param in r-phi plane " << std::endl;
 
   exit(1);
@@ -127,6 +128,7 @@ int main (int argc, char ** argv)
   int chargesign = 0;
 
   double etamin = -1.0e0 * INFINITY, etamax = +1.0e0 * INFINITY;
+  double ptmin = -1.0e0 * INFINITY, ptmax = +1.0e0 * INFINITY;
 
   std::vector<std::string> tokens;
 
@@ -147,10 +149,11 @@ int main (int argc, char ** argv)
       {"eta-range", 1, NULL, 't'},
       {"exclude-s-module", 0, NULL, 'x'},
       {"use-d0", 0, NULL, 'd'},
+      {"pt-range", 1, NULL, 'n'},
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "dxehvjpzrg:t:", long_options, &option_index);
+    c = getopt_long (argc, argv, "dxehvjpzrg:t:n:", long_options, &option_index);
 
     if (c == -1)
       break;
@@ -163,7 +166,18 @@ int main (int argc, char ** argv)
       case 'x':
         excludesmodule = true;
         break;
+      case 'n':
+        tokens.clear();
+        pca::tokenize (optarg, tokens, ";");
+        if (tokens.size() != 2)
+          usage (argv[0]);
+
+        ptmin = atof(tokens[0].c_str());
+        ptmax = atof(tokens[1].c_str());
+
+        break;
       case 't':
+        tokens.clear();
         pca::tokenize (optarg, tokens, ";");
         if (tokens.size() != 2)
           usage (argv[0]);
@@ -317,7 +331,7 @@ int main (int argc, char ** argv)
 
   if (!pca::reading_from_file_split (fitter, filename, paramin, coordin, 
          num_of_ent_read, useonlyeven, false, rzplane, rphiplane, 
-         etamin, etamax, usecharge, chargesign, excludesmodule, 
+         etamin, etamax, ptmin, ptmax, usecharge, chargesign, excludesmodule, 
          usealsod0))
     return EXIT_FAILURE;
 
