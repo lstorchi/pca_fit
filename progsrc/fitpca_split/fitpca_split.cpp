@@ -471,6 +471,14 @@ int main (int argc, char ** argv)
       std::cerr << fitter.get_errmsg() << std::endl;
       return EXIT_FAILURE;
     }
+    if (usealsod0)
+    { 
+      if (!fitter.set_paramidx(SPLIT_D0IDX, "d0"))
+      {
+        std::cerr << fitter.get_errmsg() << std::endl;
+        return EXIT_FAILURE;
+      }
+    }
   }
   else if (rphiplane)
   {
