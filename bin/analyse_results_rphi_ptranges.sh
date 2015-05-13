@@ -5,6 +5,13 @@ fi
 
 VALDPT=100
 
+if [ -z "$2" ]; then 
+  VALDPT=80
+else
+  VALDPT=$2
+fi
+
+
 tail -n +2 $1 | awk '{print 1.0/$1}' > pt_orig
 tail -n +2 $1 | awk '{print 1.0/$2}' > pt_pred
 python histo.py pt_orig $VALDPT >  pt_orig.hist
