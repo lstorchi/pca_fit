@@ -5,6 +5,12 @@ fi
 
 VALDPT=80
 
+if [ -z "$2" ]; then 
+  VALDPT=80
+else
+  VALDPT=$2
+fi
+
 tail -n +2 $1 | awk '{print $1}' > eta_orig
 tail -n +2 $1 | awk '{print $2}' > eta_pred
 python histo.py eta_orig $VALDPT >  eta_orig.hist
