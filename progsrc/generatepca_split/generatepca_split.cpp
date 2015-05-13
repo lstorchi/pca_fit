@@ -44,14 +44,13 @@ void usage (char * name)
   std::cerr << " -p, --dump-allcoords            : dump all stub coordinates to a file" << std::endl;
   std::cerr << " -z, --rz-plane                  : use rz plane view" << std::endl;
   std::cerr << " -r, --rphi-plane                : use r-phi plane view" << std::endl;
-  std::cerr << " -e, --not-use-charge            : do not read charge from coordinatesfile, by default " << std::endl;
-  std::cerr << "                                   we will  use it if rphi-plane has been selected" << std::endl; 
-  std::cerr << " -g, --charge-sign=[+/-]         : use only + particle or - paricle " << std::endl;
+  std::cerr << " -e, --not-use-charge            : do not read charge from coordinatesfile " << std::endl;
+  std::cerr << " -g, --charge-sign=[+/-]         : use only + particle or - paricle (again both planes) " << std::endl;
   std::cerr << " -t, --eta-range=\"etamin;etamax\" : specify the eta range to use " << std::endl;
   std::cerr << " -n, --pt-range=\"ptmin;ptmax\"    : specify the pt range to use " << std::endl;
-  std::cerr << " -x, --exclude-s-module          : exclude S-module (last three layer) so 6 coordinates inseatd of 12 " 
-    << std::endl;                                  
-  std::cerr << " -d, --use-d0                    : use also d0 param in r-phi plane " << std::endl;
+  std::cerr << " -x, --exclude-s-module          : exclude S-module (last three layer) so 6 coordinates " << 
+    "inseatd of 12 " << std::endl;                                  
+  std::cerr << " -d, --use-d0                    : use also d0 param in both planes " << std::endl;
 
   exit(1);
 }
@@ -236,13 +235,12 @@ int main (int argc, char ** argv)
     usage (argv[0]);
   }
 
-  // R-z
-  if (excludesmodule && rzplane)
+  if (excludesmodule)
     fitter.set_coordim (2*3);
   else
     fitter.set_coordim (2*6);
 
-  if (usealsod0 && rphiplane)
+  if (usealsod0)
     fitter.set_paramdim(3);
   else
     fitter.set_paramdim(2);
