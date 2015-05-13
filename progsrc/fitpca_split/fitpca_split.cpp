@@ -36,9 +36,13 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
   {
     cotethacmp = new double [(int)coordslt.n_rows];
     z0cmp = new double [(int)coordslt.n_rows];
+    if (usealsod0)
+      d0cmp = new double [(int)coordslt.n_rows];
 
     ptrs[SPLIT_COTTETHAIDX] = cotethacmp;
     ptrs[SPLIT_Z0IDX] = z0cmp;
+    if (usealsod0)
+      ptrs[SPLIT_D0IDX] = d0cmp;
   }
   else if (rphiplane)
   {
@@ -49,7 +53,8 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
   
     ptrs[SPLIT_ONEOVERPTIDX] = oneoverptcmp;
     ptrs[SPLIT_PHIIDX] = phicmp;
-    ptrs[SPLIT_D0IDX] = d0cmp;
+    if (usealsod0)
+      ptrs[SPLIT_D0IDX] = d0cmp;
   }
 
   if (!fitter.compute_parameters (cmtx, q, coordslt, ptrs, 
@@ -70,7 +75,11 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
 
   if (rzplane)
   {
-    myfile << "eta_orig eta_fitt diff z0_orig z0_fitt diff" << std::endl; 
+    if (usealsod0)
+      myfile << "eta_orig eta_fitt diff z0_orig z0_fitt diff " <<
+       " d0_orig d0_fitt diff" << std::endl;
+    else  
+      myfile << "eta_orig eta_fitt diff z0_orig z0_fitt diff" << std::endl; 
     
     for (int i=0; i<(int)coordslt.n_rows; ++i)
     {
@@ -96,12 +105,28 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
     
       pcabsolute[SPLIT_COTTETHAIDX](etacmps - etaorig);
       pcabsolute[SPLIT_Z0IDX](z0cmp[i] - paramslt(i, SPLIT_Z0IDX));
-   
-      myfile << 
-        etaorig << " " << etacmps << " " <<
-        (etacmps - etaorig) << " " <<
-        paramslt(i, SPLIT_Z0IDX) << " " << z0cmp[i] << " " <<
-        (z0cmp[i] - paramslt(i, SPLIT_Z0IDX)) << std::endl;
+
+      if (usealsod0) 
+      {
+        pc[SPLIT_D0IDX](fabs(d0cmp[i] - paramslt(i, SPLIT_D0IDX))/
+            (fabs(d0cmp[i] + paramslt(i, SPLIT_D0IDX))/2.0));
+        pcabsolute[SPLIT_D0IDX](d0cmp[i] - paramslt(i, SPLIT_D0IDX));
+      }
+      
+      if (usealsod0)
+        myfile << 
+          etaorig << " " << etacmps << " " <<
+          (etacmps - etaorig) << " " <<
+          paramslt(i, SPLIT_Z0IDX) << " " << z0cmp[i] << " " <<
+          (z0cmp[i] - paramslt(i, SPLIT_Z0IDX)) << " " << 
+          paramslt(i, SPLIT_D0IDX) << " " << d0cmp[i] << " " <<
+          d0cmp[i] - paramslt(i, SPLIT_D0IDX) << std::endl;
+      else
+        myfile << 
+          etaorig << " " << etacmps << " " <<
+          (etacmps - etaorig) << " " <<
+          paramslt(i, SPLIT_Z0IDX) << " " << z0cmp[i] << " " <<
+          (z0cmp[i] - paramslt(i, SPLIT_Z0IDX)) << std::endl;
     
       if (verbose)
       {
@@ -116,6 +141,11 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
         std::cout << " eta          orig " << etaorig << std::endl;
         std::cout << " z0           fitt " << z0cmp[i] << std::endl;
         std::cout << " z0           orig " << paramslt(i, SPLIT_Z0IDX) << std::endl;
+        if (usealsod0)
+        { 
+          std::cout << " d0           fitt " << d0cmp[i] << std::endl;
+          std::cout << " d0           orig " << paramslt(i, SPLIT_D0IDX) << std::endl;
+        }
       }
     }
   }
@@ -174,8 +204,11 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
           std::cout << " q/pt         orig " << qoverptorig << std::endl;
           std::cout << " phi          fitt " << phicmp[i] << std::endl;
           std::cout << " phi          orig " << paramslt(i, SPLIT_PHIIDX) << std::endl;
-          std::cout << " d0           fitt " << d0cmp[i] << std::endl;
-          std::cout << " d0           orig " << paramslt(i, SPLIT_D0IDX) << std::endl;
+          if (usealsod0)
+          { 
+            std::cout << " d0           fitt " << d0cmp[i] << std::endl;
+            std::cout << " d0           orig " << paramslt(i, SPLIT_D0IDX) << std::endl;
+          }
         }
       }
     }
@@ -229,8 +262,11 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
           std::cout << " pt           orig " << ptorig << std::endl;
           std::cout << " phi          fitt " << phicmp[i] << std::endl;
           std::cout << " phi          orig " << paramslt(i, SPLIT_PHIIDX) << std::endl;
-          std::cout << " d0           fitt " << d0cmp[i] << std::endl;
-          std::cout << " d0           orig " << paramslt(i, SPLIT_D0IDX) << std::endl;
+          if (usealsod0)
+          { 
+            std::cout << " d0           fitt " << d0cmp[i] << std::endl;
+            std::cout << " d0           orig " << paramslt(i, SPLIT_D0IDX) << std::endl;
+          }
         }
       }
     }
@@ -268,14 +304,13 @@ void usage (char * name)
   std::cerr << " -j, --jump-tracks               : perform the fittin only for odd tracks" << std::endl;
   std::cerr << " -z, --rz-plane                  : use rz plane view" << std::endl;
   std::cerr << " -r, --rphi-plane                : use r-phi plane view" << std::endl;
-  std::cerr << " -e, --not-use-charge            : do not read charge from coordinatesfile, by default " << std::endl;
-  std::cerr << "                                   and use it if rphi-plane has been selected" << std::endl; 
-  std::cerr << " -g, --charge-sign=[+/-]         : use only + particle or - paricle " << std::endl;
+  std::cerr << " -e, --not-use-charge            : do not read charge from coordinatesfile " << std::endl;
+  std::cerr << " -g, --charge-sign=[+/-]         : use only + particle or - paricle (again both planes)" << std::endl;
   std::cerr << " -t, --eta-range=\"etamin;etamax\" : specify the eta range to use " << std::endl;
   std::cerr << " -n, --pt-range=\"ptmin;ptmax\"    : specify the pt range to use " << std::endl;
-  std::cerr << " -x, --exclude-s-module          : exclude S-module (last three layer) so 6 coordinates inseatd of 12 "
-    << std::endl;
-  std::cerr << " -d, --use-d0                    : use also d0 param in r-phi plane " << std::endl;
+  std::cerr << " -x, --exclude-s-module          : exclude S-module (last three layer) so 6 " << 
+    "coordinates inseatd of 12 " << std::endl;
+  std::cerr << " -d, --use-d0                    : use also d0 param in both planes " << std::endl;
 
   exit(1);
 }
@@ -320,6 +355,7 @@ int main (int argc, char ** argv)
       {"charge-sign", 1, NULL, 'g'},
       {"eta-range", 1, NULL, 't'},
       {"pt-range", 1, NULL, 'n'},
+      {"use-d0", 0, NULL, 'd'},
       {"exclude-s-module", 0, NULL, 'x'},
       {0, 0, 0, 0}
     };
@@ -413,13 +449,12 @@ int main (int argc, char ** argv)
     usage (argv[0]);
   }
 
-  // R-z
-  if (excludesmodule && rzplane)
+  if (excludesmodule)
     fitter.set_coordim (2*3);
   else
     fitter.set_coordim (2*6);
 
-  if (usealsod0 && rphiplane)
+  if (usealsod0)
     fitter.set_paramdim(3);
   else
     fitter.set_paramdim(2);
