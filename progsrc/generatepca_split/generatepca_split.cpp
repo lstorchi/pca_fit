@@ -352,14 +352,17 @@ int main (int argc, char ** argv)
   {
     pca::write_to_file("cottetha.txt", paramin, SPLIT_COTTETHAIDX);
     pca::write_to_file("z0.txt", paramin, SPLIT_Z0IDX);
+    if (usealsod0)
+      pca::write_to_file("d0.txt", paramin, SPLIT_D0IDX);
     cfname << "c.rz.bin";
     qfname << "q.rz.bin";
-
   }
   else if (rphiplane)
   {
     pca::write_to_file("phi.txt", paramin, SPLIT_PHIIDX);
     pca::write_to_file("oneoverpt.txt", paramin, SPLIT_ONEOVERPTIDX);
+    if (usealsod0)
+      pca::write_to_file("d0.txt", paramin, SPLIT_D0IDX);
     cfname << "c.rphi.bin";
     qfname << "q.rphi.bin";
   }
