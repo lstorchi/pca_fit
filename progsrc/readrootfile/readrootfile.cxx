@@ -157,7 +157,8 @@ void print_bankstub_new (TFile * inputFile, std::ostream& ss, unsigned int maxtr
 
        ss << pt[j]<< " "  <<
          phi[j] << " " << d0val << " " 
-         << eta[j] << " " << z0[j] << std::endl;
+         << eta[j] << " " << z0[j] << " " <<
+         x0[j] << " " << y0[j] << std::endl;
 
        countevt++;
      }
