@@ -266,13 +266,15 @@ void pca::reading_from_file (const char * filename,
         subladders[ossl.str()] += 1;
     }
     
-    double ptread, phiread, d0read, etaread, z0read;
+    double ptread, phiread, d0read, etaread, z0read, x0read, y0read;
 
     mytfp >> ptread >> 
              phiread >> 
              d0read >> 
              etaread >> 
-             z0read;
+             z0read >>
+             x0read >>
+             y0read;
     
     if (check_to_read (useonlyeven,useonlyodd,i))
     {
@@ -317,7 +319,8 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
      double etamin, double etamax, 
      double ptmin, double ptmax,
      bool chargeoverpt, int chargesign, 
-     bool excludesmodule, bool usealsod0)
+     bool excludesmodule, bool usealsod0, 
+     bool usex0y0)
 {
   int extdim = 9;
   std::string line;
@@ -408,13 +411,16 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
       }
     }
       
-    double ptread, phiread, d0read, etaread, z0read;
+    double ptread, phiread, d0read, etaread, z0read,
+           x0read, y0read;
 
     mytfp >> ptread >> 
              phiread >> 
              d0read >> 
              etaread >> 
-             z0read;
+             z0read >>
+             x0read >>
+             y0read;
 
     if (check_to_read (useonlyeven,useonlyodd,i))
     {
@@ -423,17 +429,25 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
 
       if (rzplane)
       {
-        paramread(counter, SPLIT_Z0IDX) = z0read;
-        // lstorchi: I use this to diretcly convert input parameters into
-        //     better parameters for the fitting 
-        // eta = -ln[tan(tetha / 2)]
-        // tetha = 2 * arctan (e^(-eta))
-        // cotan (tetha) = cotan (2 * arctan (e^(-eta)))
-        paramread(counter, SPLIT_COTTETHAIDX) =  cot(2.0 * atan (exp (-1.0e0 * etaread)));
-        //double tetha = atan(1.0 /  paramread(counter, SPLIT_COTTETHAIDX));
-        //std::cout << etaread << " " << tetha * (180/M_PI) << std::endl;
-        //just to visualize pseudorapidity 
-        
+        if (usex0y0)
+        {
+          paramread(counter, SPLIT_Z0IDX) = z0read;
+          // lstorchi: I use this to diretcly convert input parameters into
+          //     better parameters for the fitting 
+          // eta = -ln[tan(tetha / 2)]
+          // tetha = 2 * arctan (e^(-eta))
+          // cotan (tetha) = cotan (2 * arctan (e^(-eta)))
+          paramread(counter, SPLIT_COTTETHAIDX) =  cot(2.0 * atan (exp (-1.0e0 * etaread)));
+          //double tetha = atan(1.0 /  paramread(counter, SPLIT_COTTETHAIDX));
+          //std::cout << etaread << " " << tetha * (180/M_PI) << std::endl;
+          //just to visualize pseudorapidity 
+        }
+        else
+        {
+          paramread(counter, SPLIT_X0IDX) = x0read;
+          paramread(counter, SPLIT_Y0IDX) = y0read;
+        }
+
         if (usealsod0)
           paramread(counter, SPLIT_D0IDX) = d0read;
       }
@@ -441,23 +455,31 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
       {
         if (check_charge_sign(chargesign, pidset))
         {
-          paramread(counter, SPLIT_PHIIDX) = phiread;
-          // use 1/pt
-          if (chargeoverpt)
+          if (usex0y0)
           {
-            if (pidset.size() != 1)
+            paramread(counter, SPLIT_X0IDX) = x0read;
+            paramread(counter, SPLIT_Y0IDX) = y0read;
+          }
+          else
+          {
+            paramread(counter, SPLIT_PHIIDX) = phiread;
+            // use 1/pt
+            if (chargeoverpt)
             {
-              std::cerr << "pid values differ" << std::endl;
-              return false;
+              if (pidset.size() != 1)
+              {
+                std::cerr << "pid values differ" << std::endl;
+                return false;
+              }
+           
+              if (*(pidset.begin()) < 0)
+                paramread(counter, SPLIT_ONEOVERPTIDX) = -1.0e0 / ptread;
+              else
+                paramread(counter, SPLIT_ONEOVERPTIDX) = 1.0e0 / ptread;
             }
-         
-            if (*(pidset.begin()) < 0)
-              paramread(counter, SPLIT_ONEOVERPTIDX) = -1.0e0 / ptread;
             else
               paramread(counter, SPLIT_ONEOVERPTIDX) = 1.0e0 / ptread;
           }
-          else
-            paramread(counter, SPLIT_ONEOVERPTIDX) = 1.0e0 / ptread;
 
           if (usealsod0)
             paramread(counter, SPLIT_D0IDX) = d0read;

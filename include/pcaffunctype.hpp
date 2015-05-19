@@ -20,6 +20,9 @@
 #define SPLIT_ONEOVERPTIDX 0
 #define SPLIT_PHIIDX 1
 
+#define SPLIT_X0IDX 0
+#define SPLIT_Y0IDX 1
+
 #define SPLIT_D0IDX 2
 
 namespace pca
@@ -57,7 +60,8 @@ namespace pca
           bool rzread, bool rphiread, double etamin,
           double etamax, double ptmin, double ptmax, 
           bool chargeoverpt, int chargesign,
-          bool excludesmodule, bool usealsod0);
+          bool excludesmodule, bool usealsod0,
+          bool usex0y0);
 
   bool file_exists(const std::string& filename);
 
