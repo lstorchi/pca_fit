@@ -51,6 +51,8 @@ void usage (char * name)
   std::cerr << " -x, --exclude-s-module          : exclude S-module (last three layer) so 6 coordinates " << 
     "inseatd of 12 " << std::endl;                                  
   std::cerr << " -d, --use-d0                    : use also d0 param in both planes " << std::endl;
+  std::cerr << " -f, --fit-x0y0                  : use and fit x0 and y0 param in both planes instead of " << std::endl;
+  std::cerr << "                                   eta, pt, z0, phi " << std::endl;
 
   exit(1);
 }
@@ -123,6 +125,7 @@ int main (int argc, char ** argv)
   bool rphiplane = false;
   bool usecharge = true;
   bool usealsod0 = false;
+  bool usex0y0 = false;
 
   int chargesign = 0;
 
@@ -149,16 +152,20 @@ int main (int argc, char ** argv)
       {"exclude-s-module", 0, NULL, 'x'},
       {"use-d0", 0, NULL, 'd'},
       {"pt-range", 1, NULL, 'n'},
+      {"fit-x0y0", 0, NULL, 'f'}, 
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "dxehvjpzrg:t:n:", long_options, &option_index);
+    c = getopt_long (argc, argv, "fdxehvjpzrg:t:n:", long_options, &option_index);
 
     if (c == -1)
       break;
 
     switch (c)
     {
+      case 'f':
+        usex0y0 = true;
+        break;
       case 'd':
         usealsod0 = true;
         break;
@@ -247,15 +254,31 @@ int main (int argc, char ** argv)
 
   if (rzplane)
   {
-    if (!fitter.set_paramidx(SPLIT_COTTETHAIDX, "cot(tetha)"))
+    if (usex0y0)
     {
-      std::cerr << fitter.get_errmsg() << std::endl;
-      return EXIT_FAILURE;
+      if (!fitter.set_paramidx(SPLIT_X0IDX, "x0"))
+      {
+        std::cerr << fitter.get_errmsg() << std::endl;
+        return EXIT_FAILURE;
+      }
+      if (!fitter.set_paramidx(SPLIT_Y0IDX, "y0"))
+      {
+        std::cerr << fitter.get_errmsg() << std::endl;
+        return EXIT_FAILURE;
+      }
     }
-    if (!fitter.set_paramidx(SPLIT_Z0IDX, "z0"))
+    else
     {
-      std::cerr << fitter.get_errmsg() << std::endl;
-      return EXIT_FAILURE;
+      if (!fitter.set_paramidx(SPLIT_COTTETHAIDX, "cot(tetha)"))
+      {
+        std::cerr << fitter.get_errmsg() << std::endl;
+        return EXIT_FAILURE;
+      }
+      if (!fitter.set_paramidx(SPLIT_Z0IDX, "z0"))
+      {
+        std::cerr << fitter.get_errmsg() << std::endl;
+        return EXIT_FAILURE;
+      }
     }
 
     if (usealsod0)
@@ -269,12 +292,6 @@ int main (int argc, char ** argv)
   }
   else if (rphiplane)
   {
-    if (!fitter.set_paramidx(SPLIT_PHIIDX, "phi"))
-    {
-      std::cerr << fitter.get_errmsg() << std::endl;
-      return EXIT_FAILURE;
-    }
-
     if (usealsod0)
     {
       if (!fitter.set_paramidx(SPLIT_D0IDX, "d0"))
@@ -284,9 +301,14 @@ int main (int argc, char ** argv)
       }
     }
 
-    if (usecharge)
+    if (usex0y0)
     {
-      if (!fitter.set_paramidx(SPLIT_ONEOVERPTIDX, "q/pt"))
+      if (!fitter.set_paramidx(SPLIT_X0IDX, "x0"))
+      {
+        std::cerr << fitter.get_errmsg() << std::endl;
+        return EXIT_FAILURE;
+      }
+      if (!fitter.set_paramidx(SPLIT_Y0IDX, "y0"))
       {
         std::cerr << fitter.get_errmsg() << std::endl;
         return EXIT_FAILURE;
@@ -294,10 +316,27 @@ int main (int argc, char ** argv)
     }
     else
     {
-      if (!fitter.set_paramidx(SPLIT_ONEOVERPTIDX, "1/pt"))
+      if (!fitter.set_paramidx(SPLIT_PHIIDX, "phi"))
       {
         std::cerr << fitter.get_errmsg() << std::endl;
         return EXIT_FAILURE;
+      }
+      
+      if (usecharge)
+      {
+        if (!fitter.set_paramidx(SPLIT_ONEOVERPTIDX, "q/pt"))
+        {
+          std::cerr << fitter.get_errmsg() << std::endl;
+          return EXIT_FAILURE;
+        }
+      }
+      else
+      {
+        if (!fitter.set_paramidx(SPLIT_ONEOVERPTIDX, "1/pt"))
+        {
+          std::cerr << fitter.get_errmsg() << std::endl;
+          return EXIT_FAILURE;
+        }
       }
     }
   }
@@ -339,7 +378,7 @@ int main (int argc, char ** argv)
   if (!pca::reading_from_file_split (fitter, filename, paramin, coordin, 
          num_of_ent_read, useonlyeven, false, rzplane, rphiplane, 
          etamin, etamax, ptmin, ptmax, usecharge, chargesign, excludesmodule, 
-         usealsod0))
+         usealsod0, usex0y0))
     return EXIT_FAILURE;
 
   std::cout << "Using " << paramin.n_rows << " tracks" << std::endl;
@@ -350,17 +389,34 @@ int main (int argc, char ** argv)
 
   if (rzplane)
   {
-    pca::write_to_file("cottetha.txt", paramin, SPLIT_COTTETHAIDX);
-    pca::write_to_file("z0.txt", paramin, SPLIT_Z0IDX);
+    if (usex0y0)
+    {
+      pca::write_to_file("x0.txt", paramin, SPLIT_X0IDX);
+      pca::write_to_file("y0.txt", paramin, SPLIT_Y0IDX);
+    }
+    else
+    {
+      pca::write_to_file("cottetha.txt", paramin, SPLIT_COTTETHAIDX);
+      pca::write_to_file("z0.txt", paramin, SPLIT_Z0IDX);
+    }
     if (usealsod0)
       pca::write_to_file("d0.txt", paramin, SPLIT_D0IDX);
+
     cfname << "c.rz.bin";
     qfname << "q.rz.bin";
   }
   else if (rphiplane)
   {
-    pca::write_to_file("phi.txt", paramin, SPLIT_PHIIDX);
-    pca::write_to_file("oneoverpt.txt", paramin, SPLIT_ONEOVERPTIDX);
+    if (usex0y0)
+    {
+      pca::write_to_file("x0.txt", paramin, SPLIT_X0IDX);
+      pca::write_to_file("y0.txt", paramin, SPLIT_Y0IDX);
+    }
+    else
+    {
+      pca::write_to_file("phi.txt", paramin, SPLIT_PHIIDX);
+      pca::write_to_file("oneoverpt.txt", paramin, SPLIT_ONEOVERPTIDX);
+    }
     if (usealsod0)
       pca::write_to_file("d0.txt", paramin, SPLIT_D0IDX);
     cfname << "c.rphi.bin";
