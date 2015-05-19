@@ -460,8 +460,8 @@ void usage (char * name)
   std::cerr << " -c, --cmtx=[fillename]          : CMTX filename [default is c.[rz/rphi].bin]" << std::endl;
   std::cerr << " -q, --qvct=[fillename]          : QVCT filename [default is q.[rz/rphi].bin]" << std::endl;
   std::cerr << " -j, --jump-tracks               : perform the fittin only for odd tracks" << std::endl;
-  std::cerr << " -z, --rz-plane                  : use rz plane view" << std::endl;
-  std::cerr << " -r, --rphi-plane                : use r-phi plane view" << std::endl;
+  std::cerr << " -z, --rz-plane                  : use rz plane view (fit eta and z0)" << std::endl;
+  std::cerr << " -r, --rphi-plane                : use r-phi plane view (fit ot and phi)" << std::endl;
   std::cerr << " -e, --not-use-charge            : do not read charge from coordinatesfile " << std::endl;
   std::cerr << " -g, --charge-sign=[+/-]         : use only + particle or - paricle (again both planes)" << std::endl;
   std::cerr << " -t, --eta-range=\"etamin;etamax\" : specify the eta range to use " << std::endl;
