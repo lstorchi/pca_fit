@@ -53,13 +53,16 @@ void usage (char * name)
   std::cerr << " -d, --use-d0                    : use also d0 param in both planes " << std::endl;
   std::cerr << " -f, --fit-x0y0                  : use and fit x0 and y0 param in both planes instead of " << std::endl;
   std::cerr << "                                   eta, pt, z0, phi " << std::endl;
+  std::cerr << " -s, --fit-single-param=[num]    : use and fit X param in both planes  " << std::endl;
+  std::cerr << "                                   1=eta, 2=pt, 3=z0, 4=phi, 5=x0, 6=y0, 7=d0 " << std::endl;
+
 
   exit(1);
 }
 
 void perform_main_computation (const arma::mat & coord, const arma::mat & param, 
     const std::string & cfname, const std::string & qfname,
-    pca::pcafitter & fitter)
+    pca::pcafitter & fitter, bool verbose)
 {
   // ordered 
   arma::vec eigval;
@@ -108,7 +111,7 @@ void perform_main_computation (const arma::mat & coord, const arma::mat & param,
 
   std::cout << "Compute PCA constants " << std::endl;
   fitter.compute_pca_constants (param,
-      coord, cmtx, q);
+      coord, cmtx, q, verbose);
 
   std::cout << "Write constant to file" << std::endl;
   pca::write_armmat(cfname.c_str(), cmtx);
@@ -129,12 +132,15 @@ int main (int argc, char ** argv)
 
   int chargesign = 0;
 
+  int singleparam=-1;
+
   double etamin = -1.0e0 * INFINITY, etamax = +1.0e0 * INFINITY;
   double ptmin = -1.0e0 * INFINITY, ptmax = +1.0e0 * INFINITY;
 
   std::vector<std::string> tokens;
 
   bool excludesmodule = false;
+  bool verbose = true;
 
   while (1)
   {
@@ -156,7 +162,7 @@ int main (int argc, char ** argv)
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "fdxehvjpzrg:t:n:", long_options, &option_index);
+    c = getopt_long (argc, argv, "fdxehvjpzrg:t:n:s:", long_options, &option_index);
 
     if (c == -1)
       break;
@@ -419,6 +425,7 @@ int main (int argc, char ** argv)
     }
     if (usealsod0)
       pca::write_to_file("d0.txt", paramin, SPLIT_D0IDX);
+
     cfname << "c.rphi.bin";
     qfname << "q.rphi.bin";
   }
@@ -435,7 +442,8 @@ int main (int argc, char ** argv)
   }
 
   perform_main_computation (coordin, paramin,
-      cfname.str(), qfname.str(), fitter);
+      cfname.str(), qfname.str(), fitter,
+      verbose);
 
   return EXIT_SUCCESS;
 }
