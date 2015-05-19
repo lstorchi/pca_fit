@@ -97,7 +97,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
 
   if (rzplane)
   {
-    if (usealsod0)
+    if (usex0y0)
     {
       if (usealsod0)
         myfile << "x0_orig x0_fitt diff y0_orig y0_fitt diff " <<
@@ -236,7 +236,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
     std::ofstream myfile(fname.str().c_str());
     arma::running_stat<double> pc[fitter.get_paramdim()];
 
-    if (usealsod0)
+    if (usex0y0)
     {
       if (usealsod0)
         myfile << "x0_orig x0_fitt diff y0_orig y0_fitt diff " <<
