@@ -175,7 +175,8 @@ void pcafitter::compute_pca_constants (
     const arma::mat & param, 
     const arma::mat & coord,
     arma::mat & cmtx, 
-    arma::rowvec & q)
+    arma::rowvec & q, 
+    bool verbose)
 {
   arma::mat v = arma::zeros<arma::mat>(coordim_,coordim_);
   v = arma::cov(coord);
@@ -252,10 +253,13 @@ void pcafitter::compute_pca_constants (
       for (int m=0; m<coordim_; ++m)
         cmtx(i,l) += vi(l,m) * hcap (m,i);
 
-#ifdef DEBUG
-  std::cout << "C matrix: " << std::endl;
-  std::cout << cmtx;
-#endif 
+//#ifdef DEBUG
+  if (verbose)
+  {
+    std::cout << "C matrix: " << std::endl;
+    std::cout << cmtx;
+  }
+//#endif 
 
   for (int i=0; i<paramdim_; ++i)
   {
@@ -264,11 +268,14 @@ void pcafitter::compute_pca_constants (
       q(i) -= cmtx(i,l)*coordm(l);
   }
 
-#ifdef DEBUG
-  std::cout << "Q vector: " << std::endl;
-  for (int i=0; i<paramdim_; ++i)
-    std::cout << q(i) << std::endl;
-#endif
+//#ifdef DEBUG
+  if (verbose)
+  {
+    std::cout << "Q vector: " << std::endl;
+    for (int i=0; i<paramdim_; ++i)
+      std::cout << q(i) << std::endl;
+  }
+//#endif
 
 }
 
