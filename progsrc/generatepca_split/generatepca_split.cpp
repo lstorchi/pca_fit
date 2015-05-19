@@ -42,8 +42,8 @@ void usage (char * name)
   std::cerr << " -v, --version                   : print version and exit" << std::endl;
   std::cerr << " -j, --jump-tracks               : generate the constants using only even tracks" << std::endl;
   std::cerr << " -p, --dump-allcoords            : dump all stub coordinates to a file" << std::endl;
-  std::cerr << " -z, --rz-plane                  : use rz plane view" << std::endl;
-  std::cerr << " -r, --rphi-plane                : use r-phi plane view" << std::endl;
+  std::cerr << " -z, --rz-plane                  : use rz plane view (fit eta and z0)" << std::endl;
+  std::cerr << " -r, --rphi-plane                : use r-phi plane view (fit pt and phi)" << std::endl;
   std::cerr << " -e, --not-use-charge            : do not read charge from coordinatesfile " << std::endl;
   std::cerr << " -g, --charge-sign=[+/-]         : use only + particle or - paricle (again both planes) " << std::endl;
   std::cerr << " -t, --eta-range=\"etamin;etamax\" : specify the eta range to use " << std::endl;
