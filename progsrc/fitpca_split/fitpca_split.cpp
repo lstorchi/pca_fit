@@ -113,7 +113,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
             (fabs(y0cmp[i] + paramslt(i, SPLIT_Y0IDX))/2.0));
       
         pcabsolute[SPLIT_X0IDX](x0cmp[i] + paramslt(i, SPLIT_X0IDX));
-        pcabsolute[SPLIT_Y0IDX](z0cmp[i] - paramslt(i, SPLIT_Z0IDX));
+        pcabsolute[SPLIT_Y0IDX](y0cmp[i] - paramslt(i, SPLIT_Y0IDX));
       
         if (usealsod0) 
         {
@@ -252,7 +252,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
             (fabs(y0cmp[i] + paramslt(i, SPLIT_Y0IDX))/2.0));
       
         pcabsolute[SPLIT_X0IDX](x0cmp[i] + paramslt(i, SPLIT_X0IDX));
-        pcabsolute[SPLIT_Y0IDX](z0cmp[i] - paramslt(i, SPLIT_Z0IDX));
+        pcabsolute[SPLIT_Y0IDX](y0cmp[i] - paramslt(i, SPLIT_Y0IDX));
       
         if (usealsod0) 
         {
