@@ -471,6 +471,8 @@ void usage (char * name)
   std::cerr << " -d, --use-d0                    : use also d0 param in both planes " << std::endl;
   std::cerr << " -f, --fit-x0y0                  : use and fit x0 and y0 param in both planes instead of " << std::endl;
   std::cerr << "                                   eta, pt, z0, phi " << std::endl;
+  std::cerr << " -s, --fit-single-param=[num]    : use and fit X param in both planes  " << std::endl;
+  std::cerr << "                                   1=eta, 2=pt, 3=z0, 4=phi, 5=x0, 6=y0, 7=d0 " << std::endl;
 
   exit(1);
 }
@@ -490,6 +492,8 @@ int main (int argc, char ** argv)
   bool usecharge = true;
   bool usealsod0 = false;
   bool usex0y0 = false;
+
+  int singleparam=-1;
 
   double etamin = -1.0e0 * INFINITY, etamax = +1.0e0 * INFINITY;
   double ptmin = -1.0e0 * INFINITY, ptmax = +1.0e0 * INFINITY;
@@ -519,10 +523,11 @@ int main (int argc, char ** argv)
       {"use-d0", 0, NULL, 'd'},
       {"exclude-s-module", 0, NULL, 'x'},
       {"fit-x0y0", 0, NULL, 'f'},
+      {"fit-single-param", 1, NULL, 's'},
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "fdxezrhVjt:g:c:q:s:n:", long_options, &option_index);
+    c = getopt_long (argc, argv, "fdxezrhVjt:g:c:q:s:n:s:", long_options, &option_index);
 
     if (c == -1)
       break;

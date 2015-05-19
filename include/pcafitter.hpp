@@ -51,7 +51,8 @@ namespace pca
           const arma::mat & param, 
           const arma::mat & coord,
           arma::mat & cmtx, 
-          arma::rowvec & q);
+          arma::rowvec & q,
+          bool verbose);
 
       const std::string & get_errmsg () const;
       int get_errnum() const;
