@@ -320,7 +320,7 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
      double ptmin, double ptmax,
      bool chargeoverpt, int chargesign, 
      bool excludesmodule, bool usealsod0, 
-     bool usex0y0)
+     bool usex0y0, int singleparam)
 {
   int extdim = 9;
   std::string line;
@@ -427,62 +427,114 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
       etavals(counter) = etaread;
       ptvals(counter) = ptread;
 
-      if (rzplane)
-      {
-        if (usex0y0)
-        {
-          paramread(counter, SPLIT_Z0IDX) = z0read;
-          // lstorchi: I use this to diretcly convert input parameters into
-          //     better parameters for the fitting 
-          // eta = -ln[tan(tetha / 2)]
-          // tetha = 2 * arctan (e^(-eta))
-          // cotan (tetha) = cotan (2 * arctan (e^(-eta)))
-          paramread(counter, SPLIT_COTTETHAIDX) =  cot(2.0 * atan (exp (-1.0e0 * etaread)));
-          //double tetha = atan(1.0 /  paramread(counter, SPLIT_COTTETHAIDX));
-          //std::cout << etaread << " " << tetha * (180/M_PI) << std::endl;
-          //just to visualize pseudorapidity 
-        }
-        else
-        {
-          paramread(counter, SPLIT_X0IDX) = x0read;
-          paramread(counter, SPLIT_Y0IDX) = y0read;
-        }
-
-        if (usealsod0)
-          paramread(counter, SPLIT_D0IDX) = d0read;
-      }
-      else if (rphiplane)
+      if ((singleparam >= 1) && (singleparam <= 7))
       {
         if (check_charge_sign(chargesign, pidset))
         {
+          switch (singleparam)
+          {
+            case (1):
+              paramread(counter, 0) =  cot(2.0 * atan (exp (-1.0e0 * etaread)));
+              break;
+            case (2):
+              if (chargeoverpt)
+              {
+                if (pidset.size() != 1)
+                {
+                  std::cerr << "pid values differ" << std::endl;
+                  return false;
+                }
+             
+                if (*(pidset.begin()) < 0)
+                  paramread(counter, 0) = -1.0e0 / ptread;
+                else
+                  paramread(counter, 0) = 1.0e0 / ptread;
+              }
+              else
+                paramread(counter, 0) = 1.0e0 / ptread;
+ 
+              break;
+            case (3):
+              paramread(counter, 0) = z0read;
+              break;
+            case (4):
+              paramread(counter, 0) = phiread;
+              break;
+            case (5):
+              paramread(counter, 0) = x0read;
+              break;
+            case (6):
+              paramread(counter, 0) = y0read;
+              break;
+            case (7):
+              paramread(counter, 0) = d0read;
+              break;
+            default:
+              paramread(counter, 0) = 0.0e0;
+              std::cerr << "wrong paramindex value" << std::endl;
+              break;
+          }
+        }
+      }
+      else
+      {
+        if (rzplane)
+        {
           if (usex0y0)
+          {
+            paramread(counter, SPLIT_Z0IDX) = z0read;
+            // lstorchi: I use this to diretcly convert input parameters into
+            //     better parameters for the fitting 
+            // eta = -ln[tan(tetha / 2)]
+            // tetha = 2 * arctan (e^(-eta))
+            // cotan (tetha) = cotan (2 * arctan (e^(-eta)))
+            paramread(counter, SPLIT_COTTETHAIDX) =  cot(2.0 * atan (exp (-1.0e0 * etaread)));
+            //double tetha = atan(1.0 /  paramread(counter, SPLIT_COTTETHAIDX));
+            //std::cout << etaread << " " << tetha * (180/M_PI) << std::endl;
+            //just to visualize pseudorapidity 
+          }
+          else
           {
             paramread(counter, SPLIT_X0IDX) = x0read;
             paramread(counter, SPLIT_Y0IDX) = y0read;
           }
-          else
+        
+          if (usealsod0)
+            paramread(counter, SPLIT_D0IDX) = d0read;
+        }
+        else if (rphiplane)
+        {
+          if (check_charge_sign(chargesign, pidset))
           {
-            paramread(counter, SPLIT_PHIIDX) = phiread;
-            // use 1/pt
-            if (chargeoverpt)
+            if (usex0y0)
             {
-              if (pidset.size() != 1)
+              paramread(counter, SPLIT_X0IDX) = x0read;
+              paramread(counter, SPLIT_Y0IDX) = y0read;
+            }
+            else
+            {
+              paramread(counter, SPLIT_PHIIDX) = phiread;
+              // use 1/pt
+              if (chargeoverpt)
               {
-                std::cerr << "pid values differ" << std::endl;
-                return false;
+                if (pidset.size() != 1)
+                {
+                  std::cerr << "pid values differ" << std::endl;
+                  return false;
+                }
+             
+                if (*(pidset.begin()) < 0)
+                  paramread(counter, SPLIT_ONEOVERPTIDX) = -1.0e0 / ptread;
+                else
+                  paramread(counter, SPLIT_ONEOVERPTIDX) = 1.0e0 / ptread;
               }
-           
-              if (*(pidset.begin()) < 0)
-                paramread(counter, SPLIT_ONEOVERPTIDX) = -1.0e0 / ptread;
               else
                 paramread(counter, SPLIT_ONEOVERPTIDX) = 1.0e0 / ptread;
             }
-            else
-              paramread(counter, SPLIT_ONEOVERPTIDX) = 1.0e0 / ptread;
+        
+            if (usealsod0)
+              paramread(counter, SPLIT_D0IDX) = d0read;
           }
-
-          if (usealsod0)
-            paramread(counter, SPLIT_D0IDX) = d0read;
         }
       }
 
@@ -536,3 +588,27 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
   return true;
 }
 
+std::string pca::get_paramname_from_id (int id)
+{
+  switch (id)
+  {
+    case (1):
+      return "eta";
+    case (2):
+      return "pt";
+    case (3):
+      return "z0";
+    case (4):
+      return "phi";
+    case (5):
+      return "x0";
+    case (6):
+      return "y0";
+    case (7):
+      return "d0";
+    default:
+      return "";
+  }
+
+  return "";
+}

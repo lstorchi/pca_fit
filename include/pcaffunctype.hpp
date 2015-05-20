@@ -27,6 +27,8 @@
 
 namespace pca
 {
+  std::string get_paramname_from_id (int);
+
   int numofline (const char * fname);
 
   void tokenize (const std::string & str, std::vector<std::string> & tokens,
@@ -61,7 +63,7 @@ namespace pca
           double etamax, double ptmin, double ptmax, 
           bool chargeoverpt, int chargesign,
           bool excludesmodule, bool usealsod0,
-          bool usex0y0);
+          bool usex0y0, int singleparam);
 
   bool file_exists(const std::string& filename);
 
