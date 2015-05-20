@@ -24,58 +24,66 @@
 bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt, 
      arma::mat & cmtx, arma::rowvec & q, bool verbose, 
      pca::pcafitter & fitter, bool rzplane, bool rphiplane,
-     bool usecharge, bool usealsod0, bool usex0y0)
+     bool usecharge, bool usealsod0, bool usex0y0, int singleparam)
 {
   double ** ptrs;
   ptrs = new double* [fitter.get_paramdim()];
 
   double * cotethacmp, * z0cmp, * oneoverptcmp, * phicmp, 
-         * d0cmp, * x0cmp, * y0cmp;
+         * d0cmp, * x0cmp, * y0cmp, *singlep;
 
-  if (rzplane)
+  if ((singleparam >= 1) && (singleparam <= 7))
   {
-    if (usex0y0)
-    {
-      x0cmp = new double [(int)coordslt.n_rows];
-      y0cmp = new double [(int)coordslt.n_rows];
-      ptrs[SPLIT_X0IDX] = x0cmp;
-      ptrs[SPLIT_Y0IDX] = y0cmp;
-    }
-    else
-    {
-      cotethacmp = new double [(int)coordslt.n_rows];
-      z0cmp = new double [(int)coordslt.n_rows];
-      ptrs[SPLIT_COTTETHAIDX] = cotethacmp;
-      ptrs[SPLIT_Z0IDX] = z0cmp;
-    }
-
-    if (usealsod0)
-    {
-      d0cmp = new double [(int)coordslt.n_rows];
-      ptrs[SPLIT_D0IDX] = d0cmp;
-    }
+    singlep = new double [(int)coordslt.n_rows];
+    ptrs[0] = singlep;
   }
-  else if (rphiplane)
+  else
   {
-    if (usex0y0)
+    if (rzplane)
     {
-      x0cmp = new double [(int)coordslt.n_rows];
-      y0cmp = new double [(int)coordslt.n_rows];
-      ptrs[SPLIT_X0IDX] = x0cmp;
-      ptrs[SPLIT_Y0IDX] = y0cmp;
+      if (usex0y0)
+      {
+        x0cmp = new double [(int)coordslt.n_rows];
+        y0cmp = new double [(int)coordslt.n_rows];
+        ptrs[SPLIT_X0IDX] = x0cmp;
+        ptrs[SPLIT_Y0IDX] = y0cmp;
+      }
+      else
+      {
+        cotethacmp = new double [(int)coordslt.n_rows];
+        z0cmp = new double [(int)coordslt.n_rows];
+        ptrs[SPLIT_COTTETHAIDX] = cotethacmp;
+        ptrs[SPLIT_Z0IDX] = z0cmp;
+      }
+      
+      if (usealsod0)
+      {
+        d0cmp = new double [(int)coordslt.n_rows];
+        ptrs[SPLIT_D0IDX] = d0cmp;
+      }
     }
-    else 
+    else if (rphiplane)
     {
-      oneoverptcmp = new double [(int)coordslt.n_rows];
-      phicmp = new double [(int)coordslt.n_rows];
-      ptrs[SPLIT_ONEOVERPTIDX] = oneoverptcmp;
-      ptrs[SPLIT_PHIIDX] = phicmp;
-    }
-
-    if (usealsod0)
-    {
-      d0cmp = new double [(int)coordslt.n_rows];
-      ptrs[SPLIT_D0IDX] = d0cmp;
+      if (usex0y0)
+      {
+        x0cmp = new double [(int)coordslt.n_rows];
+        y0cmp = new double [(int)coordslt.n_rows];
+        ptrs[SPLIT_X0IDX] = x0cmp;
+        ptrs[SPLIT_Y0IDX] = y0cmp;
+      }
+      else 
+      {
+        oneoverptcmp = new double [(int)coordslt.n_rows];
+        phicmp = new double [(int)coordslt.n_rows];
+        ptrs[SPLIT_ONEOVERPTIDX] = oneoverptcmp;
+        ptrs[SPLIT_PHIIDX] = phicmp;
+      }
+    
+      if (usealsod0)
+      {
+        d0cmp = new double [(int)coordslt.n_rows];
+        ptrs[SPLIT_D0IDX] = d0cmp;
+      }
     }
   }
 
@@ -95,256 +103,157 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
   arma::running_stat<double> pcabsolute[fitter.get_paramdim()];
   std::ofstream myfile(fname.str().c_str());
 
-  if (rzplane)
+  if ((singleparam >= 1) && (singleparam <= 7))
   {
-    if (usex0y0)
+    myfile << "orig fitt diff " << std::endl;
+    for (int i=0; i<(int)coordslt.n_rows; ++i)
     {
-      if (usealsod0)
-        myfile << "x0_orig x0_fitt diff y0_orig y0_fitt diff " <<
-         " d0_orig d0_fitt diff" << std::endl;
-      else  
-        myfile << "x0_orig x0_fitt diff y0_orig y0_fitt diff" << std::endl; 
-
-      for (int i=0; i<(int)coordslt.n_rows; ++i)
+      pc[0](fabs(singlep[i] + paramslt(i, 0))/
+          (fabs(singlep[i] + paramslt(i, 0))/2.0));
+    
+      pcabsolute[0](singlep[i] + paramslt(i, 0));
+    
+      myfile << 
+        paramslt(i, 0) << " " << singlep[i] << " " <<
+        singlep[i] - paramslt(i, 0) << std::endl;
+    
+      if (verbose)
       {
-        pc[SPLIT_X0IDX](fabs(x0cmp[i] + paramslt(i, SPLIT_X0IDX))/
-            (fabs(x0cmp[i] + paramslt(i, SPLIT_X0IDX))/2.0));
-        pc[SPLIT_Y0IDX](fabs(y0cmp[i] - paramslt(i, SPLIT_Y0IDX))/
-            (fabs(y0cmp[i] + paramslt(i, SPLIT_Y0IDX))/2.0));
-      
-        pcabsolute[SPLIT_X0IDX](x0cmp[i] + paramslt(i, SPLIT_X0IDX));
-        pcabsolute[SPLIT_Y0IDX](y0cmp[i] - paramslt(i, SPLIT_Y0IDX));
-      
-        if (usealsod0) 
-        {
-          pc[SPLIT_D0IDX](fabs(d0cmp[i] - paramslt(i, SPLIT_D0IDX))/
-              (fabs(d0cmp[i] + paramslt(i, SPLIT_D0IDX))/2.0));
-          pcabsolute[SPLIT_D0IDX](d0cmp[i] - paramslt(i, SPLIT_D0IDX));
-        }
-        
-        if (usealsod0)
-          myfile << 
-            paramslt(i, SPLIT_X0IDX) << " " << x0cmp[i] << " " <<
-            (x0cmp[i] - paramslt(i, SPLIT_X0IDX)) << " " <<
-            paramslt(i, SPLIT_Y0IDX) << " " << y0cmp[i] << " " <<
-            (y0cmp[i] - paramslt(i, SPLIT_Y0IDX)) << " " << 
-            paramslt(i, SPLIT_D0IDX) << " " << d0cmp[i] << " " <<
-            d0cmp[i] - paramslt(i, SPLIT_D0IDX) << std::endl;
-        else
-          myfile << 
-            paramslt(i, SPLIT_X0IDX) << " " << x0cmp[i] << " " <<
-            (x0cmp[i] - paramslt(i, SPLIT_X0IDX)) << " " <<
-            paramslt(i, SPLIT_Y0IDX) << " " << y0cmp[i] << " " <<
-            (y0cmp[i] - paramslt(i, SPLIT_Y0IDX)) << std::endl;
-      
-        if (verbose)
-        {
-          std::cout << "For track : " << i+1 << std::endl;
-          std::cout << " x0           fitt " << x0cmp[i] << std::endl;
-          std::cout << " x0           orig " << paramslt(i, SPLIT_X0IDX) << std::endl;
-          std::cout << " y0           fitt " << y0cmp[i] << std::endl;
-          std::cout << " y0           orig " << paramslt(i, SPLIT_Y0IDX) << std::endl;
-
-          if (usealsod0)
-          { 
-            std::cout << " d0           fitt " << d0cmp[i] << std::endl;
-            std::cout << " d0           orig " << paramslt(i, SPLIT_D0IDX) << std::endl;
-          }
-        }
-      }
-
-    }
-    else
-    {
-      if (usealsod0)
-        myfile << "eta_orig eta_fitt diff z0_orig z0_fitt diff " <<
-         " d0_orig d0_fitt diff" << std::endl;
-      else  
-        myfile << "eta_orig eta_fitt diff z0_orig z0_fitt diff" << std::endl; 
-
-      for (int i=0; i<(int)coordslt.n_rows; ++i)
-      {
-        double tethacmp = atan(1.0e0 / cotethacmp[i]) ; 
-        double etacmps = 0.0e0, tantetha2;
-        tantetha2 = tan (tethacmp/2.0e0); 
-        if (tantetha2 < 0.0)
-          etacmps = 1.0e0 * log (-1.0e0 * tantetha2);
-        else
-          etacmps = -1.0e0 * log (tantetha2);
-        double tetha = atan(1.0e0 / paramslt(i, SPLIT_COTTETHAIDX));
-        double etaorig = 0.0e0;
-        tantetha2 = tan (tetha/2.0e0);
-        if (tantetha2 < 0.0)
-          etaorig = 1.0e0 * log (-1.0e0 * tantetha2);
-        else
-          etaorig = -1.0e0 * log (tantetha2);
-      
-        pc[SPLIT_COTTETHAIDX](fabs(etacmps - etaorig)/
-            (fabs(etacmps + etaorig)/2.0));
-        pc[SPLIT_Z0IDX](fabs(z0cmp[i] - paramslt(i, SPLIT_Z0IDX))/
-            (fabs(z0cmp[i] + paramslt(i, SPLIT_Z0IDX))/2.0));
-      
-        pcabsolute[SPLIT_COTTETHAIDX](etacmps - etaorig);
-        pcabsolute[SPLIT_Z0IDX](z0cmp[i] - paramslt(i, SPLIT_Z0IDX));
-      
-        if (usealsod0) 
-        {
-          pc[SPLIT_D0IDX](fabs(d0cmp[i] - paramslt(i, SPLIT_D0IDX))/
-              (fabs(d0cmp[i] + paramslt(i, SPLIT_D0IDX))/2.0));
-          pcabsolute[SPLIT_D0IDX](d0cmp[i] - paramslt(i, SPLIT_D0IDX));
-        }
-        
-        if (usealsod0)
-          myfile << 
-            etaorig << " " << etacmps << " " <<
-            (etacmps - etaorig) << " " <<
-            paramslt(i, SPLIT_Z0IDX) << " " << z0cmp[i] << " " <<
-            (z0cmp[i] - paramslt(i, SPLIT_Z0IDX)) << " " << 
-            paramslt(i, SPLIT_D0IDX) << " " << d0cmp[i] << " " <<
-            d0cmp[i] - paramslt(i, SPLIT_D0IDX) << std::endl;
-        else
-          myfile << 
-            etaorig << " " << etacmps << " " <<
-            (etacmps - etaorig) << " " <<
-            paramslt(i, SPLIT_Z0IDX) << " " << z0cmp[i] << " " <<
-            (z0cmp[i] - paramslt(i, SPLIT_Z0IDX)) << std::endl;
-      
-        if (verbose)
-        {
-          std::cout << "For track : " << i+1 << std::endl;
-          std::cout << " cotetha      fitt " << cotethacmp[i] << std::endl;
-          std::cout << " cotetha      orig " << paramslt(i, SPLIT_COTTETHAIDX) << std::endl;
-          std::cout << " tetha rad    fitt " << tethacmp << std::endl;
-          std::cout << " tetha rad    orig " << tetha << std::endl;
-          std::cout << " tetha deg    fitt " << tethacmp*(180.0e0/M_PI) << std::endl;
-          std::cout << " tetha deg    orig " << tetha*(180.0e0/M_PI) << std::endl;
-          std::cout << " eta          fitt " << etacmps << std::endl;
-          std::cout << " eta          orig " << etaorig << std::endl;
-          std::cout << " z0           fitt " << z0cmp[i] << std::endl;
-          std::cout << " z0           orig " << paramslt(i, SPLIT_Z0IDX) << std::endl;
-          if (usealsod0)
-          { 
-            std::cout << " d0           fitt " << d0cmp[i] << std::endl;
-            std::cout << " d0           orig " << paramslt(i, SPLIT_D0IDX) << std::endl;
-          }
-        }
+        std::cout << "For track : " << i+1 << std::endl;
+        std::cout << " param        fitt " << singlep[i] << std::endl;
+        std::cout << " param        orig " << paramslt(i, 0) << std::endl;
       }
     }
   }
-  else if (rphiplane)
+  else
   {
-    std::ofstream myfile(fname.str().c_str());
-    arma::running_stat<double> pc[fitter.get_paramdim()];
-
-    if (usex0y0)
+    if (rzplane)
     {
-      if (usealsod0)
-        myfile << "x0_orig x0_fitt diff y0_orig y0_fitt diff " <<
-         " d0_orig d0_fitt diff" << std::endl;
-      else  
-        myfile << "x0_orig x0_fitt diff y0_orig y0_fitt diff" << std::endl; 
-
-      for (int i=0; i<(int)coordslt.n_rows; ++i)
-      {
-        pc[SPLIT_X0IDX](fabs(x0cmp[i] + paramslt(i, SPLIT_X0IDX))/
-            (fabs(x0cmp[i] + paramslt(i, SPLIT_X0IDX))/2.0));
-        pc[SPLIT_Y0IDX](fabs(y0cmp[i] - paramslt(i, SPLIT_Y0IDX))/
-            (fabs(y0cmp[i] + paramslt(i, SPLIT_Y0IDX))/2.0));
-      
-        pcabsolute[SPLIT_X0IDX](x0cmp[i] + paramslt(i, SPLIT_X0IDX));
-        pcabsolute[SPLIT_Y0IDX](y0cmp[i] - paramslt(i, SPLIT_Y0IDX));
-      
-        if (usealsod0) 
-        {
-          pc[SPLIT_D0IDX](fabs(d0cmp[i] - paramslt(i, SPLIT_D0IDX))/
-              (fabs(d0cmp[i] + paramslt(i, SPLIT_D0IDX))/2.0));
-          pcabsolute[SPLIT_D0IDX](d0cmp[i] - paramslt(i, SPLIT_D0IDX));
-        }
-        
-        if (usealsod0)
-          myfile << 
-            paramslt(i, SPLIT_X0IDX) << " " << x0cmp[i] << " " <<
-            (x0cmp[i] - paramslt(i, SPLIT_X0IDX)) << " " <<
-            paramslt(i, SPLIT_Y0IDX) << " " << y0cmp[i] << " " <<
-            (y0cmp[i] - paramslt(i, SPLIT_Y0IDX)) << " " << 
-            paramslt(i, SPLIT_D0IDX) << " " << d0cmp[i] << " " <<
-            d0cmp[i] - paramslt(i, SPLIT_D0IDX) << std::endl;
-        else
-          myfile << 
-            paramslt(i, SPLIT_X0IDX) << " " << x0cmp[i] << " " <<
-            (x0cmp[i] - paramslt(i, SPLIT_X0IDX)) << " " <<
-            paramslt(i, SPLIT_Y0IDX) << " " << y0cmp[i] << " " <<
-            (y0cmp[i] - paramslt(i, SPLIT_Y0IDX)) << std::endl;
-      
-        if (verbose)
-        {
-          std::cout << "For track : " << i+1 << std::endl;
-          std::cout << " x0           fitt " << x0cmp[i] << std::endl;
-          std::cout << " x0           orig " << paramslt(i, SPLIT_X0IDX) << std::endl;
-          std::cout << " y0           fitt " << y0cmp[i] << std::endl;
-          std::cout << " y0           orig " << paramslt(i, SPLIT_Y0IDX) << std::endl;
-
-          if (usealsod0)
-          { 
-            std::cout << " d0           fitt " << d0cmp[i] << std::endl;
-            std::cout << " d0           orig " << paramslt(i, SPLIT_D0IDX) << std::endl;
-          }
-        }
-      }
-
-    }
-    else
-    {
-      if (usecharge)
+      if (usex0y0)
       {
         if (usealsod0)
-          myfile << "q/pt_orig q/pt_fitt diff phi_orig phi_fitt diff " <<
+          myfile << "x0_orig x0_fitt diff y0_orig y0_fitt diff " <<
            " d0_orig d0_fitt diff" << std::endl;
-        else
-          myfile << "q/pt_orig q/pt_fitt diff phi_orig phi_fitt diff" << std::endl; 
-      
+        else  
+          myfile << "x0_orig x0_fitt diff y0_orig y0_fitt diff" << std::endl; 
+    
         for (int i=0; i<(int)coordslt.n_rows; ++i)
         {
-          double qoverptorig = paramslt(i, SPLIT_ONEOVERPTIDX);
-          double qoverptcmp = oneoverptcmp[i];
+          pc[SPLIT_X0IDX](fabs(x0cmp[i] + paramslt(i, SPLIT_X0IDX))/
+              (fabs(x0cmp[i] + paramslt(i, SPLIT_X0IDX))/2.0));
+          pc[SPLIT_Y0IDX](fabs(y0cmp[i] - paramslt(i, SPLIT_Y0IDX))/
+              (fabs(y0cmp[i] + paramslt(i, SPLIT_Y0IDX))/2.0));
         
-          pc[SPLIT_PHIIDX](fabs(phicmp[i] - paramslt(i, SPLIT_PHIIDX))/
-              (fabs(phicmp[i] + paramslt(i, SPLIT_PHIIDX))/2.0));
-          pc[SPLIT_ONEOVERPTIDX](fabs(qoverptcmp - qoverptorig)/
-              (fabs(qoverptcmp + qoverptorig)/2.0));
+          pcabsolute[SPLIT_X0IDX](x0cmp[i] + paramslt(i, SPLIT_X0IDX));
+          pcabsolute[SPLIT_Y0IDX](y0cmp[i] - paramslt(i, SPLIT_Y0IDX));
         
-          pcabsolute[SPLIT_PHIIDX](phicmp[i] - paramslt(i, SPLIT_PHIIDX));
-          pcabsolute[SPLIT_ONEOVERPTIDX](qoverptcmp - qoverptorig);
-      
           if (usealsod0) 
           {
             pc[SPLIT_D0IDX](fabs(d0cmp[i] - paramslt(i, SPLIT_D0IDX))/
                 (fabs(d0cmp[i] + paramslt(i, SPLIT_D0IDX))/2.0));
             pcabsolute[SPLIT_D0IDX](d0cmp[i] - paramslt(i, SPLIT_D0IDX));
           }
-        
+          
           if (usealsod0)
             myfile << 
-              qoverptorig << " " << qoverptcmp << " " <<
-              (qoverptcmp - qoverptorig) <<  " " <<
-              paramslt(i, SPLIT_PHIIDX) << " " << phicmp[i] << " " <<
-              (phicmp[i] - paramslt(i, SPLIT_PHIIDX)) << " " << 
+              paramslt(i, SPLIT_X0IDX) << " " << x0cmp[i] << " " <<
+              (x0cmp[i] - paramslt(i, SPLIT_X0IDX)) << " " <<
+              paramslt(i, SPLIT_Y0IDX) << " " << y0cmp[i] << " " <<
+              (y0cmp[i] - paramslt(i, SPLIT_Y0IDX)) << " " << 
               paramslt(i, SPLIT_D0IDX) << " " << d0cmp[i] << " " <<
               d0cmp[i] - paramslt(i, SPLIT_D0IDX) << std::endl;
           else
             myfile << 
-              qoverptorig << " " << qoverptcmp << " " <<
-              (qoverptcmp - qoverptorig) <<  " " <<
-              paramslt(i, SPLIT_PHIIDX) << " " << phicmp[i] << " " <<
-              (phicmp[i] - paramslt(i, SPLIT_PHIIDX)) << std::endl;
+              paramslt(i, SPLIT_X0IDX) << " " << x0cmp[i] << " " <<
+              (x0cmp[i] - paramslt(i, SPLIT_X0IDX)) << " " <<
+              paramslt(i, SPLIT_Y0IDX) << " " << y0cmp[i] << " " <<
+              (y0cmp[i] - paramslt(i, SPLIT_Y0IDX)) << std::endl;
         
           if (verbose)
           {
             std::cout << "For track : " << i+1 << std::endl;
-            std::cout << " q/pt         fitt " << qoverptcmp << std::endl;
-            std::cout << " q/pt         orig " << qoverptorig << std::endl;
-            std::cout << " phi          fitt " << phicmp[i] << std::endl;
-            std::cout << " phi          orig " << paramslt(i, SPLIT_PHIIDX) << std::endl;
+            std::cout << " x0           fitt " << x0cmp[i] << std::endl;
+            std::cout << " x0           orig " << paramslt(i, SPLIT_X0IDX) << std::endl;
+            std::cout << " y0           fitt " << y0cmp[i] << std::endl;
+            std::cout << " y0           orig " << paramslt(i, SPLIT_Y0IDX) << std::endl;
+    
+            if (usealsod0)
+            { 
+              std::cout << " d0           fitt " << d0cmp[i] << std::endl;
+              std::cout << " d0           orig " << paramslt(i, SPLIT_D0IDX) << std::endl;
+            }
+          }
+        }
+    
+      }
+      else
+      {
+        if (usealsod0)
+          myfile << "eta_orig eta_fitt diff z0_orig z0_fitt diff " <<
+           " d0_orig d0_fitt diff" << std::endl;
+        else  
+          myfile << "eta_orig eta_fitt diff z0_orig z0_fitt diff" << std::endl; 
+    
+        for (int i=0; i<(int)coordslt.n_rows; ++i)
+        {
+          double tethacmp = atan(1.0e0 / cotethacmp[i]) ; 
+          double etacmps = 0.0e0, tantetha2;
+          tantetha2 = tan (tethacmp/2.0e0); 
+          if (tantetha2 < 0.0)
+            etacmps = 1.0e0 * log (-1.0e0 * tantetha2);
+          else
+            etacmps = -1.0e0 * log (tantetha2);
+          double tetha = atan(1.0e0 / paramslt(i, SPLIT_COTTETHAIDX));
+          double etaorig = 0.0e0;
+          tantetha2 = tan (tetha/2.0e0);
+          if (tantetha2 < 0.0)
+            etaorig = 1.0e0 * log (-1.0e0 * tantetha2);
+          else
+            etaorig = -1.0e0 * log (tantetha2);
+        
+          pc[SPLIT_COTTETHAIDX](fabs(etacmps - etaorig)/
+              (fabs(etacmps + etaorig)/2.0));
+          pc[SPLIT_Z0IDX](fabs(z0cmp[i] - paramslt(i, SPLIT_Z0IDX))/
+              (fabs(z0cmp[i] + paramslt(i, SPLIT_Z0IDX))/2.0));
+        
+          pcabsolute[SPLIT_COTTETHAIDX](etacmps - etaorig);
+          pcabsolute[SPLIT_Z0IDX](z0cmp[i] - paramslt(i, SPLIT_Z0IDX));
+        
+          if (usealsod0) 
+          {
+            pc[SPLIT_D0IDX](fabs(d0cmp[i] - paramslt(i, SPLIT_D0IDX))/
+                (fabs(d0cmp[i] + paramslt(i, SPLIT_D0IDX))/2.0));
+            pcabsolute[SPLIT_D0IDX](d0cmp[i] - paramslt(i, SPLIT_D0IDX));
+          }
+          
+          if (usealsod0)
+            myfile << 
+              etaorig << " " << etacmps << " " <<
+              (etacmps - etaorig) << " " <<
+              paramslt(i, SPLIT_Z0IDX) << " " << z0cmp[i] << " " <<
+              (z0cmp[i] - paramslt(i, SPLIT_Z0IDX)) << " " << 
+              paramslt(i, SPLIT_D0IDX) << " " << d0cmp[i] << " " <<
+              d0cmp[i] - paramslt(i, SPLIT_D0IDX) << std::endl;
+          else
+            myfile << 
+              etaorig << " " << etacmps << " " <<
+              (etacmps - etaorig) << " " <<
+              paramslt(i, SPLIT_Z0IDX) << " " << z0cmp[i] << " " <<
+              (z0cmp[i] - paramslt(i, SPLIT_Z0IDX)) << std::endl;
+        
+          if (verbose)
+          {
+            std::cout << "For track : " << i+1 << std::endl;
+            std::cout << " cotetha      fitt " << cotethacmp[i] << std::endl;
+            std::cout << " cotetha      orig " << paramslt(i, SPLIT_COTTETHAIDX) << std::endl;
+            std::cout << " tetha rad    fitt " << tethacmp << std::endl;
+            std::cout << " tetha rad    orig " << tetha << std::endl;
+            std::cout << " tetha deg    fitt " << tethacmp*(180.0e0/M_PI) << std::endl;
+            std::cout << " tetha deg    orig " << tetha*(180.0e0/M_PI) << std::endl;
+            std::cout << " eta          fitt " << etacmps << std::endl;
+            std::cout << " eta          orig " << etaorig << std::endl;
+            std::cout << " z0           fitt " << z0cmp[i] << std::endl;
+            std::cout << " z0           orig " << paramslt(i, SPLIT_Z0IDX) << std::endl;
             if (usealsod0)
             { 
               std::cout << " d0           fitt " << d0cmp[i] << std::endl;
@@ -353,60 +262,184 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
           }
         }
       }
-      else 
+    }
+    else if (rphiplane)
+    {
+      std::ofstream myfile(fname.str().c_str());
+      arma::running_stat<double> pc[fitter.get_paramdim()];
+    
+      if (usex0y0)
       {
         if (usealsod0)
-          myfile << "pt_orig pt_fitt diff phi_orig phi_fitt diff " <<
+          myfile << "x0_orig x0_fitt diff y0_orig y0_fitt diff " <<
            " d0_orig d0_fitt diff" << std::endl;
-        else
-          myfile << "pt_orig pt_fitt diff phi_orig phi_fitt diff" << std::endl; 
-      
+        else  
+          myfile << "x0_orig x0_fitt diff y0_orig y0_fitt diff" << std::endl; 
+    
         for (int i=0; i<(int)coordslt.n_rows; ++i)
         {
-          double ptorig = 1.0e0 / paramslt(i, SPLIT_ONEOVERPTIDX);
-          double ptcmp = 1.0e0 / oneoverptcmp[i];
+          pc[SPLIT_X0IDX](fabs(x0cmp[i] + paramslt(i, SPLIT_X0IDX))/
+              (fabs(x0cmp[i] + paramslt(i, SPLIT_X0IDX))/2.0));
+          pc[SPLIT_Y0IDX](fabs(y0cmp[i] - paramslt(i, SPLIT_Y0IDX))/
+              (fabs(y0cmp[i] + paramslt(i, SPLIT_Y0IDX))/2.0));
         
-          pc[SPLIT_PHIIDX](fabs(phicmp[i] - paramslt(i, SPLIT_PHIIDX))/
-              (fabs(phicmp[i] + paramslt(i, SPLIT_PHIIDX))/2.0));
-          pc[SPLIT_ONEOVERPTIDX](fabs(ptcmp - ptorig)/
-              (fabs(ptcmp + ptorig)/2.0));
+          pcabsolute[SPLIT_X0IDX](x0cmp[i] + paramslt(i, SPLIT_X0IDX));
+          pcabsolute[SPLIT_Y0IDX](y0cmp[i] - paramslt(i, SPLIT_Y0IDX));
         
-          pcabsolute[SPLIT_PHIIDX](phicmp[i] - paramslt(i, SPLIT_PHIIDX));
-          pcabsolute[SPLIT_ONEOVERPTIDX](ptcmp - ptorig);
-      
           if (usealsod0) 
           {
             pc[SPLIT_D0IDX](fabs(d0cmp[i] - paramslt(i, SPLIT_D0IDX))/
                 (fabs(d0cmp[i] + paramslt(i, SPLIT_D0IDX))/2.0));
             pcabsolute[SPLIT_D0IDX](d0cmp[i] - paramslt(i, SPLIT_D0IDX));
           }
-      
+          
           if (usealsod0)
             myfile << 
-              ptorig << " " << ptcmp << " " <<
-              (ptcmp - ptorig) <<  " " <<
-              paramslt(i, SPLIT_PHIIDX) << " " << phicmp[i] << " " <<
-              (phicmp[i] - paramslt(i, SPLIT_PHIIDX)) << " " << 
-              paramslt(i, SPLIT_D0IDX) << " " << d0cmp[i] << " " <<  
+              paramslt(i, SPLIT_X0IDX) << " " << x0cmp[i] << " " <<
+              (x0cmp[i] - paramslt(i, SPLIT_X0IDX)) << " " <<
+              paramslt(i, SPLIT_Y0IDX) << " " << y0cmp[i] << " " <<
+              (y0cmp[i] - paramslt(i, SPLIT_Y0IDX)) << " " << 
+              paramslt(i, SPLIT_D0IDX) << " " << d0cmp[i] << " " <<
               d0cmp[i] - paramslt(i, SPLIT_D0IDX) << std::endl;
           else
             myfile << 
-              ptorig << " " << ptcmp << " " <<
-              (ptcmp - ptorig) <<  " " <<
-              paramslt(i, SPLIT_PHIIDX) << " " << phicmp[i] << " " <<
-              (phicmp[i] - paramslt(i, SPLIT_PHIIDX)) << std::endl;
+              paramslt(i, SPLIT_X0IDX) << " " << x0cmp[i] << " " <<
+              (x0cmp[i] - paramslt(i, SPLIT_X0IDX)) << " " <<
+              paramslt(i, SPLIT_Y0IDX) << " " << y0cmp[i] << " " <<
+              (y0cmp[i] - paramslt(i, SPLIT_Y0IDX)) << std::endl;
         
           if (verbose)
           {
             std::cout << "For track : " << i+1 << std::endl;
-            std::cout << " pt           fitt " << ptcmp << std::endl;
-            std::cout << " pt           orig " << ptorig << std::endl;
-            std::cout << " phi          fitt " << phicmp[i] << std::endl;
-            std::cout << " phi          orig " << paramslt(i, SPLIT_PHIIDX) << std::endl;
+            std::cout << " x0           fitt " << x0cmp[i] << std::endl;
+            std::cout << " x0           orig " << paramslt(i, SPLIT_X0IDX) << std::endl;
+            std::cout << " y0           fitt " << y0cmp[i] << std::endl;
+            std::cout << " y0           orig " << paramslt(i, SPLIT_Y0IDX) << std::endl;
+    
             if (usealsod0)
             { 
               std::cout << " d0           fitt " << d0cmp[i] << std::endl;
               std::cout << " d0           orig " << paramslt(i, SPLIT_D0IDX) << std::endl;
+            }
+          }
+        }
+    
+      }
+      else
+      {
+        if (usecharge)
+        {
+          if (usealsod0)
+            myfile << "q/pt_orig q/pt_fitt diff phi_orig phi_fitt diff " <<
+             " d0_orig d0_fitt diff" << std::endl;
+          else
+            myfile << "q/pt_orig q/pt_fitt diff phi_orig phi_fitt diff" << std::endl; 
+        
+          for (int i=0; i<(int)coordslt.n_rows; ++i)
+          {
+            double qoverptorig = paramslt(i, SPLIT_ONEOVERPTIDX);
+            double qoverptcmp = oneoverptcmp[i];
+          
+            pc[SPLIT_PHIIDX](fabs(phicmp[i] - paramslt(i, SPLIT_PHIIDX))/
+                (fabs(phicmp[i] + paramslt(i, SPLIT_PHIIDX))/2.0));
+            pc[SPLIT_ONEOVERPTIDX](fabs(qoverptcmp - qoverptorig)/
+                (fabs(qoverptcmp + qoverptorig)/2.0));
+          
+            pcabsolute[SPLIT_PHIIDX](phicmp[i] - paramslt(i, SPLIT_PHIIDX));
+            pcabsolute[SPLIT_ONEOVERPTIDX](qoverptcmp - qoverptorig);
+        
+            if (usealsod0) 
+            {
+              pc[SPLIT_D0IDX](fabs(d0cmp[i] - paramslt(i, SPLIT_D0IDX))/
+                  (fabs(d0cmp[i] + paramslt(i, SPLIT_D0IDX))/2.0));
+              pcabsolute[SPLIT_D0IDX](d0cmp[i] - paramslt(i, SPLIT_D0IDX));
+            }
+          
+            if (usealsod0)
+              myfile << 
+                qoverptorig << " " << qoverptcmp << " " <<
+                (qoverptcmp - qoverptorig) <<  " " <<
+                paramslt(i, SPLIT_PHIIDX) << " " << phicmp[i] << " " <<
+                (phicmp[i] - paramslt(i, SPLIT_PHIIDX)) << " " << 
+                paramslt(i, SPLIT_D0IDX) << " " << d0cmp[i] << " " <<
+                d0cmp[i] - paramslt(i, SPLIT_D0IDX) << std::endl;
+            else
+              myfile << 
+                qoverptorig << " " << qoverptcmp << " " <<
+                (qoverptcmp - qoverptorig) <<  " " <<
+                paramslt(i, SPLIT_PHIIDX) << " " << phicmp[i] << " " <<
+                (phicmp[i] - paramslt(i, SPLIT_PHIIDX)) << std::endl;
+          
+            if (verbose)
+            {
+              std::cout << "For track : " << i+1 << std::endl;
+              std::cout << " q/pt         fitt " << qoverptcmp << std::endl;
+              std::cout << " q/pt         orig " << qoverptorig << std::endl;
+              std::cout << " phi          fitt " << phicmp[i] << std::endl;
+              std::cout << " phi          orig " << paramslt(i, SPLIT_PHIIDX) << std::endl;
+              if (usealsod0)
+              { 
+                std::cout << " d0           fitt " << d0cmp[i] << std::endl;
+                std::cout << " d0           orig " << paramslt(i, SPLIT_D0IDX) << std::endl;
+              }
+            }
+          }
+        }
+        else 
+        {
+          if (usealsod0)
+            myfile << "pt_orig pt_fitt diff phi_orig phi_fitt diff " <<
+             " d0_orig d0_fitt diff" << std::endl;
+          else
+            myfile << "pt_orig pt_fitt diff phi_orig phi_fitt diff" << std::endl; 
+        
+          for (int i=0; i<(int)coordslt.n_rows; ++i)
+          {
+            double ptorig = 1.0e0 / paramslt(i, SPLIT_ONEOVERPTIDX);
+            double ptcmp = 1.0e0 / oneoverptcmp[i];
+          
+            pc[SPLIT_PHIIDX](fabs(phicmp[i] - paramslt(i, SPLIT_PHIIDX))/
+                (fabs(phicmp[i] + paramslt(i, SPLIT_PHIIDX))/2.0));
+            pc[SPLIT_ONEOVERPTIDX](fabs(ptcmp - ptorig)/
+                (fabs(ptcmp + ptorig)/2.0));
+          
+            pcabsolute[SPLIT_PHIIDX](phicmp[i] - paramslt(i, SPLIT_PHIIDX));
+            pcabsolute[SPLIT_ONEOVERPTIDX](ptcmp - ptorig);
+        
+            if (usealsod0) 
+            {
+              pc[SPLIT_D0IDX](fabs(d0cmp[i] - paramslt(i, SPLIT_D0IDX))/
+                  (fabs(d0cmp[i] + paramslt(i, SPLIT_D0IDX))/2.0));
+              pcabsolute[SPLIT_D0IDX](d0cmp[i] - paramslt(i, SPLIT_D0IDX));
+            }
+        
+            if (usealsod0)
+              myfile << 
+                ptorig << " " << ptcmp << " " <<
+                (ptcmp - ptorig) <<  " " <<
+                paramslt(i, SPLIT_PHIIDX) << " " << phicmp[i] << " " <<
+                (phicmp[i] - paramslt(i, SPLIT_PHIIDX)) << " " << 
+                paramslt(i, SPLIT_D0IDX) << " " << d0cmp[i] << " " <<  
+                d0cmp[i] - paramslt(i, SPLIT_D0IDX) << std::endl;
+            else
+              myfile << 
+                ptorig << " " << ptcmp << " " <<
+                (ptcmp - ptorig) <<  " " <<
+                paramslt(i, SPLIT_PHIIDX) << " " << phicmp[i] << " " <<
+                (phicmp[i] - paramslt(i, SPLIT_PHIIDX)) << std::endl;
+          
+            if (verbose)
+            {
+              std::cout << "For track : " << i+1 << std::endl;
+              std::cout << " pt           fitt " << ptcmp << std::endl;
+              std::cout << " pt           orig " << ptorig << std::endl;
+              std::cout << " phi          fitt " << phicmp[i] << std::endl;
+              std::cout << " phi          orig " << paramslt(i, SPLIT_PHIIDX) << std::endl;
+              if (usealsod0)
+              { 
+                std::cout << " d0           fitt " << d0cmp[i] << std::endl;
+                std::cout << " d0           orig " << paramslt(i, SPLIT_D0IDX) << std::endl;
+              }
             }
           }
         }
@@ -420,30 +453,37 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
      std::cout << "For " << fitter.paramidx_to_string(i) << " error " << 
        pcabsolute[i].mean() << " " << pcabsolute[i].stddev() << std::endl;
 
-  if (rzplane)
+  if ((singleparam >= 1) && (singleparam <= 7))
   {
-    if (usex0y0)
-    {
-      delete [] x0cmp;
-      delete [] y0cmp;
-    }
-    else
-    {
-      delete [] cotethacmp;
-      delete [] z0cmp;
-    }
+    delete [] singlep;
   }
-  else if (rphiplane)
+  else
   {
-    if (usex0y0)
+    if (rzplane)
     {
-      delete [] x0cmp;
-      delete [] y0cmp;
+      if (usex0y0)
+      {
+        delete [] x0cmp;
+        delete [] y0cmp;
+      }
+      else
+      {
+        delete [] cotethacmp;
+        delete [] z0cmp;
+      }
     }
-    else
+    else if (rphiplane)
     {
-      delete [] oneoverptcmp;
-      delete [] phicmp;
+      if (usex0y0)
+      {
+        delete [] x0cmp;
+        delete [] y0cmp;
+      }
+      else
+      {
+        delete [] oneoverptcmp;
+        delete [] phicmp;
+      }
     }
   }
 
@@ -492,6 +532,7 @@ int main (int argc, char ** argv)
   bool usecharge = true;
   bool usealsod0 = false;
   bool usex0y0 = false;
+  bool usesingleparam = false;
 
   int singleparam=-1;
 
@@ -534,6 +575,14 @@ int main (int argc, char ** argv)
 
     switch (c)
     {
+      case 's':
+        singleparam=atoi(optarg);
+        if (!((singleparam >= 1) && (singleparam <= 7)))
+          usage(argv[0]);
+
+        usesingleparam = true;
+
+        break;
       case 'f':
         usex0y0 = true;
         break;
@@ -624,68 +673,22 @@ int main (int argc, char ** argv)
   else
     fitter.set_coordim (2*6);
 
-  if (usealsod0)
-    fitter.set_paramdim(3);
+  if (usesingleparam)
+    fitter.set_paramdim(1);
   else
-    fitter.set_paramdim(2);
+  {
+    if (usealsod0)
+      fitter.set_paramdim(3);
+    else
+      fitter.set_paramdim(2);
+  }
 
   if (rzplane)
   {
-    if (usex0y0)
-    {
-      if (!fitter.set_paramidx(SPLIT_X0IDX, "x0"))
-      {
-        std::cerr << fitter.get_errmsg() << std::endl;
-        return EXIT_FAILURE;
-      }
-      if (!fitter.set_paramidx(SPLIT_Y0IDX, "y0"))
-      {
-        std::cerr << fitter.get_errmsg() << std::endl;
-        return EXIT_FAILURE;
-      }
-    }
-    else 
-    {
-      if (!fitter.set_paramidx(SPLIT_COTTETHAIDX, "cot(tetha)"))
-      {
-        std::cerr << fitter.get_errmsg() << std::endl;
-        return EXIT_FAILURE;
-      }
-      if (!fitter.set_paramidx(SPLIT_Z0IDX, "z0"))
-      {
-        std::cerr << fitter.get_errmsg() << std::endl;
-        return EXIT_FAILURE;
-      }
-    }
 
-    if (usealsod0)
-    { 
-      if (!fitter.set_paramidx(SPLIT_D0IDX, "d0"))
-      {
-        std::cerr << fitter.get_errmsg() << std::endl;
-        return EXIT_FAILURE;
-      }
-    }
-  }
-  else if (rphiplane)
-  {
-    if (usealsod0)
-    { 
-      if (!fitter.set_paramidx(SPLIT_D0IDX, "d0"))
-      {
-        std::cerr << fitter.get_errmsg() << std::endl;
-        return EXIT_FAILURE;
-      }
-    }
-
-    if (usex0y0)
+    if (usesingleparam)
     {
-      if (!fitter.set_paramidx(SPLIT_X0IDX, "x0"))
-      {
-        std::cerr << fitter.get_errmsg() << std::endl;
-        return EXIT_FAILURE;
-      }
-      if (!fitter.set_paramidx(SPLIT_Y0IDX, "y0"))
+      if (!fitter.set_paramidx(0, pca::get_paramname_from_id(singleparam).c_str()))
       {
         std::cerr << fitter.get_errmsg() << std::endl;
         return EXIT_FAILURE;
@@ -693,15 +696,74 @@ int main (int argc, char ** argv)
     }
     else
     {
-      if (!fitter.set_paramidx(SPLIT_PHIIDX, "phi"))
+      if (usex0y0)
+      {
+        if (!fitter.set_paramidx(SPLIT_X0IDX, "x0"))
+        {
+          std::cerr << fitter.get_errmsg() << std::endl;
+          return EXIT_FAILURE;
+        }
+        if (!fitter.set_paramidx(SPLIT_Y0IDX, "y0"))
+        {
+          std::cerr << fitter.get_errmsg() << std::endl;
+          return EXIT_FAILURE;
+        }
+      }
+      else 
+      {
+        if (!fitter.set_paramidx(SPLIT_COTTETHAIDX, "cot(tetha)"))
+        {
+          std::cerr << fitter.get_errmsg() << std::endl;
+          return EXIT_FAILURE;
+        }
+        if (!fitter.set_paramidx(SPLIT_Z0IDX, "z0"))
+        {
+          std::cerr << fitter.get_errmsg() << std::endl;
+          return EXIT_FAILURE;
+        }
+      }
+      
+      if (usealsod0)
+      { 
+        if (!fitter.set_paramidx(SPLIT_D0IDX, "d0"))
+        {
+          std::cerr << fitter.get_errmsg() << std::endl;
+          return EXIT_FAILURE;
+        }
+      }
+    }
+  }
+  else if (rphiplane)
+  {
+
+    if (usesingleparam)
+    {
+      if (!fitter.set_paramidx(0, pca::get_paramname_from_id(singleparam).c_str()))
       {
         std::cerr << fitter.get_errmsg() << std::endl;
         return EXIT_FAILURE;
       }
+    }
+    else
+    {
+ 
+      if (usealsod0)
+      { 
+        if (!fitter.set_paramidx(SPLIT_D0IDX, "d0"))
+        {
+          std::cerr << fitter.get_errmsg() << std::endl;
+          return EXIT_FAILURE;
+        }
+      }
       
-      if (usecharge)
+      if (usex0y0)
       {
-        if (!fitter.set_paramidx(SPLIT_ONEOVERPTIDX, "q/pt"))
+        if (!fitter.set_paramidx(SPLIT_X0IDX, "x0"))
+        {
+          std::cerr << fitter.get_errmsg() << std::endl;
+          return EXIT_FAILURE;
+        }
+        if (!fitter.set_paramidx(SPLIT_Y0IDX, "y0"))
         {
           std::cerr << fitter.get_errmsg() << std::endl;
           return EXIT_FAILURE;
@@ -709,10 +771,27 @@ int main (int argc, char ** argv)
       }
       else
       {
-        if (!fitter.set_paramidx(SPLIT_ONEOVERPTIDX, "1/pt"))
+        if (!fitter.set_paramidx(SPLIT_PHIIDX, "phi"))
         {
           std::cerr << fitter.get_errmsg() << std::endl;
           return EXIT_FAILURE;
+        }
+        
+        if (usecharge)
+        {
+          if (!fitter.set_paramidx(SPLIT_ONEOVERPTIDX, "q/pt"))
+          {
+            std::cerr << fitter.get_errmsg() << std::endl;
+            return EXIT_FAILURE;
+          }
+        }
+        else
+        {
+          if (!fitter.set_paramidx(SPLIT_ONEOVERPTIDX, "1/pt"))
+          {
+            std::cerr << fitter.get_errmsg() << std::endl;
+            return EXIT_FAILURE;
+          }
         }
       }
     }
@@ -761,7 +840,7 @@ int main (int argc, char ** argv)
        param, coord, num_of_ent, false, useonlyodd,
        rzplane, rphiplane, etamin, etamax, ptmin, ptmax, 
        usecharge, chargesign, excludesmodule, usealsod0,
-       usex0y0))
+       usex0y0, singleparam))
     return EXIT_FAILURE;
   std::cout << "Using " << param.n_rows << " tracks" << std::endl;
 
@@ -781,7 +860,7 @@ int main (int argc, char ** argv)
 
   if (!build_and_compare (param, coord, cmtx, q, verbose, 
           fitter, rzplane, rphiplane, usecharge, usealsod0,
-          usex0y0))
+          usex0y0, singleparam))
     return EXIT_FAILURE;
 
   return EXIT_SUCCESS;
