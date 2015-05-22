@@ -320,7 +320,10 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
      double ptmin, double ptmax,
      bool chargeoverpt, int chargesign, 
      bool excludesmodule, bool usealsod0, 
-     bool usex0y0, int singleparam)
+     bool usex0y0, int singleparam,
+     double phimin, double phimax,
+     double z0min, double z0max,
+     double d0min, double d0max)
 {
   int extdim = 9;
   std::string line;
@@ -329,13 +332,20 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
 
   arma::mat paramread;
   arma::mat coordread;
+
   arma::vec etavals;
+  arma::vec phivals;
   arma::vec ptvals;
+  arma::vec d0vals;
+  arma::vec z0vals;
 
   coordread.set_size(num_of_ent, fitter.get_coordim());
   paramread.set_size(num_of_ent, fitter.get_paramdim());
   etavals.set_size(num_of_ent);
+  phivals.set_size(num_of_ent);
   ptvals.set_size(num_of_ent);
+  d0vals.set_size(num_of_ent);
+  z0vals.set_size(num_of_ent);
 
   if (useonlyeven && useonlyodd)
   {
@@ -425,7 +435,10 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
     if (check_to_read (useonlyeven,useonlyodd,i))
     {
       etavals(counter) = etaread;
+      phivals(counter) = phiread;
       ptvals(counter) = ptread;
+      z0vals(counter) = z0read;
+      d0vals(counter) = d0read;
 
       if ((singleparam >= 1) && (singleparam <= 7))
       {
@@ -545,13 +558,19 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
 
   assert (coordread.n_rows == paramread.n_rows);
   assert (etavals.n_rows == paramread.n_rows);
+  assert (phivals.n_rows == paramread.n_rows);
   assert (ptvals.n_rows == paramread.n_rows);
+  assert (z0vals.n_rows == paramread.n_rows);
+  assert (d0vals.n_rows == paramread.n_rows);
 
   extdim = 0;
   for (int i=0; i<(int)etavals.n_rows; ++i)
     if ((etavals(i) <= etamax) && (etavals(i) >= etamin))
       if ((ptvals(i) <= ptmax) && (ptvals(i) >= ptmin))
-        ++extdim;
+        if ((phivals(i) <= phimax) && (phivals(i) >= phimin))
+          if ((d0vals(i) <= d0max) && (d0vals(i) >= d0min))
+            if ((z0vals(i) <= z0max) && (z0vals(i) >= z0min))
+              ++extdim;
 
   coordin.resize(extdim, fitter.get_coordim());
   paramin.resize(extdim, fitter.get_paramdim());
@@ -565,18 +584,27 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
     {
       if ((ptvals(i) <= ptmax) && (ptvals(i) >= ptmin))
       {
-        for (int j=0; j<(int)paramread.n_cols; ++j)
+        if ((phivals(i) <= phimax) && (phivals(i) >= phimin))
         {
-          paramin(counter, j) = paramread(i, j);
-          //std::cout << "Track: " << counter+1 << std::endl;
-          //std::cout <<  paramin(counter, j) << " from " << 
-          //  paramread(i, j) << std::endl;
+          if ((d0vals(i) <= d0max) && (d0vals(i) >= d0min))
+          {
+            if ((z0vals(i) <= z0max) && (z0vals(i) >= z0min))
+            {
+              for (int j=0; j<(int)paramread.n_cols; ++j)
+              {
+                paramin(counter, j) = paramread(i, j);
+                //std::cout << "Track: " << counter+1 << std::endl;
+                //std::cout <<  paramin(counter, j) << " from " << 
+                //  paramread(i, j) << std::endl;
+              }
+              
+              for (int j=0; j<(int)coordread.n_cols; ++j)
+                coordin(counter, j) = coordread(i, j);
+              
+              ++counter;
+            }
+          }
         }
-        
-        for (int j=0; j<(int)coordread.n_cols; ++j)
-          coordin(counter, j) = coordread(i, j);
-        
-        ++counter;
       }
     }
   }
