@@ -41,14 +41,20 @@ void usage (char * name)
   std::cerr << " -h, --help                      : display this help and exit" << std::endl;
   std::cerr << " -v, --version                   : print version and exit" << std::endl;
   std::cerr << " -V, --verbose                   : verbose mode on" << std::endl;
-  std::cerr << " -j, --jump-tracks               : generate the constants using only even tracks" << std::endl;
   std::cerr << " -p, --dump-allcoords            : dump all stub coordinates to a file" << std::endl;
+  std::cerr << " -e, --not-use-charge            : do not read charge from coordinatesfile " << std::endl;
+  std::cerr << std::endl;
   std::cerr << " -z, --rz-plane                  : use rz plane view (fit eta and z0)" << std::endl;
   std::cerr << " -r, --rphi-plane                : use r-phi plane view (fit pt and phi)" << std::endl;
-  std::cerr << " -e, --not-use-charge            : do not read charge from coordinatesfile " << std::endl;
+  std::cerr << std::endl;
+  std::cerr << " -j, --jump-tracks               : generate the constants using only even tracks" << std::endl;
   std::cerr << " -g, --charge-sign=[+/-]         : use only + particle or - paricle (again both planes) " << std::endl;
   std::cerr << " -t, --eta-range=\"etamin;etamax\" : specify the eta range to use " << std::endl;
   std::cerr << " -n, --pt-range=\"ptmin;ptmax\"    : specify the pt range to use " << std::endl;
+  std::cerr << " -m, --phi-range=\"phimin;phimax\" : specify the phi range to use " << std::endl;
+  std::cerr << " -o, --z0-range=\"z0min;z0max\"    : specify the z0 range to use " << std::endl;
+  std::cerr << " -u, --d0-range=\"d0min;d0max\"    : specify the d0 range to use " << std::endl;
+  std::cerr << std::endl;
   std::cerr << " -x, --exclude-s-module          : exclude S-module (last three layer) so 6 coordinates " << 
     "inseatd of 12 " << std::endl;                                  
   std::cerr << " -d, --use-d0                    : use also d0 param in both planes " << std::endl;
@@ -138,6 +144,9 @@ int main (int argc, char ** argv)
 
   double etamin = -1.0e0 * INFINITY, etamax = +1.0e0 * INFINITY;
   double ptmin = -1.0e0 * INFINITY, ptmax = +1.0e0 * INFINITY;
+  double phimin = -1.0e0 * INFINITY, phimax = +1.0e0 * INFINITY;
+  double z0min = -1.0e0 * INFINITY, z0max = +1.0e0 * INFINITY;
+  double d0min = -1.0e0 * INFINITY, d0max = +1.0e0 * INFINITY;
 
   std::vector<std::string> tokens;
 
@@ -153,26 +162,59 @@ int main (int argc, char ** argv)
       {"verbose", 0, NULL, 'V'},
       {"jump-tracks", 0, NULL, 'j'},
       {"dump-allcoords", 0, NULL, 'p'},
-      {"rz-plane", 0, NULL, 'z'},
-      {"rphi-plane", 0, NULL, 'r'},
       {"not-use-charge", 0, NULL, 'e'},
       {"charge-sign", 1, NULL, 'g'},
-      {"eta-range", 1, NULL, 't'},
+      {"rz-plane", 0, NULL, 'z'},
+      {"rphi-plane", 0, NULL, 'r'},
       {"exclude-s-module", 0, NULL, 'x'},
       {"use-d0", 0, NULL, 'd'},
-      {"pt-range", 1, NULL, 'n'},
       {"fit-x0y0", 0, NULL, 'f'}, 
       {"fit-single-param", 0, NULL, 's'}, 
+      {"pt-range", 1, NULL, 'n'},
+      {"eta-range", 1, NULL, 't'},
+      {"phi-plane", 1, NULL, 'm'},
+      {"z0-plane", 1, NULL, 'o'},
+      {"d0-plane", 1, NULL, 'u'},
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "fdxehvjpzrg:t:n:s:", long_options, &option_index);
+    c = getopt_long (argc, argv, "fdxehvjpzrg:t:n:s:m:o:u:", long_options, &option_index);
 
     if (c == -1)
       break;
 
     switch (c)
     {
+      case 'm':
+        tokens.clear();
+        pca::tokenize (optarg, tokens, ";");
+        if (tokens.size() != 2)
+          usage (argv[0]);
+
+        phimin = atof(tokens[0].c_str());
+        phimax = atof(tokens[1].c_str());
+
+        break;
+      case 'o':
+        tokens.clear();
+        pca::tokenize (optarg, tokens, ";");
+        if (tokens.size() != 2)
+          usage (argv[0]);
+
+        z0min = atof(tokens[0].c_str());
+        z0max = atof(tokens[1].c_str());
+
+        break;
+      case 'u':
+        tokens.clear();
+        pca::tokenize (optarg, tokens, ";");
+        if (tokens.size() != 2)
+          usage (argv[0]);
+
+        d0min = atof(tokens[0].c_str());
+        d0max = atof(tokens[1].c_str());
+
+        break;
       case 'V':
         verbose = true;
         break;
@@ -426,7 +468,8 @@ int main (int argc, char ** argv)
   if (!pca::reading_from_file_split (fitter, filename, paramin, coordin, 
          num_of_ent_read, useonlyeven, false, rzplane, rphiplane, 
          etamin, etamax, ptmin, ptmax, usecharge, chargesign, excludesmodule, 
-         usealsod0, usex0y0, singleparam ))
+         usealsod0, usex0y0, singleparam, phimin, phimax, z0min, z0max,
+         d0min, d0max))
     return EXIT_FAILURE;
 
   std::cout << "Using " << paramin.n_rows << " tracks" << std::endl;

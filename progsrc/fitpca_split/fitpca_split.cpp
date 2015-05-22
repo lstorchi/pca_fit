@@ -29,8 +29,9 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
   double ** ptrs;
   ptrs = new double* [fitter.get_paramdim()];
 
-  double * cotethacmp, * z0cmp, * oneoverptcmp, * phicmp, 
-         * d0cmp, * x0cmp, * y0cmp, *singlep;
+  double * cotethacmp = NULL, * z0cmp = NULL, * oneoverptcmp = NULL, 
+         * phicmp = NULL, * d0cmp = NULL, * x0cmp = NULL, * y0cmp = NULL, 
+         * singlep = NULL;
 
   if ((singleparam >= 1) && (singleparam <= 7))
   {
@@ -500,12 +501,18 @@ void usage (char * name)
   std::cerr << " -c, --cmtx=[fillename]          : CMTX filename [default is c.[rz/rphi].bin]" << std::endl;
   std::cerr << " -q, --qvct=[fillename]          : QVCT filename [default is q.[rz/rphi].bin]" << std::endl;
   std::cerr << " -j, --jump-tracks               : perform the fittin only for odd tracks" << std::endl;
+  std::cerr << " -e, --not-use-charge            : do not read charge from coordinatesfile " << std::endl;
+  std::cerr << std::endl;
   std::cerr << " -z, --rz-plane                  : use rz plane view (fit eta and z0)" << std::endl;
   std::cerr << " -r, --rphi-plane                : use r-phi plane view (fit ot and phi)" << std::endl;
-  std::cerr << " -e, --not-use-charge            : do not read charge from coordinatesfile " << std::endl;
+  std::cerr << std::endl;
   std::cerr << " -g, --charge-sign=[+/-]         : use only + particle or - paricle (again both planes)" << std::endl;
   std::cerr << " -t, --eta-range=\"etamin;etamax\" : specify the eta range to use " << std::endl;
   std::cerr << " -n, --pt-range=\"ptmin;ptmax\"    : specify the pt range to use " << std::endl;
+  std::cerr << " -m, --phi-range=\"phimin;phimax\" : specify the phi range to use " << std::endl;
+  std::cerr << " -o, --z0-range=\"z0min;z0max\"    : specify the z0 range to use " << std::endl;
+  std::cerr << " -u, --d0-range=\"d0min;d0max\"    : specify the d0 range to use " << std::endl;
+  std::cerr << std::endl;
   std::cerr << " -x, --exclude-s-module          : exclude S-module (last three layer) so 6 " << 
     "coordinates inseatd of 12 " << std::endl;
   std::cerr << " -d, --use-d0                    : use also d0 param in both planes " << std::endl;
@@ -538,6 +545,9 @@ int main (int argc, char ** argv)
 
   double etamin = -1.0e0 * INFINITY, etamax = +1.0e0 * INFINITY;
   double ptmin = -1.0e0 * INFINITY, ptmax = +1.0e0 * INFINITY;
+  double phimin = -1.0e0 * INFINITY, phimax = +1.0e0 * INFINITY;
+  double z0min = -1.0e0 * INFINITY, z0max = +1.0e0 * INFINITY;
+  double d0min = -1.0e0 * INFINITY, d0max = +1.0e0 * INFINITY;
 
   int chargesign = 0;
 
@@ -568,13 +578,43 @@ int main (int argc, char ** argv)
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "fdxezrhVjt:g:c:q:s:n:s:", long_options, &option_index);
+    c = getopt_long (argc, argv, "fdxezrhVjt:g:c:q:s:n:s:m:o:u", long_options, &option_index);
 
     if (c == -1)
       break;
 
     switch (c)
     {
+      case 'm':
+        tokens.clear();
+        pca::tokenize (optarg, tokens, ";");
+        if (tokens.size() != 2)
+          usage (argv[0]);
+
+        phimin = atof(tokens[0].c_str());
+        phimax = atof(tokens[1].c_str());
+
+        break;
+      case 'o':
+        tokens.clear();
+        pca::tokenize (optarg, tokens, ";");
+        if (tokens.size() != 2)
+          usage (argv[0]);
+
+        z0min = atof(tokens[0].c_str());
+        z0max = atof(tokens[1].c_str());
+
+        break;
+      case 'u':
+        tokens.clear();
+        pca::tokenize (optarg, tokens, ";");
+        if (tokens.size() != 2)
+          usage (argv[0]);
+
+        d0min = atof(tokens[0].c_str());
+        d0max = atof(tokens[1].c_str());
+
+        break;
       case 's':
         singleparam=atoi(optarg);
         if (!((singleparam >= 1) && (singleparam <= 7)))
@@ -840,7 +880,8 @@ int main (int argc, char ** argv)
        param, coord, num_of_ent, false, useonlyodd,
        rzplane, rphiplane, etamin, etamax, ptmin, ptmax, 
        usecharge, chargesign, excludesmodule, usealsod0,
-       usex0y0, singleparam))
+       usex0y0, singleparam, phimin, phimax, z0min, z0max,
+       d0min, d0max))
     return EXIT_FAILURE;
   std::cout << "Using " << param.n_rows << " tracks" << std::endl;
 
