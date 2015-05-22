@@ -569,12 +569,15 @@ int main (int argc, char ** argv)
       {"rphi-plane", 0, NULL, 'r'},
       {"not-use-charge", 0, NULL, 'e'},
       {"charge-sign", 1, NULL, 'g'},
-      {"eta-range", 1, NULL, 't'},
-      {"pt-range", 1, NULL, 'n'},
       {"use-d0", 0, NULL, 'd'},
       {"exclude-s-module", 0, NULL, 'x'},
       {"fit-x0y0", 0, NULL, 'f'},
       {"fit-single-param", 1, NULL, 's'},
+      {"pt-range", 1, NULL, 'n'},
+      {"eta-range", 1, NULL, 't'},
+      {"phi-range", 1, NULL, 'm'},
+      {"z0-range", 1, NULL, 'o'},
+      {"d0-range", 1, NULL, 'u'},
       {0, 0, 0, 0}
     };
 
