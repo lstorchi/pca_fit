@@ -172,9 +172,9 @@ int main (int argc, char ** argv)
       {"fit-single-param", 0, NULL, 's'}, 
       {"pt-range", 1, NULL, 'n'},
       {"eta-range", 1, NULL, 't'},
-      {"phi-plane", 1, NULL, 'm'},
-      {"z0-plane", 1, NULL, 'o'},
-      {"d0-plane", 1, NULL, 'u'},
+      {"phi-range", 1, NULL, 'm'},
+      {"z0-range", 1, NULL, 'o'},
+      {"d0-range", 1, NULL, 'u'},
       {0, 0, 0, 0}
     };
 
@@ -471,6 +471,12 @@ int main (int argc, char ** argv)
          usealsod0, usex0y0, singleparam, phimin, phimax, z0min, z0max,
          d0min, d0max))
     return EXIT_FAILURE;
+
+  if ((coordin.n_rows == 0) || (paramin.n_rows == 0))
+  {
+    std::cout << "No tracks" << std::endl;
+    return EXIT_FAILURE;
+  }
 
   std::cout << "Using " << paramin.n_rows << " tracks" << std::endl;
 
