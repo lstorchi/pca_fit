@@ -469,7 +469,7 @@ int main (int argc, char ** argv)
          num_of_ent_read, useonlyeven, false, rzplane, rphiplane, 
          etamin, etamax, ptmin, ptmax, usecharge, chargesign, excludesmodule, 
          usealsod0, usex0y0, singleparam, phimin, phimax, z0min, z0max,
-         d0min, d0max))
+         d0min, d0max, verbose))
     return EXIT_FAILURE;
 
   if ((coordin.n_rows == 0) || (paramin.n_rows == 0))
