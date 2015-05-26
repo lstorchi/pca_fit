@@ -125,7 +125,6 @@ void print_bankstub_new (TFile * inputFile, std::ostream& ss, unsigned int maxtr
        ptfile << pt[0] << std::endl;
        phifile << phi[0] << std::endl;
        d0file << d0val << std::endl;
-       d0file << x0[0] << std::endl;
        etafile << eta[0] << std::endl;
        z0file << z0[0] << std::endl;
 

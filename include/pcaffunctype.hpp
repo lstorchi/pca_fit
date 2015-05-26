@@ -66,7 +66,8 @@ namespace pca
           bool usex0y0, int singleparam, 
           double phimin, double phimax,
           double z0min, double z0max,
-          double d0min, double d0max);
+          double d0min, double d0max, 
+          bool verbose);
 
   bool file_exists(const std::string& filename);
 

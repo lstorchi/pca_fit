@@ -884,7 +884,7 @@ int main (int argc, char ** argv)
        rzplane, rphiplane, etamin, etamax, ptmin, ptmax, 
        usecharge, chargesign, excludesmodule, usealsod0,
        usex0y0, singleparam, phimin, phimax, z0min, z0max,
-       d0min, d0max))
+       d0min, d0max, verbose))
     return EXIT_FAILURE;
   std::cout << "Using " << param.n_rows << " tracks" << std::endl;
 

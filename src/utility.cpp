@@ -323,7 +323,8 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
      bool usex0y0, int singleparam,
      double phimin, double phimax,
      double z0min, double z0max,
-     double d0min, double d0max)
+     double d0min, double d0max, 
+     bool verbose)
 {
   int extdim = 9;
   std::string line;
@@ -590,6 +591,15 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
           {
             if ((z0vals(i) <= z0max) && (z0vals(i) >= z0min))
             {
+              if (verbose)
+              {
+                std::cout << "ETA : " << etavals(i) << std::endl;
+                std::cout << "PT  : " << ptvals(i) << std::endl;
+                std::cout << "PHI : " << phivals(i) << std::endl;
+                std::cout << "D0  : " << d0vals(i) << std::endl;
+                std::cout << "Z0  : " << z0vals(i) << std::endl;
+              }
+
               for (int j=0; j<(int)paramread.n_cols; ++j)
               {
                 paramin(counter, j) = paramread(i, j);
