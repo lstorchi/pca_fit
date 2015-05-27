@@ -324,6 +324,7 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
      double phimin, double phimax,
      double z0min, double z0max,
      double d0min, double d0max, 
+     bool usealsox0,
      bool verbose)
 {
   int extdim = 9;
@@ -515,6 +516,8 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
         
           if (usealsod0)
             paramread(counter, SPLIT_D0IDX) = d0read;
+          else if (usealsox0)
+            paramread(counter, SPLIT_X0IDX_NS) = x0read;
         }
         else if (rphiplane)
         {
@@ -548,6 +551,8 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
         
             if (usealsod0)
               paramread(counter, SPLIT_D0IDX) = d0read;
+            else if (usealsox0)
+              paramread(counter, SPLIT_X0IDX_NS) = x0read;
           }
         }
       }

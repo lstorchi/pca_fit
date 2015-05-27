@@ -58,6 +58,7 @@ void usage (char * name)
   std::cerr << " -x, --exclude-s-module          : exclude S-module (last three layer) so 6 coordinates " << 
     "inseatd of 12 " << std::endl;                                  
   std::cerr << " -d, --use-d0                    : use also d0 param in both planes " << std::endl;
+  std::cerr << " -X, --use-x0                    : use also x0 param in both planes " << std::endl;
   std::cerr << " -f, --fit-x0y0                  : use and fit x0 and y0 param in both planes instead of " << std::endl;
   std::cerr << "                                   eta, pt, z0, phi " << std::endl;
   std::cerr << " -s, --fit-single-param=[num]    : use and fit X param in both planes  " << std::endl;
@@ -137,6 +138,7 @@ int main (int argc, char ** argv)
   bool usealsod0 = false;
   bool usex0y0 = false;
   bool usesingleparam = false;
+  bool usealsox0 = false;
 
   int chargesign = 0;
 
@@ -168,6 +170,7 @@ int main (int argc, char ** argv)
       {"rphi-plane", 0, NULL, 'r'},
       {"exclude-s-module", 0, NULL, 'x'},
       {"use-d0", 0, NULL, 'd'},
+      {"use-x0", 0, NULL, 'X'},
       {"fit-x0y0", 0, NULL, 'f'}, 
       {"fit-single-param", 0, NULL, 's'}, 
       {"pt-range", 1, NULL, 'n'},
@@ -178,13 +181,16 @@ int main (int argc, char ** argv)
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "fdxehvjpzrg:t:n:s:m:o:u:", long_options, &option_index);
+    c = getopt_long (argc, argv, "Xfdxehvjpzrg:t:n:s:m:o:u:", long_options, &option_index);
 
     if (c == -1)
       break;
 
     switch (c)
     {
+      case 'X':
+        usealsox0 = true;
+        break;
       case 'm':
         tokens.clear();
         pca::tokenize (optarg, tokens, ";");
@@ -298,6 +304,19 @@ int main (int argc, char ** argv)
   if (optind >= argc) 
     usage (argv[0]);
 
+  if ((usealsox0) && (usealsod0))
+  {
+    std::cerr << "use also x0 and d0 cannot be used together" << std::endl;
+    usage (argv[0]);
+  }
+
+  if (usealsox0 && usex0y0)
+  {
+    std::cerr << "use also x0 and x0y0 cannot be used together" << std::endl;
+    usage (argv[0]);
+  }
+
+
   if ((rzplane && rphiplane) ||
       (!rzplane && !rphiplane))
   {
@@ -314,7 +333,7 @@ int main (int argc, char ** argv)
     fitter.set_paramdim(1);
   else
   {
-    if (usealsod0)
+    if ((usealsod0) || (usealsox0))
       fitter.set_paramdim(3);
     else
       fitter.set_paramdim(2);
@@ -367,6 +386,14 @@ int main (int argc, char ** argv)
           return EXIT_FAILURE;
         }
       }
+      else if (usealsox0)
+      {
+        if (!fitter.set_paramidx(SPLIT_X0IDX_NS, "x0"))
+        {
+          std::cerr << fitter.get_errmsg() << std::endl;
+          return EXIT_FAILURE;
+        }
+      }
     }
   }
   else if (rphiplane)
@@ -384,6 +411,14 @@ int main (int argc, char ** argv)
       if (usealsod0)
       {
         if (!fitter.set_paramidx(SPLIT_D0IDX, "d0"))
+        {
+          std::cerr << fitter.get_errmsg() << std::endl;
+          return EXIT_FAILURE;
+        }
+      }
+      else if (usealsox0)
+      {
+        if (!fitter.set_paramidx(SPLIT_X0IDX_NS, "x0"))
         {
           std::cerr << fitter.get_errmsg() << std::endl;
           return EXIT_FAILURE;
@@ -469,7 +504,7 @@ int main (int argc, char ** argv)
          num_of_ent_read, useonlyeven, false, rzplane, rphiplane, 
          etamin, etamax, ptmin, ptmax, usecharge, chargesign, excludesmodule, 
          usealsod0, usex0y0, singleparam, phimin, phimax, z0min, z0max,
-         d0min, d0max, verbose))
+         d0min, d0max, usealsox0, verbose))
     return EXIT_FAILURE;
 
   if ((coordin.n_rows == 0) || (paramin.n_rows == 0))
@@ -503,8 +538,11 @@ int main (int argc, char ** argv)
         pca::write_to_file("cottetha.txt", paramin, SPLIT_COTTETHAIDX);
         pca::write_to_file("z0.txt", paramin, SPLIT_Z0IDX);
       }
+
       if (usealsod0)
         pca::write_to_file("d0.txt", paramin, SPLIT_D0IDX);
+      else if (usealsox0)
+        pca::write_to_file("x0.txt", paramin, SPLIT_X0IDX_NS);
     }
 
     cfname << "c.rz.bin";
@@ -529,8 +567,12 @@ int main (int argc, char ** argv)
         pca::write_to_file("phi.txt", paramin, SPLIT_PHIIDX);
         pca::write_to_file("oneoverpt.txt", paramin, SPLIT_ONEOVERPTIDX);
       }
+
       if (usealsod0)
         pca::write_to_file("d0.txt", paramin, SPLIT_D0IDX);
+      else if (usealsox0)
+        pca::write_to_file("x0.txt", paramin, SPLIT_X0IDX_NS);
+ 
     }
 
     cfname << "c.rphi.bin";
