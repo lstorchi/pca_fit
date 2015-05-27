@@ -1004,14 +1004,63 @@ int main (int argc, char ** argv)
 
   if (rzplane)
   {
+    if (usesingleparam)
+    {
+      std::string name = pca::get_paramname_from_id(singleparam)+".txt"; 
+      pca::write_to_file(("tofit_"+name).c_str(), param, 0);
+    }
+    else
+    {
+      if (usex0y0)
+      {
+        pca::write_to_file("tofit_x0.txt", param, SPLIT_X0IDX);
+        pca::write_to_file("tofit_y0.txt", param, SPLIT_Y0IDX);
+      }
+      else
+      {
+        pca::write_to_file("tofit_cottetha.txt", param, SPLIT_COTTETHAIDX);
+        pca::write_to_file("tofit_z0.txt", param, SPLIT_Z0IDX);
+      }
+
+      if (usealsod0)
+        pca::write_to_file("tofit_d0.txt", param, SPLIT_D0IDX);
+      else if (usealsox0)
+        pca::write_to_file("tofit_x0.txt", param, SPLIT_X0IDX_NS);
+    }
+
     cfname = "c.rz.bin";
     qfname = "q.rz.bin";
   }
   else if (rphiplane)
   {
+    if (usesingleparam)
+    {
+      std::string name = pca::get_paramname_from_id(singleparam)+".txt"; 
+      pca::write_to_file(("tofit_"+name).c_str(), param, 0);
+    }
+    else
+    {
+      if (usex0y0)
+      {
+        pca::write_to_file("tofit_x0.txt", param, SPLIT_X0IDX);
+        pca::write_to_file("tofit_y0.txt", param, SPLIT_Y0IDX);
+      }
+      else
+      {
+        pca::write_to_file("tofit_phi.txt", param, SPLIT_PHIIDX);
+        pca::write_to_file("tofit_oneoverpt.txt", param, SPLIT_ONEOVERPTIDX);
+      }
+
+      if (usealsod0)
+        pca::write_to_file("tofit_d0.txt", param, SPLIT_D0IDX);
+      else if (usealsox0)
+        pca::write_to_file("tofit_x0.txt", param, SPLIT_X0IDX_NS);
+    }
+
     cfname = "c.rphi.bin";
     qfname = "q.rphi.bin";
   }
+
 
   pca::read_armmat(cfname.c_str(), cmtx);
   pca::read_armvct(qfname.c_str(), q);
