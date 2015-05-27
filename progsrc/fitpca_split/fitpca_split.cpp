@@ -24,7 +24,8 @@
 bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt, 
      arma::mat & cmtx, arma::rowvec & q, bool verbose, 
      pca::pcafitter & fitter, bool rzplane, bool rphiplane,
-     bool usecharge, bool usealsod0, bool usex0y0, int singleparam)
+     bool usecharge, bool usealsod0, bool usex0y0, int singleparam,
+     bool usealsox0)
 {
   double ** ptrs;
   ptrs = new double* [fitter.get_paramdim()];
@@ -32,6 +33,9 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
   double * cotethacmp = NULL, * z0cmp = NULL, * oneoverptcmp = NULL, 
          * phicmp = NULL, * d0cmp = NULL, * x0cmp = NULL, * y0cmp = NULL, 
          * singlep = NULL;
+  
+  if (usealsox0 && usex0y0)
+    return false;
 
   if ((singleparam >= 1) && (singleparam <= 7))
   {
@@ -62,6 +66,11 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
         d0cmp = new double [(int)coordslt.n_rows];
         ptrs[SPLIT_D0IDX] = d0cmp;
       }
+      else if (usealsox0)
+      {
+        x0cmp = new double [(int)coordslt.n_rows];
+        ptrs[SPLIT_X0IDX_NS] = x0cmp;
+      }
     }
     else if (rphiplane)
     {
@@ -85,6 +94,12 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
         d0cmp = new double [(int)coordslt.n_rows];
         ptrs[SPLIT_D0IDX] = d0cmp;
       }
+      else if (usealsox0)
+      {
+        x0cmp = new double [(int)coordslt.n_rows];
+        ptrs[SPLIT_X0IDX_NS] = x0cmp;
+      }
+ 
     }
   }
 
@@ -226,6 +241,12 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
                 (fabs(d0cmp[i] + paramslt(i, SPLIT_D0IDX))/2.0));
             pcabsolute[SPLIT_D0IDX](d0cmp[i] - paramslt(i, SPLIT_D0IDX));
           }
+          else if (usealsox0)
+          {
+            pc[SPLIT_X0IDX_NS](fabs(x0cmp[i] - paramslt(i, SPLIT_X0IDX_NS))/
+                (fabs(x0cmp[i] + paramslt(i, SPLIT_X0IDX_NS))/2.0));
+            pcabsolute[SPLIT_X0IDX_NS](x0cmp[i] - paramslt(i, SPLIT_X0IDX_NS));
+          }
           
           if (usealsod0)
             myfile << 
@@ -235,6 +256,14 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
               (z0cmp[i] - paramslt(i, SPLIT_Z0IDX)) << " " << 
               paramslt(i, SPLIT_D0IDX) << " " << d0cmp[i] << " " <<
               d0cmp[i] - paramslt(i, SPLIT_D0IDX) << std::endl;
+          else if (usealsox0)
+            myfile << 
+              etaorig << " " << etacmps << " " <<
+              (etacmps - etaorig) << " " <<
+              paramslt(i, SPLIT_Z0IDX) << " " << z0cmp[i] << " " <<
+              (z0cmp[i] - paramslt(i, SPLIT_Z0IDX)) << " " << 
+              paramslt(i, SPLIT_X0IDX_NS) << " " << x0cmp[i] << " " <<
+              x0cmp[i] - paramslt(i, SPLIT_X0IDX_NS) << std::endl;
           else
             myfile << 
               etaorig << " " << etacmps << " " <<
@@ -259,6 +288,11 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
             { 
               std::cout << " d0           fitt " << d0cmp[i] << std::endl;
               std::cout << " d0           orig " << paramslt(i, SPLIT_D0IDX) << std::endl;
+            }
+            else if (usealsox0)
+            {
+              std::cout << " x0           fitt " << d0cmp[i] << std::endl;
+              std::cout << " x0           orig " << paramslt(i, SPLIT_D0IDX) << std::endl;
             }
           }
         }
@@ -333,6 +367,9 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
           if (usealsod0)
             myfile << "q/pt_orig q/pt_fitt diff phi_orig phi_fitt diff " <<
              " d0_orig d0_fitt diff" << std::endl;
+          else if (usealsox0)
+            myfile << "q/pt_orig q/pt_fitt diff phi_orig phi_fitt diff " <<
+             " x0_orig x0_fitt diff" << std::endl;
           else
             myfile << "q/pt_orig q/pt_fitt diff phi_orig phi_fitt diff" << std::endl; 
         
@@ -355,6 +392,12 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
                   (fabs(d0cmp[i] + paramslt(i, SPLIT_D0IDX))/2.0));
               pcabsolute[SPLIT_D0IDX](d0cmp[i] - paramslt(i, SPLIT_D0IDX));
             }
+            else if (usealsox0)
+            {
+              pc[SPLIT_X0IDX_NS](fabs(x0cmp[i] - paramslt(i, SPLIT_X0IDX_NS))/
+                  (fabs(x0cmp[i] + paramslt(i, SPLIT_X0IDX_NS))/2.0));
+              pcabsolute[SPLIT_X0IDX_NS](x0cmp[i] - paramslt(i, SPLIT_X0IDX_NS));
+            }
           
             if (usealsod0)
               myfile << 
@@ -364,6 +407,14 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
                 (phicmp[i] - paramslt(i, SPLIT_PHIIDX)) << " " << 
                 paramslt(i, SPLIT_D0IDX) << " " << d0cmp[i] << " " <<
                 d0cmp[i] - paramslt(i, SPLIT_D0IDX) << std::endl;
+            else if (usealsox0)
+              myfile << 
+                qoverptorig << " " << qoverptcmp << " " <<
+                (qoverptcmp - qoverptorig) <<  " " <<
+                paramslt(i, SPLIT_PHIIDX) << " " << phicmp[i] << " " <<
+                (phicmp[i] - paramslt(i, SPLIT_PHIIDX)) << " " << 
+                paramslt(i, SPLIT_X0IDX_NS) << " " << x0cmp[i] << " " <<
+                x0cmp[i] - paramslt(i, SPLIT_X0IDX_NS) << std::endl;
             else
               myfile << 
                 qoverptorig << " " << qoverptcmp << " " <<
@@ -383,6 +434,11 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
                 std::cout << " d0           fitt " << d0cmp[i] << std::endl;
                 std::cout << " d0           orig " << paramslt(i, SPLIT_D0IDX) << std::endl;
               }
+              else if (usealsox0)
+              {
+                std::cout << " x0           fitt " << x0cmp[i] << std::endl;
+                std::cout << " x0           orig " << paramslt(i, SPLIT_X0IDX_NS) << std::endl;
+              }
             }
           }
         }
@@ -391,6 +447,9 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
           if (usealsod0)
             myfile << "pt_orig pt_fitt diff phi_orig phi_fitt diff " <<
              " d0_orig d0_fitt diff" << std::endl;
+          else if (usealsox0)
+            myfile << "pt_orig pt_fitt diff phi_orig phi_fitt diff " <<
+             " x0_orig x0_fitt diff" << std::endl;
           else
             myfile << "pt_orig pt_fitt diff phi_orig phi_fitt diff" << std::endl; 
         
@@ -413,6 +472,13 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
                   (fabs(d0cmp[i] + paramslt(i, SPLIT_D0IDX))/2.0));
               pcabsolute[SPLIT_D0IDX](d0cmp[i] - paramslt(i, SPLIT_D0IDX));
             }
+            else if (usealsox0)
+            {
+              pc[SPLIT_X0IDX_NS](fabs(x0cmp[i] - paramslt(i, SPLIT_X0IDX_NS))/
+                  (fabs(x0cmp[i] + paramslt(i, SPLIT_X0IDX_NS))/2.0));
+              pcabsolute[SPLIT_X0IDX_NS](x0cmp[i] - paramslt(i, SPLIT_X0IDX_NS));
+            }
+ 
         
             if (usealsod0)
               myfile << 
@@ -422,6 +488,14 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
                 (phicmp[i] - paramslt(i, SPLIT_PHIIDX)) << " " << 
                 paramslt(i, SPLIT_D0IDX) << " " << d0cmp[i] << " " <<  
                 d0cmp[i] - paramslt(i, SPLIT_D0IDX) << std::endl;
+            else if (usealsox0)
+              myfile << 
+                ptorig << " " << ptcmp << " " <<
+                (ptcmp - ptorig) <<  " " <<
+                paramslt(i, SPLIT_PHIIDX) << " " << phicmp[i] << " " <<
+                (phicmp[i] - paramslt(i, SPLIT_PHIIDX)) << " " << 
+                paramslt(i, SPLIT_X0IDX_NS) << " " << x0cmp[i] << " " <<  
+                x0cmp[i] - paramslt(i, SPLIT_X0IDX_NS) << std::endl;
             else
               myfile << 
                 ptorig << " " << ptcmp << " " <<
@@ -440,6 +514,11 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
               { 
                 std::cout << " d0           fitt " << d0cmp[i] << std::endl;
                 std::cout << " d0           orig " << paramslt(i, SPLIT_D0IDX) << std::endl;
+              }
+              else if (usealsox0)
+              {
+                std::cout << " x0           fitt " << x0cmp[i] << std::endl;
+                std::cout << " x0           orig " << paramslt(i, SPLIT_X0IDX_NS) << std::endl;
               }
             }
           }
@@ -460,6 +539,12 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
   }
   else
   {
+    if (usealsod0)
+      delete [] d0cmp;
+
+    if (usealsox0)
+      delete [] x0cmp;
+
     if (rzplane)
     {
       if (usex0y0)
@@ -516,6 +601,7 @@ void usage (char * name)
   std::cerr << " -x, --exclude-s-module          : exclude S-module (last three layer) so 6 " << 
     "coordinates inseatd of 12 " << std::endl;
   std::cerr << " -d, --use-d0                    : use also d0 param in both planes " << std::endl;
+  std::cerr << " -X, --use-x0                    : use also x0 param in both planes " << std::endl;
   std::cerr << " -f, --fit-x0y0                  : use and fit x0 and y0 param in both planes instead of " << std::endl;
   std::cerr << "                                   eta, pt, z0, phi " << std::endl;
   std::cerr << " -s, --fit-single-param=[num]    : use and fit X param in both planes  " << std::endl;
@@ -540,6 +626,7 @@ int main (int argc, char ** argv)
   bool usealsod0 = false;
   bool usex0y0 = false;
   bool usesingleparam = false;
+  bool usealsox0 = false;
 
   int singleparam=-1;
 
@@ -570,6 +657,7 @@ int main (int argc, char ** argv)
       {"not-use-charge", 0, NULL, 'e'},
       {"charge-sign", 1, NULL, 'g'},
       {"use-d0", 0, NULL, 'd'},
+      {"use-x0", 0, NULL, 'X'},
       {"exclude-s-module", 0, NULL, 'x'},
       {"fit-x0y0", 0, NULL, 'f'},
       {"fit-single-param", 1, NULL, 's'},
@@ -581,13 +669,16 @@ int main (int argc, char ** argv)
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "fdxezrhVjt:g:c:q:s:n:s:m:o:u", long_options, &option_index);
+    c = getopt_long (argc, argv, "XfdxezrhVjt:g:c:q:s:n:s:m:o:u", long_options, &option_index);
 
     if (c == -1)
       break;
 
     switch (c)
     {
+      case 'X':
+        usealsox0 = true;
+        break;
       case 'm':
         tokens.clear();
         pca::tokenize (optarg, tokens, ";");
@@ -704,6 +795,18 @@ int main (int argc, char ** argv)
   if (optind >= argc) 
     usage (argv[0]);
 
+  if ((usealsox0) && (usealsod0))
+  {
+    std::cerr << "use also x0 and d0 cannot be used together" << std::endl;
+    usage (argv[0]);
+  }
+
+  if (usealsox0 && usex0y0)
+  {
+    std::cerr << "use also x0 and x0y0 cannot be used together" << std::endl;
+    usage (argv[0]);
+  }
+
   if ((rzplane && rphiplane) ||
       (!rzplane && !rphiplane))
   {
@@ -720,7 +823,7 @@ int main (int argc, char ** argv)
     fitter.set_paramdim(1);
   else
   {
-    if (usealsod0)
+    if (usealsod0 || usealsox0)
       fitter.set_paramdim(3);
     else
       fitter.set_paramdim(2);
@@ -774,6 +877,15 @@ int main (int argc, char ** argv)
           return EXIT_FAILURE;
         }
       }
+      else if (usealsox0)
+      {
+        if (!fitter.set_paramidx(SPLIT_X0IDX_NS, "x0"))
+        {
+          std::cerr << fitter.get_errmsg() << std::endl;
+          return EXIT_FAILURE;
+        }
+      }
+
     }
   }
   else if (rphiplane)
@@ -798,6 +910,15 @@ int main (int argc, char ** argv)
           return EXIT_FAILURE;
         }
       }
+      else if (usealsox0)
+      {
+        if (!fitter.set_paramidx(SPLIT_X0IDX_NS, "x0"))
+        {
+          std::cerr << fitter.get_errmsg() << std::endl;
+          return EXIT_FAILURE;
+        }
+      }
+
       
       if (usex0y0)
       {
@@ -884,7 +1005,7 @@ int main (int argc, char ** argv)
        rzplane, rphiplane, etamin, etamax, ptmin, ptmax, 
        usecharge, chargesign, excludesmodule, usealsod0,
        usex0y0, singleparam, phimin, phimax, z0min, z0max,
-       d0min, d0max, verbose))
+       d0min, d0max, usealsox0, verbose))
     return EXIT_FAILURE;
   std::cout << "Using " << param.n_rows << " tracks" << std::endl;
 
@@ -904,7 +1025,7 @@ int main (int argc, char ** argv)
 
   if (!build_and_compare (param, coord, cmtx, q, verbose, 
           fitter, rzplane, rphiplane, usecharge, usealsod0,
-          usex0y0, singleparam))
+          usex0y0, singleparam, usealsox0))
     return EXIT_FAILURE;
 
   return EXIT_SUCCESS;
