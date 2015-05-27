@@ -24,6 +24,7 @@
 #define SPLIT_Y0IDX 1
 
 #define SPLIT_D0IDX 2
+#define SPLIT_X0IDX_NS 2
 
 namespace pca
 {
@@ -67,6 +68,7 @@ namespace pca
           double phimin, double phimax,
           double z0min, double z0max,
           double d0min, double d0max, 
+          bool usealsox0, 
           bool verbose);
 
   bool file_exists(const std::string& filename);
