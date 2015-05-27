@@ -512,7 +512,6 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
             //double tetha = atan(1.0 /  paramread(counter, SPLIT_COTTETHAIDX));
             //std::cout << etaread << " " << tetha * (180/M_PI) << std::endl;
             //just to visualize pseudorapidity 
-
           }
         
           if (usealsod0)
