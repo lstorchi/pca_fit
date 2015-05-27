@@ -497,6 +497,11 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
         {
           if (usex0y0)
           {
+            paramread(counter, SPLIT_X0IDX) = x0read;
+            paramread(counter, SPLIT_Y0IDX) = y0read;
+          }
+          else
+          {
             paramread(counter, SPLIT_Z0IDX) = z0read;
             // lstorchi: I use this to diretcly convert input parameters into
             //     better parameters for the fitting 
@@ -507,11 +512,7 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
             //double tetha = atan(1.0 /  paramread(counter, SPLIT_COTTETHAIDX));
             //std::cout << etaread << " " << tetha * (180/M_PI) << std::endl;
             //just to visualize pseudorapidity 
-          }
-          else
-          {
-            paramread(counter, SPLIT_X0IDX) = x0read;
-            paramread(counter, SPLIT_Y0IDX) = y0read;
+
           }
         
           if (usealsod0)
