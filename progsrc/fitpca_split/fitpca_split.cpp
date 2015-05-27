@@ -61,16 +61,6 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
         ptrs[SPLIT_Z0IDX] = z0cmp;
       }
       
-      if (usealsod0)
-      {
-        d0cmp = new double [(int)coordslt.n_rows];
-        ptrs[SPLIT_D0IDX] = d0cmp;
-      }
-      else if (usealsox0)
-      {
-        x0cmp = new double [(int)coordslt.n_rows];
-        ptrs[SPLIT_X0IDX_NS] = x0cmp;
-      }
     }
     else if (rphiplane)
     {
@@ -89,18 +79,19 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
         ptrs[SPLIT_PHIIDX] = phicmp;
       }
     
-      if (usealsod0)
-      {
-        d0cmp = new double [(int)coordslt.n_rows];
-        ptrs[SPLIT_D0IDX] = d0cmp;
-      }
-      else if (usealsox0)
-      {
-        x0cmp = new double [(int)coordslt.n_rows];
-        ptrs[SPLIT_X0IDX_NS] = x0cmp;
-      }
- 
     }
+
+    if (usealsod0)
+    {
+      d0cmp = new double [(int)coordslt.n_rows];
+      ptrs[SPLIT_D0IDX] = d0cmp;
+    }
+    else if (usealsox0)
+    {
+      x0cmp = new double [(int)coordslt.n_rows];
+      ptrs[SPLIT_X0IDX_NS] = x0cmp;
+    }
+
   }
 
   if (!fitter.compute_parameters (cmtx, q, coordslt, ptrs, 
@@ -126,7 +117,6 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
     {
       pc[0](fabs(singlep[i] + paramslt(i, 0))/
           (fabs(singlep[i] + paramslt(i, 0))/2.0));
-    
       pcabsolute[0](singlep[i] + paramslt(i, 0));
     
       myfile << 
@@ -207,6 +197,9 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
         if (usealsod0)
           myfile << "eta_orig eta_fitt diff z0_orig z0_fitt diff " <<
            " d0_orig d0_fitt diff" << std::endl;
+        else if (usealsox0)
+          myfile << "eta_orig eta_fitt diff z0_orig z0_fitt diff " <<
+           " x0_orig x0_fitt diff" << std::endl;
         else  
           myfile << "eta_orig eta_fitt diff z0_orig z0_fitt diff" << std::endl; 
     
