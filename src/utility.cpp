@@ -411,6 +411,11 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
           {
             coordread(counter, j*2) = z;
             coordread(counter, j*2+1) = ri;
+
+            // fake to use XY or similar plane
+            //coordread(counter, j*2) = x;
+            //coordread(counter, j*2+1) = y;
+ 
           }
           else if (rphiplane)
           {
