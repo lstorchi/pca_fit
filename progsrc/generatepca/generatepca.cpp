@@ -152,7 +152,7 @@ void perform_main_computation (const bool fast, const bool verbose,
 
   std::cout << "Compute PCA constants " << std::endl;
   fitter.compute_pca_constants (param,
-      coord, cmtx, q);
+      coord, cmtx, q, verbose);
 
   std::cout << "Write constant to file" << std::endl;
   pca::write_armmat(cfname.c_str(), cmtx);
