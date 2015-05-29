@@ -523,8 +523,14 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
   myfile.close();
 
   for (int i=0; i<fitter.get_paramdim(); ++i)
+  {
      std::cout << "For " << fitter.paramidx_to_string(i) << " error " << 
        pcabsolute[i].mean() << " " << pcabsolute[i].stddev() << std::endl;
+
+     std::cout << "For " << fitter.paramidx_to_string(i) << " error " << 
+       100.0*pc[i].mean() << " % " << 100.0*pc[i].stddev() << 
+       " % " << std::endl;
+  }
 
   if ((singleparam >= 1) && (singleparam <= 7))
   {
