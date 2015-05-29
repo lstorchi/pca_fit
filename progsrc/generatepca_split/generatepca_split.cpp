@@ -513,6 +513,43 @@ int main (int argc, char ** argv)
     return EXIT_FAILURE;
   }
 
+  /* Try correlation */ 
+  if (coordin.n_rows  != paramin.n_rows)
+  {
+    std::cerr << "num of rows should be the same" << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  if (verbose)
+  {
+    for (int i=0; i<(int)paramin.n_cols; ++i)
+    {
+      double avgval = 0.0;
+      std::cout << "Corralation param " << i << " coord ";
+      for (int j=0; j<(int)coordin.n_cols; ++j)
+      {
+        arma::vec x, y;
+        x.set_size(coordin.n_rows);
+        y.set_size(coordin.n_rows);
+    
+        for (int k=0; k<(int)coordin.n_rows; ++k)
+        {
+          x(k) = paramin(k,i);
+          y(k) = coordin(k,j); 
+        }
+    
+        double corrval;
+        arma::mat corrmat = arma::cor(x,y);
+        corrval = corrmat(0,0);
+        avgval += corrval;
+        std::cout << corrval << " "; 
+    
+      }
+    
+      std::cout << "(" << avgval/coordin.n_cols << ")" << std::endl;
+    }
+  }
+
   std::cout << "Using " << paramin.n_rows << " tracks" << std::endl;
 
   std::cout << "Writing parameters to files" << std::endl;
