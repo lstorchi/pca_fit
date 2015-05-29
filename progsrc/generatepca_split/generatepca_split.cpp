@@ -181,7 +181,7 @@ int main (int argc, char ** argv)
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "Xfdxehvjpzrg:t:n:s:m:o:u:", long_options, &option_index);
+    c = getopt_long (argc, argv, "VXfdxehvjpzrg:t:n:s:m:o:u:", long_options, &option_index);
 
     if (c == -1)
       break;
