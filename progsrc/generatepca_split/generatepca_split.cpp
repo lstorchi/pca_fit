@@ -41,6 +41,7 @@ void usage (char * name)
   std::cerr << " -h, --help                      : display this help and exit" << std::endl;
   std::cerr << " -v, --version                   : print version and exit" << std::endl;
   std::cerr << " -V, --verbose                   : verbose mode on" << std::endl;
+  std::cerr << " -l, --correlation               : compute and print correlation" << std::endl;
   std::cerr << " -p, --dump-allcoords            : dump all stub coordinates to a file" << std::endl;
   std::cerr << " -e, --not-use-charge            : do not read charge from coordinatesfile " << std::endl;
   std::cerr << std::endl;
@@ -139,6 +140,7 @@ int main (int argc, char ** argv)
   bool usex0y0 = false;
   bool usesingleparam = false;
   bool usealsox0 = false;
+  bool correlation = false;
 
   int chargesign = 0;
 
@@ -162,6 +164,7 @@ int main (int argc, char ** argv)
       {"help", 0, NULL, 'h'},
       {"version", 0, NULL, 'v'},
       {"verbose", 0, NULL, 'V'},
+      {"correlation", 0, NULL, 'l'},
       {"jump-tracks", 0, NULL, 'j'},
       {"dump-allcoords", 0, NULL, 'p'},
       {"not-use-charge", 0, NULL, 'e'},
@@ -181,13 +184,16 @@ int main (int argc, char ** argv)
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "VXfdxehvjpzrg:t:n:s:m:o:u:", long_options, &option_index);
+    c = getopt_long (argc, argv, "VXlfdxehvjpzrg:t:n:s:m:o:u:", long_options, &option_index);
 
     if (c == -1)
       break;
 
     switch (c)
     {
+      case 'l':
+        correlation = true;
+        break;
       case 'X':
         usealsox0 = true;
         break;
@@ -520,7 +526,7 @@ int main (int argc, char ** argv)
     return EXIT_FAILURE;
   }
 
-  if (verbose)
+  if (correlation)
   {
     for (int i=0; i<(int)paramin.n_cols; ++i)
     {
