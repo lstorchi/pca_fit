@@ -372,7 +372,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
             pcrelative[SPLIT_PHIIDX]((phicmp[i] - paramslt(i, SPLIT_PHIIDX))/
                 ((phicmp[i] + paramslt(i, SPLIT_PHIIDX))/2.0));
             pcrelative[SPLIT_ONEOVERPTIDX]((qoverptcmp - qoverptorig)/
-                (qoverptorig));
+                ((qoverptorig + qoverptcmp)/2.0));
           
             pcabsolute[SPLIT_PHIIDX](phicmp[i] - paramslt(i, SPLIT_PHIIDX));
             pcabsolute[SPLIT_ONEOVERPTIDX](qoverptcmp - qoverptorig);
@@ -452,7 +452,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
             pcrelative[SPLIT_PHIIDX]((phicmp[i] - paramslt(i, SPLIT_PHIIDX))/
                 ((phicmp[i] + paramslt(i, SPLIT_PHIIDX))/2.0));
             pcrelative[SPLIT_ONEOVERPTIDX]((ptcmp - ptorig)/
-                (ptorig));
+                ((ptorig + ptcmp)/2.0));
           
             pcabsolute[SPLIT_PHIIDX](phicmp[i] - paramslt(i, SPLIT_PHIIDX));
             pcabsolute[SPLIT_ONEOVERPTIDX](ptcmp - ptorig);
