@@ -120,6 +120,7 @@ void print_bankstub_new (TFile * inputFile, std::ostream& ss, unsigned int maxtr
      if ((moduleid.size() == 6)  && allAreEqual) // QA nel caso dei BankStubs questo check e' utile ?
      {
        double d0val = sqrt(pow(x0[0],2.0) + pow(y0[0],2.0));
+       d0val = (y0[0]-(tan(phi[0])*x0[0]))*cos(phi[0]);
        //double d0val = x0[0];
 
        ptfile << pt[0] << std::endl;
