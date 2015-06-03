@@ -175,7 +175,7 @@ int main (int argc, char ** argv)
       {"use-d0", 0, NULL, 'd'},
       {"use-x0", 0, NULL, 'X'},
       {"fit-x0y0", 0, NULL, 'f'}, 
-      {"fit-single-param", 0, NULL, 's'}, 
+      {"fit-single-param", 1, NULL, 's'}, 
       {"pt-range", 1, NULL, 'n'},
       {"eta-range", 1, NULL, 't'},
       {"phi-range", 1, NULL, 'm'},
