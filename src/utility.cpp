@@ -327,6 +327,17 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
      bool usealsox0,
      bool verbose)
 {
+
+  double x0min = -1.0e0 * INFINITY, x0max = +1.0e0 * INFINITY;
+  double y0min = -1.0e0 * INFINITY, y0max = +1.0e0 * INFINITY;
+
+  /*
+  x0min = -1.0e0 * INFINITY;
+  x0max = +1.0e0 * INFINITY;
+  y0min = -1.0e0 * INFINITY;
+  y0max = +1.0e0 * INFINITY;
+  */ 
+
   int extdim = 9;
   std::string line;
   std::ifstream mytfp;
@@ -348,6 +359,12 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
   ptvals.set_size(num_of_ent);
   d0vals.set_size(num_of_ent);
   z0vals.set_size(num_of_ent);
+
+  /* to set x0 and y0 range */
+  arma::vec x0vals;
+  arma::vec y0vals;
+  x0vals.set_size(num_of_ent);
+  y0vals.set_size(num_of_ent);
 
   if (useonlyeven && useonlyodd)
   {
@@ -446,6 +463,9 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
       ptvals(counter) = ptread;
       z0vals(counter) = z0read;
       d0vals(counter) = d0read;
+
+      x0vals(counter) = x0read;
+      y0vals(counter) = y0read;
 
       if ((singleparam >= 1) && (singleparam <= 7))
       {
@@ -573,6 +593,8 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
   assert (ptvals.n_rows == paramread.n_rows);
   assert (z0vals.n_rows == paramread.n_rows);
   assert (d0vals.n_rows == paramread.n_rows);
+  assert (x0vals.n_rows == paramread.n_rows);
+  assert (y0vals.n_rows == paramread.n_rows);
 
   extdim = 0;
   for (int i=0; i<(int)etavals.n_rows; ++i)
@@ -581,7 +603,9 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
         if ((phivals(i) <= phimax) && (phivals(i) >= phimin))
           if ((d0vals(i) <= d0max) && (d0vals(i) >= d0min))
             if ((z0vals(i) <= z0max) && (z0vals(i) >= z0min))
-              ++extdim;
+              if ((x0vals(i) <= x0max) && (x0vals(i) >= x0min))
+                if ((y0vals(i) <= y0max) && (y0vals(i) >= y0min))
+                  ++extdim;
 
   coordin.resize(extdim, fitter.get_coordim());
   paramin.resize(extdim, fitter.get_paramdim());
@@ -601,27 +625,33 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
           {
             if ((z0vals(i) <= z0max) && (z0vals(i) >= z0min))
             {
-              if (verbose)
+              if ((x0vals(i) <= x0max) && (x0vals(i) >= x0min))
               {
-                std::cout << "ETA : " << etavals(i) << std::endl;
-                std::cout << "PT  : " << ptvals(i) << std::endl;
-                std::cout << "PHI : " << phivals(i) << std::endl;
-                std::cout << "D0  : " << d0vals(i) << std::endl;
-                std::cout << "Z0  : " << z0vals(i) << std::endl;
+                if ((y0vals(i) <= y0max) && (y0vals(i) >= y0min))
+                {
+                  if (verbose)
+                  {
+                    std::cout << "ETA : " << etavals(i) << std::endl;
+                    std::cout << "PT  : " << ptvals(i) << std::endl;
+                    std::cout << "PHI : " << phivals(i) << std::endl;
+                    std::cout << "D0  : " << d0vals(i) << std::endl;
+                    std::cout << "Z0  : " << z0vals(i) << std::endl;
+                  }
+                  
+                  for (int j=0; j<(int)paramread.n_cols; ++j)
+                  {
+                    paramin(counter, j) = paramread(i, j);
+                    //std::cout << "Track: " << counter+1 << std::endl;
+                    //std::cout <<  paramin(counter, j) << " from " << 
+                    //  paramread(i, j) << std::endl;
+                  }
+                  
+                  for (int j=0; j<(int)coordread.n_cols; ++j)
+                    coordin(counter, j) = coordread(i, j);
+                  
+                  ++counter;
+                }
               }
-
-              for (int j=0; j<(int)paramread.n_cols; ++j)
-              {
-                paramin(counter, j) = paramread(i, j);
-                //std::cout << "Track: " << counter+1 << std::endl;
-                //std::cout <<  paramin(counter, j) << " from " << 
-                //  paramread(i, j) << std::endl;
-              }
-              
-              for (int j=0; j<(int)coordread.n_cols; ++j)
-                coordin(counter, j) = coordread(i, j);
-              
-              ++counter;
             }
           }
         }
