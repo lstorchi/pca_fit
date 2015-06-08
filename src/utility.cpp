@@ -332,11 +332,11 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
   double y0min = -1.0e0 * INFINITY, y0max = +1.0e0 * INFINITY;
 
   /*
-  x0min = -1.0e0 * INFINITY;
-  x0max = +1.0e0 * INFINITY;
-  y0min = -1.0e0 * INFINITY;
-  y0max = +1.0e0 * INFINITY;
-  */ 
+  x0min = -0.05;
+  x0max =  0.05;
+  y0min = -0.05;
+  y0max =  0.05;
+  */
 
   int extdim = 9;
   std::string line;
@@ -351,6 +351,10 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
   arma::vec ptvals;
   arma::vec d0vals;
   arma::vec z0vals;
+
+  arma::mat xyzvals;
+
+  xyzvals.set_size(num_of_ent, 3*NUMOFLAYER);
 
   coordread.set_size(num_of_ent, fitter.get_coordim());
   paramread.set_size(num_of_ent, fitter.get_paramdim());
@@ -423,6 +427,10 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
         if (check_to_read (useonlyeven,useonlyodd,i))
         {
           double ri = sqrt(pow(x, 2.0) + pow (y, 2.0));
+
+          xyzvals(counter, (3*j)+0) = x;
+          xyzvals(counter, (3*j)+1) = y;
+          xyzvals(counter, (3*j)+2) = z;
         
           if (rzplane)
           {
@@ -648,6 +656,10 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
                   
                   for (int j=0; j<(int)coordread.n_cols; ++j)
                     coordin(counter, j) = coordread(i, j);
+
+                  for (int j=0; j<NUMOFLAYER; ++j)
+                    std::cerr << xyzvals(i,(3*j)+0) << " " << xyzvals(i,(3*j)+1) << " " 
+                      << xyzvals(i,(3*j)+2) << std::endl;
                   
                   ++counter;
                 }
