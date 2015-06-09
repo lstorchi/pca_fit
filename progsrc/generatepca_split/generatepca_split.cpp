@@ -554,6 +554,34 @@ int main (int argc, char ** argv)
     
       std::cout << "(" << avgval/coordin.n_cols << ")" << std::endl;
     }
+
+    for (int i=0; i<(int)paramin.n_cols; ++i)
+    {
+      double avgval = 0.0;
+      std::cout << "Corralation param " << i << " param ";
+      for (int j=0; j<(int)paramin.n_cols; ++j)
+      {
+        arma::vec x, y;
+        x.set_size(paramin.n_rows);
+        y.set_size(paramin.n_rows);
+    
+        for (int k=0; k<(int)paramin.n_rows; ++k)
+        {
+          x(k) = paramin(k,i);
+          y(k) = paramin(k,j); 
+        }
+    
+        double corrval;
+        arma::mat corrmat = arma::cor(x,y);
+        corrval = corrmat(0,0);
+        avgval += corrval;
+        std::cout << corrval << " "; 
+    
+      }
+    
+      std::cout << "(" << avgval/paramin.n_cols << ")" << std::endl;
+    }
+
   }
 
   std::cout << "Using " << paramin.n_rows << " tracks" << std::endl;
