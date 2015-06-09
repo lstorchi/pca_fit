@@ -328,6 +328,7 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
      bool verbose)
 {
 
+#ifdef DEBUG
   double x0min = -1.0e0 * INFINITY, x0max = +1.0e0 * INFINITY;
   double y0min = -1.0e0 * INFINITY, y0max = +1.0e0 * INFINITY;
 
@@ -337,6 +338,9 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
   y0min = -0.05;
   y0max =  0.05;
   */
+
+  arma::mat xyzvals;
+#endif
 
   int extdim = 9;
   std::string line;
@@ -352,10 +356,6 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
   arma::vec d0vals;
   arma::vec z0vals;
 
-  arma::mat xyzvals;
-
-  xyzvals.set_size(num_of_ent, 3*NUMOFLAYER);
-
   coordread.set_size(num_of_ent, fitter.get_coordim());
   paramread.set_size(num_of_ent, fitter.get_paramdim());
   etavals.set_size(num_of_ent);
@@ -364,11 +364,14 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
   d0vals.set_size(num_of_ent);
   z0vals.set_size(num_of_ent);
 
+#ifdef DEBUG
   /* to set x0 and y0 range */
+  xyzvals.set_size(num_of_ent, 3*NUMOFLAYER);
   arma::vec x0vals;
   arma::vec y0vals;
   x0vals.set_size(num_of_ent);
   y0vals.set_size(num_of_ent);
+#endif
 
   if (useonlyeven && useonlyodd)
   {
@@ -428,10 +431,12 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
         {
           double ri = sqrt(pow(x, 2.0) + pow (y, 2.0));
 
+#ifdef DEBUG
           xyzvals(counter, (3*j)+0) = x;
           xyzvals(counter, (3*j)+1) = y;
           xyzvals(counter, (3*j)+2) = z;
-        
+#endif
+
           if (rzplane)
           {
             coordread(counter, j*2) = z;
@@ -472,8 +477,10 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
       z0vals(counter) = z0read;
       d0vals(counter) = d0read;
 
+#ifdef DEBUG
       x0vals(counter) = x0read;
       y0vals(counter) = y0read;
+#endif
 
       if ((singleparam >= 1) && (singleparam <= 7))
       {
@@ -601,8 +608,11 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
   assert (ptvals.n_rows == paramread.n_rows);
   assert (z0vals.n_rows == paramread.n_rows);
   assert (d0vals.n_rows == paramread.n_rows);
+
+#ifdef DEBUG  
   assert (x0vals.n_rows == paramread.n_rows);
   assert (y0vals.n_rows == paramread.n_rows);
+#endif
 
   extdim = 0;
   for (int i=0; i<(int)etavals.n_rows; ++i)
@@ -611,8 +621,10 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
         if ((phivals(i) <= phimax) && (phivals(i) >= phimin))
           if ((d0vals(i) <= d0max) && (d0vals(i) >= d0min))
             if ((z0vals(i) <= z0max) && (z0vals(i) >= z0min))
+#ifdef DEBUG              
               if ((x0vals(i) <= x0max) && (x0vals(i) >= x0min))
                 if ((y0vals(i) <= y0max) && (y0vals(i) >= y0min))
+#endif
                   ++extdim;
 
   coordin.resize(extdim, fitter.get_coordim());
@@ -633,10 +645,12 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
           {
             if ((z0vals(i) <= z0max) && (z0vals(i) >= z0min))
             {
+#ifdef DEBUG              
               if ((x0vals(i) <= x0max) && (x0vals(i) >= x0min))
               {
                 if ((y0vals(i) <= y0max) && (y0vals(i) >= y0min))
                 {
+#endif
                   if (verbose)
                   {
                     std::cout << "ETA : " << etavals(i) << std::endl;
@@ -657,13 +671,18 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
                   for (int j=0; j<(int)coordread.n_cols; ++j)
                     coordin(counter, j) = coordread(i, j);
 
+#ifdef DEBUG                  
                   for (int j=0; j<NUMOFLAYER; ++j)
                     std::cerr << xyzvals(i,(3*j)+0) << " " << xyzvals(i,(3*j)+1) << " " 
                       << xyzvals(i,(3*j)+2) << std::endl;
+#endif
+
                   
                   ++counter;
+#ifdef DEBUG                  
                 }
               }
+#endif
             }
           }
         }
