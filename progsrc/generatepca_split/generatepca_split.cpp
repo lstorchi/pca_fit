@@ -506,11 +506,13 @@ int main (int argc, char ** argv)
   // leggere file coordinate tracce simulate plus parametri
   std::cout << "Reading data from " << filename << " file " << std::endl;
 
+  arma::vec ptvals;
+
   if (!pca::reading_from_file_split (fitter, filename, paramin, coordin, 
          num_of_ent_read, useonlyeven, false, rzplane, rphiplane, 
          etamin, etamax, ptmin, ptmax, usecharge, chargesign, excludesmodule, 
          usealsod0, usex0y0, singleparam, phimin, phimax, z0min, z0max,
-         d0min, d0max, usealsox0, verbose))
+         d0min, d0max, usealsox0, verbose, ptvals))
     return EXIT_FAILURE;
 
   if ((coordin.n_rows == 0) || (paramin.n_rows == 0))

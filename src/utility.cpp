@@ -325,7 +325,8 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
      double z0min, double z0max,
      double d0min, double d0max, 
      bool usealsox0,
-     bool verbose)
+     bool verbose,
+     arma::vec & ptvalsout)
 {
 
 #ifdef DEBUG
@@ -629,6 +630,7 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
 
   coordin.resize(extdim, fitter.get_coordim());
   paramin.resize(extdim, fitter.get_paramdim());
+  ptvalsout.resize(extdim);
 
   //std::cout << "extdim: " << extdim << std::endl;
 
@@ -670,6 +672,8 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
                   
                   for (int j=0; j<(int)coordread.n_cols; ++j)
                     coordin(counter, j) = coordread(i, j);
+
+                  ptvalsout(counter) = ptvals(i);
 
 #ifdef DEBUG                  
                   for (int j=0; j<NUMOFLAYER; ++j)

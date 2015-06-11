@@ -25,7 +25,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
      arma::mat & cmtx, arma::rowvec & q, bool verbose, 
      pca::pcafitter & fitter, bool rzplane, bool rphiplane,
      bool usecharge, bool usealsod0, bool usex0y0, int singleparam,
-     bool usealsox0)
+     bool usealsox0, arma::vec & ptvals)
 {
   double ** ptrs;
   ptrs = new double* [fitter.get_paramdim()];
@@ -112,7 +112,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
 
   if ((singleparam >= 1) && (singleparam <= 7))
   {
-    myfile << "orig fitt diff " << std::endl;
+    myfile << "pt orig fitt diff " << std::endl;
     for (int i=0; i<(int)coordslt.n_rows; ++i)
     {
       pcrelative[0]((singlep[i] + paramslt(i, 0))/
@@ -120,7 +120,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
 
       pcabsolute[0](singlep[i] + paramslt(i, 0));
     
-      myfile << 
+      myfile << ptvals(i) << " " <<
         paramslt(i, 0) << " " << singlep[i] << " " <<
         singlep[i] - paramslt(i, 0) << std::endl;
     
@@ -139,10 +139,10 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
       if (usex0y0)
       {
         if (usealsod0)
-          myfile << "x0_orig x0_fitt diff y0_orig y0_fitt diff " <<
+          myfile << "pt x0_orig x0_fitt diff y0_orig y0_fitt diff " <<
            " d0_orig d0_fitt diff" << std::endl;
         else  
-          myfile << "x0_orig x0_fitt diff y0_orig y0_fitt diff" << std::endl; 
+          myfile << "pt x0_orig x0_fitt diff y0_orig y0_fitt diff" << std::endl; 
     
         for (int i=0; i<(int)coordslt.n_rows; ++i)
         {
@@ -162,7 +162,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
           }
           
           if (usealsod0)
-            myfile << 
+            myfile << ptvals(i) << " " <<
               paramslt(i, SPLIT_X0IDX) << " " << x0cmp[i] << " " <<
               (x0cmp[i] - paramslt(i, SPLIT_X0IDX)) << " " <<
               paramslt(i, SPLIT_Y0IDX) << " " << y0cmp[i] << " " <<
@@ -170,7 +170,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
               paramslt(i, SPLIT_D0IDX) << " " << d0cmp[i] << " " <<
               d0cmp[i] - paramslt(i, SPLIT_D0IDX) << std::endl;
           else
-            myfile << 
+            myfile << ptvals(i) << " " <<
               paramslt(i, SPLIT_X0IDX) << " " << x0cmp[i] << " " <<
               (x0cmp[i] - paramslt(i, SPLIT_X0IDX)) << " " <<
               paramslt(i, SPLIT_Y0IDX) << " " << y0cmp[i] << " " <<
@@ -196,13 +196,13 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
       else
       {
         if (usealsod0)
-          myfile << "eta_orig eta_fitt diff z0_orig z0_fitt diff " <<
+          myfile << "pt eta_orig eta_fitt diff z0_orig z0_fitt diff " <<
            " d0_orig d0_fitt diff" << std::endl;
         else if (usealsox0)
-          myfile << "eta_orig eta_fitt diff z0_orig z0_fitt diff " <<
+          myfile << "pt eta_orig eta_fitt diff z0_orig z0_fitt diff " <<
            " x0_orig x0_fitt diff" << std::endl;
         else  
-          myfile << "eta_orig eta_fitt diff z0_orig z0_fitt diff" << std::endl; 
+          myfile << "pt eta_orig eta_fitt diff z0_orig z0_fitt diff" << std::endl; 
     
         for (int i=0; i<(int)coordslt.n_rows; ++i)
         {
@@ -243,7 +243,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
           }
           
           if (usealsod0)
-            myfile << 
+            myfile << ptvals(i) << " " <<
               etaorig << " " << etacmps << " " <<
               (etacmps - etaorig) << " " <<
               paramslt(i, SPLIT_Z0IDX) << " " << z0cmp[i] << " " <<
@@ -251,7 +251,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
               paramslt(i, SPLIT_D0IDX) << " " << d0cmp[i] << " " <<
               d0cmp[i] - paramslt(i, SPLIT_D0IDX) << std::endl;
           else if (usealsox0)
-            myfile << 
+            myfile << ptvals(i) << " " <<
               etaorig << " " << etacmps << " " <<
               (etacmps - etaorig) << " " <<
               paramslt(i, SPLIT_Z0IDX) << " " << z0cmp[i] << " " <<
@@ -259,7 +259,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
               paramslt(i, SPLIT_X0IDX_NS) << " " << x0cmp[i] << " " <<
               x0cmp[i] - paramslt(i, SPLIT_X0IDX_NS) << std::endl;
           else
-            myfile << 
+            myfile << ptvals(i) << " " <<
               etaorig << " " << etacmps << " " <<
               (etacmps - etaorig) << " " <<
               paramslt(i, SPLIT_Z0IDX) << " " << z0cmp[i] << " " <<
@@ -298,10 +298,10 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
       if (usex0y0)
       {
         if (usealsod0)
-          myfile << "x0_orig x0_fitt diff y0_orig y0_fitt diff " <<
+          myfile << "pt x0_orig x0_fitt diff y0_orig y0_fitt diff " <<
            " d0_orig d0_fitt diff" << std::endl;
         else  
-          myfile << "x0_orig x0_fitt diff y0_orig y0_fitt diff" << std::endl; 
+          myfile << "pt x0_orig x0_fitt diff y0_orig y0_fitt diff" << std::endl; 
     
         for (int i=0; i<(int)coordslt.n_rows; ++i)
         {
@@ -321,7 +321,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
           }
           
           if (usealsod0)
-            myfile << 
+            myfile << ptvals(i) << " " <<
               paramslt(i, SPLIT_X0IDX) << " " << x0cmp[i] << " " <<
               (x0cmp[i] - paramslt(i, SPLIT_X0IDX)) << " " <<
               paramslt(i, SPLIT_Y0IDX) << " " << y0cmp[i] << " " <<
@@ -329,7 +329,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
               paramslt(i, SPLIT_D0IDX) << " " << d0cmp[i] << " " <<
               d0cmp[i] - paramslt(i, SPLIT_D0IDX) << std::endl;
           else
-            myfile << 
+            myfile << ptvals(i) << " " <<
               paramslt(i, SPLIT_X0IDX) << " " << x0cmp[i] << " " <<
               (x0cmp[i] - paramslt(i, SPLIT_X0IDX)) << " " <<
               paramslt(i, SPLIT_Y0IDX) << " " << y0cmp[i] << " " <<
@@ -356,13 +356,13 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
         if (usecharge)
         {
           if (usealsod0)
-            myfile << "q/pt_orig q/pt_fitt diff phi_orig phi_fitt diff " <<
+            myfile << "pt q/pt_orig q/pt_fitt diff phi_orig phi_fitt diff " <<
              " d0_orig d0_fitt diff" << std::endl;
           else if (usealsox0)
-            myfile << "q/pt_orig q/pt_fitt diff phi_orig phi_fitt diff " <<
+            myfile << "pt q/pt_orig q/pt_fitt diff phi_orig phi_fitt diff " <<
              " x0_orig x0_fitt diff" << std::endl;
           else
-            myfile << "q/pt_orig q/pt_fitt diff phi_orig phi_fitt diff" << std::endl; 
+            myfile << "pt q/pt_orig q/pt_fitt diff phi_orig phi_fitt diff" << std::endl; 
         
           for (int i=0; i<(int)coordslt.n_rows; ++i)
           {
@@ -391,7 +391,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
             }
           
             if (usealsod0)
-              myfile << 
+              myfile << ptvals(i) << " " <<
                 qoverptorig << " " << qoverptcmp << " " <<
                 (qoverptcmp - qoverptorig) <<  " " <<
                 paramslt(i, SPLIT_PHIIDX) << " " << phicmp[i] << " " <<
@@ -399,7 +399,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
                 paramslt(i, SPLIT_D0IDX) << " " << d0cmp[i] << " " <<
                 d0cmp[i] - paramslt(i, SPLIT_D0IDX) << std::endl;
             else if (usealsox0)
-              myfile << 
+              myfile << ptvals(i) << " " <<
                 qoverptorig << " " << qoverptcmp << " " <<
                 (qoverptcmp - qoverptorig) <<  " " <<
                 paramslt(i, SPLIT_PHIIDX) << " " << phicmp[i] << " " <<
@@ -407,7 +407,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
                 paramslt(i, SPLIT_X0IDX_NS) << " " << x0cmp[i] << " " <<
                 x0cmp[i] - paramslt(i, SPLIT_X0IDX_NS) << std::endl;
             else
-              myfile << 
+              myfile << ptvals(i) << " " <<
                 qoverptorig << " " << qoverptcmp << " " <<
                 (qoverptcmp - qoverptorig) <<  " " <<
                 paramslt(i, SPLIT_PHIIDX) << " " << phicmp[i] << " " <<
@@ -436,13 +436,13 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
         else 
         {
           if (usealsod0)
-            myfile << "pt_orig pt_fitt diff phi_orig phi_fitt diff " <<
+            myfile << "pt pt_orig pt_fitt diff phi_orig phi_fitt diff " <<
              " d0_orig d0_fitt diff" << std::endl;
           else if (usealsox0)
-            myfile << "pt_orig pt_fitt diff phi_orig phi_fitt diff " <<
+            myfile << "pt pt_orig pt_fitt diff phi_orig phi_fitt diff " <<
              " x0_orig x0_fitt diff" << std::endl;
           else
-            myfile << "pt_orig pt_fitt diff phi_orig phi_fitt diff" << std::endl; 
+            myfile << "pt pt_orig pt_fitt diff phi_orig phi_fitt diff" << std::endl; 
         
           for (int i=0; i<(int)coordslt.n_rows; ++i)
           {
@@ -472,7 +472,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
  
         
             if (usealsod0)
-              myfile << 
+              myfile << ptvals(i) << " " <<
                 ptorig << " " << ptcmp << " " <<
                 (ptcmp - ptorig) <<  " " <<
                 paramslt(i, SPLIT_PHIIDX) << " " << phicmp[i] << " " <<
@@ -480,7 +480,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
                 paramslt(i, SPLIT_D0IDX) << " " << d0cmp[i] << " " <<  
                 d0cmp[i] - paramslt(i, SPLIT_D0IDX) << std::endl;
             else if (usealsox0)
-              myfile << 
+              myfile << ptvals(i) << " " <<
                 ptorig << " " << ptcmp << " " <<
                 (ptcmp - ptorig) <<  " " <<
                 paramslt(i, SPLIT_PHIIDX) << " " << phicmp[i] << " " <<
@@ -488,7 +488,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
                 paramslt(i, SPLIT_X0IDX_NS) << " " << x0cmp[i] << " " <<  
                 x0cmp[i] - paramslt(i, SPLIT_X0IDX_NS) << std::endl;
             else
-              myfile << 
+              myfile << ptvals(i) << " " <<
                 ptorig << " " << ptcmp << " " <<
                 (ptcmp - ptorig) <<  " " <<
                 paramslt(i, SPLIT_PHIIDX) << " " << phicmp[i] << " " <<
@@ -996,13 +996,15 @@ int main (int argc, char ** argv)
   coord.set_size(num_of_ent,fitter.get_coordim());
   param.set_size(num_of_ent,fitter.get_paramdim());
 
+  arma::vec ptvals;
+
   std::cout << "Reading from file" << std::endl;
   if (!pca::reading_from_file_split (fitter, filename, 
        param, coord, num_of_ent, false, useonlyodd,
        rzplane, rphiplane, etamin, etamax, ptmin, ptmax, 
        usecharge, chargesign, excludesmodule, usealsod0,
        usex0y0, singleparam, phimin, phimax, z0min, z0max,
-       d0min, d0max, usealsox0, verbose))
+       d0min, d0max, usealsox0, verbose, ptvals))
     return EXIT_FAILURE;
   std::cout << "Using " << param.n_rows << " tracks" << std::endl;
 
@@ -1071,7 +1073,7 @@ int main (int argc, char ** argv)
 
   if (!build_and_compare (param, coord, cmtx, q, verbose, 
           fitter, rzplane, rphiplane, usecharge, usealsod0,
-          usex0y0, singleparam, usealsox0))
+          usex0y0, singleparam, usealsox0, ptvals))
     return EXIT_FAILURE;
 
   return EXIT_SUCCESS;
