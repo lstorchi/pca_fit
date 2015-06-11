@@ -69,7 +69,8 @@ namespace pca
           double z0min, double z0max,
           double d0min, double d0max, 
           bool usealsox0, 
-          bool verbose);
+          bool verbose, 
+          arma::vec & ptvals);
 
   bool file_exists(const std::string& filename);
 
