@@ -119,7 +119,7 @@ void print_bankstub_new (TFile * inputFile, std::ostream& ss, unsigned int maxtr
 
      if ((moduleid.size() == 6)  && allAreEqual) // QA nel caso dei BankStubs questo check e' utile ?
      {
-       double d0val = sqrt(pow(x0[0],2.0) + pow(y0[0],2.0));
+       double d0val;
        //d0val = (y0[0]-(tan(phi[0])*x0[0]))*cos(phi[0]);
        d0val = y0[0]*cos(phi[0])-x0[0]*sin(phi[0]);
        //double d0val = x0[0];
@@ -163,6 +163,54 @@ void print_bankstub_new (TFile * inputFile, std::ostream& ss, unsigned int maxtr
 
        countevt++;
      }
+     else if ((moduleid.size() > 6) && allAreEqual)
+     {
+       double d0val;
+       //d0val = (y0[0]-(tan(phi[0])*x0[0]))*cos(phi[0]);
+       d0val = y0[0]*cos(phi[0])-x0[0]*sin(phi[0]);
+       //double d0val = x0[0];
+
+       ptfile << pt[0] << std::endl;
+       phifile << phi[0] << std::endl;
+       d0file << d0val << std::endl;
+       etafile << eta[0] << std::endl;
+       z0file << z0[0] << std::endl;
+
+       ss << i+1 << " " << moduleid.size() << std::endl;
+
+       int j = 0;
+       for (; j<(int)moduleid.size(); ++j)
+       {
+        ss << stubx[j] << " " << stuby[j] << " " <<
+           stubz[j] << " ";
+
+        int value = moduleid[j];
+        int layer = value/1000000;
+        value = value-layer*1000000;
+        int ladder = value/10000;
+        value = value-ladder*10000;
+        int module = value/100;
+        value = value-module*100;
+        int segid = value; // QA is just this ? from the source code seems so, I need to / by 10 ?
+
+        if (usecharge)
+          ss << layer << " " << ladder << " " << 
+            module << " " << segid << " " << pdg[j] << std::endl;
+        else
+          ss << layer << " " << ladder << " " << 
+            module << " " << segid << std::endl;
+       }
+       --j;
+
+       ss << pt[j]<< " "  <<
+         phi[j] << " " << d0val << " " 
+         << eta[j] << " " << z0[j] << " " <<
+         x0[j] << " " << y0[j] << std::endl;
+
+       countevt++;
+ 
+     }
+ 
 
      if (countevt >= maxtracks)
        break;

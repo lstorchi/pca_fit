@@ -15,6 +15,8 @@
 
 #include <sys/stat.h>
 
+//#define DEBUG 1
+
 namespace
 {
   bool check_to_read (bool useonlyeven, bool useonlyodd, int i)
@@ -676,7 +678,8 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
                   ptvalsout(counter) = ptvals(i);
 
 #ifdef DEBUG                  
-                  for (int j=0; j<NUMOFLAYER; ++j)
+                  //for (int j=0; j<NUMOFLAYER; ++j)
+                  for (int j=0; j<1; ++j)
                     std::cerr << xyzvals(i,(3*j)+0) << " " << xyzvals(i,(3*j)+1) << " " 
                       << xyzvals(i,(3*j)+2) << std::endl;
 #endif
