@@ -200,8 +200,13 @@ void pca::reading_from_file (const char * filename,
   for (int i = 0; i < num_of_ent; ++i)
   {
     int fake1, fake2;
-    // valori aggiunti solo di controllo 
     mytfp >> fake1 >> fake2 ;
+    if (fake2 > NUMOFLAYER)
+    {
+      std::cerr << "Can deal only with six layers" << std::endl;
+      return;
+    }
+
 #ifdef DEBUG    
     std::cout << fake1 << " " << fake2 << std::endl;
 #endif
@@ -386,12 +391,14 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
   std::getline (mytfp, line);
   for (int i = 0; i < num_of_ent; ++i)
   {
-    int fake1, fake2;
-    // valori aggiunti solo di controllo 
-    mytfp >> fake1 >> fake2 ;
-#ifdef DEBUG    
-    std::cout << fake1 << " " << fake2 << std::endl;
-#endif
+    int fake1, realsize;
+    mytfp >> fake1 >> realsize ;
+    if (realsize > NUMOFLAYER)
+    {
+      std::cerr << "Cannot deal with more than 6 layers" << std::endl;
+      return false;
+    }
+
     std::ostringstream osss, ossl;
     osss << std::setfill('0');
     ossl << std::setfill('0');
