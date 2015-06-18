@@ -394,10 +394,7 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
     int fake1, realsize;
     mytfp >> fake1 >> realsize ;
     if (realsize > NUMOFLAYER)
-    {
-      std::cerr << "Cannot deal with more than 6 layers" << std::endl;
-      return false;
-    }
+      std::cerr << "WARNING: More than 6 layers" << std::endl;
 
     std::ostringstream osss, ossl;
     osss << std::setfill('0');
@@ -405,7 +402,7 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
 
     std::set<int> pidset;
     
-    for (int j = 0; j < NUMOFLAYER; ++j)
+    for (int j = 0; j < realsize; ++j)
     {
       int a, b, c, segid, pid;
       double x, y, z;
@@ -429,40 +426,43 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
                                               // pid is particle id (charge)
       }
 
-      if (excludesmodule)
-        if (j > 2)
-          continue;
-
-      pidset.insert(pid);
-
-      if (check_charge_sign(chargesign, pidset))
+      if (j < NUMOFLAYER)
       {
-        if (check_to_read (useonlyeven,useonlyodd,i))
+        if (excludesmodule)
+          if (j > 2)
+            continue;
+        
+        pidset.insert(pid);
+        
+        if (check_charge_sign(chargesign, pidset))
         {
-          double ri = sqrt(pow(x, 2.0) + pow (y, 2.0));
+          if (check_to_read (useonlyeven,useonlyodd,i))
+          {
+            double ri = sqrt(pow(x, 2.0) + pow (y, 2.0));
 
 #ifdef DEBUG
-          xyzvals(counter, (3*j)+0) = x;
-          xyzvals(counter, (3*j)+1) = y;
-          xyzvals(counter, (3*j)+2) = z;
+            xyzvals(counter, (3*j)+0) = x;
+            xyzvals(counter, (3*j)+1) = y;
+            xyzvals(counter, (3*j)+2) = z;
 #endif
 
-          if (rzplane)
-          {
-            coordread(counter, j*2) = z;
-            coordread(counter, j*2+1) = ri;
-
-            // fake to use XY or similar plane
-            //coordread(counter, j*2) = x;
-            //coordread(counter, j*2+1) = y;
- 
-          }
-          else if (rphiplane)
-          {
-            double phii = acos(x/ri);
+            if (rzplane)
+            {
+              coordread(counter, j*2) = z;
+              coordread(counter, j*2+1) = ri;
         
-            coordread(counter, j*2) = phii;
-            coordread(counter, j*2+1) = ri;
+              // fake to use XY or similar plane
+              //coordread(counter, j*2) = x;
+              //coordread(counter, j*2+1) = y;
+        
+            }
+            else if (rphiplane)
+            {
+              double phii = acos(x/ri);
+          
+              coordread(counter, j*2) = phii;
+              coordread(counter, j*2+1) = ri;
+            }
           }
         }
       }
