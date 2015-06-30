@@ -52,7 +52,9 @@ namespace pca
           const arma::mat & coord,
           arma::mat & cmtx, 
           arma::rowvec & q,
-          bool verbose);
+          arma::mat & vmtx, 
+          arma::mat & amtx, 
+          int verbositylevel);
 
       const std::string & get_errmsg () const;
       int get_errnum() const;
