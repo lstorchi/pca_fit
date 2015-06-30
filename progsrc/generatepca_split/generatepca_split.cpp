@@ -73,54 +73,24 @@ void perform_main_computation (const arma::mat & coord, const arma::mat & param,
     const std::string & cfname, const std::string & qfname,
     pca::pcafitter & fitter, bool verbose)
 {
-  // ordered 
-  arma::vec eigval;
-  // by row or by column ?
-  arma::mat eigvec;
-
-  std::cout << "Compute correlation mtx" << std::endl;
-  arma::mat coordm = arma::zeros<arma::mat>(fitter.get_coordim());
-  arma::mat hca = arma::zeros<arma::mat>(fitter.get_coordim(),
-      fitter.get_coordim());
-  arma::vec eigvaltmp = arma::zeros<arma::vec>(fitter.get_coordim());
-
-  eigvec = arma::zeros<arma::mat>(fitter.get_coordim(),
-      fitter.get_coordim());
-  eigval = arma::zeros<arma::vec>(fitter.get_coordim());
-
-  hca = arma::cov(coord);
-
-  std::cout << "Eigensystem" << std::endl;
-  arma::eig_sym(eigvaltmp, eigvec, hca);
- 
-  for (int i=0; i<fitter.get_coordim(); ++i)
-    eigval(i) = eigvaltmp(fitter.get_coordim()-i-1);
-
-  double totval = 0.0e0;
-  for (int i=0; i<fitter.get_coordim(); ++i)
-    totval += eigval(i);
-
-  std::cout << "Eigenvalues: " << std::endl;
-  double totvar = 0.0e0; 
-  for (int i=0; i<fitter.get_coordim(); ++i)
-  {
-    if (i < fitter.get_paramdim())
-      totvar += 100.0e0*(eigval(i)/totval);
-
-    std::cout << i+1 << " ==> " << 100.0e0*(eigval(i)/totval) 
-              << "% value: " << eigval(i) <<  std::endl;
-  }
-  std::cout << "PARAMDIM eigenvalues: " << totvar << std::endl;
-
   std::cout << fitter.get_paramdim() << " X " << fitter.get_coordim() << std::endl;
 
   arma::mat cmtx = arma::zeros<arma::mat>(fitter.get_paramdim(),
       fitter.get_coordim());
   arma::rowvec q = arma::zeros<arma::rowvec>(fitter.get_paramdim());
+  arma::mat vmtx = arma::zeros<arma::mat>(fitter.get_coordim(),
+      fitter.get_coordim());
+  arma::mat amtx = arma::zeros<arma::mat>(
+      fitter.get_coordim()-fitter.get_paramdim(),
+      fitter.get_coordim());
+
+  int verbositylevel = 1;
+  if (verbose) 
+    verbositylevel = 2;
 
   std::cout << "Compute PCA constants " << std::endl;
   fitter.compute_pca_constants (param,
-      coord, cmtx, q, verbose);
+      coord, cmtx, q, vmtx, amtx, verbositylevel);
 
   std::cout << "Write constant to file" << std::endl;
   pca::write_armmat(cfname.c_str(), cmtx);
