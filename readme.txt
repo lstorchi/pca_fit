@@ -67,42 +67,7 @@ usage: ./bin/fitpca_split [options] coordinatesfile
  -x, --exclude-s-module          : exclude S-module (last three layer) so 6 coordinates inseatd of 12 
  -d, --use-d0                    : use also d0 param in both planes 
 
-old approach to use specific sub-tower and / or sub-sub-tower  (need to be checked if using the current HEAD)
-
-usage: ./bin/generatepca [options] coordinatesfile 
-
- -h, --help                 : display this help and exit
- -V, --verbose              : verbose option on
- -v, --version              : print version and exit
- -f, --fast                 : do not perfomr pca only diag matrix
- -i, --seg-id               : use SegId instead of coordinates
- -s, --bigger-sub-tower     : use values of the bigger sub-tower
-                              (connot be used with bigger-subladder)
- -l, --bigger-sub-sub-tower : use values of the bigger sub-sub-tower 
-                              (connot be used with bigger-subsector)
- -a, --all-sub-tower        : generate the constants for all subsectors
- -r, --all-sub-sub-tower    : generate the constants for all subladders
- -j, --jump-tracks          : generate the constants using only even tracks
- -p, --dump-allcoords       : dump all stub coordinates to a file
-
-usage: ./bin/fitpca [options] coordinatesfile 
-
- -h, --help               : display this help and exit
- -V, --verbose            : verbose option on
- -v, --version            : print version and exit
- -c, --cmtx=[fillename]   : CMTX filename [default is c.bin]
- -q, --qvct=[fillename]   : QVCT filename [default is q.bin]
- -i, --seg-id             : use SegId instead of coordinates
- -s, --subsector=[subsec] : by default use values of the bigger subsector
-                            with this option you can speficy to perform 
-                            prediction for subsector subsec 
- -l, --subladder=[subld]  : by default use values of the bigger subladder 
-                            with this option you can speficy to perform 
-                            prediction for subladder subld 
- -a, --all-subsectors     : perform the fitting for all subsectors
- -r, --all-subladders     : perform the fitting for all subladders
- -j, --jump-tracks        : perform the fittin only for odd tracks
-
+old approach to use specific sub-tower and / or sub-sub-tower has been removed.
 
 Example: 
 
