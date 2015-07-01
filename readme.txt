@@ -21,51 +21,15 @@ README (Loriano Storchi) loriano@storchi.org
   
   d) Set the environment variable LD_LIBRARY_PATH to point to the armadillo library, id needed.
 
-All codes are provided with some basic help, just use the 
---help option:
+All codes are provided with some basic help, just use the  --help option:
 
-usage: ./bin/readrootfile [options] rootfile 
-
- -h, --help               : display this help and exit
- -b, --bank-stubs         : extract bankstubs
- -n, --bank-stubs-new     : extract bankstubs new version
- -e, --not-use-charge     : if new version is true by default read also charge
- -l, --l1tk-stubs         : extract l1tkstubs
- -m, --max-tracks[=value] : max value of tracks to be extracted
+./bin/readrootfile  read root file
 
 split r-phi and r-z plane:
 
-usage: ./bin/generatepca_split [options] coordinatesfile 
+./bin/generatepca_split generate pca constants.
 
- -h, --help                      : display this help and exit
- -v, --version                   : print version and exit
- -j, --jump-tracks               : generate the constants using only even tracks
- -p, --dump-allcoords            : dump all stub coordinates to a file
- -z, --rz-plane                  : use rz plane view
- -r, --rphi-plane                : use r-phi plane view
- -e, --not-use-charge            : do not read charge from coordinatesfile 
- -g, --charge-sign=[+/-]         : use only + particle or - paricle (again both planes) 
- -t, --eta-range="etamin;etamax" : specify the eta range to use 
- -n, --pt-range="ptmin;ptmax"    : specify the pt range to use 
- -x, --exclude-s-module          : exclude S-module (last three layer) so 6 coordinates inseatd of 12 
- -d, --use-d0                    : use also d0 param in both planes 
-
-usage: ./bin/fitpca_split [options] coordinatesfile 
-
- -h, --help                      : display this help and exit
- -V, --verbose                   : verbose option on
- -v, --version                   : print version and exit
- -c, --cmtx=[fillename]          : CMTX filename [default is c.[rz/rphi].bin]
- -q, --qvct=[fillename]          : QVCT filename [default is q.[rz/rphi].bin]
- -j, --jump-tracks               : perform the fittin only for odd tracks
- -z, --rz-plane                  : use rz plane view
- -r, --rphi-plane                : use r-phi plane view
- -e, --not-use-charge            : do not read charge from coordinatesfile 
- -g, --charge-sign=[+/-]         : use only + particle or - paricle (again both planes)
- -t, --eta-range="etamin;etamax" : specify the eta range to use 
- -n, --pt-range="ptmin;ptmax"    : specify the pt range to use 
- -x, --exclude-s-module          : exclude S-module (last three layer) so 6 coordinates inseatd of 12 
- -d, --use-d0                    : use also d0 param in both planes 
+./bin/fitpca_split perform spitting.
 
 old approach to use specific sub-tower and / or sub-sub-tower has been removed.
 
