@@ -162,10 +162,8 @@ bool pcafitter::compute_parameters (
       chi2check += val*val;
     }
 
-    std::cout << k << " ==> " << chi2check  << std::endl;
+    //std::cout << k << " ==> " << chi2check  << std::endl;
   }
-
-
 
   return true;
 }
