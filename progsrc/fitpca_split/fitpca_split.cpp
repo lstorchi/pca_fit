@@ -115,10 +115,10 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
     myfile << "pt orig fitt diff " << std::endl;
     for (int i=0; i<(int)coordslt.n_rows; ++i)
     {
-      pcrelative[0]((singlep[i] + paramslt(i, 0))/
-          ((singlep[i] + paramslt(i, 0))/2.0));
+      pcrelative[0]((singlep[i] - paramslt(i, 0))/
+          paramslt(i, 0));
 
-      pcabsolute[0](singlep[i] + paramslt(i, 0));
+      pcabsolute[0](singlep[i] - paramslt(i, 0));
     
       myfile << ptvals(i) << " " <<
         paramslt(i, 0) << " " << singlep[i] << " " <<
@@ -146,18 +146,18 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
     
         for (int i=0; i<(int)coordslt.n_rows; ++i)
         {
-          pcrelative[SPLIT_X0IDX]((x0cmp[i] + paramslt(i, SPLIT_X0IDX))/
-              ((x0cmp[i] + paramslt(i, SPLIT_X0IDX))/2.0));
+          pcrelative[SPLIT_X0IDX]((x0cmp[i] - paramslt(i, SPLIT_X0IDX))/
+              paramslt(i, SPLIT_X0IDX));
           pcrelative[SPLIT_Y0IDX]((y0cmp[i] - paramslt(i, SPLIT_Y0IDX))/
-              ((y0cmp[i] + paramslt(i, SPLIT_Y0IDX))/2.0));
+              paramslt(i, SPLIT_Y0IDX));
         
-          pcabsolute[SPLIT_X0IDX](x0cmp[i] + paramslt(i, SPLIT_X0IDX));
+          pcabsolute[SPLIT_X0IDX](x0cmp[i] - paramslt(i, SPLIT_X0IDX));
           pcabsolute[SPLIT_Y0IDX](y0cmp[i] - paramslt(i, SPLIT_Y0IDX));
         
           if (usealsod0) 
           {
             pcrelative[SPLIT_D0IDX]((d0cmp[i] - paramslt(i, SPLIT_D0IDX))/
-                ((d0cmp[i] + paramslt(i, SPLIT_D0IDX))/2.0));
+                paramslt(i, SPLIT_D0IDX));
             pcabsolute[SPLIT_D0IDX](d0cmp[i] - paramslt(i, SPLIT_D0IDX));
           }
           
@@ -222,9 +222,9 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
             etaorig = -1.0e0 * log (tantetha2);
         
           pcrelative[SPLIT_COTTETHAIDX]((etacmps - etaorig)/
-              ((etacmps + etaorig)/2.0));
+              etaorig);
           pcrelative[SPLIT_Z0IDX]((z0cmp[i] - paramslt(i, SPLIT_Z0IDX))/
-              ((z0cmp[i] + paramslt(i, SPLIT_Z0IDX))/2.0));
+              paramslt(i, SPLIT_Z0IDX));
         
           pcabsolute[SPLIT_COTTETHAIDX](etacmps - etaorig);
           pcabsolute[SPLIT_Z0IDX](z0cmp[i] - paramslt(i, SPLIT_Z0IDX));
@@ -232,13 +232,13 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
           if (usealsod0) 
           {
             pcrelative[SPLIT_D0IDX]((d0cmp[i] - paramslt(i, SPLIT_D0IDX))/
-                ((d0cmp[i] + paramslt(i, SPLIT_D0IDX))/2.0));
+                paramslt(i, SPLIT_D0IDX));
             pcabsolute[SPLIT_D0IDX](d0cmp[i] - paramslt(i, SPLIT_D0IDX));
           }
           else if (usealsox0)
           {
             pcrelative[SPLIT_X0IDX_NS]((x0cmp[i] - paramslt(i, SPLIT_X0IDX_NS))/
-                ((x0cmp[i] + paramslt(i, SPLIT_X0IDX_NS))/2.0));
+                paramslt(i, SPLIT_X0IDX_NS));
             pcabsolute[SPLIT_X0IDX_NS](x0cmp[i] - paramslt(i, SPLIT_X0IDX_NS));
           }
           
@@ -305,18 +305,18 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
     
         for (int i=0; i<(int)coordslt.n_rows; ++i)
         {
-          pcrelative[SPLIT_X0IDX]((x0cmp[i] + paramslt(i, SPLIT_X0IDX))/
-              ((x0cmp[i] + paramslt(i, SPLIT_X0IDX))/2.0));
+          pcrelative[SPLIT_X0IDX]((x0cmp[i] - paramslt(i, SPLIT_X0IDX))/
+              paramslt(i, SPLIT_X0IDX));
           pcrelative[SPLIT_Y0IDX]((y0cmp[i] - paramslt(i, SPLIT_Y0IDX))/
-              ((y0cmp[i] + paramslt(i, SPLIT_Y0IDX))/2.0));
+              paramslt(i, SPLIT_Y0IDX));
         
-          pcabsolute[SPLIT_X0IDX](x0cmp[i] + paramslt(i, SPLIT_X0IDX));
+          pcabsolute[SPLIT_X0IDX](x0cmp[i] - paramslt(i, SPLIT_X0IDX));
           pcabsolute[SPLIT_Y0IDX](y0cmp[i] - paramslt(i, SPLIT_Y0IDX));
         
           if (usealsod0) 
           {
             pcrelative[SPLIT_D0IDX]((d0cmp[i] - paramslt(i, SPLIT_D0IDX))/
-                ((d0cmp[i] + paramslt(i, SPLIT_D0IDX))/2.0));
+                paramslt(i, SPLIT_D0IDX));
             pcabsolute[SPLIT_D0IDX](d0cmp[i] - paramslt(i, SPLIT_D0IDX));
           }
           
@@ -370,9 +370,9 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
             double qoverptcmp = oneoverptcmp[i];
           
             pcrelative[SPLIT_PHIIDX]((phicmp[i] - paramslt(i, SPLIT_PHIIDX))/
-                ((phicmp[i] + paramslt(i, SPLIT_PHIIDX))/2.0));
+                paramslt(i, SPLIT_PHIIDX));
             pcrelative[SPLIT_ONEOVERPTIDX]((qoverptcmp - qoverptorig)/
-                ((qoverptorig + qoverptcmp)/2.0));
+                qoverptorig);
           
             pcabsolute[SPLIT_PHIIDX](phicmp[i] - paramslt(i, SPLIT_PHIIDX));
             pcabsolute[SPLIT_ONEOVERPTIDX](qoverptcmp - qoverptorig);
@@ -380,13 +380,13 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
             if (usealsod0) 
             {
               pcrelative[SPLIT_D0IDX]((d0cmp[i] - paramslt(i, SPLIT_D0IDX))/
-                  ((d0cmp[i] + paramslt(i, SPLIT_D0IDX))/2.0));
+                  paramslt(i, SPLIT_D0IDX));
               pcabsolute[SPLIT_D0IDX](d0cmp[i] - paramslt(i, SPLIT_D0IDX));
             }
             else if (usealsox0)
             {
               pcrelative[SPLIT_X0IDX_NS]((x0cmp[i] - paramslt(i, SPLIT_X0IDX_NS))/
-                  ((x0cmp[i] + paramslt(i, SPLIT_X0IDX_NS))/2.0));
+                  paramslt(i, SPLIT_X0IDX_NS));
               pcabsolute[SPLIT_X0IDX_NS](x0cmp[i] - paramslt(i, SPLIT_X0IDX_NS));
             }
           
@@ -450,9 +450,9 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
             double ptcmp = 1.0e0 / oneoverptcmp[i];
           
             pcrelative[SPLIT_PHIIDX]((phicmp[i] - paramslt(i, SPLIT_PHIIDX))/
-                ((phicmp[i] + paramslt(i, SPLIT_PHIIDX))/2.0));
+                paramslt(i, SPLIT_PHIIDX));
             pcrelative[SPLIT_ONEOVERPTIDX]((ptcmp - ptorig)/
-                ((ptorig + ptcmp)/2.0));
+                ptorig);
           
             pcabsolute[SPLIT_PHIIDX](phicmp[i] - paramslt(i, SPLIT_PHIIDX));
             pcabsolute[SPLIT_ONEOVERPTIDX](ptcmp - ptorig);
@@ -460,13 +460,13 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
             if (usealsod0) 
             {
               pcrelative[SPLIT_D0IDX]((d0cmp[i] - paramslt(i, SPLIT_D0IDX))/
-                  ((d0cmp[i] + paramslt(i, SPLIT_D0IDX))/2.0));
+                  paramslt(i, SPLIT_D0IDX));
               pcabsolute[SPLIT_D0IDX](d0cmp[i] - paramslt(i, SPLIT_D0IDX));
             }
             else if (usealsox0)
             {
               pcrelative[SPLIT_X0IDX_NS]((x0cmp[i] - paramslt(i, SPLIT_X0IDX_NS))/
-                  ((x0cmp[i] + paramslt(i, SPLIT_X0IDX_NS))/2.0));
+                  paramslt(i, SPLIT_X0IDX_NS));
               pcabsolute[SPLIT_X0IDX_NS](x0cmp[i] - paramslt(i, SPLIT_X0IDX_NS));
             }
  
