@@ -394,7 +394,17 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
     int fake1, realsize;
     mytfp >> fake1 >> realsize ;
     if (realsize > NUMOFLAYER)
+    {
       std::cerr << "WARNING: More than 6 layers" << std::endl;
+      std::cerr << "         Not checking missing stub TODO" << std::endl;
+    }
+
+    if (realsize < NUMOFLAYER)
+    {
+      std::cerr << "WARNING: less than 6 layers" << std::endl;
+      std::cerr << "         wont use it" << std::endl;
+      continue;
+    }
 
     std::ostringstream osss, ossl;
     osss << std::setfill('0');
