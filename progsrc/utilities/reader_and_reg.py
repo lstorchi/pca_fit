@@ -95,13 +95,15 @@ for i in range(numofline):
 
   print "RPhi plane: "
   slope, intercept, r_value, p_value, std_err = stats.linregress(rval,phival)
-  print slope, intercept, r_value
-  print "c/pt: ", charge/pt, " phi: ", paramlinelist[1]
+  print " r: ", r_value
+  print "c/pt: ", charge/pt, " slope: ", slope
+  print "phi: ", phi , " intercept: ", intercept, " diff: ", intercept-phi
 
   print "RZ plane: "
   slope, intercept, r_value, p_value, std_err = stats.linregress(rval,zval)
-  print slope, intercept, r_value
-  print " eta: ", paramlinelist[3], "  z0: ", paramlinelist[4]
+  print " r: ", r_value
+  print " eta: ", eta, " slope: ", slope, " diff: ", eta-slope
+  print "  z0: ", z0, " intercept: ", intercept, " diff: ", z0-intercept
 
   print " "
 
