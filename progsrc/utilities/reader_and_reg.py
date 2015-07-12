@@ -23,10 +23,6 @@ else:
 
 numofline = file_len(filename)
 
-numofline = (numofline-1) 
-
-rint 
-
 fp = open(filename, "r")
 
 # jump first line
@@ -34,6 +30,9 @@ fp.readline()
 
 for i in range(numofline):
   l = fp.readline()
+
+  if not l: 
+    break
 
   p = re.compile(r'\s+')
   line = p.sub(' ', l)
@@ -47,11 +46,22 @@ for i in range(numofline):
   for j in range(numof):
     coordline = fp.readline()
 
+    coordline = p.sub(' ', coordline)
+    coordline = coordline.lstrip()
+    coordline = coordline.rstrip()
+           
+    coordlinelist = coordline.split(" ")
+
+    print coordlinelist
+
   paramline = fp.readline()
 
-  print paramline
+  paramline = p.sub(' ', paramline)
+  paramline = paramline.lstrip()
+  paramline = paramline.rstrip()
 
+  paramlinelist = paramline.split(" ")
 
-
+  print paramlinelist
 
 fp.close()
