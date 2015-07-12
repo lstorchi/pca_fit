@@ -1,3 +1,4 @@
+import numpy
 import math
 import sys
 import re
@@ -46,6 +47,11 @@ for i in range(numofline):
 
   numof = int(plist[1])
 
+  rval = numpy.zeros(numof)
+  phival = numpy.zeros(numof)
+  zval = numpy.zeros(numof)
+  charge = 0.0
+
   for j in range(numof):
     coordline = fp.readline()
 
@@ -55,19 +61,24 @@ for i in range(numofline):
            
     coordlinelist = coordline.split(" ")
 
-    x = []
-    y = []
+    pid = int(coordlinelist[7])
 
-    ri = math.sqrt(math.pow(coordlinelist[0], 2.0) + 
-        math.pow (coordlinelist[1], 2.0))
-    phii = 
+    if (pid > 0):
+      charge = 1.0
+    else:
+      charge = -1.0
 
-    x.append(ri)
-    y.append(phii)
+    xi = float(coordlinelist[0])
+    yi = float(coordlinelist[1])
+    zi = float(coordlinelist[2])
 
-    slope, intercept, r_value, p_value, std_err = stats.linregress(x,y)
+    ri = math.sqrt(math.pow(xi, 2.0) + math.pow (yi, 2.0))
+    phii = math.acos(xi/ri)
 
-    print coordlinelist
+
+    rval[j] = ri
+    phival[j] = phii
+    zval[j] = zi
 
   paramline = fp.readline()
 
@@ -77,6 +88,21 @@ for i in range(numofline):
 
   paramlinelist = paramline.split(" ")
 
-  print paramlinelist
+  pt = float(paramlinelist[0])
+  phi = float(paramlinelist[1])
+  eta = float(paramlinelist[3])
+  z0 = float(paramlinelist[4])
+
+  print "RPhi plane: "
+  slope, intercept, r_value, p_value, std_err = stats.linregress(rval,phival)
+  print slope, intercept, r_value
+  print "c/pt: ", charge/pt, " phi: ", paramlinelist[1]
+
+  print "RZ plane: "
+  slope, intercept, r_value, p_value, std_err = stats.linregress(rval,zval)
+  print slope, intercept, r_value
+  print " eta: ", paramlinelist[3], "  z0: ", paramlinelist[4]
+
+  print " "
 
 fp.close()
