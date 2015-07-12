@@ -488,6 +488,9 @@ int main (int argc, char ** argv)
 
   int num_of_ent = num_of_ent_read;
 
+  std::cout << "Chage it need to be changed for endcap and hybrid....." << std::endl;
+ 
+
   if (useonlyeven)
   {
     if (num_of_ent_read % 2)
