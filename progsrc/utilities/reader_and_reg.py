@@ -1,5 +1,8 @@
+import math
 import sys
 import re
+
+from scipy import stats
 
 ####################################################################
 
@@ -51,6 +54,18 @@ for i in range(numofline):
     coordline = coordline.rstrip()
            
     coordlinelist = coordline.split(" ")
+
+    x = []
+    y = []
+
+    ri = math.sqrt(math.pow(coordlinelist[0], 2.0) + 
+        math.pow (coordlinelist[1], 2.0))
+    phii = 
+
+    x.append(ri)
+    y.append(phii)
+
+    slope, intercept, r_value, p_value, std_err = stats.linregress(x,y)
 
     print coordlinelist
 
