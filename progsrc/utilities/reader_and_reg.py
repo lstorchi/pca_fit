@@ -99,6 +99,8 @@ for i in range(numofline):
   phi = float(paramlinelist[1])
   eta = float(paramlinelist[3])
   z0 = float(paramlinelist[4])
+  theta = 2.0 * math.atan (math.exp(-eta))
+  pz = pt * math.cos(theta)
 
   # quick check for layers id
   if (layersids != "5678910"):
@@ -119,7 +121,8 @@ for i in range(numofline):
   
     #print "RZ plane using layers 1 and 3: "
     slope = (zval[2]-zval[0])/(rval[2]-rval[0])
-    print "layers 1 3 eta: ", eta, "     slope: ", slope,     " diff: ", eta-slope
+    print "layers 1 3 eta: ", eta, "     slope: ", slope,     " diff: ", eta-slope, \
+        " theta: ", theta*180.0/math.pi
     #intercept = zval[0] - slope*rval[0]
     #print "layers 1 3  z0: ", z0,  " intercept: ", intercept, " diff: ", z0-intercept
 

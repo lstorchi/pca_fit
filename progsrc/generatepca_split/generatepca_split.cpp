@@ -348,7 +348,7 @@ int main (int argc, char ** argv)
       }
       else
       {
-        if (!fitter.set_paramidx(SPLIT_COTTETHAIDX, "cot(tetha)"))
+        if (!fitter.set_paramidx(SPLIT_COTTHETAIDX, "cot(theta)"))
         {
           std::cerr << fitter.get_errmsg() << std::endl;
           return EXIT_FAILURE;
@@ -586,7 +586,7 @@ int main (int argc, char ** argv)
       }
       else
       {
-        pca::write_to_file("cottetha.txt", paramin, SPLIT_COTTETHAIDX);
+        pca::write_to_file("cottheta.txt", paramin, SPLIT_COTTHETAIDX);
         pca::write_to_file("z0.txt", paramin, SPLIT_Z0IDX);
       }
 

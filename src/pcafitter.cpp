@@ -347,14 +347,14 @@ bool pcafitter::compute_pca_constants (
     paramm(PTIDX) += param(i, PTIDX);
     paramm(PHIIDX) += param(i, PHIIDX);
     paramm(D0IDX) += param(i, D0IDX);
-    paramm(TETHAIDX) += param(i, TETHAIDX);
+    paramm(THETAIDX) += param(i, THETAIDX);
     paramm(Z0IDX) += param(i, Z0IDX);
   }
 
   paramm(PTIDX) /= (double) coord.n_rows;
   paramm(PHIIDX) /= (double) coord.n_rows;
   paramm(D0IDX) /= (double) coord.n_rows;
-  paramm(TETHAIDTETHAIDX(double) coord.n_rows;
+  paramm(THETAIDTHETAIDX(double) coord.n_rows;
   paramm(Z0IDX) /= (double) coord.n_rows;
 
   std::cout << paramm(PTIDX) << " " << mean(param, 0) << std::endl;
