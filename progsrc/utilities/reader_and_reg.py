@@ -33,6 +33,7 @@ fp = open(filename, "r")
 fp.readline()
 
 etadiffvalues = []
+etadiffvalues_pzbin = []
 
 for i in range(numofline):
   l = fp.readline()
@@ -135,8 +136,16 @@ for i in range(numofline):
   
     etadiffvalues.append(eta-slope)
 
+    if (pz >= 0.0) and (pz <= 1.0):
+      etadiffvalues_pzbin.append(eta-slope)
+
 print "Num of events: ", len(etadiffvalues)
 print "Mean val: ", numpy.mean(etadiffvalues)
 print "STD  val: ", numpy.std(etadiffvalues)
+print " "
+print "pz bin 0.0 1.0"
+print "Num of events: ", len(etadiffvalues_pzbin)
+print "Mean val: ", numpy.mean(etadiffvalues_pzbin)
+print "STD  val: ", numpy.std(etadiffvalues_pzbin)
 
 fp.close()
