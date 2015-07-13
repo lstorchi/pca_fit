@@ -125,6 +125,7 @@ for i in range(numofline):
         " theta: ", theta*180.0/math.pi
     #intercept = zval[0] - slope*rval[0]
     #print "layers 1 3  z0: ", z0,  " intercept: ", intercept, " diff: ", z0-intercept
+    print " pz: ", pz
 
     #print "RZPhi plane using layers 1 and 3: "
     #slope = (phival[2]-phival[0])/(rval[2]-rval[0])
