@@ -32,7 +32,7 @@ fp = open(filename, "r")
 # jump first line
 fp.readline()
 
-diffvalues = []
+etadiffvalues = []
 
 for i in range(numofline):
   l = fp.readline()
@@ -102,32 +102,38 @@ for i in range(numofline):
 
   # quick check for layers id
   if (layersids != "5678910"):
-    print "Wron seq: ", layersids
+    print >> sys.stderr, "Wron seq: ", layersids
   else:
-    print " "
-    print "RPhi plane: "
-    slope, intercept, r_value, p_value, std_err = stats.linregress(rval,phival)
-    print "r: ", r_value
-    print "c/pt: ", charge/pt, " slope: ", slope
-    print "phi: ", phi , " intercept: ", intercept, " diff: ", intercept-phi
+    #print " "
+    #print "RPhi plane: "
+    #slope, intercept, r_value, p_value, std_err = stats.linregress(rval,phival)
+    #print "r: ", r_value
+    #print "c/pt: ", charge/pt, " slope: ", slope
+    #print "phi: ", phi , " intercept: ", intercept, " diff: ", intercept-phi
   
-    print "RZ plane: "
-    slope, intercept, r_value, p_value, std_err = stats.linregress(rval,zval)
-    print "r: ", r_value
-    print "eta: ", eta, " slope: ", slope, " diff: ", eta-slope
-    print "z0: ", z0, " intercept: ", intercept, " diff: ", z0-intercept
+    #print "RZ plane: "
+    #slope, intercept, r_value, p_value, std_err = stats.linregress(rval,zval)
+    #print "r: ", r_value
+    #print "eta: ", eta, " slope: ", slope, " diff: ", eta-slope
+    #print "z0: ", z0, " intercept: ", intercept, " diff: ", z0-intercept
   
-    print "RZ plane using layers 1 and 3: "
+    #print "RZ plane using layers 1 and 3: "
     slope = (zval[2]-zval[0])/(rval[2]-rval[0])
     print "layers 1 3 eta: ", eta, "     slope: ", slope,     " diff: ", eta-slope
-    intercept = zval[0] - slope*rval[0]
-    print "layers 1 3  z0: ", z0,  " intercept: ", intercept, " diff: ", z0-intercept
-    print " "
-  
-    diffvalues.append(eta-slope)
+    #intercept = zval[0] - slope*rval[0]
+    #print "layers 1 3  z0: ", z0,  " intercept: ", intercept, " diff: ", z0-intercept
 
-print "Num of events: ", len(diffvalues)
-print "Mean val: ", numpy.mean(diffvalues)
-print "STD  val: ", numpy.std(diffvalues)
+    #print "RZPhi plane using layers 1 and 3: "
+    #slope = (phival[2]-phival[0])/(rval[2]-rval[0])
+    #print "layers 1 3 c/pt: ", charge/pt, "     slope: ", slope
+    #intercept = phival[0] - slope*rval[0]
+    #print "layers 1 3  phi: ", phi,  " intercept: ", intercept, " diff: ", phi-intercept
+    #print " "
+  
+    etadiffvalues.append(eta-slope)
+
+print "Num of events: ", len(etadiffvalues)
+print "Mean val: ", numpy.mean(etadiffvalues)
+print "STD  val: ", numpy.std(etadiffvalues)
 
 fp.close()
