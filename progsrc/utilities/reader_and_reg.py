@@ -32,6 +32,8 @@ fp = open(filename, "r")
 # jump first line
 fp.readline()
 
+diffvalues = []
+
 for i in range(numofline):
   l = fp.readline()
 
@@ -52,6 +54,8 @@ for i in range(numofline):
   phival = numpy.zeros(numof)
   charge = 0.0
 
+  layersids = ""
+
   for j in range(numof):
     coordline = fp.readline()
 
@@ -60,6 +64,8 @@ for i in range(numofline):
     coordline = coordline.rstrip()
            
     coordlinelist = coordline.split(" ")
+
+    layersids += coordlinelist[3]
 
     pid = int(coordlinelist[7])
 
@@ -82,36 +88,45 @@ for i in range(numofline):
     #print ri, " ", zi
 
   paramline = fp.readline()
-
+  
   paramline = p.sub(' ', paramline)
   paramline = paramline.lstrip()
   paramline = paramline.rstrip()
-
+  
   paramlinelist = paramline.split(" ")
-
+  
   pt = float(paramlinelist[0])
   phi = float(paramlinelist[1])
   eta = float(paramlinelist[3])
   z0 = float(paramlinelist[4])
 
-  print " "
-  print "RPhi plane: "
-  slope, intercept, r_value, p_value, std_err = stats.linregress(rval,phival)
-  print "r: ", r_value
-  print "c/pt: ", charge/pt, " slope: ", slope
-  print "phi: ", phi , " intercept: ", intercept, " diff: ", intercept-phi
+  # quick check for layers id
+  if (layersids != "5678910"):
+    print "Wron seq: ", layersids
+  else:
+    print " "
+    print "RPhi plane: "
+    slope, intercept, r_value, p_value, std_err = stats.linregress(rval,phival)
+    print "r: ", r_value
+    print "c/pt: ", charge/pt, " slope: ", slope
+    print "phi: ", phi , " intercept: ", intercept, " diff: ", intercept-phi
+  
+    print "RZ plane: "
+    slope, intercept, r_value, p_value, std_err = stats.linregress(rval,zval)
+    print "r: ", r_value
+    print "eta: ", eta, " slope: ", slope, " diff: ", eta-slope
+    print "z0: ", z0, " intercept: ", intercept, " diff: ", z0-intercept
+  
+    print "RZ plane using layers 1 and 3: "
+    slope = (zval[2]-zval[0])/(rval[2]-rval[0])
+    print "layers 1 3 eta: ", eta, "     slope: ", slope,     " diff: ", eta-slope
+    intercept = zval[0] - slope*rval[0]
+    print "layers 1 3  z0: ", z0,  " intercept: ", intercept, " diff: ", z0-intercept
+    print " "
+  
+    diffvalues.append(eta-slope)
 
-  print "RZ plane: "
-  slope, intercept, r_value, p_value, std_err = stats.linregress(rval,zval)
-  print "r: ", r_value
-  print "eta: ", eta, " slope: ", slope, " diff: ", eta-slope
-  print "z0: ", z0, " intercept: ", intercept, " diff: ", z0-intercept
-
-  print "RZ plane using layers 1 and 3: "
-  slope = (zval[2]-zval[0])/(rval[2]-rval[0])
-  print "layers 1 3 eta: ", eta, "     slope: ", slope,     " diff: ", eta-slope
-  intercept = zval[0] - slope*rval[0]
-  print "layers 1 3  z0: ", z0,  " intercept: ", intercept, " diff: ", z0-intercept
-  print " "
+print "Mean val: ", numpy.mean(diffvalues)
+print "STD  val: ", numpy.std(diffvalues)
 
 fp.close()
