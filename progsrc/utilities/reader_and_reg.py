@@ -47,9 +47,9 @@ for i in range(numofline):
 
   numof = int(plist[1])
 
+  zval = numpy.zeros(numof)
   rval = numpy.zeros(numof)
   phival = numpy.zeros(numof)
-  zval = numpy.zeros(numof)
   charge = 0.0
 
   for j in range(numof):
@@ -75,10 +75,11 @@ for i in range(numofline):
     ri = math.sqrt(math.pow(xi, 2.0) + math.pow (yi, 2.0))
     phii = math.acos(xi/ri)
 
-
     rval[j] = ri
     phival[j] = phii
     zval[j] = zi
+
+    #print ri, " ", zi
 
   paramline = fp.readline()
 
@@ -93,6 +94,7 @@ for i in range(numofline):
   eta = float(paramlinelist[3])
   z0 = float(paramlinelist[4])
 
+  print " "
   print "RPhi plane: "
   slope, intercept, r_value, p_value, std_err = stats.linregress(rval,phival)
   print "r: ", r_value
@@ -105,6 +107,11 @@ for i in range(numofline):
   print "eta: ", eta, " slope: ", slope, " diff: ", eta-slope
   print "z0: ", z0, " intercept: ", intercept, " diff: ", z0-intercept
 
+  print "RZ plane using layers 1 and 3: "
+  slope = (zval[2]-zval[0])/(rval[2]-rval[0])
+  print "layers 1 3 eta: ", eta, "     slope: ", slope,     " diff: ", eta-slope
+  intercept = zval[0] - slope*rval[0]
+  print "layers 1 3  z0: ", z0,  " intercept: ", intercept, " diff: ", z0-intercept
   print " "
 
 fp.close()
