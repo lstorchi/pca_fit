@@ -124,10 +124,12 @@ bool pcafitter::compute_parameters (
     }
   }
 
+  /*
   for (int k=0; k<coordim_; ++k)
   {
     std::cout << coordmval[k].mean() << " " << coordmval[k].stddev() << std::endl;
   }
+  */
 
   for (int k=0; k<(int)coord.n_rows; ++k)
   {
@@ -140,7 +142,7 @@ bool pcafitter::compute_parameters (
       }
     }
 
-    std::cout << k << " ==> " << chi2values(k)  << std::endl;
+    //std::cout << k << " ==> " << chi2values(k)  << std::endl;
   }
 
   for (int k=0; k<(int)coord.n_rows; ++k)
