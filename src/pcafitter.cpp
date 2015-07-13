@@ -91,12 +91,18 @@ std::string pcafitter::paramidx_to_string (int i)
   return "";
 }
 
-bool pcafitter::compute_parameters (const arma::mat & cmtx, 
+bool pcafitter::compute_parameters (
+    const arma::mat & cmtx, 
     const arma::rowvec & q, 
+    const arma::mat & amtx,
+    const arma::mat & vmtx,
     const arma::mat & coord, 
-    double ** paraptr, int paramdim)
+    double ** paraptr, int paramdim,
+    arma::rowvec & chi2values)
 {
   reset_error();
+
+  arma::running_stat<double> coordmval[ coordim_ ];
 
   if (paramdim != paramdim_)
   {
@@ -111,8 +117,52 @@ bool pcafitter::compute_parameters (const arma::mat & cmtx,
     {
       ptr[i] = q(j);
       for (int k=0; k<coordim_; ++k)
+      {
+        coordmval[k](coord(i,k));
         ptr[i] += cmtx(j,k)*coord(i,k);
+      }
     }
+  }
+
+  for (int k=0; k<coordim_; ++k)
+  {
+    std::cout << coordmval[k].mean() << " " << coordmval[k].stddev() << std::endl;
+  }
+
+  for (int k=0; k<(int)coord.n_rows; ++k)
+  {
+    for (int i=0; i<coordim_; ++i)
+    {
+      for (int j=0; j<coordim_; ++j)
+      {
+        chi2values(k) += (coord(k,i) - coordmval[i].mean()) * 
+          vmtx(i, j) * (coord(k,j) - coordmval[j].mean());
+      }
+    }
+
+    std::cout << k << " ==> " << chi2values(k)  << std::endl;
+  }
+
+  for (int k=0; k<(int)coord.n_rows; ++k)
+  {
+    double chi2check = 0.0;
+
+    for (int i=0; i<coordim_-paramdim_; ++i)
+    {
+      double val = 0.0;
+
+      /* ki */
+      for (int a=0; a<coordim_; ++a)
+        val += amtx(i, a) * coordmval[a].mean();
+
+      /* sum over j */
+      for (int j=0; j<coordim_; ++j)
+        val += amtx(i,j) * coord(k,j);
+
+      chi2check += val*val;
+    }
+
+    //std::cout << k << " ==> " << chi2check  << std::endl;
   }
 
   return true;
@@ -171,13 +221,79 @@ void pcafitter::extract_sub (const std::vector<std::string> & sublist,
   }
 }
 
-void pcafitter::compute_pca_constants (
+bool pcafitter::compute_pca_constants (
     const arma::mat & param, 
     const arma::mat & coord,
     arma::mat & cmtx, 
     arma::rowvec & q, 
-    bool verbose)
+    arma::mat & vmtx,
+    arma::mat & amtx,
+    int verbositylevel)
 {
+
+  if (this->get_paramdim() <= 0)
+    return false; 
+  
+  if (this->get_coordim() <= 0)
+    return false;
+
+  // ordered 
+  arma::vec eigval;
+  // by row or by column ?
+  arma::mat eigvec;
+
+  if (verbositylevel == 1)
+    std::cout << "Compute correlation mtx" << std::endl;
+
+  arma::mat hca = arma::zeros<arma::mat>(this->get_coordim(),
+      this->get_coordim());
+  arma::vec eigvaltmp = arma::zeros<arma::vec>(this->get_coordim());
+
+  eigvec = arma::zeros<arma::mat>(this->get_coordim(),
+      this->get_coordim());
+  eigval = arma::zeros<arma::vec>(this->get_coordim());
+
+  hca = arma::cov(coord);
+
+  if (verbositylevel == 1)
+    std::cout << "Eigensystem" << std::endl;
+
+  arma::eig_sym(eigvaltmp, eigvec, hca);
+
+  /* compute A matrix */
+  for (int i=0; i<this->get_coordim()-this->get_paramdim(); ++i)
+  {
+    for (int j=0; j<this->get_coordim(); ++j)
+    {
+      amtx(i, j) = eigvec(j, i+this->get_paramdim())/
+        sqrt(eigvaltmp(i+this->get_paramdim()));
+    }
+  }
+ 
+  for (int i=0; i<this->get_coordim(); ++i)
+    eigval(i) = eigvaltmp(this->get_coordim()-i-1);
+
+  double totval = 0.0e0;
+  for (int i=0; i<this->get_coordim(); ++i)
+    totval += eigval(i);
+
+  if (verbositylevel == 1)
+    std::cout << "Eigenvalues: " << std::endl;
+
+  double totvar = 0.0e0; 
+  for (int i=0; i<this->get_coordim(); ++i)
+  {
+    if (i < this->get_paramdim())
+      totvar += 100.0e0*(eigval(i)/totval);
+
+    if (verbositylevel == 1)
+      std::cout << i+1 << " ==> " << 100.0e0*(eigval(i)/totval) 
+              << "% value: " << eigval(i) <<  std::endl;
+  }
+
+  if (verbositylevel == 1)
+    std::cout << this->get_paramdim() << " eigenvalues: " << totvar << std::endl;
+
   arma::mat v = arma::zeros<arma::mat>(coordim_,coordim_);
   v = arma::cov(coord);
 
@@ -195,13 +311,13 @@ void pcafitter::compute_pca_constants (
   std::cout << corr;
 #endif
 
-  arma::mat vi = arma::zeros<arma::mat>(coordim_,coordim_);
-  vi = arma::inv(v); 
+  //arma::mat vi = arma::zeros<arma::mat>(coordim_,coordim_);
+  vmtx = arma::inv(v); 
   //vi = v.i();
 
 #ifdef DEBUG
   std::cout << "inverse by cov matrix: " << std::endl;
-  std::cout << v * vi ;
+  std::cout << v * vmtx, ;
 #endif
 
   // and so on ...
@@ -251,15 +367,13 @@ void pcafitter::compute_pca_constants (
   for (int i=0; i<paramdim_; ++i)
     for (int l=0; l<coordim_; ++l)
       for (int m=0; m<coordim_; ++m)
-        cmtx(i,l) += vi(l,m) * hcap (m,i);
+        cmtx(i,l) += vmtx(l,m) * hcap (m,i);
 
-//#ifdef DEBUG
-  if (verbose)
+  if (verbositylevel == 2)
   {
     std::cout << "C matrix: " << std::endl;
     std::cout << cmtx;
   }
-//#endif 
 
   for (int i=0; i<paramdim_; ++i)
   {
@@ -268,15 +382,14 @@ void pcafitter::compute_pca_constants (
       q(i) -= cmtx(i,l)*coordm(l);
   }
 
-//#ifdef DEBUG
-  if (verbose)
+  if (verbositylevel == 2)
   {
     std::cout << "Q vector: " << std::endl;
     for (int i=0; i<paramdim_; ++i)
       std::cout << q(i) << std::endl;
   }
-//#endif
 
+  return true;
 }
 
 const std::string & pcafitter::get_errmsg () const
