@@ -11,10 +11,10 @@
 #define ONEOVERPTIDX 0
 #define PHIIDX 1
 #define D0IDX 2
-#define COTTETHAIDX 3
+#define COTTHETAIDX 3
 #define Z0IDX 4
 
-#define SPLIT_COTTETHAIDX 0
+#define SPLIT_COTTHETAIDX 0
 #define SPLIT_Z0IDX 1
 
 #define SPLIT_ONEOVERPTIDX 0

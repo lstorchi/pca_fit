@@ -30,7 +30,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
   double ** ptrs;
   ptrs = new double* [fitter.get_paramdim()];
 
-  double * cotethacmp = NULL, * z0cmp = NULL, * oneoverptcmp = NULL, 
+  double * cothetacmp = NULL, * z0cmp = NULL, * oneoverptcmp = NULL, 
          * phicmp = NULL, * d0cmp = NULL, * x0cmp = NULL, * y0cmp = NULL, 
          * singlep = NULL;
   
@@ -55,9 +55,9 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
       }
       else
       {
-        cotethacmp = new double [(int)coordslt.n_rows];
+        cothetacmp = new double [(int)coordslt.n_rows];
         z0cmp = new double [(int)coordslt.n_rows];
-        ptrs[SPLIT_COTTETHAIDX] = cotethacmp;
+        ptrs[SPLIT_COTTHETAIDX] = cothetacmp;
         ptrs[SPLIT_Z0IDX] = z0cmp;
       }
       
@@ -210,27 +210,27 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
     
         for (int i=0; i<(int)coordslt.n_rows; ++i)
         {
-          double tethacmp = atan(1.0e0 / cotethacmp[i]) ; 
-          double etacmps = 0.0e0, tantetha2;
-          tantetha2 = tan (tethacmp/2.0e0); 
-          if (tantetha2 < 0.0)
-            etacmps = 1.0e0 * log (-1.0e0 * tantetha2);
+          double thetacmp = atan(1.0e0 / cothetacmp[i]) ; 
+          double etacmps = 0.0e0, tantheta2;
+          tantheta2 = tan (thetacmp/2.0e0); 
+          if (tantheta2 < 0.0)
+            etacmps = 1.0e0 * log (-1.0e0 * tantheta2);
           else
-            etacmps = -1.0e0 * log (tantetha2);
-          double tetha = atan(1.0e0 / paramslt(i, SPLIT_COTTETHAIDX));
+            etacmps = -1.0e0 * log (tantheta2);
+          double theta = atan(1.0e0 / paramslt(i, SPLIT_COTTHETAIDX));
           double etaorig = 0.0e0;
-          tantetha2 = tan (tetha/2.0e0);
-          if (tantetha2 < 0.0)
-            etaorig = 1.0e0 * log (-1.0e0 * tantetha2);
+          tantheta2 = tan (theta/2.0e0);
+          if (tantheta2 < 0.0)
+            etaorig = 1.0e0 * log (-1.0e0 * tantheta2);
           else
-            etaorig = -1.0e0 * log (tantetha2);
+            etaorig = -1.0e0 * log (tantheta2);
         
-          pcrelative[SPLIT_COTTETHAIDX]((etacmps - etaorig)/
+          pcrelative[SPLIT_COTTHETAIDX]((etacmps - etaorig)/
               etaorig);
           pcrelative[SPLIT_Z0IDX]((z0cmp[i] - paramslt(i, SPLIT_Z0IDX))/
               paramslt(i, SPLIT_Z0IDX));
         
-          pcabsolute[SPLIT_COTTETHAIDX](etacmps - etaorig);
+          pcabsolute[SPLIT_COTTHETAIDX](etacmps - etaorig);
           pcabsolute[SPLIT_Z0IDX](z0cmp[i] - paramslt(i, SPLIT_Z0IDX));
         
           if (usealsod0) 
@@ -272,12 +272,12 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
           if (verbose)
           {
             std::cout << "For track : " << i+1 << std::endl;
-            std::cout << " cotetha      fitt " << cotethacmp[i] << std::endl;
-            std::cout << " cotetha      orig " << paramslt(i, SPLIT_COTTETHAIDX) << std::endl;
-            std::cout << " tetha rad    fitt " << tethacmp << std::endl;
-            std::cout << " tetha rad    orig " << tetha << std::endl;
-            std::cout << " tetha deg    fitt " << tethacmp*(180.0e0/M_PI) << std::endl;
-            std::cout << " tetha deg    orig " << tetha*(180.0e0/M_PI) << std::endl;
+            std::cout << " cotheta      fitt " << cothetacmp[i] << std::endl;
+            std::cout << " cotheta      orig " << paramslt(i, SPLIT_COTTHETAIDX) << std::endl;
+            std::cout << " theta rad    fitt " << thetacmp << std::endl;
+            std::cout << " theta rad    orig " << theta << std::endl;
+            std::cout << " theta deg    fitt " << thetacmp*(180.0e0/M_PI) << std::endl;
+            std::cout << " theta deg    orig " << theta*(180.0e0/M_PI) << std::endl;
             std::cout << " eta          fitt " << etacmps << std::endl;
             std::cout << " eta          orig " << etaorig << std::endl;
             std::cout << " z0           fitt " << z0cmp[i] << std::endl;
@@ -555,7 +555,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
       }
       else
       {
-        delete [] cotethacmp;
+        delete [] cothetacmp;
         delete [] z0cmp;
       }
     }
@@ -871,7 +871,7 @@ int main (int argc, char ** argv)
       }
       else 
       {
-        if (!fitter.set_paramidx(SPLIT_COTTETHAIDX, "cot(tetha)"))
+        if (!fitter.set_paramidx(SPLIT_COTTHETAIDX, "cot(theta)"))
         {
           std::cerr << fitter.get_errmsg() << std::endl;
           return EXIT_FAILURE;
@@ -1042,7 +1042,7 @@ int main (int argc, char ** argv)
       }
       else
       {
-        pca::write_to_file("tofit_cottetha.txt", param, SPLIT_COTTETHAIDX);
+        pca::write_to_file("tofit_cottheta.txt", param, SPLIT_COTTHETAIDX);
         pca::write_to_file("tofit_z0.txt", param, SPLIT_Z0IDX);
       }
 

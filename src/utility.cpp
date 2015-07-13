@@ -290,10 +290,10 @@ void pca::reading_from_file (const char * filename,
       paramin(counter, Z0IDX) = z0read;
       // lstorchi: I use this to diretcly convert input parameters into
       //     better parameters for the fitting 
-      // eta = -ln[tan(tetha / 2)]
-      // tetha = 2 * arctan (e^(-eta))
-      // cotan (tetha) = cotan (2 * arctan (e^(-eta)))
-      paramin(counter, COTTETHAIDX) =  cot(2.0 * atan (exp (-1.0e0 * etaread)));
+      // eta = -ln[tan(theta / 2)]
+      // theta = 2 * arctan (e^(-eta))
+      // cotan (theta) = cotan (2 * arctan (e^(-eta)))
+      paramin(counter, COTTHETAIDX) =  cot(2.0 * atan (exp (-1.0e0 * etaread)));
       // use 1/pt 
       paramin(counter, ONEOVERPTIDX) = 1.0e0 / ptread;
 
@@ -565,12 +565,12 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
             paramread(counter, SPLIT_Z0IDX) = z0read;
             // lstorchi: I use this to diretcly convert input parameters into
             //     better parameters for the fitting 
-            // eta = -ln[tan(tetha / 2)]
-            // tetha = 2 * arctan (e^(-eta))
-            // cotan (tetha) = cotan (2 * arctan (e^(-eta)))
-            paramread(counter, SPLIT_COTTETHAIDX) =  cot(2.0 * atan (exp (-1.0e0 * etaread)));
-            //double tetha = atan(1.0 /  paramread(counter, SPLIT_COTTETHAIDX));
-            //std::cout << etaread << " " << tetha * (180/M_PI) << std::endl;
+            // eta = -ln[tan(theta / 2)]
+            // theta = 2 * arctan (e^(-eta))
+            // cotan (theta) = cotan (2 * arctan (e^(-eta)))
+            paramread(counter, SPLIT_COTTHETAIDX) =  cot(2.0 * atan (exp (-1.0e0 * etaread)));
+            //double theta = atan(1.0 /  paramread(counter, SPLIT_COTTHETAIDX));
+            //std::cout << etaread << " " << theta * (180/M_PI) << std::endl;
             //just to visualize pseudorapidity 
           }
         
