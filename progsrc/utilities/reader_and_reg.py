@@ -126,6 +126,7 @@ for i in range(numofline):
   
     diffvalues.append(eta-slope)
 
+print "Num of events: ", len(diffvalues)
 print "Mean val: ", numpy.mean(diffvalues)
 print "STD  val: ", numpy.std(diffvalues)
 
