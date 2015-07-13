@@ -22,8 +22,8 @@
 
 
 bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt, 
-     arma::mat & cmtx, arma::rowvec & q, bool verbose, 
-     pca::pcafitter & fitter, bool rzplane, bool rphiplane,
+     arma::mat & cmtx, arma::rowvec & q, arma::mat & amtx, arma::mat & vmtx, 
+     bool verbose, pca::pcafitter & fitter, bool rzplane, bool rphiplane,
      bool usecharge, bool usealsod0, bool usex0y0, int singleparam,
      bool usealsox0, arma::vec & ptvals)
 {
@@ -94,8 +94,12 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
 
   }
 
-  if (!fitter.compute_parameters (cmtx, q, coordslt, ptrs, 
-        fitter.get_paramdim()))
+  arma::rowvec chi2values;
+  chi2values.resize(coordslt.n_rows);
+
+  if (!fitter.compute_parameters (cmtx, q, amtx, vmtx, 
+        coordslt, ptrs, fitter.get_paramdim(), 
+        chi2values))
   {
     std::cerr << fitter.get_errmsg() << std::endl;
     return false;
@@ -582,6 +586,8 @@ void usage (char * name)
   std::cerr << " -v, --version                   : print version and exit" << std::endl;
   std::cerr << " -c, --cmtx=[fillename]          : CMTX filename [default is c.[rz/rphi].bin]" << std::endl;
   std::cerr << " -q, --qvct=[fillename]          : QVCT filename [default is q.[rz/rphi].bin]" << std::endl;
+  std::cerr << " -c, --amtx=[fillename]          : AMTX filename [default is a.[rz/rphi].bin]" << std::endl;
+  std::cerr << " -q, --vmtx=[fillename]          : VMTX filename [default is v.[rz/rphi].bin]" << std::endl;
   std::cerr << " -j, --jump-tracks               : perform the fittin only for odd tracks" << std::endl;
   std::cerr << " -e, --not-use-charge            : do not read charge from coordinatesfile " << std::endl;
   std::cerr << std::endl;
@@ -611,8 +617,10 @@ int main (int argc, char ** argv)
 {
   pca::pcafitter fitter;
 
-  std::string qfname;
-  std::string cfname;
+  std::string qfname = "";
+  std::string cfname = "";
+  std::string afname = "";
+  std::string vfname = "";
   std::string subsec = "";
   std::string sublad = "";
   bool verbose = false;
@@ -645,6 +653,8 @@ int main (int argc, char ** argv)
     static struct option long_options[] = {
       {"help", 0, NULL, 'h'},
       {"cmtx", 1, NULL, 'c'},
+      {"amtx", 1, NULL, 'A'},
+      {"vmtx", 1, NULL, 'B'},
       {"qvct", 1, NULL, 'q'},
       {"verbose", 0, NULL, 'V'},
       {"version", 0, NULL, 'v'},
@@ -666,7 +676,8 @@ int main (int argc, char ** argv)
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "XfdxezrhVjt:g:c:q:s:n:s:m:o:u", long_options, &option_index);
+    c = getopt_long (argc, argv, "XfdxezrhVjA:B:t:g:c:q:s:n:s:m:o:u", 
+        long_options, &option_index);
 
     if (c == -1)
       break;
@@ -779,6 +790,12 @@ int main (int argc, char ** argv)
         break;
       case 'q':
         qfname = optarg;
+        break;
+      case'A':
+        afname = optarg;
+        break;
+      case 'B':
+        vfname = optarg;
         break;
       case 'e':
         usecharge = false;
@@ -965,7 +982,7 @@ int main (int argc, char ** argv)
   // N righe di 9 double sono le coordinate
   // matrice C e vettore q sono le costanti
   
-  arma::mat cmtx;
+  arma::mat cmtx, amtx, vmtx;
   arma::rowvec q;
 
   // leggere file coordinate tracce simulate plus parametri
@@ -1035,8 +1052,17 @@ int main (int argc, char ** argv)
         pca::write_to_file("tofit_x0.txt", param, SPLIT_X0IDX_NS);
     }
 
-    cfname = "c.rz.bin";
-    qfname = "q.rz.bin";
+    if (cfname == "")
+      cfname = "c.rz.bin";
+
+    if (qfname == "")
+      qfname = "q.rz.bin";
+
+    if (afname == "")
+      afname = "a.rz.bin";
+
+    if (vfname == "")
+      vfname = "v.rz.bin";
   }
   else if (rphiplane)
   {
@@ -1064,17 +1090,27 @@ int main (int argc, char ** argv)
         pca::write_to_file("tofit_x0.txt", param, SPLIT_X0IDX_NS);
     }
 
-    cfname = "c.rphi.bin";
-    qfname = "q.rphi.bin";
+    if (cfname == "")
+      cfname = "c.rphi.bin";
+
+    if (qfname == "")
+      qfname = "q.rphi.bin";
+
+    if (afname == "")
+      afname = "a.rz.bin";
+
+    if (vfname == "")
+      vfname = "v.rz.bin";
   }
 
-
   pca::read_armmat(cfname.c_str(), cmtx);
+  pca::read_armmat(vfname.c_str(), vmtx);
+  pca::read_armmat(afname.c_str(), amtx);
   pca::read_armvct(qfname.c_str(), q);
 
-  if (!build_and_compare (param, coord, cmtx, q, verbose, 
-          fitter, rzplane, rphiplane, usecharge, usealsod0,
-          usex0y0, singleparam, usealsox0, ptvals))
+  if (!build_and_compare (param, coord, cmtx, q, amtx, vmtx, 
+        verbose, fitter, rzplane, rphiplane, usecharge, 
+        usealsod0, usex0y0, singleparam, usealsox0, ptvals))
     return EXIT_FAILURE;
 
   return EXIT_SUCCESS;
