@@ -140,7 +140,7 @@ for i in range(numofline):
     if (pz >= 0.0) and (pz <= 1.0):
       etadiffvalues_pzbin.append(eta-slope)
 
-    if (eta > -0.6) and (eta < -0.5):
+    if (eta > -0.6) and (eta < -0.4):
       etadiffvalues_etabin.append(eta-slope)
 
 print "Num of events: ", len(etadiffvalues)
