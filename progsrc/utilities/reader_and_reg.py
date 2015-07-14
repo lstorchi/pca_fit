@@ -33,8 +33,12 @@ fp = open(filename, "r")
 fp.readline()
 
 etadiffvalues = []
-etadiffvalues_pzbin = []
-etadiffvalues_etabin = []
+#etadiffvalues_pzbin = []
+etadiffvalues_etabin1 = []
+etadiffvalues_etabin2 = []
+etadiffvalues_etabin3 = []
+etadiffvalues_etabin4 = []
+etadiffvalues_etabin5 = []
 
 for i in range(numofline):
   l = fp.readline()
@@ -137,24 +141,49 @@ for i in range(numofline):
   
     etadiffvalues.append(eta-slope)
 
-    if (pz >= 0.0) and (pz <= 1.0):
-      etadiffvalues_pzbin.append(eta-slope)
+    #if (pz >= 0.0) and (pz <= 1.0):
+    #  etadiffvalues_pzbin.append(eta-slope)
 
-    if (eta > -0.6) and (eta < -0.4):
-      etadiffvalues_etabin.append(eta-slope)
+    if (eta >= -0.6) and (eta < -0.4):
+      etadiffvalues_etabin1.append(eta-slope)
+    else if (eta >= -0.4) and (eta < -0.2):
+      etadiffvalues_etabin2.append(eta-slope)
+    else if (eta >= -0.2) and (eta < 0.0):
+      etadiffvalues_etabin3.append(eta-slope)
+    else if (eta >= 0.0) and (eta < 0.2):
+      etadiffvalues_etabin4.append(eta-slope)
+    else if (eta >= 0.2) and (eta < 0.4):
+      etadiffvalues_etabin5.append(eta-slope)
+
 
 print "Num of events: ", len(etadiffvalues)
 print "Mean val: ", numpy.mean(etadiffvalues)
 print "STD  val: ", numpy.std(etadiffvalues)
-print " "
-print "pz bin 0.0 1.0"
-print "Num of events: ", len(etadiffvalues_pzbin)
-print "Mean val: ", numpy.mean(etadiffvalues_pzbin)
-print "STD  val: ", numpy.std(etadiffvalues_pzbin)
-print " "
+#print " "
+#print "pz bin 0.0 1.0"
+#print "Num of events: ", len(etadiffvalues_pzbin)
+#print "Mean val: ", numpy.mean(etadiffvalues_pzbin)
+#print "STD  val: ", numpy.std(etadiffvalues_pzbin)
+#print " "
 print "eta bin -0.6 -0.4"
-print "Num of events: ", len(etadiffvalues_etabin)
-print "Mean val: ", numpy.mean(etadiffvalues_etabin)
-print "STD  val: ", numpy.std(etadiffvalues_etabin)
+print "Num of events: ", len(etadiffvalues_etabin1)
+print "Mean val: ", numpy.mean(etadiffvalues_etabin1)
+print "STD  val: ", numpy.std(etadiffvalues_etabin1)
+print "eta bin -0.4 -0.2"
+print "Num of events: ", len(etadiffvalues_etabin2)
+print "Mean val: ", numpy.mean(etadiffvalues_etabin2)
+print "STD  val: ", numpy.std(etadiffvalues_etabin2)
+print "eta bin -0.2 0.0"
+print "Num of events: ", len(etadiffvalues_etabin3)
+print "Mean val: ", numpy.mean(etadiffvalues_etabin3)
+print "STD  val: ", numpy.std(etadiffvalues_etabin3)
+print "eta bin 0.0 0.2"
+print "Num of events: ", len(etadiffvalues_etabin4)
+print "Mean val: ", numpy.mean(etadiffvalues_etabin4)
+print "STD  val: ", numpy.std(etadiffvalues_etabin4)
+print "eta bin 0.2 0.4"
+print "Num of events: ", len(etadiffvalues_etabin5)
+print "Mean val: ", numpy.mean(etadiffvalues_etabin5)
+print "STD  val: ", numpy.std(etadiffvalues_etabin5)
 
 fp.close()
