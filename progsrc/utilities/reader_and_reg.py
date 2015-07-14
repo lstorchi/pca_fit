@@ -146,13 +146,13 @@ for i in range(numofline):
 
     if (eta >= -0.6) and (eta < -0.4):
       etadiffvalues_etabin1.append(eta-slope)
-    else if (eta >= -0.4) and (eta < -0.2):
+    elif (eta >= -0.4) and (eta < -0.2):
       etadiffvalues_etabin2.append(eta-slope)
-    else if (eta >= -0.2) and (eta < 0.0):
+    elif (eta >= -0.2) and (eta < 0.0):
       etadiffvalues_etabin3.append(eta-slope)
-    else if (eta >= 0.0) and (eta < 0.2):
+    elif (eta >= 0.0) and (eta < 0.2):
       etadiffvalues_etabin4.append(eta-slope)
-    else if (eta >= 0.2) and (eta < 0.4):
+    elif (eta >= 0.2) and (eta < 0.4):
       etadiffvalues_etabin5.append(eta-slope)
 
 
