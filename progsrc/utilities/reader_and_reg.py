@@ -152,11 +152,9 @@ print "Num of events: ", len(etadiffvalues_pzbin)
 print "Mean val: ", numpy.mean(etadiffvalues_pzbin)
 print "STD  val: ", numpy.std(etadiffvalues_pzbin)
 print " "
-print "eta bin -0.6 -0.5"
+print "eta bin -0.6 -0.4"
 print "Num of events: ", len(etadiffvalues_etabin)
 print "Mean val: ", numpy.mean(etadiffvalues_etabin)
 print "STD  val: ", numpy.std(etadiffvalues_etabin)
-
-
 
 fp.close()
