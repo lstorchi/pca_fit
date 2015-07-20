@@ -110,7 +110,7 @@ for i in range(numofline):
 
   # quick check for layers id
   if (layersids != "5678910"):
-    print >> sys.stderr, "Wron seq: ", layersids
+    print >> sys.stderr, "Wrong seq: ", layersids
   else:
     #print " "
     #print "RPhi plane: "
@@ -125,24 +125,24 @@ for i in range(numofline):
     #print "eta: ", eta, " slope: ", slope, " diff: ", eta-slope
     #print "z0: ", z0, " intercept: ", intercept, " diff: ", z0-intercept
   
-    #print "RZ plane using layers 1 and 3: "
+    print "RZ plane using layers 1 and 3: "
     slope = (zval[2]-zval[0])/(rval[2]-rval[0])
     print "layers 1 3 eta: ", eta, "     slope: ", slope,     " diff: ", eta-slope, \
         " theta: ", theta*180.0/math.pi, " pz: ", pz
-    #intercept = zval[0] - slope*rval[0]
-    #print "layers 1 3  z0: ", z0,  " intercept: ", intercept, " diff: ", z0-intercept
+    intercept = zval[0] - slope*rval[0]
+    print "layers 1 3  z0: ", z0,  " intercept: ", intercept, " diff: ", z0-intercept
 
-    #print "RZPhi plane using layers 1 and 3: "
-    #slope = (phival[2]-phival[0])/(rval[2]-rval[0])
-    #print "layers 1 3 c/pt: ", charge/pt, "     slope: ", slope
+    #print "RZPhi plane using layers 1 and 6: "
+    #slope = (phival[5]-phival[0])/(rval[5]-rval[0])
+    #print "layers 1 6 c/pt: ", charge/pt, "     slope: ", slope
     #intercept = phival[0] - slope*rval[0]
-    #print "layers 1 3  phi: ", phi,  " intercept: ", intercept, " diff: ", phi-intercept
+    #print "layers 1 6  phi: ", phi,  " intercept: ", intercept, " diff: ", phi-intercept
     #print " "
-  
-    etadiffvalues.append(eta-slope)
 
     #if (pz >= 0.0) and (pz <= 1.0):
     #  etadiffvalues_pzbin.append(eta-slope)
+
+    etadiffvalues.append(eta-slope)
 
     if (eta >= -0.6) and (eta < -0.4):
       etadiffvalues_etabin1.append(eta-slope)
