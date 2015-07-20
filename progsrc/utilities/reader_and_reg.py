@@ -40,6 +40,14 @@ etadiffvalues_etabin3 = []
 etadiffvalues_etabin4 = []
 etadiffvalues_etabin5 = []
 
+z0diffvalues = []
+z0diffvalues_etabin1 = []
+z0diffvalues_etabin2 = []
+z0diffvalues_etabin3 = []
+z0diffvalues_etabin4 = []
+z0diffvalues_etabin5 = []
+
+
 for i in range(numofline):
   l = fp.readline()
 
@@ -130,7 +138,8 @@ for i in range(numofline):
     print "layers 1 3 eta: ", eta, "     slope: ", slope,     " diff: ", eta-slope, \
         " theta: ", theta*180.0/math.pi, " pz: ", pz
     intercept = zval[0] - slope*rval[0]
-    print "layers 1 3  z0: ", z0,  " intercept: ", intercept, " diff: ", z0-intercept
+    print "layers 1 3  z0: ", z0,  " intercept: ", intercept, " diff: ", z0-intercept, \
+        " eta: " , eta
 
     #print "RZPhi plane using layers 1 and 6: "
     #slope = (phival[5]-phival[0])/(rval[5]-rval[0])
@@ -143,19 +152,26 @@ for i in range(numofline):
     #  etadiffvalues_pzbin.append(eta-slope)
 
     etadiffvalues.append(eta-slope)
+    z0diffvalues.append(z0-intercept)
 
     if (eta >= -0.6) and (eta < -0.4):
       etadiffvalues_etabin1.append(eta-slope)
+      z0diffvalues_etabin1.append(z0-intercept)
     elif (eta >= -0.4) and (eta < -0.2):
       etadiffvalues_etabin2.append(eta-slope)
+      z0diffvalues_etabin2.append(z0-intercept)
     elif (eta >= -0.2) and (eta < 0.0):
       etadiffvalues_etabin3.append(eta-slope)
+      z0diffvalues_etabin3.append(z0-intercept)
     elif (eta >= 0.0) and (eta < 0.2):
       etadiffvalues_etabin4.append(eta-slope)
+      z0diffvalues_etabin4.append(z0-intercept)
     elif (eta >= 0.2) and (eta < 0.4):
       etadiffvalues_etabin5.append(eta-slope)
+      z0diffvalues_etabin4.append(z0-intercept)
 
 
+print "Eta"
 print "Num of events: ", len(etadiffvalues)
 print "Mean val: ", numpy.mean(etadiffvalues)
 print "STD  val: ", numpy.std(etadiffvalues)
@@ -185,5 +201,30 @@ print "eta bin 0.2 0.4"
 print "Num of events: ", len(etadiffvalues_etabin5)
 print "Mean val: ", numpy.mean(etadiffvalues_etabin5)
 print "STD  val: ", numpy.std(etadiffvalues_etabin5)
+
+print "z0"
+print "Num of events: ", len(z0diffvalues)
+print "Mean val: ", numpy.mean(z0diffvalues)
+print "STD  val: ", numpy.std(z0diffvalues)
+print "eta bin -0.6 -0.4"
+print "Num of events: ", len(z0diffvalues_etabin1)
+print "Mean val: ", numpy.mean(z0diffvalues_etabin1)
+print "STD  val: ", numpy.std(z0diffvalues_etabin1)
+print "eta bin -0.4 -0.2"
+print "Num of events: ", len(z0diffvalues_etabin2)
+print "Mean val: ", numpy.mean(z0diffvalues_etabin2)
+print "STD  val: ", numpy.std(z0diffvalues_etabin2)
+print "eta bin -0.2 0.0"
+print "Num of events: ", len(z0diffvalues_etabin3)
+print "Mean val: ", numpy.mean(z0diffvalues_etabin3)
+print "STD  val: ", numpy.std(z0diffvalues_etabin3)
+print "eta bin 0.0 0.2"
+print "Num of events: ", len(z0diffvalues_etabin4)
+print "Mean val: ", numpy.mean(z0diffvalues_etabin4)
+print "STD  val: ", numpy.std(z0diffvalues_etabin4)
+print "eta bin 0.2 0.4"
+print "Num of events: ", len(z0diffvalues_etabin5)
+print "Mean val: ", numpy.mean(z0diffvalues_etabin5)
+print "STD  val: ", numpy.std(z0diffvalues_etabin5)
 
 fp.close()
