@@ -17,15 +17,16 @@ file = open(filename, "r")
 values = []
 
 for l in file:
+  p = re.compile(r'\s+')
   line = p.sub(' ', l)
-  line = coordline.lstrip()
-  line = coordline.rstrip()
-  linelist = coordline.split(" ")
+  line = line.lstrip()
+  line = line.rstrip()
+  linelist = line.split(" ")
 
   firstval = float(linelist[0])
 
-  if (firstval >= -0.4 and firstval <= -0.2):
-    values.append(float(linelist[1]))
+  #if (firstval >= -0.2 and firstval <= 0.0):
+  values.append(float(linelist[1]))
 
 y, x = numpy.histogram(values, bins=bintouse)
 
