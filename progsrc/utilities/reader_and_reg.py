@@ -33,7 +33,6 @@ fp = open(filename, "r")
 fp.readline()
 
 etadiffvalues = []
-#etadiffvalues_pzbin = []
 etadiffvalues_etabin1 = []
 etadiffvalues_etabin2 = []
 etadiffvalues_etabin3 = []
@@ -47,6 +46,8 @@ z0diffvalues_etabin3 = []
 z0diffvalues_etabin4 = []
 z0diffvalues_etabin5 = []
 
+phidiffvalues = []
+phidiffvalues_layers16 = []
 
 for i in range(numofline):
   l = fp.readline()
@@ -65,6 +66,8 @@ for i in range(numofline):
 
   zval = numpy.zeros(numof)
   rval = numpy.zeros(numof)
+  zval13 = numpy.zeros(numof)
+  rval13 = numpy.zeros(numof)
   phival = numpy.zeros(numof)
   charge = 0.0
 
@@ -99,7 +102,12 @@ for i in range(numofline):
     phival[j] = phii
     zval[j] = zi
 
-    #print ri, " ", zi
+    if (j < 3):
+      rval13[j] = ri
+      zval13[j] = zi
+
+    #print j, " ", ri, " ", zi
+    #print ri, " ", phii
 
   paramline = fp.readline()
   
@@ -120,37 +128,45 @@ for i in range(numofline):
   if (layersids != "5678910"):
     print >> sys.stderr, "Wrong seq: ", layersids
   else:
-    #print " "
-    #print "RPhi plane: "
-    #slope, intercept, r_value, p_value, std_err = stats.linregress(rval,phival)
-    #print "r: ", r_value
-    #print "c/pt: ", charge/pt, " slope: ", slope
-    #print "phi: ", phi , " intercept: ", intercept, " diff: ", intercept-phi
+    print "RPhi plane: "
+    slope, intercept, r_value, p_value, std_err = stats.linregress(rval,phival)
+    print "r: ", r_value
+    print "c/pt: ", charge/pt, " slope: ", slope, " " , (1/slope)*3.8 
+    print "phi: ", phi , " intercept: ", intercept, " diff: ", intercept-phi
+
+    phidiffvalues.append(intercept-phi)
   
     #print "RZ plane: "
     #slope, intercept, r_value, p_value, std_err = stats.linregress(rval,zval)
     #print "r: ", r_value
     #print "eta: ", eta, " slope: ", slope, " diff: ", eta-slope
-    #print "z0: ", z0, " intercept: ", intercept, " diff: ", z0-intercept
-  
-    print "RZ plane using layers 1 and 3: "
-    slope = (zval[2]-zval[0])/(rval[2]-rval[0])
-    print "layers 1 3 eta: ", eta, "     slope: ", slope,     " diff: ", eta-slope, \
-        " theta: ", theta*180.0/math.pi, " pz: ", pz
-    intercept = zval[0] - slope*rval[0]
-    print "layers 1 3  z0: ", z0,  " intercept: ", intercept, " diff: ", z0-intercept, \
-        " eta: " , eta
+    #print "z0: ", z0, " intercept: ", intercept, " diff: ", z0-intercept, \
+    #    " eta: " , eta
 
-    #print "RZPhi plane using layers 1 and 6: "
-    #slope = (phival[5]-phival[0])/(rval[5]-rval[0])
-    #print "layers 1 6 c/pt: ", charge/pt, "     slope: ", slope
-    #intercept = phival[0] - slope*rval[0]
-    #print "layers 1 6  phi: ", phi,  " intercept: ", intercept, " diff: ", phi-intercept
-    #print " "
+    #print "RZ plane three layers: "
+    #slope, intercept, r_value, p_value, std_err = stats.linregress(rval13,zval13)
+    #print "r: ", r_value
+    #print "eta: ", eta, " slope: ", slope, " diff: ", eta-slope
+    #print "z0: ", z0, " intercept: ", intercept, " diff: ", z0-intercept, \
+    #    " eta: " , eta
+ 
+    #print "RZ plane using layers 1 and 3: "
+    #slope = (zval[2]-zval[0])/(rval[2]-rval[0])
+    #print "layers 1 3 eta: ", eta, "     slope: ", slope,     " diff: ", eta-slope, \
+    #    " theta: ", theta*180.0/math.pi, " pz: ", pz
+    #intercept = zval[0] - slope*rval[0]
+    #print "layers 1 3  z0: ", z0,  " intercept: ", intercept, " diff: ", z0-intercept, \
+    #    " eta: " , eta
 
-    #if (pz >= 0.0) and (pz <= 1.0):
-    #  etadiffvalues_pzbin.append(eta-slope)
+    print "RZPhi plane using layers 1 and 6: "
+    slope = (phival[5]-phival[0])/(rval[5]-rval[0])
+    print "layers 1 6 c/pt: ", charge/pt, "     slope: ", slope
+    intercept = phival[0] - slope*rval[0]
+    print "layers 1 6  phi: ", phi,  " intercept: ", intercept, " diff: ", phi-intercept
 
+    phidiffvalues_layers16.append(phi-intercept)
+
+    """
     etadiffvalues.append(eta-slope)
     z0diffvalues.append(z0-intercept)
 
@@ -168,19 +184,25 @@ for i in range(numofline):
       z0diffvalues_etabin4.append(z0-intercept)
     elif (eta >= 0.2) and (eta < 0.4):
       etadiffvalues_etabin5.append(eta-slope)
-      z0diffvalues_etabin4.append(z0-intercept)
+      z0diffvalues_etabin5.append(z0-intercept)
+    """
+
+print "phi fitt: " 
+print "Num of events: ", len(phidiffvalues)
+print "Mean val: ", numpy.mean(phidiffvalues)
+print "STD  val: ", numpy.std(phidiffvalues)
+
+print "phi layers 1 6: " 
+print "Num of events: ", len(phidiffvalues_layers16)
+print "Mean val: ", numpy.mean(phidiffvalues_layers16)
+print "STD  val: ", numpy.std(phidiffvalues_layers16)
 
 
+"""
 print "Eta"
 print "Num of events: ", len(etadiffvalues)
 print "Mean val: ", numpy.mean(etadiffvalues)
 print "STD  val: ", numpy.std(etadiffvalues)
-#print " "
-#print "pz bin 0.0 1.0"
-#print "Num of events: ", len(etadiffvalues_pzbin)
-#print "Mean val: ", numpy.mean(etadiffvalues_pzbin)
-#print "STD  val: ", numpy.std(etadiffvalues_pzbin)
-#print " "
 print "eta bin -0.6 -0.4"
 print "Num of events: ", len(etadiffvalues_etabin1)
 print "Mean val: ", numpy.mean(etadiffvalues_etabin1)
@@ -226,5 +248,6 @@ print "eta bin 0.2 0.4"
 print "Num of events: ", len(z0diffvalues_etabin5)
 print "Mean val: ", numpy.mean(z0diffvalues_etabin5)
 print "STD  val: ", numpy.std(z0diffvalues_etabin5)
+"""
 
 fp.close()
