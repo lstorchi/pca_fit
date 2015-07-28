@@ -993,32 +993,12 @@ int main (int argc, char ** argv)
   }
 
   std::cout << "Reading data from " << filename << " file " << std::endl;
-  int num_of_line = pca::numofline(filename);
-  std::cout << "file has " << num_of_line << " line " << std::endl;
-  int num_of_ent_read = (num_of_line-1)/ENTDIM;
-
-  int num_of_ent = num_of_ent_read;
-
-  std::cout << "Change it need to be changed for endcap and hybrid....." << std::endl;
-  if (useonlyodd)
-  {
-    if (num_of_ent_read % 2)
-      num_of_ent = (num_of_ent_read+1)/2;
-    else
-      num_of_ent = num_of_ent_read/2;
-  }
-
-  std::cout << "file has " << num_of_ent << " entries " << std::endl;
 
   arma::mat coord, param;
-  coord.set_size(num_of_ent,fitter.get_coordim());
-  param.set_size(num_of_ent,fitter.get_paramdim());
-
   arma::vec ptvals;
 
-  std::cout << "Reading from file" << std::endl;
   if (!pca::reading_from_file_split (fitter, filename, 
-       param, coord, num_of_ent, false, useonlyodd,
+       param, coord, false, useonlyodd,
        rzplane, rphiplane, etamin, etamax, ptmin, ptmax, 
        usecharge, chargesign, excludesmodule, usealsod0,
        usex0y0, singleparam, phimin, phimax, z0min, z0max,
