@@ -46,20 +46,11 @@ namespace pca
   
   void read_armvct (const char *, arma::rowvec & q);
 
-  void reading_from_file (const char * filename, 
-          arma::mat & paramin, arma::mat & coordin,
-          arma::mat & layer, arma::mat & ladder, 
-          arma::mat & module, 
-          std::map<std::string, int> & subsectors, 
-          std::map<std::string, int> & subladders,
-          std::vector<std::string> & subsectorslist,
-          std::vector<std::string> & subladderslist,
-          int num_of_ent, bool usesegid, 
-          bool useonlyeven, bool useonlyodd);
+  int get_num_of_ent(const char *);
 
   bool reading_from_file_split (const pca::pcafitter &, const char * filename, 
           arma::mat & paramin, arma::mat & coordin,
-          int num_of_ent, bool useonlyeven, bool useonlyodd, 
+          bool useonlyeven, bool useonlyodd, 
           bool rzread, bool rphiread, double etamin,
           double etamax, double ptmin, double ptmax, 
           bool chargeoverpt, int chargesign,

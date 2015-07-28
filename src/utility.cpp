@@ -1,4 +1,6 @@
 #include <iostream>
+#include <algorithm>
+#include <iterator>
 #include <sstream>
 #include <fstream>
 #include <iomanip>
@@ -173,137 +175,6 @@ void pca::write_to_file (const char * fname,
   myfile.close();
 }
 
-void pca::reading_from_file (const char * filename,
-    arma::mat & paramin, arma::mat & coordin, 
-    arma::mat & layer, arma::mat & ladder, 
-    arma::mat & module, 
-    std::map<std::string, int> & subsectors, 
-    std::map<std::string, int> & subladders,
-    std::vector<std::string> & subsectorslist,
-    std::vector<std::string> & subladderslist,
-    int num_of_ent, bool usesegid,
-    bool useonlyeven, bool useonlyodd)
-{
-
-  std::string line;
-  std::ifstream mytfp;
-  mytfp.open (filename, std::ios::in);
-
-  if (useonlyeven && useonlyodd)
-  {
-    useonlyeven = false;
-    useonlyodd = false;
-  }
-
-  int counter = 0;
-  std::getline (mytfp, line);
-  for (int i = 0; i < num_of_ent; ++i)
-  {
-    int fake1, fake2;
-    mytfp >> fake1 >> fake2 ;
-    if (fake2 > NUMOFLAYER)
-    {
-      std::cerr << "Can deal only with six layers" << std::endl;
-      return;
-    }
-
-#ifdef DEBUG    
-    std::cout << fake1 << " " << fake2 << std::endl;
-#endif
-    std::ostringstream osss, ossl;
-    osss << std::setfill('0');
-    ossl << std::setfill('0');
-    
-    for (int j = 0; j < NUMOFLAYER; ++j)
-    {
-      int a, b, c, segid, pid;
-      double x, y, z;
-
-      mytfp >> x >> 
-               y >> 
-               z >> 
-               a >> b >> c >> segid >> pid; // segid I am reading because can be used as local ccordinate ?
-                                            // in case of l1tkstubs is the tp value here 
- 
-      if (check_to_read (useonlyeven,useonlyodd,i))
-      {
-        if (usesegid)
-          coordin(counter, j) = (double) segid;
-        else
-        {
-          coordin(counter, j*3) = x;
-          coordin(counter, j*3+1) = y;
-          coordin(counter, j*3+2) = z;
-        }
- 
-        layer(counter, j) = a;
-        ladder(counter, j) = b;
-        module(counter, j) = c;
-        
-        osss << std::setw(2) << layer(counter, j);
-        osss << std::setw(2) << ladder(counter, j);
-        if (j != NUMOFLAYER-1)
-          osss<<"-";
-        
-        ossl << std::setw(2) << layer(counter, j);
-        ossl << std::setw(2) << ladder(counter, j);
-        ossl << std::setw(2) << module(counter, j);
-        if (j != NUMOFLAYER-1)
-          ossl<<"-";
-      }
-    }
-      
-      
-    if (check_to_read (useonlyeven,useonlyodd,i))
-    {
-      
-      subsectorslist.push_back(osss.str());
-      subladderslist.push_back(ossl.str());
-      
-      std::map<std::string, int>::iterator its = subsectors.find(osss.str());
-      if (its == subsectors.end())
-        subsectors[osss.str()] = 1;
-      else 
-        subsectors[osss.str()] += 1;
-      
-      std::map<std::string, int>::iterator itl = subladders.find(ossl.str());
-      if (itl == subladders.end())
-        subladders[ossl.str()] = 1;
-      else 
-        subladders[ossl.str()] += 1;
-    }
-    
-    double ptread, phiread, d0read, etaread, z0read, x0read, y0read;
-
-    mytfp >> ptread >> 
-             phiread >> 
-             d0read >> 
-             etaread >> 
-             z0read >>
-             x0read >>
-             y0read;
-    
-    if (check_to_read (useonlyeven,useonlyodd,i))
-    {
-      paramin(counter, PHIIDX) = phiread;
-      paramin(counter, D0IDX) = d0read;
-      paramin(counter, Z0IDX) = z0read;
-      // lstorchi: I use this to diretcly convert input parameters into
-      //     better parameters for the fitting 
-      // eta = -ln[tan(theta / 2)]
-      // theta = 2 * arctan (e^(-eta))
-      // cotan (theta) = cotan (2 * arctan (e^(-eta)))
-      paramin(counter, COTTHETAIDX) =  cot(2.0 * atan (exp (-1.0e0 * etaread)));
-      // use 1/pt 
-      paramin(counter, ONEOVERPTIDX) = 1.0e0 / ptread;
-
-      ++counter;
-    }
-  }
-
-  mytfp.close();
-}
-
 int pca::numofline (const char * fname) 
 { 
   int number_of_lines = 0;
@@ -318,10 +189,52 @@ int pca::numofline (const char * fname)
   return number_of_lines;
 }
 
+int pca::get_num_of_ent (const char * fname)
+{
+  int num = 0;
+
+  std::string line;
+  std::ifstream myfile(fname);
+  
+  // read first fake line
+  std::getline(myfile, line);
+  while (std::getline(myfile, line))
+  {
+    std::istringstream splitstr(line);
+    std::vector<std::string> tokens;
+
+    std::copy(std::istream_iterator<std::string>(splitstr),
+         std::istream_iterator<std::string>(),
+         back_inserter(tokens));
+
+    if (tokens.size() == 2)
+    {
+      num++;
+
+      int dim = atoi(tokens[1].c_str());
+      for (int i=0; i<dim+1; i++)
+      {
+        // read all lines within events 
+        std::getline(myfile, line);
+      }
+    }
+    else
+    {
+      //should add an error event handler 
+      std::cerr << "Error in file format" << std::endl;
+      return 0;
+    }
+  }
+
+  myfile.close();
+
+  return num;
+}
+
 bool pca::reading_from_file_split (const pca::pcafitter & fitter, 
      const char * filename, 
      arma::mat & paramin, arma::mat & coordin, 
-     int num_of_ent, bool useonlyeven, bool useonlyodd,
+     bool useonlyeven, bool useonlyodd,
      bool rzplane, bool rphiplane, 
      double etamin, double etamax, 
      double ptmin, double ptmax,
@@ -352,8 +265,6 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
 
   int extdim = 9;
   std::string line;
-  std::ifstream mytfp;
-  mytfp.open (filename, std::ios::in);
 
   arma::mat paramread;
   arma::mat coordread;
@@ -363,6 +274,10 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
   arma::vec ptvals;
   arma::vec d0vals;
   arma::vec z0vals;
+
+  // non performante but easy to go 
+  int num_of_ent = pca::get_num_of_ent(filename);
+  std::cout << "Num of events: " << num_of_ent << std::endl;
 
   coordread.set_size(num_of_ent, fitter.get_coordim());
   paramread.set_size(num_of_ent, fitter.get_paramdim());
@@ -386,6 +301,9 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
     useonlyeven = false;
     useonlyodd = false;
   }
+
+  std::ifstream mytfp;
+  mytfp.open (filename, std::ios::in);
 
   int counter = 0;
   std::getline (mytfp, line);
