@@ -458,35 +458,13 @@ int main (int argc, char ** argv)
     return EXIT_FAILURE;
   }
                   
-  int num_of_line = pca::numofline(filename);
-  std::cout << "file has " << num_of_line << " line " << std::endl;
-  int num_of_ent_read = (num_of_line-1)/ENTDIM;
-
-  int num_of_ent = num_of_ent_read;
-
-  std::cout << "Change it need to be changed for endcap and hybrid....." << std::endl;
-  if (useonlyeven)
-  {
-    if (num_of_ent_read % 2)
-      num_of_ent = (num_of_ent_read-1)/2;
-    else
-      num_of_ent = num_of_ent_read/2;
-  }
-
-  std::cout << "file has " << num_of_ent << " entries " << std::endl;
-
-  // non perfomante ma easy to go
   arma::mat coordin, paramin;
-  coordin.set_size(num_of_ent, fitter.get_coordim());
-  paramin.set_size(num_of_ent, fitter.get_paramdim());
-
-  // leggere file coordinate tracce simulate plus parametri
-  std::cout << "Reading data from " << filename << " file " << std::endl;
-
   arma::vec ptvals;
 
+  std::cout << "Reading data from " << filename << " file " << std::endl;
+
   if (!pca::reading_from_file_split (fitter, filename, paramin, coordin, 
-         num_of_ent_read, useonlyeven, false, rzplane, rphiplane, 
+         useonlyeven, false, rzplane, rphiplane, 
          etamin, etamax, ptmin, ptmax, usecharge, chargesign, excludesmodule, 
          usealsod0, usex0y0, singleparam, phimin, phimax, z0min, z0max,
          d0min, d0max, usealsox0, verbose, ptvals))
