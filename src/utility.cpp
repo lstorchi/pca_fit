@@ -19,8 +19,22 @@
 
 //#define DEBUG 1
 
+#define STDDIM_PRV_VLS 1
+
 namespace
 {
+  bool is_a_valid_layers_seq(const std::string & in)
+  {
+    static const char * valid_layers_seq[STDDIM_PRV_VLS];
+    valid_layers_seq[0] = "5678910";
+
+    for (int i=0; i<STDDIM_PRV_VLS; i++)
+      if (in == valid_layers_seq[i])
+        return true;
+
+    return false;
+  }
+
   bool check_to_read (bool useonlyeven, bool useonlyodd, int i)
   {
     if (useonlyeven || useonlyodd)
@@ -263,6 +277,8 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
   arma::mat xyzvals;
 #endif
 
+  std::vector<std::string> layersids;
+
   int extdim = 9;
   std::string line;
 
@@ -311,6 +327,8 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
   {
     int fake1, realsize;
     mytfp >> fake1 >> realsize ;
+
+#if 0
     if (realsize > NUMOFLAYER)
     {
       std::cerr << "WARNING: More than 6 layers" << std::endl;
@@ -323,11 +341,9 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
       std::cerr << "         wont use it" << std::endl;
       continue;
     }
+#endif
 
-    std::ostringstream osss, ossl;
-    osss << std::setfill('0');
-    ossl << std::setfill('0');
-
+    std::ostringstream osss;
     std::set<int> pidset;
     
     for (int j = 0; j < realsize; ++j)
@@ -353,6 +369,8 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
                                               // in case of l1tkstubs is the tp value here 
                                               // pid is particle id (charge)
       }
+
+      osss << a;
 
       if (j < NUMOFLAYER)
       {
@@ -395,7 +413,7 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
         }
       }
     }
-      
+
     double ptread, phiread, d0read, etaread, z0read,
            x0read, y0read;
 
@@ -409,6 +427,7 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
 
     if (check_to_read (useonlyeven,useonlyodd,i))
     {
+      layersids.push_back(osss.str());
       etavals(counter) = etaread;
       phivals(counter) = phiread;
       ptvals(counter) = ptread;
@@ -546,6 +565,7 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
   assert (ptvals.n_rows == paramread.n_rows);
   assert (z0vals.n_rows == paramread.n_rows);
   assert (d0vals.n_rows == paramread.n_rows);
+  assert (layersids.size() == paramread.n_rows);
 
 #ifdef DEBUG  
   assert (x0vals.n_rows == paramread.n_rows);
@@ -554,16 +574,17 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
 
   extdim = 0;
   for (int i=0; i<(int)etavals.n_rows; ++i)
-    if ((etavals(i) <= etamax) && (etavals(i) >= etamin))
-      if ((ptvals(i) <= ptmax) && (ptvals(i) >= ptmin))
-        if ((phivals(i) <= phimax) && (phivals(i) >= phimin))
-          if ((d0vals(i) <= d0max) && (d0vals(i) >= d0min))
-            if ((z0vals(i) <= z0max) && (z0vals(i) >= z0min))
+    if (is_a_valid_layers_seq(layersids[i]))
+      if ((etavals(i) <= etamax) && (etavals(i) >= etamin))
+        if ((ptvals(i) <= ptmax) && (ptvals(i) >= ptmin))
+          if ((phivals(i) <= phimax) && (phivals(i) >= phimin))
+            if ((d0vals(i) <= d0max) && (d0vals(i) >= d0min))
+              if ((z0vals(i) <= z0max) && (z0vals(i) >= z0min))
 #ifdef DEBUG              
-              if ((x0vals(i) <= x0max) && (x0vals(i) >= x0min))
-                if ((y0vals(i) <= y0max) && (y0vals(i) >= y0min))
+                if ((x0vals(i) <= x0max) && (x0vals(i) >= x0min))
+                  if ((y0vals(i) <= y0max) && (y0vals(i) >= y0min))
 #endif
-                  ++extdim;
+                    ++extdim;
 
   coordin.resize(extdim, fitter.get_coordim());
   paramin.resize(extdim, fitter.get_paramdim());
@@ -574,57 +595,60 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
   counter = 0;
   for (int i=0; i<(int)etavals.n_rows; ++i)
   {
-    if ((etavals(i) <= etamax) && (etavals(i) >= etamin))
+    if (is_a_valid_layers_seq(layersids[i]))
     {
-      if ((ptvals(i) <= ptmax) && (ptvals(i) >= ptmin))
+      if ((etavals(i) <= etamax) && (etavals(i) >= etamin))
       {
-        if ((phivals(i) <= phimax) && (phivals(i) >= phimin))
+        if ((ptvals(i) <= ptmax) && (ptvals(i) >= ptmin))
         {
-          if ((d0vals(i) <= d0max) && (d0vals(i) >= d0min))
+          if ((phivals(i) <= phimax) && (phivals(i) >= phimin))
           {
-            if ((z0vals(i) <= z0max) && (z0vals(i) >= z0min))
+            if ((d0vals(i) <= d0max) && (d0vals(i) >= d0min))
             {
-#ifdef DEBUG              
-              if ((x0vals(i) <= x0max) && (x0vals(i) >= x0min))
+              if ((z0vals(i) <= z0max) && (z0vals(i) >= z0min))
               {
-                if ((y0vals(i) <= y0max) && (y0vals(i) >= y0min))
+#ifdef DEBUG              
+                if ((x0vals(i) <= x0max) && (x0vals(i) >= x0min))
                 {
-#endif
-                  if (verbose)
+                  if ((y0vals(i) <= y0max) && (y0vals(i) >= y0min))
                   {
-                    std::cout << "ETA : " << etavals(i) << std::endl;
-                    std::cout << "PT  : " << ptvals(i) << std::endl;
-                    std::cout << "PHI : " << phivals(i) << std::endl;
-                    std::cout << "D0  : " << d0vals(i) << std::endl;
-                    std::cout << "Z0  : " << z0vals(i) << std::endl;
-                  }
-                  
-                  for (int j=0; j<(int)paramread.n_cols; ++j)
-                  {
-                    paramin(counter, j) = paramread(i, j);
-                    //std::cout << "Track: " << counter+1 << std::endl;
-                    //std::cout <<  paramin(counter, j) << " from " << 
-                    //  paramread(i, j) << std::endl;
-                  }
-                  
-                  for (int j=0; j<(int)coordread.n_cols; ++j)
-                    coordin(counter, j) = coordread(i, j);
-
-                  ptvalsout(counter) = ptvals(i);
-
-#ifdef DEBUG                  
-                  //for (int j=0; j<NUMOFLAYER; ++j)
-                  for (int j=0; j<1; ++j)
-                    std::cerr << xyzvals(i,(3*j)+0) << " " << xyzvals(i,(3*j)+1) << " " 
-                      << xyzvals(i,(3*j)+2) << std::endl;
 #endif
-
-                  
-                  ++counter;
+                    if (verbose)
+                    {
+                      std::cout << "ETA : " << etavals(i) << std::endl;
+                      std::cout << "PT  : " << ptvals(i) << std::endl;
+                      std::cout << "PHI : " << phivals(i) << std::endl;
+                      std::cout << "D0  : " << d0vals(i) << std::endl;
+                      std::cout << "Z0  : " << z0vals(i) << std::endl;
+                    }
+                    
+                    for (int j=0; j<(int)paramread.n_cols; ++j)
+                    {
+                      paramin(counter, j) = paramread(i, j);
+                      //std::cout << "Track: " << counter+1 << std::endl;
+                      //std::cout <<  paramin(counter, j) << " from " << 
+                      //  paramread(i, j) << std::endl;
+                    }
+                    
+                    for (int j=0; j<(int)coordread.n_cols; ++j)
+                      coordin(counter, j) = coordread(i, j);
+                   
+                    ptvalsout(counter) = ptvals(i);
+                   
+#ifdef DEBUG                    
+                    //for (int j=0; j<NUMOFLAYER; ++j)
+                    for (int j=0; j<1; ++j)
+                      std::cerr << xyzvals(i,(3*j)+0) << " " << xyzvals(i,(3*j)+1) << " " 
+                        << xyzvals(i,(3*j)+2) << std::endl;
+#endif             
+                   
+                    
+                    ++counter;
 #ifdef DEBUG                  
+                  }
                 }
-              }
 #endif
+              }
             }
           }
         }
