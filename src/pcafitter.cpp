@@ -97,7 +97,7 @@ bool pcafitter::compute_parameters (
     const arma::mat & amtx,
     const arma::mat & vmtx,
     const arma::mat & coord, 
-    double ** paraptr, int paramdim,
+    int16_t ** paraptr, int paramdim,
     arma::rowvec & chi2values)
 {
   reset_error();
@@ -112,7 +112,7 @@ bool pcafitter::compute_parameters (
 
   for (int j=0; j<paramdim; ++j)
   {
-    double *ptr = paraptr[j];
+    int16_t *ptr = paraptr[j];
     for (int i=0; i<(int)coord.n_rows; ++i)
     {
       ptr[i] = q(j);
@@ -147,11 +147,11 @@ bool pcafitter::compute_parameters (
 
   for (int k=0; k<(int)coord.n_rows; ++k)
   {
-    double chi2check = 0.0;
+    int16_t chi2check = 0.0;
 
     for (int i=0; i<coordim_-paramdim_; ++i)
     {
-      double val = 0.0;
+      int16_t val = 0.0;
 
       /* ki */
       for (int a=0; a<coordim_; ++a)
@@ -319,7 +319,7 @@ bool pcafitter::compute_pca_constants (
 
 #ifdef DEBUG
   std::cout << "inverse by cov matrix: " << std::endl;
-  std::cout << v * vmtx, ;
+  std::cout << v * vmtx;
 #endif
 
   // and so on ...
@@ -371,18 +371,21 @@ bool pcafitter::compute_pca_constants (
       for (int m=0; m<coordim_; ++m)
         cmtx(i,l) += vmtx(l,m) * hcap (m,i);
 
-  if (verbositylevel == 2)
-  {
-    std::cout << "C matrix: " << std::endl;
-    std::cout << cmtx;
-  }
-
   for (int i=0; i<paramdim_; ++i)
   {
     q(i) = paramm(i);
     for (int l=0; l<coordim_; ++l)
       q(i) -= cmtx(i,l)*coordm(l);
   }
+
+  cmtx *= 200; 
+  if (verbositylevel == 2)
+  {
+    std::cout << "C matrix: " << std::endl;
+    std::cout << cmtx;
+  }
+
+  q *= 2000;
 
   if (verbositylevel == 2)
   {

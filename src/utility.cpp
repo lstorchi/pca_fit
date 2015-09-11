@@ -6,6 +6,8 @@
 #include <iomanip>
 #include <string>
 
+#include "stdint.h"
+
 // Loriano: let's try Armadillo quick code 
 #include <armadillo>
 #include <cassert>
@@ -136,9 +138,10 @@ void pca::read_armmat (const char * fname, arma::mat & cmtx)
       double v;
       myfilec.read((char *)&v, sizeof(v));
 
-      cmtx(i, j) = v;
+      cmtx(i, j) = (int16_t) v;
     }
   }
+
   myfilec.close();
 }
 
@@ -153,8 +156,9 @@ void pca::read_armvct (const char * fname, arma::rowvec & q)
     double v;
     myfileq.read((char*)&v, sizeof(v));
 
-    q(i) = v;
+    q(i) = (int16_t) v;
   }
+
   myfileq.close();
 }
 
@@ -349,7 +353,8 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
     for (int j = 0; j < realsize; ++j)
     {
       int a, b, c, segid, pid;
-      double x, y, z;
+      //double x, y, z;
+      int16_t x, y, z;
 
       if (chargeoverpt)
       {
@@ -384,7 +389,8 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
         {
           if (check_to_read (useonlyeven,useonlyodd,i))
           {
-            double ri = sqrt(pow(x, 2.0) + pow (y, 2.0));
+            //double ri = sqrt(pow(x, 2.0) + pow (y, 2.0));
+            int16_t ri = sqrt(pow(x, 2.0) + pow (y, 2.0));
 
 #ifdef DEBUG
             xyzvals(counter, (3*j)+0) = x;
@@ -404,7 +410,8 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
             }
             else if (rphiplane)
             {
-              double phii = acos(x/ri);
+              //double phii = acos(x/ri);
+              int16_t phii = acos(x/ri);
           
               coordread(counter, j*2) = phii;
               coordread(counter, j*2+1) = ri;
@@ -414,6 +421,8 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
       }
     }
 
+    //Need to change for Integer Representation , but for the time 
+    //being its alright since bankstub.txt has int16_t
     double ptread, phiread, d0read, etaread, z0read,
            x0read, y0read;
 

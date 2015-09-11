@@ -13,20 +13,24 @@ PLATFORM = $(shell uname -s)
 # DEBUG: 
 # yes, 
 # no
-DEBUG=no
+DEBUG=yes
 
 # CERN 
 # yes if in lxplus
 # no
-CERN = yes
+CERN = no
 
 # if needed you sould specify here armadillo library path 
+CFLAGS += -I/home/atanu/Downloads/armadillo-5.200.2/include
+LIBS += -L/home/atanu/Downloads/armadillo-5.200.2 
 #CFLAGS += -I/afs/cern.ch/user/l/$(USER)/armadillo-3.930.4/include
 #LIBS += -L/afs/cern.ch/user/l/$(USER)/armadillo-3.930.4 
-CFLAGS =
-LIBS =
-ARMALIBPATH = /afs/cern.ch/user/l/lstorchi/armadillo-3.930.4
-ARMAINCPATH = /afs/cern.ch/user/l/lstorchi/armadillo-3.930.4/include
+#CFLAGS =
+#LIBS =
+#ARMALIBPATH = /afs/cern.ch/user/l/lstorchi/armadillo-3.930.4
+#ARMAINCPATH = /afs/cern.ch/user/l/lstorchi/armadillo-3.930.4/include
+ARMALIBPATH = /home/atanu/Downloads/armadillo-5.200.2
+ARMAINCPATH = /home/atanu/Downloads/armadillo-5.200.2/include
 
 CC = gcc
 CXX = g++
