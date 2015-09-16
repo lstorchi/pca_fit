@@ -17,7 +17,11 @@
 #include <pcafitter.hpp>
 #include <pcaffunctype.hpp>
 
-#include "stdint.h"
+// can be included in nay case if -std=c++11
+#ifdef INTBITEWISE
+#include <cstdint>
+#endif
+
 // lstorchi: basi code to fit tracks, using the PCA constants generated 
 //           by the related generatepca
 
@@ -28,19 +32,33 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
      bool usecharge, bool usealsod0, bool usex0y0, int singleparam,
      bool usealsox0, arma::vec & ptvals)
 {
+
+#ifdef INTBITEWISE
   int16_t ** ptrs;
   ptrs = new int16_t* [fitter.get_paramdim()];
 
   int16_t * cothetacmp = NULL, * z0cmp = NULL, * oneoverptcmp = NULL, 
     * phicmp = NULL, * d0cmp = NULL, * x0cmp = NULL, * y0cmp = NULL, 
-         * singlep = NULL;
-  
+    * singlep = NULL;
+#else
+  double ** ptrs;
+  ptrs = new double* [fitter.get_paramdim()];
+
+  double * cothetacmp = NULL, * z0cmp = NULL, * oneoverptcmp = NULL, 
+    * phicmp = NULL, * d0cmp = NULL, * x0cmp = NULL, * y0cmp = NULL, 
+    * singlep = NULL;
+#endif
+ 
   if (usealsox0 && usex0y0)
     return false;
 
   if ((singleparam >= 1) && (singleparam <= 7))
   {
+#ifdef INTBITEWISE    
     singlep = new int16_t [(int)coordslt.n_rows];
+#else
+    singlep = new double [(int)coordslt.n_rows];
+#endif    
     ptrs[0] = singlep;
   }
   else
@@ -49,15 +67,25 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
     {
       if (usex0y0)
       {
+#ifdef INTBITEWISE        
         x0cmp = new int16_t [(int)coordslt.n_rows];
         y0cmp = new int16_t [(int)coordslt.n_rows];
+#else
+        x0cmp = new double [(int)coordslt.n_rows];
+        y0cmp = new double [(int)coordslt.n_rows];
+#endif
         ptrs[SPLIT_X0IDX] = x0cmp;
         ptrs[SPLIT_Y0IDX] = y0cmp;
       }
       else
       {
+#ifdef INTBITEWISE        
         cothetacmp = new int16_t [(int)coordslt.n_rows];
         z0cmp = new int16_t [(int)coordslt.n_rows];
+#else
+        cothetacmp = new double [(int)coordslt.n_rows];
+        z0cmp = new double [(int)coordslt.n_rows];
+#endif        
         ptrs[SPLIT_COTTHETAIDX] = cothetacmp;
         ptrs[SPLIT_Z0IDX] = z0cmp;
       }
@@ -67,21 +95,32 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
     {
       if (usex0y0)
       {
+#ifdef INTBITEWISE        
         x0cmp = new int16_t [(int)coordslt.n_rows];
         y0cmp = new int16_t [(int)coordslt.n_rows];
+#else
+        cothetacmp = new double [(int)coordslt.n_rows];
+        z0cmp = new double [(int)coordslt.n_rows];
+#endif
         ptrs[SPLIT_X0IDX] = x0cmp;
         ptrs[SPLIT_Y0IDX] = y0cmp;
       }
       else 
       {
+#ifdef INTBITEWISE        
         oneoverptcmp = new int16_t [(int)coordslt.n_rows];
         phicmp = new int16_t [(int)coordslt.n_rows];
+#else
+        oneoverptcmp = new double [(int)coordslt.n_rows];
+        phicmp = new double [(int)coordslt.n_rows];
+#endif
         ptrs[SPLIT_ONEOVERPTIDX] = oneoverptcmp;
         ptrs[SPLIT_PHIIDX] = phicmp;
       }
     
     }
 
+#ifdef INTBITEWISE   
     if (usealsod0)
     {
       d0cmp = new int16_t [(int)coordslt.n_rows];
@@ -92,6 +131,18 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
       x0cmp = new int16_t [(int)coordslt.n_rows];
       ptrs[SPLIT_X0IDX_NS] = x0cmp;
     }
+#else
+    if (usealsod0)
+    {
+      d0cmp = new double [(int)coordslt.n_rows];
+      ptrs[SPLIT_D0IDX] = d0cmp;
+    }
+    else if (usealsox0)
+    {
+      x0cmp = new double [(int)coordslt.n_rows];
+      ptrs[SPLIT_X0IDX_NS] = x0cmp;
+    }
+#endif    
 
   }
 
@@ -211,14 +262,23 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
     
         for (int i=0; i<(int)coordslt.n_rows; ++i)
         {
+#ifdef INTBITEWISE          
           int16_t thetacmp = atan(1.0e0 / cothetacmp[i]) ; 
           int16_t etacmps = 0.0e0, tantheta2;
+#else
+          double thetacmp = atan(1.0e0 / cothetacmp[i]) ; 
+          double etacmps = 0.0e0, tantheta2;
+#endif
           tantheta2 = tan (thetacmp/2.0e0); 
           if (tantheta2 < 0.0)
             etacmps = 1.0e0 * log (-1.0e0 * tantheta2);
           else
             etacmps = -1.0e0 * log (tantheta2);
+#ifdef INTBITEWISE
           int16_t theta = atan(1.0e0 / paramslt(i, SPLIT_COTTHETAIDX));
+#else
+          double theta = atan(1.0e0 / paramslt(i, SPLIT_COTTHETAIDX));
+#endif
           double etaorig = 0.0e0;
           tantheta2 = tan (theta/2.0e0);
           if (tantheta2 < 0.0)
@@ -372,8 +432,11 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
           for (int i=0; i<(int)coordslt.n_rows; ++i)
           {
             double qoverptorig = paramslt(i, SPLIT_ONEOVERPTIDX);
+#ifdef INTBITEWISE            
             int16_t qoverptcmp = oneoverptcmp[i];
-          
+#else
+            double qoverptcmp = oneoverptcmp[i];
+#endif          
             pcrelative[SPLIT_PHIIDX]((phicmp[i] - paramslt(i, SPLIT_PHIIDX))/
                 paramslt(i, SPLIT_PHIIDX));
             pcrelative[SPLIT_ONEOVERPTIDX]((qoverptcmp - qoverptorig)/
@@ -451,9 +514,13 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
         
           for (int i=0; i<(int)coordslt.n_rows; ++i)
           {
+            // not sure can be double this one ...
             double ptorig = 1.0e0 / paramslt(i, SPLIT_ONEOVERPTIDX);
+#ifdef INTBITEWISE            
             int16_t ptcmp = 1.0e0 / oneoverptcmp[i];
-          
+#else 
+            double ptcmp = 1.0e0 / oneoverptcmp[i];
+#endif
             pcrelative[SPLIT_PHIIDX]((phicmp[i] - paramslt(i, SPLIT_PHIIDX))/
                 paramslt(i, SPLIT_PHIIDX));
             pcrelative[SPLIT_ONEOVERPTIDX]((ptcmp - ptorig)/
@@ -1094,9 +1161,12 @@ int main (int argc, char ** argv)
         usealsod0, usex0y0, singleparam, usealsox0, ptvals))
     return EXIT_FAILURE;
 
+#ifdef INTBITEWISE
   std::cout << "Constants Used: C matrix: " << std::endl;
   std::cout << cmtx;
   std::cout << "Constants Used: q matrix: " << std::endl;
   std::cout << q;
+#endif
+
   return EXIT_SUCCESS;
 }
