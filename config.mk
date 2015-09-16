@@ -23,7 +23,7 @@ CERN = no
 # BITEWISE 
 # yes to use integer 
 # no
-USEINTBITEWISE = yes
+USEINTBITEWISE = no
 
 # if needed you sould specify here armadillo library path 
 CFLAGS += -I/home/atanu/Downloads/armadillo-5.200.2/include
@@ -48,7 +48,7 @@ else
 endif
 
 ifeq ($(USEINTBITEWISE),yes)
-  CFLAGS += -DINTBITEWISE -std=c++11
+  CFLAGS += -DINTBITEWISE 
 endif
 
 CXXFLAGS = $(CFLAGS)

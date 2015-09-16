@@ -38,10 +38,11 @@ namespace pca
           const arma::mat & vmtx,
           const arma::mat & coord, 
 #ifdef INTBITEWISE         
-          int16_t ** paraptr, int paramdim,
+          int16_t ** paraptr,
 #else
-          double ** paraptr, int paramdim,
+          double ** paraptr,
 #endif
+          int paramdim,
           arma::rowvec & chi2values);
            
       void select_bigger_sub (
