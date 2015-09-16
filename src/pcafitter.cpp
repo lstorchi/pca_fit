@@ -97,7 +97,12 @@ bool pcafitter::compute_parameters (
     const arma::mat & amtx,
     const arma::mat & vmtx,
     const arma::mat & coord, 
-    int16_t ** paraptr, int paramdim,
+#ifdef INTBITEWISE
+    int16_t ** paraptr, 
+#else
+    double ** paraptr,
+#endif
+    int paramdim,
     arma::rowvec & chi2values)
 {
   reset_error();
@@ -112,7 +117,11 @@ bool pcafitter::compute_parameters (
 
   for (int j=0; j<paramdim; ++j)
   {
+#ifdef INTBITEWISE    
     int16_t *ptr = paraptr[j];
+#else
+    double *ptr = paraptr[j];
+#endif
     for (int i=0; i<(int)coord.n_rows; ++i)
     {
       ptr[i] = q(j);
@@ -147,11 +156,19 @@ bool pcafitter::compute_parameters (
 
   for (int k=0; k<(int)coord.n_rows; ++k)
   {
+#ifdef INTBITEWISE    
     int16_t chi2check = 0.0;
+#else
+    double chi2check = 0.0;
+#endif
 
     for (int i=0; i<coordim_-paramdim_; ++i)
     {
+#ifdef INTBITEWISE      
       int16_t val = 0.0;
+#else
+      double val = 0.0;
+#endif
 
       /* ki */
       for (int a=0; a<coordim_; ++a)

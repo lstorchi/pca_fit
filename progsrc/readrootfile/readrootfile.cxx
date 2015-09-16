@@ -17,7 +17,10 @@
 #include "TBranch.h" 
 #include "TBasket.h"
 
+// can be included in nay case if -std=c++11
+#ifdef INTBITEWISE
 #include "stdint.h"
+#endif
 
 #define STOPAFTERMAXEVT INFINITY
 
@@ -137,12 +140,17 @@ void print_bankstub_new (TFile * inputFile, std::ostream& ss, unsigned int maxtr
        int j = 0;
        for (; j<(int)moduleid.size(); ++j)
        {
+#ifdef INTBITEWISE         
         int16_t stubX = stubx[j]*10;
         int16_t stubY = stuby[j]*10;
         int16_t stubZ = stubz[j]*10;
 
         ss << stubX << " " << stubY << " " <<
            stubZ << " ";
+#else
+        ss << stubx[j] << " " << stuby[j] << " " <<
+          stubz[j] << " ";
+#endif
 
         int value = moduleid[j];
         int layer = value/1000000;
@@ -189,13 +197,17 @@ void print_bankstub_new (TFile * inputFile, std::ostream& ss, unsigned int maxtr
        int j = 0;
        for (; j<(int)moduleid.size(); ++j)
        {
+#ifdef INTBITEWISE
         int16_t stubX = stubx[j]*10;
         int16_t stubY = stuby[j]*10;
         int16_t stubZ = stubz[j]*10;
 
         ss << stubX << " " << stubY << " " <<
            stubZ << " ";
-
+#else
+        ss << stubx[j] << " " << stuby[j] << " " <<
+           stubz[j] << " ";
+#endif
         int value = moduleid[j];
         int layer = value/1000000;
         value = value-layer*1000000;
