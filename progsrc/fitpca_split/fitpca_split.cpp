@@ -17,9 +17,10 @@
 #include <pcafitter.hpp>
 #include <pcaffunctype.hpp>
 
-// can be included in nay case if -std=c++11
+// lstorchi : can be included in any case 
 #ifdef INTBITEWISE
-#include <cstdint>
+// lstorchi: should we use cstdint and -std=c++11 ? 
+#include "stdint.h"
 #endif
 
 // lstorchi: basi code to fit tracks, using the PCA constants generated 
