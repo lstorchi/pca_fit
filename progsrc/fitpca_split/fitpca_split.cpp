@@ -259,13 +259,18 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
           myfile << "pt eta_orig eta_fitt diff z0_orig z0_fitt diff " <<
            " x0_orig x0_fitt diff" << std::endl;
         else  
+#ifdef INTBITEWISE          
+          myfile << "pt cot0_orig cot0_fitt diff z0_orig z0_fitt diff" << std::endl; 
+#else
           myfile << "pt eta_orig eta_fitt diff z0_orig z0_fitt diff" << std::endl; 
+#endif
     
         for (int i=0; i<(int)coordslt.n_rows; ++i)
         {
 #ifdef INTBITEWISE          
-          int16_t thetacmp = atan(1.0e0 / cothetacmp[i]) ; 
-          int16_t etacmps = 0.0e0, tantheta2;
+          //It will not converge. Lets not try this now. Instead compare Cot(theta) itself (easier).
+          //int16_t thetacmp = atan(1.0e0 / cothetacmp[i]) ; 
+          //int16_t etacmps = 0.0e0, tantheta2;
 #else
           double thetacmp = atan(1.0e0 / cothetacmp[i]) ; 
           double etacmps = 0.0e0, tantheta2;
@@ -276,7 +281,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
           else
             etacmps = -1.0e0 * log (tantheta2);
 #ifdef INTBITEWISE
-          int16_t theta = atan(1.0e0 / paramslt(i, SPLIT_COTTHETAIDX));
+          //int16_t theta = atan(1.0e0 / paramslt(i, SPLIT_COTTHETAIDX));
 #else
           double theta = atan(1.0e0 / paramslt(i, SPLIT_COTTHETAIDX));
 #endif
@@ -325,11 +330,19 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
               paramslt(i, SPLIT_X0IDX_NS) << " " << x0cmp[i] << " " <<
               x0cmp[i] - paramslt(i, SPLIT_X0IDX_NS) << std::endl;
           else
+#ifdef INTBITEWISE
+            myfile << ptvals(i) << "   " <<
+              paramslt(i, SPLIT_COTTHETAIDX) << "   " << cothetacmp[i] << "   " <<
+              (cothetacmp[i] - paramslt(i, SPLIT_COTTHETAIDX)) << " " <<
+              paramslt(i, SPLIT_Z0IDX) << " " << z0cmp[i] << " " <<
+              (z0cmp[i] - paramslt(i, SPLIT_Z0IDX)) << std::endl;
+#else
             myfile << ptvals(i) << " " <<
               etaorig << " " << etacmps << " " <<
               (etacmps - etaorig) << " " <<
               paramslt(i, SPLIT_Z0IDX) << " " << z0cmp[i] << " " <<
               (z0cmp[i] - paramslt(i, SPLIT_Z0IDX)) << std::endl;
+#endif
         
           if (verbose)
           {
@@ -1163,6 +1176,7 @@ int main (int argc, char ** argv)
     return EXIT_FAILURE;
 
 #ifdef INTBITEWISE
+  //To cross check whether constants have been read correctly in int16_t mode
   std::cout << "Constants Used: C matrix: " << std::endl;
   std::cout << cmtx;
   std::cout << "Constants Used: q matrix: " << std::endl;

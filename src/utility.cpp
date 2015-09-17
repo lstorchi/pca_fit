@@ -426,8 +426,10 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
             }
             else if (rphiplane)
             {
+//recast x and r for arccos calculation. Though arccos operation not permitted in integer representation.
+//Check X-Y view instead
 #ifdef INTBITEWISE
-              int16_t phii = acos(x/ri);
+              int16_t phii = 10*acos((double) x/(double) ri);
 #else
               double phii = acos(x/ri);
 #endif
