@@ -141,6 +141,7 @@ void print_bankstub_new (TFile * inputFile, std::ostream& ss, unsigned int maxtr
        for (; j<(int)moduleid.size(); ++j)
        {
 #ifdef INTBITEWISE         
+        //Can we provide these scale factors from outside
         int16_t stubX = stubx[j]*10;
         int16_t stubY = stuby[j]*10;
         int16_t stubZ = stubz[j]*10;
@@ -170,8 +171,6 @@ void print_bankstub_new (TFile * inputFile, std::ostream& ss, unsigned int maxtr
        }
        --j;
 
-       //int16_t X = x0[j]*10;
-       //int16_t Y = y0[j]*10;
        ss << pt[j]<< " "  <<
          phi[j] << " " << d0val << " " 
          << eta[j] << " " << z0[j] << " " <<
@@ -226,8 +225,6 @@ void print_bankstub_new (TFile * inputFile, std::ostream& ss, unsigned int maxtr
        }
        --j;
 
-       //int16_t X = x0[j]*10;
-       //int16_t Y = y0[j]*10;
        ss << pt[j]<< " "  <<
          phi[j] << " " << d0val << " " 
          << eta[j] << " " << z0[j] << " " <<

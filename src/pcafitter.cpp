@@ -395,21 +395,20 @@ bool pcafitter::compute_pca_constants (
       q(i) -= cmtx(i,l)*coordm(l);
   }
 
+#ifdef INTBITEWISE
+  //cmtx and q constants are still in float point. Multiply them to bring in integer range.
+  //They are casted as int16_t while reading from pca::read_armmat and pca::read_armvct in fit pca step.
   cmtx *= 200; 
-  if (verbositylevel == 2)
-  {
-    std::cout << "C matrix: " << std::endl;
-    std::cout << cmtx;
-  }
+
+  std::cout << "C matrix: " << std::endl;
+  std::cout << cmtx;
 
   q *= 2000;
 
-  if (verbositylevel == 2)
-  {
-    std::cout << "Q vector: " << std::endl;
-    for (int i=0; i<paramdim_; ++i)
-      std::cout << q(i) << std::endl;
-  }
+  std::cout << "Q vector: " << std::endl;
+  for (int i=0; i<paramdim_; ++i)
+    std::cout << q(i) << std::endl;
+#endif
 
   return true;
 }
