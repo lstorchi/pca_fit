@@ -1159,16 +1159,55 @@ int main (int argc, char ** argv)
       qfname = "q.rphi.bin";
 
     if (afname == "")
-      afname = "a.rz.bin";
+      afname = "a.rphi.bin";
 
     if (vfname == "")
-      vfname = "v.rz.bin";
+      vfname = "v.rphi.bin";
   }
 
-  pca::read_armmat(cfname.c_str(), cmtx);
-  pca::read_armmat(vfname.c_str(), vmtx);
-  pca::read_armmat(afname.c_str(), amtx);
-  pca::read_armvct(qfname.c_str(), q);
+  if (pca::file_exists(afname.c_str()))
+  {
+    std::cout << "Reading " << afname << std::endl;
+    pca::read_armmat(afname.c_str(), amtx);
+  }
+  else
+  {
+    std::cerr << afname << " does not exist" << std::endl;
+    return 1;
+  }
+
+  if (pca::file_exists(cfname.c_str()))
+  {
+    std::cout << "Reading " << cfname << std::endl;
+    pca::read_armmat(cfname.c_str(), cmtx);
+  }
+  else
+  {
+    std::cerr << cfname << " does not exist" << std::endl;
+    return 1;
+  }
+
+  if (pca::file_exists(vfname.c_str()))
+  {
+    std::cout << "Reading " << vfname << std::endl;
+    pca::read_armmat(vfname.c_str(), vmtx);
+  }
+  else
+  {
+    std::cerr << vfname << " does not exist" << std::endl;
+    return 1;
+  }
+
+  if (pca::file_exists(qfname.c_str()))
+  {
+    std::cout << "Reading " << qfname << std::endl;
+    pca::read_armvct(qfname.c_str(), q);
+  }
+  else
+  {
+    std::cerr << qfname << " does not exist" << std::endl;
+    return 1;
+  }
 
   if (!build_and_compare (param, coord, cmtx, q, amtx, vmtx, 
         verbose, fitter, rzplane, rphiplane, usecharge, 
