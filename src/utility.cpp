@@ -130,8 +130,8 @@ void pca::read_armmat (const char * fname, arma::mat & cmtx)
 {
   int n, m;
   std::ifstream myfilec(fname, std::ios::binary | std::ios::in);
-  myfilec.read((char *)&n, sizeof(n));
-  myfilec.read((char *)&m, sizeof(m));
+  myfilec.read((char *)&n, sizeof(int));
+  myfilec.read((char *)&m, sizeof(int));
   cmtx.set_size(n, m);
   for (int i=0; i<(int)cmtx.n_rows; i++)
   {
@@ -436,6 +436,10 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
           
               coordread(counter, j*2) = phii;
               coordread(counter, j*2+1) = ri;
+
+              //coordread(counter, j*2) = x;
+              //coordread(counter, j*2+1) = y;
+ 
             }
           }
         }
