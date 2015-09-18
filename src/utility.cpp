@@ -437,6 +437,7 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
               coordread(counter, j*2) = phii;
               coordread(counter, j*2+1) = ri;
 
+              // quick switch to XY view
               //coordread(counter, j*2) = x;
               //coordread(counter, j*2+1) = y;
  
