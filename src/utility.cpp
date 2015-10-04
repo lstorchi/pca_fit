@@ -27,16 +27,21 @@
 
 namespace
 {
-  bool is_a_valid_layers_seq(const std::string & in)
+  bool is_a_valid_layers_seq(const std::string & in, bool tocheck)
   {
     static const char * valid_layers_seq[STDDIM_PRV_VLS];
     valid_layers_seq[0] = "5678910";
 
-    for (int i=0; i<STDDIM_PRV_VLS; i++)
-      if (in == valid_layers_seq[i])
-        return true;
+    if (tocheck)
+    {
+      for (int i=0; i<STDDIM_PRV_VLS; i++)
+        if (in == valid_layers_seq[i])
+          return true;
 
-    return false;
+      return false;
+    }
+  
+    return true;
   }
 
   bool check_to_read (bool useonlyeven, bool useonlyodd, int i)
@@ -274,7 +279,8 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
      double d0min, double d0max, 
      bool usealsox0,
      bool verbose,
-     arma::vec & ptvalsout)
+     arma::vec & ptvalsout,
+     bool checklayersids)
 {
 
 #ifdef DEBUG
@@ -609,7 +615,7 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
 
   extdim = 0;
   for (int i=0; i<(int)etavals.n_rows; ++i)
-    if (is_a_valid_layers_seq(layersids[i]))
+    if (is_a_valid_layers_seq(layersids[i], checklayersids))
       if ((etavals(i) <= etamax) && (etavals(i) >= etamin))
         if ((ptvals(i) <= ptmax) && (ptvals(i) >= ptmin))
           if ((phivals(i) <= phimax) && (phivals(i) >= phimin))
@@ -630,7 +636,7 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
   counter = 0;
   for (int i=0; i<(int)etavals.n_rows; ++i)
   {
-    if (is_a_valid_layers_seq(layersids[i]))
+    if (is_a_valid_layers_seq(layersids[i], checklayersids))
     {
       if ((etavals(i) <= etamax) && (etavals(i) >= etamin))
       {
