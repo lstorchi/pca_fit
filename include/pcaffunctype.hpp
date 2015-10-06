@@ -62,7 +62,8 @@ namespace pca
           bool usealsox0, 
           bool verbose, 
           arma::vec & ptvals,
-          bool checklayersid);
+          bool checklayersid,
+          int maxnumoflayers);
 
   bool file_exists(const std::string& filename);
 

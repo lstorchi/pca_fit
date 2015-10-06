@@ -280,7 +280,8 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
      bool usealsox0,
      bool verbose,
      arma::vec & ptvalsout,
-     bool checklayersids)
+     bool checklayersids,
+     int maxnumoflayers)
 {
 
 #ifdef DEBUG
@@ -325,7 +326,7 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
 
 #ifdef DEBUG
   /* to set x0 and y0 range */
-  xyzvals.set_size(num_of_ent, 3*NUMOFLAYER);
+  xyzvals.set_size(num_of_ent, 3*maxnumoflayers);
   arma::vec x0vals;
   arma::vec y0vals;
   x0vals.set_size(num_of_ent);
@@ -349,15 +350,15 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
     mytfp >> fake1 >> realsize ;
 
 #if 0
-    if (realsize > NUMOFLAYER)
+    if (realsize > maxnumoflayers)
     {
       std::cerr << "WARNING: More than 6 layers" << std::endl;
       std::cerr << "         Not checking missing stub TODO" << std::endl;
     }
 
-    if (realsize < NUMOFLAYER)
+    if (realsize < maxnumoflayers)
     {
-      std::cerr << "WARNING: less than 6 layers" << std::endl;
+      std::cerr << "WARNING: less than ",maxnumoflayers," layers" << std::endl;
       std::cerr << "         wont use it" << std::endl;
       continue;
     }
@@ -396,7 +397,7 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
 
       osss << a;
 
-      if (j < NUMOFLAYER)
+      if (j < maxnumoflayers)
       {
         if (excludesmodule)
           if (j > 2)
@@ -677,7 +678,7 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
                     ptvalsout(counter) = ptvals(i);
                    
 #ifdef DEBUG                    
-                    //for (int j=0; j<NUMOFLAYER; ++j)
+                    //for (int j=0; j<maxnumoflayers; ++j)
                     for (int j=0; j<1; ++j)
                       std::cerr << xyzvals(i,(3*j)+0) << " " << xyzvals(i,(3*j)+1) << " " 
                         << xyzvals(i,(3*j)+2) << std::endl;

@@ -1092,7 +1092,7 @@ int main (int argc, char ** argv)
        usecharge, chargesign, excludesmodule, usealsod0,
        usex0y0, singleparam, phimin, phimax, z0min, z0max,
        d0min, d0max, usealsox0, verbose, ptvals, 
-       checklayersids))
+       checklayersids, 6))
     return EXIT_FAILURE;
   std::cout << "Using " << param.n_rows << " tracks" << std::endl;
 
