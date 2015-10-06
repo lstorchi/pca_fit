@@ -1,9 +1,6 @@
 #ifndef _PCAFITTER_INC_ 
 #define _PCAFITTER_INC_
 
-#define ENTDIM 8
-#define NUMOFLAYER (ENTDIM-2)
-
 #include <armadillo>
 #include <vector>
 #include <map>

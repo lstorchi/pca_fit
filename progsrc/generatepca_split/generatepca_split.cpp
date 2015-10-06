@@ -474,7 +474,7 @@ int main (int argc, char ** argv)
          useonlyeven, false, rzplane, rphiplane, 
          etamin, etamax, ptmin, ptmax, usecharge, chargesign, excludesmodule, 
          usealsod0, usex0y0, singleparam, phimin, phimax, z0min, z0max,
-         d0min, d0max, usealsox0, verbose, ptvals, checklayersids))
+         d0min, d0max, usealsox0, verbose, ptvals, checklayersids, 6))
     return EXIT_FAILURE;
 
   if ((coordin.n_rows == 0) || (paramin.n_rows == 0))
