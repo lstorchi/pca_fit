@@ -65,6 +65,8 @@ namespace pca
           bool checklayersid,
           int maxnumoflayers);
 
+  void global_to_relative (arma::mat & coordin);
+
   bool file_exists(const std::string& filename);
 
   double delta_phi(double phi1, double phi2);
