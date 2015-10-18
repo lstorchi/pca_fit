@@ -279,7 +279,6 @@ void pca::global_to_relative (arma::mat & coordin)
       minval = coordin.col(i+1).min();
       if (minval < min2coord)
         min2coord = minval;
-      std::cout << i+1 << " " << i+2 << std::endl; 
     }
 
     for (int i=0; i<(int)coordin.n_rows; ++i)
