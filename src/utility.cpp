@@ -264,6 +264,36 @@ int pca::get_num_of_ent (const char * fname)
   return num;
 }
 
+void pca::global_to_relative (arma::mat & coordin)
+{
+  if (coordin.n_cols%2 == 0)
+  {
+    double min1coord = std::numeric_limits<double>::infinity();
+    double min2coord = std::numeric_limits<double>::infinity();
+
+    for (int i=0; i<(int)coordin.n_cols; i+=2)
+    {
+      double minval = coordin.col(i).min();
+      if (minval < min1coord)
+        min1coord = minval;
+      minval = coordin.col(i+1).min();
+      if (minval < min2coord)
+        min2coord = minval;
+      std::cout << i+1 << " " << i+2 << std::endl; 
+    }
+
+    for (int i=0; i<(int)coordin.n_rows; ++i)
+    {
+      for (int j=0; j<(int)coordin.n_cols; j+=2)
+      {
+        coordin(i, j) -= min1coord;
+        coordin(i, j+1) -= min2coord;
+      }
+    }
+  }
+
+}
+
 bool pca::reading_from_file_split (const pca::pcafitter & fitter, 
      const char * filename, 
      arma::mat & paramin, arma::mat & coordin, 
