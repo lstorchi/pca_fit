@@ -675,6 +675,7 @@ void usage (char * name)
   std::cerr << std::endl;
   std::cerr << " -z, --rz-plane                  : use rz plane view (fit eta and z0)" << std::endl;
   std::cerr << " -r, --rphi-plane                : use r-phi plane view (fit ot and phi)" << std::endl;
+  std::cerr << " -a, --relative                  : use relative coordinates" << std::endl;
   std::cerr << std::endl;
   std::cerr << " -k, --check-layersids           : check exact layers sequence (is_a_valid_layers_seq for seq list)" 
     << std::endl;
@@ -717,6 +718,7 @@ int main (int argc, char ** argv)
   bool usesingleparam = false;
   bool usealsox0 = false;
   bool checklayersids = false;
+  bool userelativecoord = false;
 
   int singleparam=-1;
 
@@ -759,10 +761,11 @@ int main (int argc, char ** argv)
       {"z0-range", 1, NULL, 'o'},
       {"d0-range", 1, NULL, 'u'},
       {"check-layersids", 1, NULL, 'k'},
+      {"realative", 0, NULL, 'a'},
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "XfkdxezrhVjA:B:t:g:c:q:s:n:s:m:o:u", 
+    c = getopt_long (argc, argv, "XfkdxezrhaVjA:B:t:g:c:q:s:n:s:m:o:u", 
         long_options, &option_index);
 
     if (c == -1)
@@ -770,6 +773,9 @@ int main (int argc, char ** argv)
 
     switch (c)
     {
+      case 'a':
+        userelativecoord = true;
+        break;
       case 'k':
         checklayersids = true;
         break;
@@ -1094,6 +1100,10 @@ int main (int argc, char ** argv)
        d0min, d0max, usealsox0, verbose, ptvals, 
        checklayersids, 6))
     return EXIT_FAILURE;
+
+  if (userelativecoord)
+    pca::global_to_relative(coord);
+
   std::cout << "Using " << param.n_rows << " tracks" << std::endl;
 
   if (rzplane)
