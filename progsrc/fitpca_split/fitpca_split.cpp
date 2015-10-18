@@ -675,7 +675,8 @@ void usage (char * name)
   std::cerr << std::endl;
   std::cerr << " -z, --rz-plane                  : use rz plane view (fit eta and z0)" << std::endl;
   std::cerr << " -r, --rphi-plane                : use r-phi plane view (fit ot and phi)" << std::endl;
-  std::cerr << " -a, --relative                  : use relative coordinates" << std::endl;
+  std::cerr << " -a, --relative                  : use relative coordinates (compute min values)" << std::endl;
+  std::cerr << " -b, --relative-values=[v1;v2]   : use relative coordinates (using v1 and v2 as min)" << std::endl;
   std::cerr << std::endl;
   std::cerr << " -k, --check-layersids           : check exact layers sequence (is_a_valid_layers_seq for seq list)" 
     << std::endl;
@@ -727,6 +728,8 @@ int main (int argc, char ** argv)
   double phimin = -1.0e0 * INFINITY, phimax = +1.0e0 * INFINITY;
   double z0min = -1.0e0 * INFINITY, z0max = +1.0e0 * INFINITY;
   double d0min = -1.0e0 * INFINITY, d0max = +1.0e0 * INFINITY;
+  double coord1min = std::numeric_limits<double>::infinity();
+  double coord2min = std::numeric_limits<double>::infinity();
 
   int chargesign = 0;
 
@@ -762,10 +765,11 @@ int main (int argc, char ** argv)
       {"d0-range", 1, NULL, 'u'},
       {"check-layersids", 1, NULL, 'k'},
       {"realative", 0, NULL, 'a'},
+      {"relative-values", 1, NULL, 'b'},
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "XfkdxezrhaVjA:B:t:g:c:q:s:n:s:m:o:u", 
+    c = getopt_long (argc, argv, "XfkdxezrhaVjb:A:B:t:g:c:q:s:n:s:m:o:u", 
         long_options, &option_index);
 
     if (c == -1)
@@ -773,6 +777,18 @@ int main (int argc, char ** argv)
 
     switch (c)
     {
+      case 'b':
+        userelativecoord = true;
+        tokens.clear();
+        pca::tokenize (optarg, tokens, ";");
+        if (tokens.size() != 2)
+          usage (argv[0]);
+       
+        coord1min = atof(tokens[0].c_str());
+        coord2min = atof(tokens[1].c_str());
+          
+        break;
+
       case 'a':
         userelativecoord = true;
         break;
@@ -1102,7 +1118,7 @@ int main (int argc, char ** argv)
     return EXIT_FAILURE;
 
   if (userelativecoord)
-    pca::global_to_relative(coord);
+    pca::global_to_relative(coord, coord1min, coord2min);
 
   std::cout << "Using " << param.n_rows << " tracks" << std::endl;
 
