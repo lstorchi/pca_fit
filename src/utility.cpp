@@ -342,6 +342,9 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
   std::ifstream mytfp;
   mytfp.open (filename, std::ios::in);
 
+  std::set<int> layeridlist;
+  unsigned int countlayerswithdupid = 0;
+
   int counter = 0;
   std::getline (mytfp, line);
   for (int i = 0; i < num_of_ent; ++i)
@@ -365,7 +368,7 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
 #endif
 
     std::ostringstream osss;
-    std::set<int> pidset;
+    std::set<int> pidset, layeridset;
     
     for (int j = 0; j < realsize; ++j)
     {
@@ -396,6 +399,8 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
       }
 
       osss << a;
+      layeridset.insert(a);
+      layeridlist.insert(a);
 
       if (j < maxnumoflayers)
       {
@@ -452,6 +457,12 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
           }
         }
       }
+    }
+
+    if (layeridset.size() != (unsigned int)realsize)
+    {
+      ++countlayerswithdupid;
+      //std::cerr << "Layer id duplicated " << std::endl;
     }
 
     //Need to change for Integer Representation , but for the time 
@@ -699,6 +710,15 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
   }
 
   //std::cout << "counter: " << counter << std::endl;
+  
+
+  std::cout << "Layers IDs list: " << std::endl;
+  std::set<int>::iterator lids = layeridlist.begin();
+  for (; lids != layeridlist.end(); ++lids)
+    std::cout << " " << (*lids) << std::endl;
+  std::cout << std::endl;
+
+  std::cout << "Event with DupIds: " << countlayerswithdupid << std::endl;
 
   mytfp.close();
 
