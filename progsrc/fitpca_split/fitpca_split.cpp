@@ -676,7 +676,7 @@ void usage (char * name)
   std::cerr << " -z, --rz-plane                  : use rz plane view (fit eta and z0)" << std::endl;
   std::cerr << " -r, --rphi-plane                : use r-phi plane view (fit ot and phi)" << std::endl;
   std::cerr << " -a, --relative                  : use relative coordinates (compute min values)" << std::endl;
-  std::cerr << " -b, --relative-values=[v1;v2]   : use relative coordinates (using v1 and v2 as min)" << std::endl;
+  std::cerr << " -b, --relative-values=[v1;v2]   : use relative coordinates (using v1 (phi or z) and v2 (r) as min)" << std::endl;
   std::cerr << std::endl;
   std::cerr << " -k, --check-layersids           : check exact layers sequence (is_a_valid_layers_seq for seq list)" 
     << std::endl;
