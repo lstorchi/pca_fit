@@ -764,7 +764,7 @@ int main (int argc, char ** argv)
       {"z0-range", 1, NULL, 'o'},
       {"d0-range", 1, NULL, 'u'},
       {"check-layersids", 1, NULL, 'k'},
-      {"realative", 0, NULL, 'a'},
+      {"relative", 0, NULL, 'a'},
       {"relative-values", 1, NULL, 'b'},
       {0, 0, 0, 0}
     };
