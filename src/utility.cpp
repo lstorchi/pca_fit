@@ -288,8 +288,11 @@ void pca::global_to_relative (arma::mat & coordin,
     else
     {
       min1coord = coord1min;
-      coord2min = coord2min;
+      min2coord = coord2min;
     }
+
+    std::cout << "Min values: " << min1coord << " and " << 
+      min2coord << std::endl;
 
     for (int i=0; i<(int)coordin.n_rows; ++i)
     {
