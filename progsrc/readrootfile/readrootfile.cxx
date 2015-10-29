@@ -39,7 +39,7 @@ void usage (char * name)
 }
 
 void print_bankstub_new (TFile * inputFile, std::ostream& ss, 
-    std::ostream& ssext, unsigned int maxtracks)
+    std::ostream& ssext, std::ostream& ssext1, unsigned int maxtracks)
 {
   TChain* TT = (TChain*) inputFile->Get("BankStubs");
 
@@ -218,7 +218,57 @@ void print_bankstub_new (TFile * inputFile, std::ostream& ss,
 
        countevt++;
      }
-     else 
+     else if ((moduleid.size() < 6) && allAreEqual)
+     {
+       double d0val;
+       //d0val = (y0[0]-(tan(phi[0])*x0[0]))*cos(phi[0]);
+       d0val = y0[0]*cos(phi[0])-x0[0]*sin(phi[0]);
+       //double d0val = x0[0];
+
+       ptfile << pt[0] << std::endl;
+       phifile << phi[0] << std::endl;
+       d0file << d0val << std::endl;
+       etafile << eta[0] << std::endl;
+       z0file << z0[0] << std::endl;
+
+       ssext1 << i+1 << " " << moduleid.size() << std::endl;
+
+       int j = 0;
+       for (; j<(int)moduleid.size(); ++j)
+       {
+#ifdef INTBITEWISE
+        int16_t stubX = stubx[j]*10;
+        int16_t stubY = stuby[j]*10;
+        int16_t stubZ = stubz[j]*10;
+
+        ssext1 << stubX << " " << stubY << " " <<
+           stubZ << " ";
+#else
+        ssext1 << stubx[j] << " " << stuby[j] << " " <<
+           stubz[j] << " ";
+#endif
+        int value = moduleid[j];
+        int layer = value/1000000;
+        value = value-layer*1000000;
+        int ladder = value/10000;
+        value = value-ladder*10000;
+        int module = value/100;
+        value = value-module*100;
+        int segid = value; // QA is just this ? from the source code seems so, I need to / by 10 ?
+
+        ssext1 << layer << " " << ladder << " " << 
+          module << " " << segid << " " << pdg[j] << std::endl;
+       }
+       --j;
+
+       ssext1 << pt[j]<< " "  <<
+         phi[j] << " " << d0val << " " 
+         << eta[j] << " " << z0[j] << " " <<
+         x0[j] << " " << y0[j] << std::endl;
+
+       countevt++;
+     }
+     else
      {
        double d0val;
        //d0val = (y0[0]-(tan(phi[0])*x0[0]))*cos(phi[0]);
@@ -503,11 +553,13 @@ void readandtest (const std::string & fname, bool tkstubs,
   if (bkstubs)
   {
     std::ofstream bankstbfile("bankstub.txt");
-    std::ofstream bankstbfileex("bankstubextra.txt");
+    std::ofstream bankstbfileex("bankstub_notequal.txt");
+    std::ofstream bankstbfileex1("bankstub_lesst6layers.txt");
     print_bankstub_new (inputFile, bankstbfile, bankstbfileex, 
-        (unsigned int)maxtracks);
+        bankstbfileex1, (unsigned int)maxtracks);
     bankstbfile.close();
     bankstbfileex.close();
+    bankstbfileex1.close();
   }
 
   if (tkstubs)
