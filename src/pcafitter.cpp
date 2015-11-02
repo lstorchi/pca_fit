@@ -136,7 +136,8 @@ bool pcafitter::compute_parameters (
   /*
   for (int k=0; k<coordim_; ++k)
   {
-    std::cout << coordmval[k].mean() << " " << coordmval[k].stddev() << std::endl;
+    std::cout << coordmval[k].mean() << " " 
+       << coordmval[k].stddev() << std::endl;
   }
   */
 
@@ -151,10 +152,11 @@ bool pcafitter::compute_parameters (
       }
     }
 
-    //std::cout << k << " ==> " << chi2values(k)  << std::endl;
+    std::cout << "chi2 using eq 10 pg 112 " << k << " ==> " 
+      << chi2values(k)  << std::endl;
   }
 
-  for (int k=0; k<(int)coord.n_rows; ++k)
+  for (int b=0; b<(int)coord.n_rows; ++b) // loop over tracks 
   {
 #ifdef INTBITEWISE    
     int16_t chi2check = 0.0;
@@ -165,23 +167,33 @@ bool pcafitter::compute_parameters (
     for (int i=0; i<coordim_-paramdim_; ++i)
     {
 #ifdef INTBITEWISE      
-      int16_t val = 0.0;
+      int16_t ki = 0, val = 0;
 #else
-      double val = 0.0;
+      double ki = 0.0, val = 0.0;
 #endif
 
       /* ki */
-      for (int a=0; a<coordim_; ++a)
-        val += amtx(i, a) * coordmval[a].mean();
+      for (int k=0; k<coordim_; ++k)
+      {
+        std::cout << "    " << k << " " << coordmval[k].mean() << std::endl;
+        ki += amtx(i, k) * coordmval[k].mean();
+      }
+
+      std::cout << "  ki:" << ki << std::endl;
 
       /* sum over j */
       for (int j=0; j<coordim_; ++j)
-        val += amtx(i,j) * coord(k,j);
+        val += amtx(i,j) * coord(b,j);
+
+      val += ki;
+
+      std::cout << "  val:" << val << std::endl;
 
       chi2check += val*val;
     }
 
-    //std::cout << k << " ==> " << chi2check  << std::endl;
+    std::cout << "chi2 using eq 11 pg 112 " << b << " ==> " 
+      << chi2check  << std::endl;
   }
 
   return true;
@@ -278,16 +290,43 @@ bool pcafitter::compute_pca_constants (
     std::cout << "Eigensystem" << std::endl;
 
   arma::eig_sym(eigvaltmp, eigvec, hca);
+  //arma::mat coeff;
+  //arma::mat score;
+  //arma::princomp(coeff, score, hca);
+
+  /* stored column by column
+  for (int i=0; i<(int)eigvaltmp.n_rows; ++i)
+    std::cout << i << " ==> " << 
+      eigvaltmp(i) << std::endl;
+
+  for (int i=0; i<(int)eigvec.n_rows; ++i)
+  {
+    std::cout << i << " ==> ";
+    for (int j=0; j<(int)eigvec.n_rows; ++j)
+      std::cout << eigvec(j,i) << " ";
+    std::cout << std::endl;
+
+    std::cout << i << " ==> ";
+    for (int j=0; j<(int)eigvec.n_rows; ++j)
+      std::cout << eigvaltmp(i) * eigvec(j,i) << " ";
+    std::cout << std::endl;
+
+    std::cout << i << " ==> ";
+    for (int j=0; j<(int)eigvec.n_rows; ++j)
+    {
+      double lam = 0.0;
+      for (int k=0; k<(int)eigvec.n_rows; ++k)
+        lam += hca(j, k) * eigvec(k,i);
+      std::cout << lam << " ";
+    }
+    std::cout << std::endl;
+  }
+  */
 
   /* compute A matrix */
   for (int i=0; i<this->get_coordim()-this->get_paramdim(); ++i)
-  {
     for (int j=0; j<this->get_coordim(); ++j)
-    {
-      amtx(i, j) = eigvec(j, i+this->get_paramdim())/
-        sqrt(eigvaltmp(i+this->get_paramdim()));
-    }
-  }
+      amtx(i, j) = eigvec(j, i) / sqrt(eigvaltmp(i));
  
   for (int i=0; i<this->get_coordim(); ++i)
     eigval(i) = eigvaltmp(this->get_coordim()-i-1);
@@ -319,7 +358,7 @@ bool pcafitter::compute_pca_constants (
 #ifdef DEBUG
   /* correlation matrix ricorda su dati standardizzati coincide con la matrice 
    *   di covarianza : 
-   *   z = x -<x> / sigma */
+   *   z = x - <x> / sigma */
   arma::mat corr = arma::zeros<arma::mat>(coordim_,coordim_);
   
   for (int i=0; i<(coordim_); ++i)
