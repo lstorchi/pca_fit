@@ -96,6 +96,7 @@ bool pcafitter::compute_parameters (
     const arma::rowvec & q, 
     const arma::mat & amtx,
     const arma::mat & vmtx,
+    const arma::rowvec & kvct, 
     const arma::mat & coord, 
 #ifdef INTBITEWISE
     int16_t ** paraptr, 
@@ -167,25 +168,16 @@ bool pcafitter::compute_parameters (
     for (int i=0; i<coordim_-paramdim_; ++i)
     {
 #ifdef INTBITEWISE      
-      int16_t ki = 0, val = 0;
+      int16_t val = 0;
 #else
-      double ki = 0.0, val = 0.0;
+      double val = 0.0;
 #endif
-
-      /* ki */
-      for (int k=0; k<coordim_; ++k)
-      {
-        //std::cout << "    " << k << " " << coordmval[k].mean() << std::endl;
-        ki += amtx(i, k) * coordmval[k].mean();
-      }
-
-      //std::cout << "  ki:" << ki << std::endl;
 
       /* sum over j */
       for (int j=0; j<coordim_; ++j)
         val += amtx(i,j) * coord(b,j);
 
-      val += ki;
+      val += kvct(i);
 
       //std::cout << "  val:" << val << std::endl;
 
