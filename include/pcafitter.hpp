@@ -61,6 +61,7 @@ namespace pca
           arma::rowvec & q,
           arma::mat & vmtx, 
           arma::mat & amtx, 
+          arma::rowvec & kivec,
           int verbositylevel);
 
       const std::string & get_errmsg () const;
