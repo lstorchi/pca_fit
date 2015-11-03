@@ -152,8 +152,8 @@ bool pcafitter::compute_parameters (
       }
     }
 
-    //std::cout << "chi2 using eq 10 pg 112 " << k << " ==> " 
-    //  << chi2values(k)  << std::endl;
+    std::cout << "chi2 using eq 10 pg 112 " << k << " ==> " 
+      << chi2values(k)  << std::endl;
   }
 
   for (int b=0; b<(int)coord.n_rows; ++b) // loop over tracks 
@@ -192,8 +192,8 @@ bool pcafitter::compute_parameters (
       chi2check += val*val;
     }
 
-    //std::cout << "chi2 using eq 11 pg 112 " << b << " ==> " 
-    //  << chi2check  << std::endl;
+    std::cout << "chi2 using eq 11 pg 112 " << b << " ==> " 
+      << chi2check  << std::endl;
   }
 
   return true;
@@ -259,6 +259,7 @@ bool pcafitter::compute_pca_constants (
     arma::rowvec & q, 
     arma::mat & vmtx,
     arma::mat & amtx,
+    arma::rowvec & kivec,
     int verbositylevel)
 {
 
@@ -274,7 +275,7 @@ bool pcafitter::compute_pca_constants (
   arma::mat eigvec;
 
   if (verbositylevel == 1)
-    std::cout << "Compute correlation mtx" << std::endl;
+    std::cout << "Compute covariance mtx" << std::endl;
 
   arma::mat hca = arma::zeros<arma::mat>(this->get_coordim(),
       this->get_coordim());
@@ -285,6 +286,7 @@ bool pcafitter::compute_pca_constants (
   eigval = arma::zeros<arma::vec>(this->get_coordim());
 
   hca = arma::cov(coord);
+  //hca = arma::cor(coord);
 
   if (verbositylevel == 1)
     std::cout << "Eigensystem" << std::endl;
@@ -294,39 +296,63 @@ bool pcafitter::compute_pca_constants (
   //arma::mat score;
   //arma::princomp(coeff, score, hca);
 
-  /* stored column by column
+  /* stored column by column  
   for (int i=0; i<(int)eigvaltmp.n_rows; ++i)
     std::cout << i << " ==> " << 
       eigvaltmp(i) << std::endl;
 
   for (int i=0; i<(int)eigvec.n_rows; ++i)
   {
-    std::cout << i << " ==> ";
+    std::cout << i << " eigvector                     ==> ";
     for (int j=0; j<(int)eigvec.n_rows; ++j)
       std::cout << eigvec(j,i) << " ";
     std::cout << std::endl;
 
-    std::cout << i << " ==> ";
+    std::cout << i << " eigvector * eigvalue          ==> ";
     for (int j=0; j<(int)eigvec.n_rows; ++j)
       std::cout << eigvaltmp(i) * eigvec(j,i) << " ";
     std::cout << std::endl;
 
-    std::cout << i << " ==> ";
+    arma::vec resvec = arma::zeros<arma::vec>(this->get_coordim());
+    std::cout << i << " eigvector * mat               ==> ";
     for (int j=0; j<(int)eigvec.n_rows; ++j)
     {
       double lam = 0.0;
       for (int k=0; k<(int)eigvec.n_rows; ++k)
         lam += hca(j, k) * eigvec(k,i);
       std::cout << lam << " ";
+      resvec(i) = lam;
     }
     std::cout << std::endl;
   }
+
+  arma::mat deltas = eigvec.t() * hca * eigvec;
+  deltas.print(std::cout);
   */
+  
 
   /* compute A matrix */
+  amtx.resize(this->get_coordim()-this->get_paramdim(), 
+      this->get_coordim());
   for (int i=0; i<this->get_coordim()-this->get_paramdim(); ++i)
     for (int j=0; j<this->get_coordim(); ++j)
       amtx(i, j) = eigvec(j, i) / sqrt(eigvaltmp(i));
+
+  /*
+  coord.print (std::cout);
+  for (int i=0; i<(int)coord.n_cols; ++i)
+    std::cout << arma::mean(coord.col(i)) << " ";
+  std::cout << std::endl;
+  */
+
+  /* compute kivec */
+  kivec.resize(this->get_coordim()-this->get_paramdim());
+  for (int i=0; i<this->get_coordim()-this->get_paramdim(); ++i)
+  {
+    kivec(i) = 0.0e0;
+    for (int k=0; k<this->get_coordim(); ++k)
+      kivec(i) += amtx(i, k) * arma::mean(coord.col(k));
+  }
  
   for (int i=0; i<this->get_coordim(); ++i)
     eigval(i) = eigvaltmp(this->get_coordim()-i-1);

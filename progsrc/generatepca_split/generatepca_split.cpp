@@ -75,7 +75,7 @@ void usage (char * name)
 
 void perform_main_computation (const arma::mat & coord, const arma::mat & param, 
     const std::string & cfname, const std::string & qfname, const std::string & afname,
-    const std::string & vfname, pca::pcafitter & fitter, bool verbose)
+    const std::string & vfname, const std::string & kfname, pca::pcafitter & fitter, bool verbose)
 {
   std::cout << fitter.get_paramdim() << " X " << fitter.get_coordim() << std::endl;
 
@@ -92,9 +92,10 @@ void perform_main_computation (const arma::mat & coord, const arma::mat & param,
   if (verbose) 
     verbositylevel = 2;
 
+  arma::rowvec kivec;
   std::cout << "Compute PCA constants " << std::endl;
   if (!fitter.compute_pca_constants (param,
-         coord, cmtx, q, vmtx, amtx, verbositylevel))
+         coord, cmtx, q, vmtx, amtx, kivec, verbositylevel))
   {
     std::cerr << "compute_pca_constants error" << std::endl;
     return;
@@ -105,6 +106,7 @@ void perform_main_computation (const arma::mat & coord, const arma::mat & param,
   pca::write_armvct(qfname.c_str(), q);
   pca::write_armmat(afname.c_str(), amtx);
   pca::write_armmat(vfname.c_str(), vmtx);
+  pca::write_armvct(kfname.c_str(), kivec);
 }
 
 int main (int argc, char ** argv)
@@ -578,7 +580,7 @@ int main (int argc, char ** argv)
 
   std::cout << "Writing parameters to files" << std::endl;
 
-  std::ostringstream cfname, qfname, afname, vfname; 
+  std::ostringstream cfname, qfname, afname, vfname, kfname; 
 
   if (rzplane)
   {
@@ -610,6 +612,7 @@ int main (int argc, char ** argv)
     qfname << "q.rz.bin";
     afname << "a.rz.bin";
     vfname << "v.rz.bin";
+    kfname << "k.rz.bin";
   }
   else if (rphiplane)
   {
@@ -642,6 +645,7 @@ int main (int argc, char ** argv)
     qfname << "q.rphi.bin";
     afname << "a.rphi.bin";
     vfname << "v.rphi.bin";
+    kfname << "k.rphi.bin";
   }
 
   if (printallcoords)
@@ -657,7 +661,8 @@ int main (int argc, char ** argv)
 
   perform_main_computation (coordin, paramin,
       cfname.str(), qfname.str(), afname.str() ,
-      vfname.str(), fitter, verbose);
+      vfname.str(), kfname.str(),  
+      fitter, verbose);
 
   return EXIT_SUCCESS;
 }
