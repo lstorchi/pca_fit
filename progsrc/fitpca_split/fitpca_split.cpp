@@ -1256,7 +1256,7 @@ int main (int argc, char ** argv)
   if (pca::file_exists(kfname.c_str()))
   {
     std::cout << "Reading " << kfname << std::endl;
-    pca::read_armvec(kfname.c_str(), k);
+    pca::read_armvct(kfname.c_str(), k);
   }
   else
   {
