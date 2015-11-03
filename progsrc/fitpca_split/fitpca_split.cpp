@@ -158,6 +158,13 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
     return false;
   }
 
+  std::ofstream myfilechi2("chi2results.txt");
+
+  myfilechi2 << "chi2_value" << std::endl;
+  for (int i=0; i<(int) chi2values.n_cols; ++i)
+    myfilechi2 << chi2values(i) << std::endl;
+  myfilechi2.close();
+
   delete [] ptrs; 
 
   std::ostringstream fname;

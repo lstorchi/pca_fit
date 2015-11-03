@@ -152,8 +152,8 @@ bool pcafitter::compute_parameters (
       }
     }
 
-    std::cout << "chi2 using eq 10 pg 112 " << k << " ==> " 
-      << chi2values(k)  << std::endl;
+    //std::cout << "chi2 using eq 10 pg 112 " << k << " ==> " 
+    //  << chi2values(k)  << std::endl;
   }
 
   for (int b=0; b<(int)coord.n_rows; ++b) // loop over tracks 
@@ -175,11 +175,11 @@ bool pcafitter::compute_parameters (
       /* ki */
       for (int k=0; k<coordim_; ++k)
       {
-        std::cout << "    " << k << " " << coordmval[k].mean() << std::endl;
+        //std::cout << "    " << k << " " << coordmval[k].mean() << std::endl;
         ki += amtx(i, k) * coordmval[k].mean();
       }
 
-      std::cout << "  ki:" << ki << std::endl;
+      //std::cout << "  ki:" << ki << std::endl;
 
       /* sum over j */
       for (int j=0; j<coordim_; ++j)
@@ -187,13 +187,13 @@ bool pcafitter::compute_parameters (
 
       val += ki;
 
-      std::cout << "  val:" << val << std::endl;
+      //std::cout << "  val:" << val << std::endl;
 
       chi2check += val*val;
     }
 
-    std::cout << "chi2 using eq 11 pg 112 " << b << " ==> " 
-      << chi2check  << std::endl;
+    //std::cout << "chi2 using eq 11 pg 112 " << b << " ==> " 
+    //  << chi2check  << std::endl;
   }
 
   return true;
