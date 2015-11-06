@@ -18,7 +18,8 @@ CFLAGS +=-I./ -I../include
 LIBNAME = libpcafitter.a
 
 OBJ = $(LIBNAME)(pcafitter.o) \
-      $(LIBNAME)(utility.o) 
+      $(LIBNAME)(utility.o) \
+      $(LIBNAME)(rootfilereader.o)
 
 all: $(LIBNAME)
 
