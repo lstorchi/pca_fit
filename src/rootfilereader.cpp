@@ -22,8 +22,28 @@
 
 #include <sys/stat.h>
 
-rootfilereader::rootfilereader ()
+using namespace pca;
+
+rootfilereader::rootfilereader () 
 {
+  rzplane_ = false;
+  rphiplane_ = false; 
+  chargeoverpt_ = false;
+  excludesmodule_ = false; 
+  verbose_ = false; 
+  checklayersids_ = false;
+
+  etamin_ = -INFINITY; 
+  etamax_ = INFINITY; 
+  phimin_ = -INFINITY;
+  phimax_ = INFINITY; 
+  z0min_ = -INFINITY; 
+  z0max_ = INFINITY;
+  d0min_ = -INFINITY; 
+  d0max_ = INFINITY; 
+  maxnumoflayers_ = INFINITY;
+  chargesign_ = 0;
+
   reset_error();
   filename_ = "";
 }
@@ -32,12 +52,12 @@ rootfilereader::~rootfilereader ()
 {
 }
 
-const std::string & rootfilereade::get_errmsg () const
+const std::string & rootfilereader::get_errmsg () const
 {
   return errmsg_;
 }
 
-int rootfilereade::get_errnum() const
+int rootfilereader::get_errnum() const
 {
   return errnum_;
 } 
@@ -46,18 +66,19 @@ int rootfilereade::get_errnum() const
  *                                PRIVATE                                    *
  *****************************************************************************/
 
-void rootfilereade::set_errmsg (int num, const std::string & msg)
+void rootfilereader::set_errmsg (int num, const std::string & msg)
 { 
   errnum_ = num;
   errmsg_ = msg;
 }
 
-void rootfilereade::reset_error ()
+void rootfilereader::reset_error ()
 {
   errnum_ = 0;
   errmsg_ = "";
 }
 
+/*
 bool pca::reading_from_root_file (const pca::pcafitter & fitter, 
      const char * filename, 
      arma::mat & paramin, arma::mat & coordin, 
@@ -440,4 +461,5 @@ bool pca::reading_from_root_file (const pca::pcafitter & fitter,
 
   return true;
 }
+*/
 
