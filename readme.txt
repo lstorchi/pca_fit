@@ -7,6 +7,8 @@ README (Loriano Storchi) loriano@storchi.org
   nothing more than a basic rapid quick and dirty prototyping (i.e.
   the code should be totally restructured in a proper OO fashion)
 - also HEAD rev should be safe enough to be used. Step by step:
+- rel_0_4_0 last tag before starting revision, removing several  
+  options and ...
 
   a) dowload the code  
 
