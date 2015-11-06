@@ -29,8 +29,9 @@
 
 bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt, 
      arma::mat & cmtx, arma::rowvec & q, arma::mat & amtx, arma::mat & vmtx, 
-     bool verbose, pca::pcafitter & fitter, bool rzplane, bool rphiplane,
-     bool usecharge, bool usealsod0, bool usex0y0, int singleparam,
+     arma::rowvec & k, bool verbose, pca::pcafitter & fitter, 
+     bool rzplane, bool rphiplane, bool usecharge, bool usealsod0, 
+     bool usex0y0, int singleparam,
      bool usealsox0, arma::vec & ptvals)
 {
 
@@ -150,13 +151,20 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
   arma::rowvec chi2values;
   chi2values.resize(coordslt.n_rows);
 
-  if (!fitter.compute_parameters (cmtx, q, amtx, vmtx, 
+  if (!fitter.compute_parameters (cmtx, q, amtx, vmtx, k,
         coordslt, ptrs, fitter.get_paramdim(), 
         chi2values))
   {
     std::cerr << fitter.get_errmsg() << std::endl;
     return false;
   }
+
+  std::ofstream myfilechi2("chi2results.txt");
+
+  myfilechi2 << "chi2_value" << std::endl;
+  for (int i=0; i<(int) chi2values.n_cols; ++i)
+    myfilechi2 << chi2values(i) << std::endl;
+  myfilechi2.close();
 
   delete [] ptrs; 
 
@@ -669,6 +677,7 @@ void usage (char * name)
   std::cerr << " -c, --cmtx=[fillename]          : CMTX filename [default is c.[rz/rphi].bin]" << std::endl;
   std::cerr << " -q, --qvct=[fillename]          : QVCT filename [default is q.[rz/rphi].bin]" << std::endl;
   std::cerr << " -c, --amtx=[fillename]          : AMTX filename [default is a.[rz/rphi].bin]" << std::endl;
+  std::cerr << " -y, --kvct=[fillename]          : KVCT filename [default is k.[rz/rphi].bin]" << std::endl;
   std::cerr << " -q, --vmtx=[fillename]          : VMTX filename [default is v.[rz/rphi].bin]" << std::endl;
   std::cerr << " -j, --jump-tracks               : perform the fittin only for odd tracks" << std::endl;
   std::cerr << " -e, --not-use-charge            : do not read charge from coordinatesfile " << std::endl;
@@ -676,7 +685,8 @@ void usage (char * name)
   std::cerr << " -z, --rz-plane                  : use rz plane view (fit eta and z0)" << std::endl;
   std::cerr << " -r, --rphi-plane                : use r-phi plane view (fit ot and phi)" << std::endl;
   std::cerr << " -a, --relative                  : use relative coordinates (compute min values)" << std::endl;
-  std::cerr << " -b, --relative-values=[v1;v2]   : use relative coordinates (using v1 (phi or z) and v2 (r) as min)" << std::endl;
+  std::cerr << " -b, --relative-values=[v1;v2]   : use relative coordinates (using v1 (phi or z) and v2 (r) as min)" 
+    << std::endl;
   std::cerr << std::endl;
   std::cerr << " -k, --check-layersids           : check exact layers sequence (is_a_valid_layers_seq for seq list)" 
     << std::endl;
@@ -707,6 +717,7 @@ int main (int argc, char ** argv)
   std::string cfname = "";
   std::string afname = "";
   std::string vfname = "";
+  std::string kfname = "";
   std::string subsec = "";
   std::string sublad = "";
   bool verbose = false;
@@ -746,6 +757,7 @@ int main (int argc, char ** argv)
       {"amtx", 1, NULL, 'A'},
       {"vmtx", 1, NULL, 'B'},
       {"qvct", 1, NULL, 'q'},
+      {"kvct", 1, NULL, 'y'},
       {"verbose", 0, NULL, 'V'},
       {"version", 0, NULL, 'v'},
       {"jump-tracks", 0, NULL, 'j'},
@@ -769,7 +781,7 @@ int main (int argc, char ** argv)
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "XfkdxezrhaVjb:A:B:t:g:c:q:s:n:s:m:o:u", 
+    c = getopt_long (argc, argv, "XfkdxezrhaVjy:b:A:B:t:g:c:q:s:n:s:m:o:u", 
         long_options, &option_index);
 
     if (c == -1)
@@ -907,6 +919,9 @@ int main (int argc, char ** argv)
         break;
       case 'B':
         vfname = optarg;
+        break;
+      case 'y':
+        kfname = optarg;
         break;
       case 'e':
         usecharge = false;
@@ -1094,7 +1109,7 @@ int main (int argc, char ** argv)
   // matrice C e vettore q sono le costanti
   
   arma::mat cmtx, amtx, vmtx;
-  arma::rowvec q;
+  arma::rowvec q, k;
 
   // leggere file coordinate tracce simulate plus parametri
   if (!pca::file_exists(filename))
@@ -1159,6 +1174,9 @@ int main (int argc, char ** argv)
 
     if (vfname == "")
       vfname = "v.rz.bin";
+
+    if (kfname == "")
+      kfname = "k.rz.bin";
   }
   else if (rphiplane)
   {
@@ -1197,6 +1215,9 @@ int main (int argc, char ** argv)
 
     if (vfname == "")
       vfname = "v.rphi.bin";
+
+    if (kfname == "")
+      kfname = "k.rphi.bin";
   }
 
   if (pca::file_exists(afname.c_str()))
@@ -1232,6 +1253,17 @@ int main (int argc, char ** argv)
     return 1;
   }
 
+  if (pca::file_exists(kfname.c_str()))
+  {
+    std::cout << "Reading " << kfname << std::endl;
+    pca::read_armvct(kfname.c_str(), k);
+  }
+  else
+  {
+    std::cerr << kfname << " does not exist" << std::endl;
+    return 1;
+  }
+
   if (pca::file_exists(qfname.c_str()))
   {
     std::cout << "Reading " << qfname << std::endl;
@@ -1243,7 +1275,7 @@ int main (int argc, char ** argv)
     return 1;
   }
 
-  if (!build_and_compare (param, coord, cmtx, q, amtx, vmtx, 
+  if (!build_and_compare (param, coord, cmtx, q, amtx, vmtx, k,
         verbose, fitter, rzplane, rphiplane, usecharge, 
         usealsod0, usex0y0, singleparam, usealsox0, ptvals))
     return EXIT_FAILURE;
