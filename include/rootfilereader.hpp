@@ -28,6 +28,12 @@ namespace pca
       int errnum_;
       std::string errmsg_, filename_;
 
+      bool rzplane_, rphiplane_, chargeoverpt_, 
+          excludesmodule_, verbose_, checklayersids_;
+      double etamin_, etamax_, phimin_, phimax_,
+            z0min_, z0max_, d0min_, d0max_;
+      int maxnumoflayers_, chargesign_;
+
       void set_errmsg (int , const std::string &);
       void reset_error ();
   };
