@@ -33,6 +33,9 @@ namespace pca
       void set_useeven (bool);
       bool get_useeven () const;
 
+      void set_savecheckfiles (bool in);
+      bool get_savecheckfiles () const;
+
       void set_chargeoverpt (bool);
       bool get_chargeoverpt () const;
 
@@ -74,7 +77,7 @@ namespace pca
 
       bool rzplane_, rphiplane_, chargeoverpt_, 
           excludesmodule_, verbose_, checklayersids_, 
-          useodd_, useeven_;
+          useodd_, useeven_, savecheckfiles_;
       double etamin_, etamax_, phimin_, phimax_,
             z0min_, z0max_, d0min_, d0max_, 
             ptmin_, ptmax_;

@@ -33,6 +33,8 @@
 
 #include <sys/stat.h>
 
+#define STD_NUMOFLAYERS  6
+
 using namespace pca;
 
 rootfilereader::rootfilereader () 
@@ -45,6 +47,7 @@ rootfilereader::rootfilereader ()
   checklayersids_ = false;
   useodd_ = false;
   useeven_ = false;
+  savecheckfiles_ = true;
 
   etamin_ = -INFINITY; 
   etamax_ = INFINITY; 
@@ -66,6 +69,16 @@ rootfilereader::rootfilereader ()
 
 rootfilereader::~rootfilereader ()
 {
+}
+
+void rootfilereader::set_savecheckfiles (bool in)
+{
+  savecheckfiles_ = in;
+}
+
+bool rootfilereader::get_savecheckfiles () const
+{
+  return savecheckfiles_;
 }
 
 void rootfilereader::get_etalimits (double & min, double & max) const
@@ -254,9 +267,20 @@ bool rootfilereader::reading_from_root_file (
 {
   TFile* inputFile = TFile::Open(filename_.c_str());
 
-  std::ofstream ss("bankstub.txt");
-  std::ofstream ssext("bankstub_notequal.txt");
-  std::ofstream ssext1("bankstub_lesst6layers.txt");
+  std::ofstream ss, ssext, ssext1, ptfile, phifile, 
+    d0file, etafile, z0file;
+
+  if (savecheckfiles_)
+  {
+    ss.open("bankstub.txt");
+    ssext.open("bankstub_notequal.txt");
+    ssext1.open("bankstub_lesst6layers.txt");
+    ptfile.open("pt_bankstubs.txt");
+    phifile.open("phi_bankstubs.txt");
+    d0file.open("d0_bankstubs.txt");
+    etafile.open("eta_bankstubs.txt");
+    z0file.open("z0_bankstubs.txt");
+  }
 
   TChain* TT = (TChain*) inputFile->Get("BankStubs");
 
@@ -297,12 +321,6 @@ bool rootfilereader::reading_from_root_file (
   Int_t nevent = TT->GetEntries(); 
   ss << "We got " << nevent << " events in BankStubs" << std::endl; 
 
-  std::ofstream ptfile("pt_BankStubs.txt");
-  std::ofstream phifile("phi_BankStubs.txt");
-  std::ofstream d0file("d0_BankStubs.txt");
-  std::ofstream etafile("eta_BankStubs.txt");
-  std::ofstream z0file("z0_BankStubs.txt");
-
   for (Int_t i=0; i<nevent; ++i) 
   { 
      TT->GetEntry(i);
@@ -329,23 +347,28 @@ bool rootfilereader::reading_from_root_file (
                         (std::find_if(eta.begin() + 1, eta.end(), 
         std::bind1st(std::not_equal_to<int>(), eta.front())) == eta.end()) &&
                         (std::find_if(phi.begin() + 1, phi.end(), 
-        std::bind1st(std::not_equal_to<int>(), phi.front())) == phi.end()));
+        std::bind1st(std::not_equal_to<int>(), phi.front())) == phi.end()) &&
+                        (std::find_if(pdg.begin() + 1, pdg.end(),
+        std::bind1st(std::not_equal_to<int>(), pdg.front())) == pdg.end()));
 
-
-     if ((moduleid.size() == 6)  && allAreEqual) // QA nel caso dei BankStubs questo check e' utile ?
+     if ((moduleid.size() >= STD_NUMOFLAYERS)  && allAreEqual) // QA nel caso dei BankStubs questo check e' utile ?
      {
        double d0val;
        //d0val = (y0[0]-(tan(phi[0])*x0[0]))*cos(phi[0]);
        d0val = y0[0]*cos(phi[0])-x0[0]*sin(phi[0]);
        //double d0val = x0[0];
 
-       ptfile << pt[0] << std::endl;
-       phifile << phi[0] << std::endl;
-       d0file << d0val << std::endl;
-       etafile << eta[0] << std::endl;
-       z0file << z0[0] << std::endl;
 
-       ss << i+1 << " " << moduleid.size() << std::endl;
+       if (savecheckfiles_)
+       {
+         ptfile << pt[0] << std::endl;
+         phifile << phi[0] << std::endl;
+         d0file << d0val << std::endl;
+         etafile << eta[0] << std::endl;
+         z0file << z0[0] << std::endl;
+         
+         ss << i+1 << " " << moduleid.size() << std::endl;
+       }
 
        int j = 0;
        for (; j<(int)moduleid.size(); ++j)
@@ -356,11 +379,13 @@ bool rootfilereader::reading_from_root_file (
         int16_t stubY = stuby[j]*10;
         int16_t stubZ = stubz[j]*10;
 
-        ss << stubX << " " << stubY << " " <<
-           stubZ << " ";
+        if (savecheckfiles_)
+          ss << stubX << " " << stubY << " " <<
+            stubZ << " ";
 #else
-        ss << stubx[j] << " " << stuby[j] << " " <<
-          stubz[j] << " ";
+        if (savecheckfiles_)
+          ss << stubx[j] << " " << stuby[j] << " " <<
+            stubz[j] << " ";
 #endif
 
         int value = moduleid[j];
@@ -372,32 +397,38 @@ bool rootfilereader::reading_from_root_file (
         value = value-module*100;
         int segid = value; // QA is just this ? from the source code seems so, I need to / by 10 ?
 
-        ss << layer << " " << ladder << " " << 
-          module << " " << segid << " " << pdg[j] << std::endl;
+
+        if (savecheckfiles_)
+          ss << layer << " " << ladder << " " << 
+            module << " " << segid << " " << pdg[j] << std::endl;
        }
        --j;
 
-       ss << pt[j]<< " "  <<
-         phi[j] << " " << d0val << " " 
-         << eta[j] << " " << z0[j] << " " <<
-         x0[j] << " " << y0[j] << std::endl;
+       if (savecheckfiles_)
+         ss << pt[j]<< " "  <<
+           phi[j] << " " << d0val << " " 
+           << eta[j] << " " << z0[j] << " " <<
+           x0[j] << " " << y0[j] << std::endl;
 
        countevt++;
      }
-     else if ((moduleid.size() > 6) && allAreEqual)
+     else if ((moduleid.size() < STD_NUMOFLAYERS) && allAreEqual)
      {
        double d0val;
        //d0val = (y0[0]-(tan(phi[0])*x0[0]))*cos(phi[0]);
        d0val = y0[0]*cos(phi[0])-x0[0]*sin(phi[0]);
        //double d0val = x0[0];
 
-       ptfile << pt[0] << std::endl;
-       phifile << phi[0] << std::endl;
-       d0file << d0val << std::endl;
-       etafile << eta[0] << std::endl;
-       z0file << z0[0] << std::endl;
+       if (savecheckfiles_)
+       {
+         ptfile << pt[0] << std::endl;
+         phifile << phi[0] << std::endl;
+         d0file << d0val << std::endl;
+         etafile << eta[0] << std::endl;
+         z0file << z0[0] << std::endl;
 
-       ss << i+1 << " " << moduleid.size() << std::endl;
+         ssext1 << i+1 << " " << moduleid.size() << std::endl;
+       }
 
        int j = 0;
        for (; j<(int)moduleid.size(); ++j)
@@ -407,11 +438,13 @@ bool rootfilereader::reading_from_root_file (
         int16_t stubY = stuby[j]*10;
         int16_t stubZ = stubz[j]*10;
 
-        ss << stubX << " " << stubY << " " <<
-           stubZ << " ";
+        if (savecheckfiles_)
+          ssext1 << stubX << " " << stubY << " " <<
+             stubZ << " ";
 #else
-        ss << stubx[j] << " " << stuby[j] << " " <<
-           stubz[j] << " ";
+        if (savecheckfiles_)
+          ssext1 << stubx[j] << " " << stuby[j] << " " <<
+             stubz[j] << " ";
 #endif
         int value = moduleid[j];
         int layer = value/1000000;
@@ -422,65 +455,17 @@ bool rootfilereader::reading_from_root_file (
         value = value-module*100;
         int segid = value; // QA is just this ? from the source code seems so, I need to / by 10 ?
 
-        ss << layer << " " << ladder << " " << 
-          module << " " << segid << " " << pdg[j] << std::endl;
+        if (savecheckfiles_)
+          ssext1 << layer << " " << ladder << " " << 
+            module << " " << segid << " " << pdg[j] << std::endl;
        }
        --j;
 
-       ss << pt[j]<< " "  <<
-         phi[j] << " " << d0val << " " 
-         << eta[j] << " " << z0[j] << " " <<
-         x0[j] << " " << y0[j] << std::endl;
-
-       countevt++;
-     }
-     else if ((moduleid.size() < 6) && allAreEqual)
-     {
-       double d0val;
-       //d0val = (y0[0]-(tan(phi[0])*x0[0]))*cos(phi[0]);
-       d0val = y0[0]*cos(phi[0])-x0[0]*sin(phi[0]);
-       //double d0val = x0[0];
-
-       ptfile << pt[0] << std::endl;
-       phifile << phi[0] << std::endl;
-       d0file << d0val << std::endl;
-       etafile << eta[0] << std::endl;
-       z0file << z0[0] << std::endl;
-
-       ssext1 << i+1 << " " << moduleid.size() << std::endl;
-
-       int j = 0;
-       for (; j<(int)moduleid.size(); ++j)
-       {
-#ifdef INTBITEWISE
-        int16_t stubX = stubx[j]*10;
-        int16_t stubY = stuby[j]*10;
-        int16_t stubZ = stubz[j]*10;
-
-        ssext1 << stubX << " " << stubY << " " <<
-           stubZ << " ";
-#else
-        ssext1 << stubx[j] << " " << stuby[j] << " " <<
-           stubz[j] << " ";
-#endif
-        int value = moduleid[j];
-        int layer = value/1000000;
-        value = value-layer*1000000;
-        int ladder = value/10000;
-        value = value-ladder*10000;
-        int module = value/100;
-        value = value-module*100;
-        int segid = value; // QA is just this ? from the source code seems so, I need to / by 10 ?
-
-        ssext1 << layer << " " << ladder << " " << 
-          module << " " << segid << " " << pdg[j] << std::endl;
-       }
-       --j;
-
-       ssext1 << pt[j]<< " "  <<
-         phi[j] << " " << d0val << " " 
-         << eta[j] << " " << z0[j] << " " <<
-         x0[j] << " " << y0[j] << std::endl;
+       if (savecheckfiles_)
+         ssext1 << pt[j]<< " "  <<
+           phi[j] << " " << d0val << " " 
+           << eta[j] << " " << z0[j] << " " <<
+           x0[j] << " " << y0[j] << std::endl;
 
        countevt++;
      }
@@ -491,13 +476,16 @@ bool rootfilereader::reading_from_root_file (
        d0val = y0[0]*cos(phi[0])-x0[0]*sin(phi[0]);
        //double d0val = x0[0];
 
-       ptfile << pt[0] << std::endl;
-       phifile << phi[0] << std::endl;
-       d0file << d0val << std::endl;
-       etafile << eta[0] << std::endl;
-       z0file << z0[0] << std::endl;
+       if (savecheckfiles_)
+       {
+         ptfile << pt[0] << std::endl;
+         phifile << phi[0] << std::endl;
+         d0file << d0val << std::endl;
+         etafile << eta[0] << std::endl;
+         z0file << z0[0] << std::endl;
 
-       ssext << i+1 << " " << moduleid.size() << std::endl;
+         ssext << i+1 << " " << moduleid.size() << std::endl;
+       }
 
        int j = 0;
        for (; j<(int)moduleid.size(); ++j)
@@ -507,11 +495,13 @@ bool rootfilereader::reading_from_root_file (
         int16_t stubY = stuby[j]*10;
         int16_t stubZ = stubz[j]*10;
 
-        ssext << stubX << " " << stubY << " " <<
-           stubZ << " ";
+        if (savecheckfiles_)
+          ssext << stubX << " " << stubY << " " <<
+             stubZ << " ";
 #else
-        ssext << stubx[j] << " " << stuby[j] << " " <<
-           stubz[j] << " ";
+        if (savecheckfiles_)
+          ssext << stubx[j] << " " << stuby[j] << " " <<
+             stubz[j] << " ";
 #endif
         int value = moduleid[j];
         int layer = value/1000000;
@@ -522,15 +512,17 @@ bool rootfilereader::reading_from_root_file (
         value = value-module*100;
         int segid = value; // QA is just this ? from the source code seems so, I need to / by 10 ?
 
-        ssext << layer << " " << ladder << " " << 
-          module << " " << segid << " " << pdg[j] << std::endl;
+        if (savecheckfiles_)
+          ssext << layer << " " << ladder << " " << 
+            module << " " << segid << " " << pdg[j] << std::endl;
        }
        --j;
 
-       ssext << pt[j]<< " "  <<
-         phi[j] << " " << d0val << " " 
-         << eta[j] << " " << z0[j] << " " <<
-         x0[j] << " " << y0[j] << std::endl;
+       if (savecheckfiles_)
+         ssext << pt[j]<< " "  <<
+           phi[j] << " " << d0val << " " 
+           << eta[j] << " " << z0[j] << " " <<
+           x0[j] << " " << y0[j] << std::endl;
 
        countevt++;
      }
@@ -539,17 +531,19 @@ bool rootfilereader::reading_from_root_file (
        break;
   }
 
-  ptfile.close();
-  phifile.close();
-  d0file.close();
-  etafile.close();
-  z0file.close();
-
   inputFile->Close();
 
-  ss.close();
-  ssext.close();
-  ssext1.close();
+  if (savecheckfiles_)
+  {
+    ptfile.close();
+    phifile.close();
+    d0file.close();
+    etafile.close();
+    z0file.close();
+    ss.close();
+    ssext.close();
+    ssext1.close();
+  }
 
   return true;
 }
