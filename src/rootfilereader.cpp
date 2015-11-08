@@ -226,6 +226,13 @@ int rootfilereader::get_errnum() const
   return errnum_;
 } 
 
+bool rootfilereader::reading_from_root_file (
+    const pca::pcafitter & fitter, arma::mat & paramin, 
+    arma::mat & coordin, arma::vec & ptvalsout)
+{
+  return true;
+}
+
 /*****************************************************************************
  *                                PRIVATE                                    *
  *****************************************************************************/
