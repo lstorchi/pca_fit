@@ -61,6 +61,10 @@ namespace pca
       int get_maxnumoflayers () const;
       int get_chargesign () const;
 
+      bool reading_from_root_file (const pca::pcafitter & fitter, 
+          arma::mat & paramin, arma::mat & coordin, 
+          arma::vec & ptvalsout);
+
     private:
   
       int errnum_;
