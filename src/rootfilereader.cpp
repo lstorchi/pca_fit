@@ -58,6 +58,7 @@ rootfilereader::rootfilereader ()
   d0max_ = INFINITY; 
   maxnumoflayers_ = INFINITY;
   chargesign_ = 0;
+  maxnumoftracks_ = INFINITY;
 
   reset_error();
   filename_ = "";
@@ -237,10 +238,318 @@ int rootfilereader::get_errnum() const
   return errnum_;
 } 
 
+unsigned int rootfilereader::get_maxnumoftracks() const
+{
+  return maxnumoftracks_;
+} 
+
+void rootfilereader::set_maxnumoftracks(unsigned int in)
+{
+  maxnumoftracks_ = in;
+} 
+
 bool rootfilereader::reading_from_root_file (
     const pca::pcafitter & fitter, arma::mat & paramin, 
     arma::mat & coordin, arma::vec & ptvalsout)
 {
+  TFile* inputFile = TFile::Open(filename_.c_str());
+
+  std::ofstream ss("bankstub.txt");
+  std::ofstream ssext("bankstub_notequal.txt");
+  std::ofstream ssext1("bankstub_lesst6layers.txt");
+
+  TChain* TT = (TChain*) inputFile->Get("BankStubs");
+
+  std::vector<int> moduleid, * p_moduleid; 
+  p_moduleid = &moduleid;
+
+  TT->SetBranchAddress("STUB_modid", &p_moduleid); // QA come determino layerid e altro ? 
+                                                   //    devo caricare la geometria ?
+  std::vector<float> stubx, * p_stubx, stuby, * p_stuby, stubz, * p_stubz,
+    pt, * p_pt, x0, * p_x0, y0, * p_y0, z0, * p_z0, eta, * p_eta,
+    phi, * p_phi;
+  std::vector<float> pdg, * p_pdg;
+
+  p_stubx = &stubx;
+  p_stuby = &stuby;
+  p_stubz = &stubz;
+  p_pt = &pt;
+  p_x0 = &x0;
+  p_y0 = &y0;
+  p_z0 = &z0;
+  p_eta = &eta;
+  p_phi = &phi;
+  p_pdg = &pdg;
+
+  TT->SetBranchAddress("STUB_x", &p_stubx);
+  TT->SetBranchAddress("STUB_y", &p_stuby);
+  TT->SetBranchAddress("STUB_z", &p_stubz);
+
+  TT->SetBranchAddress("STUB_ptGEN", &p_pt);
+  TT->SetBranchAddress("STUB_X0", &p_x0);
+  TT->SetBranchAddress("STUB_Y0", &p_y0);
+  TT->SetBranchAddress("STUB_Z0", &p_z0);
+  TT->SetBranchAddress("STUB_etaGEN", &p_eta);
+  TT->SetBranchAddress("STUB_PHI0", &p_phi);
+  TT->SetBranchAddress("STUB_pdg", &p_pdg);
+
+  unsigned int countevt = 0;
+  Int_t nevent = TT->GetEntries(); 
+  ss << "We got " << nevent << " events in BankStubs" << std::endl; 
+
+  std::ofstream ptfile("pt_BankStubs.txt");
+  std::ofstream phifile("phi_BankStubs.txt");
+  std::ofstream d0file("d0_BankStubs.txt");
+  std::ofstream etafile("eta_BankStubs.txt");
+  std::ofstream z0file("z0_BankStubs.txt");
+
+  for (Int_t i=0; i<nevent; ++i) 
+  { 
+     TT->GetEntry(i);
+     
+     assert (moduleid.size() == stubx.size());
+     assert (moduleid.size() == stuby.size());
+     assert (moduleid.size() == stubz.size());
+     assert (moduleid.size() == pt.size());
+     assert (moduleid.size() == x0.size());
+     assert (moduleid.size() == y0.size());
+     assert (moduleid.size() == z0.size());
+     assert (moduleid.size() == eta.size());
+     assert (moduleid.size() == phi.size());
+     assert (moduleid.size() == pdg.size());
+
+     bool allAreEqual = ((std::find_if(z0.begin() + 1, z0.end(), 
+        std::bind1st(std::not_equal_to<int>(), z0.front())) == z0.end()) &&
+                        (std::find_if(x0.begin() + 1, x0.end(), 
+        std::bind1st(std::not_equal_to<int>(), x0.front())) == x0.end()) &&
+                        (std::find_if(y0.begin() + 1, y0.end(), 
+        std::bind1st(std::not_equal_to<int>(), y0.front())) == y0.end()) &&
+                        (std::find_if(pt.begin() + 1, pt.end(), 
+        std::bind1st(std::not_equal_to<int>(), pt.front())) == pt.end()) &&
+                        (std::find_if(eta.begin() + 1, eta.end(), 
+        std::bind1st(std::not_equal_to<int>(), eta.front())) == eta.end()) &&
+                        (std::find_if(phi.begin() + 1, phi.end(), 
+        std::bind1st(std::not_equal_to<int>(), phi.front())) == phi.end()));
+
+
+     if ((moduleid.size() == 6)  && allAreEqual) // QA nel caso dei BankStubs questo check e' utile ?
+     {
+       double d0val;
+       //d0val = (y0[0]-(tan(phi[0])*x0[0]))*cos(phi[0]);
+       d0val = y0[0]*cos(phi[0])-x0[0]*sin(phi[0]);
+       //double d0val = x0[0];
+
+       ptfile << pt[0] << std::endl;
+       phifile << phi[0] << std::endl;
+       d0file << d0val << std::endl;
+       etafile << eta[0] << std::endl;
+       z0file << z0[0] << std::endl;
+
+       ss << i+1 << " " << moduleid.size() << std::endl;
+
+       int j = 0;
+       for (; j<(int)moduleid.size(); ++j)
+       {
+#ifdef INTBITEWISE         
+        //Can we provide these scale factors from outside
+        int16_t stubX = stubx[j]*10;
+        int16_t stubY = stuby[j]*10;
+        int16_t stubZ = stubz[j]*10;
+
+        ss << stubX << " " << stubY << " " <<
+           stubZ << " ";
+#else
+        ss << stubx[j] << " " << stuby[j] << " " <<
+          stubz[j] << " ";
+#endif
+
+        int value = moduleid[j];
+        int layer = value/1000000;
+        value = value-layer*1000000;
+        int ladder = value/10000;
+        value = value-ladder*10000;
+        int module = value/100;
+        value = value-module*100;
+        int segid = value; // QA is just this ? from the source code seems so, I need to / by 10 ?
+
+        ss << layer << " " << ladder << " " << 
+          module << " " << segid << " " << pdg[j] << std::endl;
+       }
+       --j;
+
+       ss << pt[j]<< " "  <<
+         phi[j] << " " << d0val << " " 
+         << eta[j] << " " << z0[j] << " " <<
+         x0[j] << " " << y0[j] << std::endl;
+
+       countevt++;
+     }
+     else if ((moduleid.size() > 6) && allAreEqual)
+     {
+       double d0val;
+       //d0val = (y0[0]-(tan(phi[0])*x0[0]))*cos(phi[0]);
+       d0val = y0[0]*cos(phi[0])-x0[0]*sin(phi[0]);
+       //double d0val = x0[0];
+
+       ptfile << pt[0] << std::endl;
+       phifile << phi[0] << std::endl;
+       d0file << d0val << std::endl;
+       etafile << eta[0] << std::endl;
+       z0file << z0[0] << std::endl;
+
+       ss << i+1 << " " << moduleid.size() << std::endl;
+
+       int j = 0;
+       for (; j<(int)moduleid.size(); ++j)
+       {
+#ifdef INTBITEWISE
+        int16_t stubX = stubx[j]*10;
+        int16_t stubY = stuby[j]*10;
+        int16_t stubZ = stubz[j]*10;
+
+        ss << stubX << " " << stubY << " " <<
+           stubZ << " ";
+#else
+        ss << stubx[j] << " " << stuby[j] << " " <<
+           stubz[j] << " ";
+#endif
+        int value = moduleid[j];
+        int layer = value/1000000;
+        value = value-layer*1000000;
+        int ladder = value/10000;
+        value = value-ladder*10000;
+        int module = value/100;
+        value = value-module*100;
+        int segid = value; // QA is just this ? from the source code seems so, I need to / by 10 ?
+
+        ss << layer << " " << ladder << " " << 
+          module << " " << segid << " " << pdg[j] << std::endl;
+       }
+       --j;
+
+       ss << pt[j]<< " "  <<
+         phi[j] << " " << d0val << " " 
+         << eta[j] << " " << z0[j] << " " <<
+         x0[j] << " " << y0[j] << std::endl;
+
+       countevt++;
+     }
+     else if ((moduleid.size() < 6) && allAreEqual)
+     {
+       double d0val;
+       //d0val = (y0[0]-(tan(phi[0])*x0[0]))*cos(phi[0]);
+       d0val = y0[0]*cos(phi[0])-x0[0]*sin(phi[0]);
+       //double d0val = x0[0];
+
+       ptfile << pt[0] << std::endl;
+       phifile << phi[0] << std::endl;
+       d0file << d0val << std::endl;
+       etafile << eta[0] << std::endl;
+       z0file << z0[0] << std::endl;
+
+       ssext1 << i+1 << " " << moduleid.size() << std::endl;
+
+       int j = 0;
+       for (; j<(int)moduleid.size(); ++j)
+       {
+#ifdef INTBITEWISE
+        int16_t stubX = stubx[j]*10;
+        int16_t stubY = stuby[j]*10;
+        int16_t stubZ = stubz[j]*10;
+
+        ssext1 << stubX << " " << stubY << " " <<
+           stubZ << " ";
+#else
+        ssext1 << stubx[j] << " " << stuby[j] << " " <<
+           stubz[j] << " ";
+#endif
+        int value = moduleid[j];
+        int layer = value/1000000;
+        value = value-layer*1000000;
+        int ladder = value/10000;
+        value = value-ladder*10000;
+        int module = value/100;
+        value = value-module*100;
+        int segid = value; // QA is just this ? from the source code seems so, I need to / by 10 ?
+
+        ssext1 << layer << " " << ladder << " " << 
+          module << " " << segid << " " << pdg[j] << std::endl;
+       }
+       --j;
+
+       ssext1 << pt[j]<< " "  <<
+         phi[j] << " " << d0val << " " 
+         << eta[j] << " " << z0[j] << " " <<
+         x0[j] << " " << y0[j] << std::endl;
+
+       countevt++;
+     }
+     else
+     {
+       double d0val;
+       //d0val = (y0[0]-(tan(phi[0])*x0[0]))*cos(phi[0]);
+       d0val = y0[0]*cos(phi[0])-x0[0]*sin(phi[0]);
+       //double d0val = x0[0];
+
+       ptfile << pt[0] << std::endl;
+       phifile << phi[0] << std::endl;
+       d0file << d0val << std::endl;
+       etafile << eta[0] << std::endl;
+       z0file << z0[0] << std::endl;
+
+       ssext << i+1 << " " << moduleid.size() << std::endl;
+
+       int j = 0;
+       for (; j<(int)moduleid.size(); ++j)
+       {
+#ifdef INTBITEWISE
+        int16_t stubX = stubx[j]*10;
+        int16_t stubY = stuby[j]*10;
+        int16_t stubZ = stubz[j]*10;
+
+        ssext << stubX << " " << stubY << " " <<
+           stubZ << " ";
+#else
+        ssext << stubx[j] << " " << stuby[j] << " " <<
+           stubz[j] << " ";
+#endif
+        int value = moduleid[j];
+        int layer = value/1000000;
+        value = value-layer*1000000;
+        int ladder = value/10000;
+        value = value-ladder*10000;
+        int module = value/100;
+        value = value-module*100;
+        int segid = value; // QA is just this ? from the source code seems so, I need to / by 10 ?
+
+        ssext << layer << " " << ladder << " " << 
+          module << " " << segid << " " << pdg[j] << std::endl;
+       }
+       --j;
+
+       ssext << pt[j]<< " "  <<
+         phi[j] << " " << d0val << " " 
+         << eta[j] << " " << z0[j] << " " <<
+         x0[j] << " " << y0[j] << std::endl;
+
+       countevt++;
+     }
+
+     if (countevt >= maxnumoftracks_)
+       break;
+  }
+
+  ptfile.close();
+  phifile.close();
+  d0file.close();
+  etafile.close();
+  z0file.close();
+
+  inputFile->Close();
+
+  ss.close();
+  ssext.close();
+  ssext1.close();
 
   return true;
 }
