@@ -32,11 +32,15 @@ rootfilereader::rootfilereader ()
   excludesmodule_ = false; 
   verbose_ = false; 
   checklayersids_ = false;
+  useodd_ = false;
+  useeven_ = false;
 
   etamin_ = -INFINITY; 
   etamax_ = INFINITY; 
   phimin_ = -INFINITY;
   phimax_ = INFINITY; 
+  ptmin_ = -INFINITY; 
+  ptmax_ = INFINITY;
   z0min_ = -INFINITY; 
   z0max_ = INFINITY;
   d0min_ = -INFINITY; 
@@ -50,6 +54,166 @@ rootfilereader::rootfilereader ()
 
 rootfilereader::~rootfilereader ()
 {
+}
+
+void rootfilereader::get_etalimits (double & min, double & max) const
+{
+  min = etamin_;
+  max = etamax_;
+}
+
+void rootfilereader::get_philimits (double & min, double & max) const
+{
+  min = phimin_;
+  max = phimax_;
+}
+
+void rootfilereader::get_ptlimits (double & min, double & max) const
+{
+  min = ptmin_;
+  max = ptmax_;
+}
+
+void rootfilereader::get_d0limits (double & min, double & max) const
+{
+  min = d0min_;
+  max = d0max_;
+}
+
+void rootfilereader::get_z0limits (double & min, double & max) const
+{
+  min = z0min_;
+  max = z0max_;
+}
+
+int rootfilereader::get_maxnumoflayers () const
+{
+  return maxnumoflayers_;
+}
+
+int rootfilereader::get_chargesign () const
+{
+  return chargesign_;
+}
+
+void rootfilereader::set_etalimits (double & min, double & max)
+{
+  etamin_ = min;
+  etamax_ = max;
+}
+
+void rootfilereader::set_philimits (double & min, double & max)
+{
+  phimin_ = min;
+  phimax_ = max;
+}
+
+void rootfilereader::set_ptlimits (double & min, double & max)
+{
+  ptmin_ = min;
+  ptmax_ = max;
+}
+
+void rootfilereader::set_d0limits (double & min, double & max)
+{
+  d0min_ = min;
+  d0max_ = max;
+}
+
+void rootfilereader::set_z0limits (double & min, double & max)
+{
+  z0min_ = min;
+  z0max_ = max;
+}
+
+void rootfilereader::set_maxnumoflayers (int & val)
+{
+  maxnumoflayers_ = val;
+}
+
+void rootfilereader::set_chargesign (int & val)
+{
+  chargesign_ = val;
+}
+
+void rootfilereader::set_rzplane (bool in)
+{
+  rzplane_ = in;
+}
+
+bool rootfilereader::get_rzplane () const
+{
+  return rzplane_;
+}
+
+void rootfilereader::set_rphiplane (bool in)
+{
+  rphiplane_ = in;
+}
+
+bool rootfilereader::get_rphiplane () const
+{
+  return rphiplane_;
+}
+
+void rootfilereader::set_useodd (bool in)
+{
+  useodd_ = in;
+}
+
+bool rootfilereader::get_useodd () const
+{
+  return useodd_;
+}
+
+void rootfilereader::set_useeven (bool in)
+{
+  useeven_ = in;
+}
+
+bool rootfilereader::get_useeven () const
+{
+  return useeven_;
+}
+
+void rootfilereader::set_chargeoverpt (bool in)
+{
+  chargeoverpt_ = in;
+}
+
+bool rootfilereader::get_chargeoverpt () const
+{
+  return chargeoverpt_;
+}
+
+void rootfilereader::set_checklayersids (bool in)
+{
+  checklayersids_ = in;
+}
+
+bool rootfilereader::get_checklayersids () const
+{
+  return checklayersids_;
+}
+
+void rootfilereader::set_excludesmodule (bool in)
+{
+  excludesmodule_ = in;
+}
+
+bool rootfilereader::get_excludesmodule () const
+{
+  return excludesmodule_;
+}
+
+void rootfilereader::set_verbose (bool in)
+{
+  verbose_ = in;
+}
+
+bool rootfilereader::get_verbose () const
+{
+  return verbose_;
 }
 
 const std::string & rootfilereader::get_errmsg () const
