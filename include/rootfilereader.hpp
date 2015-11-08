@@ -52,6 +52,7 @@ namespace pca
       void set_z0limits (double & min, double & max);
       void set_maxnumoflayers (int & val);
       void set_chargesign (int & val);
+      void set_maxnumoftracks (unsigned int);
 
       void get_etalimits (double & min, double & max) const;
       void get_philimits (double & min, double & max) const;
@@ -60,6 +61,7 @@ namespace pca
       void get_z0limits (double & min, double & max) const;
       int get_maxnumoflayers () const;
       int get_chargesign () const;
+      unsigned int get_maxnumoftracks () const;
 
       bool reading_from_root_file (const pca::pcafitter & fitter, 
           arma::mat & paramin, arma::mat & coordin, 
@@ -77,6 +79,7 @@ namespace pca
             z0min_, z0max_, d0min_, d0max_, 
             ptmin_, ptmax_;
       int maxnumoflayers_, chargesign_;
+      unsigned int maxnumoftracks_;
 
       void set_errmsg (int , const std::string &);
       void reset_error ();
