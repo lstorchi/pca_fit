@@ -8,7 +8,8 @@ README (Loriano Storchi) loriano@storchi.org
   the code should be totally restructured in a proper OO fashion)
 - also HEAD rev should be safe enough to be used. Step by step:
 - rel_0_4_0 last tag before starting revision, removing several  
-  options and ...
+  options and ... (as the one to use a single parameter at time,
+  the one to fit also d0 or x0 in both planes) 
 
   a) dowload the code  
 
