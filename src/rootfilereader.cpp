@@ -71,6 +71,11 @@ rootfilereader::~rootfilereader ()
 {
 }
 
+void rootfilereader::set_filename (const std::string & in)
+{
+  filename_ = in;
+}
+
 void rootfilereader::set_savecheckfiles (bool in)
 {
   savecheckfiles_ = in;

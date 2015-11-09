@@ -20,6 +20,7 @@ endif
 CFLAGS +=-I./ -I../../include 
 
 LIBS += -larmadillo -lm
+LIBS += $(shell root-config --libs)
 
 OBJ = generatepca_split.o
 
