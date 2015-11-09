@@ -25,68 +25,65 @@
 
 #define STDDIM_PRV_VLS 1
 
-namespace
-{
-  bool is_a_valid_layers_seq(const std::string & in, bool tocheck)
-  {
-    static const char * valid_layers_seq[STDDIM_PRV_VLS];
-    valid_layers_seq[0] = "5678910";
-
-    if (tocheck)
-    {
-      for (int i=0; i<STDDIM_PRV_VLS; i++)
-        if (in == valid_layers_seq[i])
-          return true;
-
-      return false;
-    }
-  
-    return true;
-  }
-
-  bool check_to_read (bool useonlyeven, bool useonlyodd, int i)
-  {
-    if (useonlyeven || useonlyodd)
-    {
-      if (useonlyeven)
-      {
-        if (!((i+1) % 2))
-          return true;
-      }
-
-      if (useonlyodd)
-      {
-        if ((i+1) % 2)
-          return true;
-      }
-    }
-    else 
-      return true;
-        
-    return false;
-  }
-
-  bool check_charge_sign (int chargesign, std::set<int> & pidset)
-  {
-    if (pidset.size() == 1)
-    {
-      if (chargesign == 0)
-        return true;
-
-      // make it clear 
-      if ((chargesign == -1) && (*pidset.begin() < 0))
-        return true;
-
-      if ((chargesign == 1) && (*pidset.begin() > 0))
-        return true;
-    }
-
-    return false;
-  }
-}
-
 
 using namespace pca;
+
+bool pca::is_a_valid_layers_seq(const std::string & in, bool tocheck)
+{
+  static const char * valid_layers_seq[STDDIM_PRV_VLS];
+  valid_layers_seq[0] = "5678910";
+
+  if (tocheck)
+  {
+    for (int i=0; i<STDDIM_PRV_VLS; i++)
+      if (in == valid_layers_seq[i])
+        return true;
+
+    return false;
+  }
+
+  return true;
+}
+
+bool pca::check_to_read (bool useonlyeven, bool useonlyodd, int i)
+{
+  if (useonlyeven || useonlyodd)
+  {
+    if (useonlyeven)
+    {
+      if (!((i+1) % 2))
+        return true;
+    }
+
+    if (useonlyodd)
+    {
+      if ((i+1) % 2)
+        return true;
+    }
+  }
+  else 
+    return true;
+      
+  return false;
+}
+
+bool pca::check_charge_sign (int chargesign, std::set<int> & pidset)
+{
+  if (pidset.size() == 1)
+  {
+    if (chargesign == 0)
+      return true;
+
+    // make it clear 
+    if ((chargesign == -1) && (*pidset.begin() < 0))
+      return true;
+
+    if ((chargesign == 1) && (*pidset.begin() > 0))
+      return true;
+  }
+
+  return false;
+}
 
 void pca::tokenize (const std::string & str, std::vector<std::string> & tokens,
         const std::string & delimiters)

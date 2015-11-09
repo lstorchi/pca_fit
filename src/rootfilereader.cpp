@@ -270,6 +270,18 @@ bool rootfilereader::reading_from_root_file (
   std::ofstream ss, ssext, ssext1, ptfile, phifile, 
     d0file, etafile, z0file;
 
+  if (rzplane_ && rphiplane_) 
+  {
+    set_errmsg (1, "Cannot use together rz and rphi plane");
+    return false;
+  }
+
+  if (!rzplane_ && !rphiplane_) 
+  {
+    set_errmsg (1, "Select rz or rphi plane");
+    return false;
+  }
+
   if (savecheckfiles_)
   {
     ss.open("bankstub.txt");
@@ -319,7 +331,8 @@ bool rootfilereader::reading_from_root_file (
 
   unsigned int countevt = 0;
   Int_t nevent = TT->GetEntries(); 
-  ss << "We got " << nevent << " events in BankStubs" << std::endl; 
+  if (savecheckfiles_)
+    ss << "We got " << nevent << " events in BankStubs" << std::endl; 
 
   for (Int_t i=0; i<nevent; ++i) 
   { 
@@ -353,11 +366,12 @@ bool rootfilereader::reading_from_root_file (
 
      if ((moduleid.size() >= STD_NUMOFLAYERS)  && allAreEqual) // QA nel caso dei BankStubs questo check e' utile ?
      {
+       rootfilereader::track_str single_track;
+
        double d0val;
        //d0val = (y0[0]-(tan(phi[0])*x0[0]))*cos(phi[0]);
        d0val = y0[0]*cos(phi[0])-x0[0]*sin(phi[0]);
        //double d0val = x0[0];
-
 
        if (savecheckfiles_)
        {
@@ -370,37 +384,48 @@ bool rootfilereader::reading_from_root_file (
          ss << i+1 << " " << moduleid.size() << std::endl;
        }
 
+       single_track.dim = (int)moduleid.size();
+
        int j = 0;
        for (; j<(int)moduleid.size(); ++j)
        {
 #ifdef INTBITEWISE         
-        //Can we provide these scale factors from outside
-        int16_t stubX = stubx[j]*10;
-        int16_t stubY = stuby[j]*10;
-        int16_t stubZ = stubz[j]*10;
-
-        if (savecheckfiles_)
-          ss << stubX << " " << stubY << " " <<
-            stubZ << " ";
-#else
-        if (savecheckfiles_)
-          ss << stubx[j] << " " << stuby[j] << " " <<
-            stubz[j] << " ";
-#endif
-
-        int value = moduleid[j];
-        int layer = value/1000000;
-        value = value-layer*1000000;
-        int ladder = value/10000;
-        value = value-ladder*10000;
-        int module = value/100;
-        value = value-module*100;
-        int segid = value; // QA is just this ? from the source code seems so, I need to / by 10 ?
-
-
-        if (savecheckfiles_)
-          ss << layer << " " << ladder << " " << 
-            module << " " << segid << " " << pdg[j] << std::endl;
+         //Can we provide these scale factors from outside
+         int16_t stubX = stubx[j]*10;
+         int16_t stubY = stuby[j]*10;
+         int16_t stubZ = stubz[j]*10;
+         
+         if (savecheckfiles_)
+           ss << stubX << " " << stubY << " " <<
+             stubZ << " ";
+#else    
+         if (savecheckfiles_)
+           ss << stubx[j] << " " << stuby[j] << " " <<
+             stubz[j] << " ";
+#endif   
+         
+         single_track.x.push_back(stubx[j]);
+         single_track.y.push_back(stuby[j]);
+         single_track.z.push_back(stubz[j]);
+         
+         int value = moduleid[j];
+         int layer = value/1000000;
+         value = value-layer*1000000;
+         int ladder = value/10000;
+         value = value-ladder*10000;
+         int module = value/100;
+         value = value-module*100;
+         int segid = value; // QA is just this ? from the source code seems so, I need to / by 10 ?
+         
+         
+         if (savecheckfiles_)
+           ss << layer << " " << ladder << " " << 
+             module << " " << segid << " " << pdg[j] << std::endl;
+         
+         single_track.layer.push_back(layer);
+         single_track.ladder.push_back(ladder);
+         single_track.module.push_back(module);
+         single_track.segid.push_back(segid);
        }
        --j;
 
@@ -409,6 +434,17 @@ bool rootfilereader::reading_from_root_file (
            phi[j] << " " << d0val << " " 
            << eta[j] << " " << z0[j] << " " <<
            x0[j] << " " << y0[j] << std::endl;
+
+       single_track.pt = pt[j];
+       single_track.pdg = pdg[j];
+       single_track.phi = phi[j];
+       single_track.d0 = d0val;
+       single_track.eta = eta[j];
+       single_track.x0 = x0[j];
+       single_track.y0 = y0[j];
+       single_track.z0 = z0[j];
+
+       tracks_vct_.push_back(single_track);
 
        countevt++;
      }
@@ -545,7 +581,8 @@ bool rootfilereader::reading_from_root_file (
     ssext1.close();
   }
 
-  return true;
+  return rootfilereader::extract_data (fitter, 
+    paramin, coordin, ptvalsout);
 }
 
 /*****************************************************************************
@@ -564,25 +601,8 @@ void rootfilereader::reset_error ()
   errmsg_ = "";
 }
 
-/*
-bool pca::reading_from_root_file (const pca::pcafitter & fitter, 
-     const char * filename, 
-     arma::mat & paramin, arma::mat & coordin, 
-     bool useonlyeven, bool useonlyodd,
-     bool rzplane, bool rphiplane, 
-     double etamin, double etamax, 
-     double ptmin, double ptmax,
-     bool chargeoverpt, int chargesign, 
-     bool excludesmodule, bool usealsod0, 
-     bool usex0y0, int singleparam,
-     double phimin, double phimax,
-     double z0min, double z0max,
-     double d0min, double d0max, 
-     bool usealsox0,
-     bool verbose,
-     arma::vec & ptvalsout,
-     bool checklayersids,
-     int maxnumoflayers)
+bool rootfilereader::extract_data (const pca::pcafitter & fitter, 
+    arma::mat & paramin, arma::mat & coordin, arma::vec & ptvalsout)
 {
   std::vector<std::string> layersids;
 
@@ -598,81 +618,63 @@ bool pca::reading_from_root_file (const pca::pcafitter & fitter,
   arma::vec d0vals;
   arma::vec z0vals;
 
-  // non performante but easy to go 
-  int num_of_ent = pca::get_num_of_ent(filename);
-  std::cout << "Num of events: " << num_of_ent << std::endl;
+  std::cout << "Num of events: " << tracks_vct_.size() << std::endl;
 
-  coordread.set_size(num_of_ent, fitter.get_coordim());
-  paramread.set_size(num_of_ent, fitter.get_paramdim());
-  etavals.set_size(num_of_ent);
-  phivals.set_size(num_of_ent);
-  ptvals.set_size(num_of_ent);
-  d0vals.set_size(num_of_ent);
-  z0vals.set_size(num_of_ent);
+  coordread.set_size(tracks_vct_.size(), fitter.get_coordim());
+  paramread.set_size(tracks_vct_.size(), fitter.get_paramdim());
+  etavals.set_size(tracks_vct_.size());
+  phivals.set_size(tracks_vct_.size());
+  ptvals.set_size(tracks_vct_.size());
+  d0vals.set_size(tracks_vct_.size());
+  z0vals.set_size(tracks_vct_.size());
 
-  if (useonlyeven && useonlyodd)
+  bool useonlyeven = useeven_;
+  bool useonlyodd = useodd_;
+  if (useeven_ && useodd_)
   {
     useonlyeven = false;
     useonlyodd = false;
   }
 
-  std::ifstream mytfp;
-  mytfp.open (filename, std::ios::in);
-
   std::set<int> layeridlist;
   unsigned int countlayerswithdupid = 0;
 
+  /* leave the code as it was */
   int counter = 0;
-  std::getline (mytfp, line);
-  for (int i = 0; i < num_of_ent; ++i)
+  for (int i = 0; i < (int)tracks_vct_.size(); ++i)
   {
-    int fake1, realsize;
-    mytfp >> fake1 >> realsize ;
+    int realsize = tracks_vct_[i].dim;
 
     std::ostringstream osss;
     std::set<int> pidset, layeridset;
     
     for (int j = 0; j < realsize; ++j)
     {
-      int a, b, c, segid, pid;
+      int pid;
 #ifdef INTBITEWISE
       int16_t x, y, z;
 #else
       double x, y, z;
 #endif
 
-      if (chargeoverpt)
-      {
-        mytfp >> x >> 
-                 y >> 
-                 z >> 
-                 a >> b >> c >> segid >> pid; // segid I am reading because can be used as local ccordinate ?
-                                              // in case of l1tkstubs is the tp value here 
-                                              // pid is particle id (charge)
-      }
-      else
-      {
-        mytfp >> x >> 
-                 y >> 
-                 z >> 
-                 a >> b >> c >> segid; // segid I am reading because can be used as local ccordinate ?
-                                              // in case of l1tkstubs is the tp value here 
-                                              // pid is particle id (charge)
-      }
+      x = tracks_vct_[i].x[j];
+      y = tracks_vct_[i].y[j];
+      z = tracks_vct_[i].z[j];
+      pid = tracks_vct_[i].pdg;
 
-      osss << a;
-      layeridset.insert(a);
-      layeridlist.insert(a);
+      osss << tracks_vct_[i].layer[j];
+      layeridset.insert(tracks_vct_[i].layer[j]);
+      layeridlist.insert(tracks_vct_[i].layer[j]);
 
-      if (j < maxnumoflayers)
+      if (j < maxnumoflayers_)
       {
-        if (excludesmodule)
+        if (excludesmodule_)
           if (j > 2)
             continue;
         
         pidset.insert(pid);
         
-        if (check_charge_sign(chargesign, pidset))
+        if (check_charge_sign(chargesign_, pidset))
         {
           if (check_to_read (useonlyeven,useonlyodd,i))
           {
@@ -682,7 +684,7 @@ bool pca::reading_from_root_file (const pca::pcafitter & fitter,
             double ri = sqrt(pow(x, 2.0) + pow (y, 2.0));
 #endif 
 
-            if (rzplane)
+            if (rzplane_)
             {
               coordread(counter, j*2) = z;
               coordread(counter, j*2+1) = ri;
@@ -692,7 +694,7 @@ bool pca::reading_from_root_file (const pca::pcafitter & fitter,
               //coordread(counter, j*2+1) = y;
         
             }
-            else if (rphiplane)
+            else if (rphiplane_)
             {
 //recast x and r for arccos calculation. Though arccos operation not permitted in integer representation.
 //Check X-Y view instead
@@ -723,16 +725,11 @@ bool pca::reading_from_root_file (const pca::pcafitter & fitter,
 
     //Need to change for Integer Representation , but for the time 
     //being its alright since bankstub.txt has int16_t
-    double ptread, phiread, d0read, etaread, z0read,
-           x0read, y0read;
-
-    mytfp >> ptread >> 
-             phiread >> 
-             d0read >> 
-             etaread >> 
-             z0read >>
-             x0read >>
-             y0read;
+    double ptread = tracks_vct_[i].pt;
+    double phiread = tracks_vct_[i].phi;
+    double d0read = tracks_vct_[i].d0;
+    double etaread = tracks_vct_[i].eta;
+    double z0read = tracks_vct_[i].z0;
 
     if (check_to_read (useonlyeven,useonlyodd,i))
     {
@@ -743,122 +740,44 @@ bool pca::reading_from_root_file (const pca::pcafitter & fitter,
       z0vals(counter) = z0read;
       d0vals(counter) = d0read;
 
-      if ((singleparam >= 1) && (singleparam <= 7))
+      if (rzplane_)
       {
-        if (check_charge_sign(chargesign, pidset))
-        {
-          switch (singleparam)
-          {
-            case (1):
-              paramread(counter, 0) =  cot(2.0 * atan (exp (-1.0e0 * etaread)));
-              break;
-            case (2):
-              if (chargeoverpt)
-              {
-                if (pidset.size() != 1)
-                {
-                  std::cerr << "pid values differ" << std::endl;
-                  return false;
-                }
-             
-                if (*(pidset.begin()) < 0)
-                  paramread(counter, 0) = -1.0e0 / ptread;
-                else
-                  paramread(counter, 0) = 1.0e0 / ptread;
-              }
-              else
-                paramread(counter, 0) = 1.0e0 / ptread;
- 
-              break;
-            case (3):
-              paramread(counter, 0) = z0read;
-              break;
-            case (4):
-              paramread(counter, 0) = phiread;
-              break;
-            case (5):
-              paramread(counter, 0) = x0read;
-              break;
-            case (6):
-              paramread(counter, 0) = y0read;
-              break;
-            case (7):
-              paramread(counter, 0) = d0read;
-              break;
-            default:
-              paramread(counter, 0) = 0.0e0;
-              std::cerr << "wrong paramindex value" << std::endl;
-              break;
-          }
-        }
+        paramread(counter, SPLIT_Z0IDX) = z0read;
+        // lstorchi: I use this to diretcly convert input parameters into
+        //     better parameters for the fitting 
+        // eta = -ln[tan(theta / 2)]
+        // theta = 2 * arctan (e^(-eta))
+        // cotan (theta) = cotan (2 * arctan (e^(-eta)))
+        paramread(counter, SPLIT_COTTHETAIDX) =  cot(2.0 * atan (exp (-1.0e0 * etaread)));
+        //double theta = atan(1.0 /  paramread(counter, SPLIT_COTTHETAIDX));
+        //std::cout << etaread << " " << theta * (180/M_PI) << std::endl;
+        //just to visualize pseudorapidity 
       }
-      else
+      else if (rphiplane_)
       {
-        if (rzplane)
+        if (check_charge_sign(chargesign_, pidset))
         {
-          if (usex0y0)
+          paramread(counter, SPLIT_PHIIDX) = phiread;
+          // use 1/pt
+          if (chargeoverpt_)
           {
-            paramread(counter, SPLIT_X0IDX) = x0read;
-            paramread(counter, SPLIT_Y0IDX) = y0read;
+            if (pidset.size() != 1)
+            {
+              std::cerr << "pid values differ" << std::endl;
+              return false;
+            }
+          
+            if (*(pidset.begin()) < 0)
+              paramread(counter, SPLIT_ONEOVERPTIDX) = -1.0e0 / ptread;
+            else
+              paramread(counter, SPLIT_ONEOVERPTIDX) = 1.0e0 / ptread;
           }
           else
-          {
-            paramread(counter, SPLIT_Z0IDX) = z0read;
-            // lstorchi: I use this to diretcly convert input parameters into
-            //     better parameters for the fitting 
-            // eta = -ln[tan(theta / 2)]
-            // theta = 2 * arctan (e^(-eta))
-            // cotan (theta) = cotan (2 * arctan (e^(-eta)))
-            paramread(counter, SPLIT_COTTHETAIDX) =  cot(2.0 * atan (exp (-1.0e0 * etaread)));
-            //double theta = atan(1.0 /  paramread(counter, SPLIT_COTTHETAIDX));
-            //std::cout << etaread << " " << theta * (180/M_PI) << std::endl;
-            //just to visualize pseudorapidity 
-          }
-        
-          if (usealsod0)
-            paramread(counter, SPLIT_D0IDX) = d0read;
-          else if (usealsox0)
-            paramread(counter, SPLIT_X0IDX_NS) = x0read;
-        }
-        else if (rphiplane)
-        {
-          if (check_charge_sign(chargesign, pidset))
-          {
-            if (usex0y0)
-            {
-              paramread(counter, SPLIT_X0IDX) = x0read;
-              paramread(counter, SPLIT_Y0IDX) = y0read;
-            }
-            else
-            {
-              paramread(counter, SPLIT_PHIIDX) = phiread;
-              // use 1/pt
-              if (chargeoverpt)
-              {
-                if (pidset.size() != 1)
-                {
-                  std::cerr << "pid values differ" << std::endl;
-                  return false;
-                }
-             
-                if (*(pidset.begin()) < 0)
-                  paramread(counter, SPLIT_ONEOVERPTIDX) = -1.0e0 / ptread;
-                else
-                  paramread(counter, SPLIT_ONEOVERPTIDX) = 1.0e0 / ptread;
-              }
-              else
-                paramread(counter, SPLIT_ONEOVERPTIDX) = 1.0e0 / ptread;
-            }
-        
-            if (usealsod0)
-              paramread(counter, SPLIT_D0IDX) = d0read;
-            else if (usealsox0)
-              paramread(counter, SPLIT_X0IDX_NS) = x0read;
-          }
+            paramread(counter, SPLIT_ONEOVERPTIDX) = 1.0e0 / ptread;
         }
       }
 
-      if (check_charge_sign(chargesign, pidset))
+      if (check_charge_sign(chargesign_, pidset))
         ++counter;
     }
   }
@@ -873,12 +792,12 @@ bool pca::reading_from_root_file (const pca::pcafitter & fitter,
 
   extdim = 0;
   for (int i=0; i<(int)etavals.n_rows; ++i)
-    if (is_a_valid_layers_seq(layersids[i], checklayersids))
-      if ((etavals(i) <= etamax) && (etavals(i) >= etamin))
-        if ((ptvals(i) <= ptmax) && (ptvals(i) >= ptmin))
-          if ((phivals(i) <= phimax) && (phivals(i) >= phimin))
-            if ((d0vals(i) <= d0max) && (d0vals(i) >= d0min))
-              if ((z0vals(i) <= z0max) && (z0vals(i) >= z0min))
+    if (is_a_valid_layers_seq(layersids[i], checklayersids_))
+      if ((etavals(i) <= etamax_) && (etavals(i) >= etamin_))
+        if ((ptvals(i) <= ptmax_) && (ptvals(i) >= ptmin_))
+          if ((phivals(i) <= phimax_) && (phivals(i) >= phimin_))
+            if ((d0vals(i) <= d0max_) && (d0vals(i) >= d0min_))
+              if ((z0vals(i) <= z0max_) && (z0vals(i) >= z0min_))
                 ++extdim;
 
   coordin.resize(extdim, fitter.get_coordim());
@@ -890,19 +809,19 @@ bool pca::reading_from_root_file (const pca::pcafitter & fitter,
   counter = 0;
   for (int i=0; i<(int)etavals.n_rows; ++i)
   {
-    if (is_a_valid_layers_seq(layersids[i], checklayersids))
+    if (is_a_valid_layers_seq(layersids[i], checklayersids_))
     {
-      if ((etavals(i) <= etamax) && (etavals(i) >= etamin))
+      if ((etavals(i) <= etamax_) && (etavals(i) >= etamin_))
       {
-        if ((ptvals(i) <= ptmax) && (ptvals(i) >= ptmin))
+        if ((ptvals(i) <= ptmax_) && (ptvals(i) >= ptmin_))
         {
-          if ((phivals(i) <= phimax) && (phivals(i) >= phimin))
+          if ((phivals(i) <= phimax_) && (phivals(i) >= phimin_))
           {
-            if ((d0vals(i) <= d0max) && (d0vals(i) >= d0min))
+            if ((d0vals(i) <= d0max_) && (d0vals(i) >= d0min_))
             {
-              if ((z0vals(i) <= z0max) && (z0vals(i) >= z0min))
+              if ((z0vals(i) <= z0max_) && (z0vals(i) >= z0min_))
               {
-                if (verbose)
+                if (verbose_)
                 {
                   std::cout << "ETA : " << etavals(i) << std::endl;
                   std::cout << "PT  : " << ptvals(i) << std::endl;
@@ -943,9 +862,5 @@ bool pca::reading_from_root_file (const pca::pcafitter & fitter,
 
   std::cout << "Event with DupIds: " << countlayerswithdupid << std::endl;
 
-  mytfp.close();
-
   return true;
 }
-*/
-
