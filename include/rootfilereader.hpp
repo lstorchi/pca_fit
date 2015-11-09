@@ -13,6 +13,19 @@ namespace pca
 {
   class rootfilereader
   {
+    private:
+      // lstorchi: also with INTBITEWISE I would suggest to use 
+      //           double here and convert afterwards 
+      typedef struct 
+      {
+        int dim;
+        std::vector<double> x, y, z;
+        std::vector<int> layer, ladder, module, segid;
+
+        double x0, y0, z0, d0, pt, phi, eta;
+        int pdg;
+      } track_str;
+
     public:
       rootfilereader();
       ~rootfilereader();
@@ -72,6 +85,8 @@ namespace pca
 
     private:
   
+      std::vector<track_str> tracks_vct_;
+
       int errnum_;
       std::string errmsg_, filename_;
 
@@ -83,6 +98,10 @@ namespace pca
             ptmin_, ptmax_;
       int maxnumoflayers_, chargesign_;
       unsigned int maxnumoftracks_;
+
+      bool extract_data (const pca::pcafitter & fitter, 
+          arma::mat & paramin, arma::mat & coordin, 
+          arma::vec & ptvalsout);
 
       void set_errmsg (int , const std::string &);
       void reset_error ();

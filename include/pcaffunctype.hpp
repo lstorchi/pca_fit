@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <set>
 
 // to be moved
 #define ONEOVERPTIDX 0
@@ -28,6 +29,12 @@
 
 namespace pca
 {
+  bool is_a_valid_layers_seq(const std::string &, bool );
+  
+  bool check_to_read (bool, bool, int);
+  
+  bool check_charge_sign (int, std::set<int> &);
+ 
   std::string get_paramname_from_id (int);
 
   int numofline (const char * fname);
