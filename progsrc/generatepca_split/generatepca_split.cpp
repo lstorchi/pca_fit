@@ -17,6 +17,7 @@
 
 #include <pcafitter.hpp>
 #include <pcaffunctype.hpp>
+#include <rootfilereader.hpp>
 
 #define MINDIMLINIT 25
 
@@ -494,12 +495,38 @@ int main (int argc, char ** argv)
 
   std::cout << "Reading data from " << filename << " file " << std::endl;
 
+  pca::rootfilereader rootrdr;
+
+  rootrdr.set_filename(filename);
+  rootrdr.set_useeven(useonlyeven);
+  rootrdr.set_useodd(false);
+  rootrdr.set_rzplane(rzplane);
+  rootrdr.set_rphiplane(rphiplane);
+  rootrdr.set_etalimits(etamin, etamax);
+  rootrdr.set_ptlimits(ptmin, ptmax);
+  rootrdr.set_chargesign(chargesign);
+  rootrdr.set_excludesmodule(excludesmodule);
+  rootrdr.set_philimits(phimin, phimax);
+  rootrdr.set_z0limits(z0min, z0max);
+  rootrdr.set_d0limits(d0min, d0max);
+  rootrdr.set_verbose(verbose);
+  rootrdr.set_checklayersids(checklayersids);
+
+  if (!rootrdr.reading_from_root_file (fitter, paramin, coordin, 
+        ptvals))
+  {
+    std::cerr << rootrdr.get_errmsg() << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  /*
   if (!pca::reading_from_file_split (fitter, filename, paramin, coordin, 
          useonlyeven, false, rzplane, rphiplane, 
          etamin, etamax, ptmin, ptmax, usecharge, chargesign, excludesmodule, 
          usealsod0, usex0y0, singleparam, phimin, phimax, z0min, z0max,
          d0min, d0max, usealsox0, verbose, ptvals, checklayersids, 6))
     return EXIT_FAILURE;
+  */
 
   if (userelativecoord)
     pca::global_to_relative(coordin, coord1min, coord2min);
