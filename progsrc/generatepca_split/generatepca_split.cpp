@@ -37,7 +37,7 @@ namespace
 
 void usage (char * name)
 {
-  std::cerr << "usage: " << name << " [options] coordinatesfile " << std::endl;
+  std::cerr << "usage: " << name << " [options] rootcoordinatesfile " << std::endl;
   std::cerr << std::endl;
   std::cerr << " -h, --help                      : display this help and exit" << std::endl;
   std::cerr << " -v, --version                   : print version and exit" << std::endl;
