@@ -59,7 +59,7 @@ rootfilereader::rootfilereader ()
   z0max_ = INFINITY;
   d0min_ = -INFINITY; 
   d0max_ = INFINITY; 
-  maxnumoflayers_ = INFINITY;
+  maxnumoflayers_ = 6;
   chargesign_ = 0;
   maxnumoftracks_ = INFINITY;
 
@@ -696,8 +696,7 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
         
               // fake to use XY or similar plane
               //coordread(counter, j*2) = x;
-              //coordread(counter, j*2+1) = y;
-        
+              //coordread(counter, j*2+1) = y; 
             }
             else if (rphiplane_)
             {
@@ -715,7 +714,6 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
               // quick switch to XY view
               //coordread(counter, j*2) = x;
               //coordread(counter, j*2+1) = y;
- 
             }
           }
         }
@@ -786,6 +784,7 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
         ++counter;
     }
   }
+
 
   assert (coordread.n_rows == paramread.n_rows);
   assert (etavals.n_rows == paramread.n_rows);
