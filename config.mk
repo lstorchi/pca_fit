@@ -27,9 +27,9 @@ USEINTBITEWISE = no
 
 # if needed you sould specify here armadillo library path 
 CFLAGS += -I/home/atanu/Downloads/armadillo-5.200.2/include
-LIBS += -L/home/atanu/Downloads/armadillo-5.200.2 
+#LIBS += -L/home/atanu/Downloads/armadillo-5.200.2 
 #CFLAGS += -I/afs/cern.ch/user/l/$(USER)/armadillo-3.930.4/include
-#LIBS += -L/afs/cern.ch/user/l/$(USER)/armadillo-3.930.4 
+LIBS += -L/afs/cern.ch/user/l/$(USER)/armadillo-3.930.4 
 #CFLAGS =
 #LIBS =
 ARMALIBPATH = /afs/cern.ch/user/l/lstorchi/armadillo-3.930.4

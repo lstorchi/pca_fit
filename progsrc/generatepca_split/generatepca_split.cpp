@@ -19,6 +19,14 @@
 #include <pcaffunctype.hpp>
 #include <rootfilereader.hpp>
 
+#include "TFile.h"
+#include "TTree.h"
+#include "TChain.h"
+#include "TBranch.h" 
+#include "TBasket.h"
+
+#include "TROOT.h"
+
 #define MINDIMLINIT 25
 
 // lstorchi: basic quick code to generate PCA constants
@@ -102,8 +110,11 @@ void perform_main_computation (const arma::mat & coord, const arma::mat & param,
   pca::write_armvct(kfname.c_str(), kivec);
 }
 
+# ifndef __CINT__
 int main (int argc, char ** argv)
 {
+  gROOT->ProcessLine("#include <vector>");
+
   pca::pcafitter fitter; 
 
   bool useonlyeven = false;
@@ -490,3 +501,4 @@ int main (int argc, char ** argv)
 
   return EXIT_SUCCESS;
 }
+#endif
