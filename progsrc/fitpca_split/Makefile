@@ -18,8 +18,10 @@ ifeq ($(CERN),yes)
 endif
 
 CFLAGS +=-I./ -I../../include 
+CFLAGS += $(shell root-config --cflags)
 
 LIBS += -larmadillo -lm
+LIBS += $(shell root-config --libs)
 
 OBJ = fitpca_split.o
 

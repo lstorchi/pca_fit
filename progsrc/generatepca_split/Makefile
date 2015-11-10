@@ -18,7 +18,6 @@ ifeq ($(CERN),yes)
 endif
 
 CFLAGS +=-I./ -I../../include 
-
 CFLAGS += $(shell root-config --cflags) 
 
 LIBS += -larmadillo -lm
