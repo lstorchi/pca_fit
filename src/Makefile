@@ -36,4 +36,4 @@ $(LIBNAME): $(OBJ)
 	cp -f $(LIBNAME) ../lib
 
 clean:
-	rm -f *.o  $(LIBNAME) ../lib/$(LIBNAME)
+	rm -f *.o dicts.cpp dicts.h $(LIBNAME) ../lib/$(LIBNAME)
