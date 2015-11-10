@@ -349,6 +349,10 @@ int main (int argc, char ** argv)
   pca::rootfilereader rootrdr;
 
   rootrdr.set_filename(filename);
+
+  int mxnumoflayers = 6;
+  rootrdr.set_maxnumoflayers(mxnumoflayers);
+ 
   rootrdr.set_useeven(useonlyeven);
   rootrdr.set_useodd(false);
   rootrdr.set_rzplane(rzplane);
@@ -362,6 +366,8 @@ int main (int argc, char ** argv)
   rootrdr.set_d0limits(d0min, d0max);
   rootrdr.set_verbose(verbose);
   rootrdr.set_checklayersids(checklayersids);
+
+  rootrdr.set_savecheckfiles(false);
 
   if (!rootrdr.reading_from_root_file (fitter, paramin, coordin, 
         ptvals))
