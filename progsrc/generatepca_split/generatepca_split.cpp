@@ -19,12 +19,6 @@
 #include <pcaffunctype.hpp>
 #include <rootfilereader.hpp>
 
-#include "TFile.h"
-#include "TTree.h"
-#include "TChain.h"
-#include "TBranch.h" 
-#include "TBasket.h"
-
 #include "TROOT.h"
 
 #define MINDIMLINIT 25
