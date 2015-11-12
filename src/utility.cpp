@@ -428,44 +428,37 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
              x0read >>
              y0read;
 
-    layersids.push_back(osss.str());
-    etavals(counter) = etaread;
-    phivals(counter) = phiread;
-    ptvals(counter) = ptread;
-    z0vals(counter) = z0read;
-    d0vals(counter) = d0read;
+    if (check_charge_sign(chargesign, pidset))
+    {
+      layersids.push_back(osss.str());
+      etavals(counter) = etaread;
+      phivals(counter) = phiread;
+      ptvals(counter) = ptread;
+      z0vals(counter) = z0read;
+      d0vals(counter) = d0read;
 
-    if (rzplane)
-    {
-      paramread(counter, SPLIT_Z0IDX) = z0read;
-      paramread(counter, SPLIT_COTTHETAIDX) =  cot(2.0 * atan (exp (-1.0e0 * etaread)));
-    }
-    else if (rphiplane)
-    {
-      if (check_charge_sign(chargesign, pidset))
+      if (rzplane)
+      {
+        paramread(counter, SPLIT_Z0IDX) = z0read;
+        paramread(counter, SPLIT_COTTHETAIDX) =  cot(2.0 * atan (exp (-1.0e0 * etaread)));
+      }
+      else if (rphiplane)
       {
         paramread(counter, SPLIT_PHIIDX) = phiread;
-        // use 1/pt
-        if (chargeoverpt)
+        if (pidset.size() != 1)
         {
-          if (pidset.size() != 1)
-          {
-            std::cerr << "pid values differ" << std::endl;
-            return false;
-          }
-        
-          if (*(pidset.begin()) < 0)
-            paramread(counter, SPLIT_ONEOVERPTIDX) = -1.0e0 / ptread;
-          else
-            paramread(counter, SPLIT_ONEOVERPTIDX) = 1.0e0 / ptread;
+          std::cerr << "pid values differ" << std::endl;
+          return false;
         }
+       
+        if (*(pidset.begin()) < 0)
+          paramread(counter, SPLIT_ONEOVERPTIDX) = -1.0e0 / ptread;
         else
           paramread(counter, SPLIT_ONEOVERPTIDX) = 1.0e0 / ptread;
       }
-    }
 
-    if (check_charge_sign(chargesign, pidset))
       ++counter;
+    }
   }
 
   assert (coordread.n_rows == paramread.n_rows);
