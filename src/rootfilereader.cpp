@@ -333,7 +333,8 @@ bool rootfilereader::reading_from_root_file (
   if (savecheckfiles_)
     ss << "We got " << nevent << " events in BankStubs" << std::endl; 
 
-  std::cout << "Total num of events: " << nevent << std::endl;
+  if (printoutstdinfo_)
+    std::cout << "Total num of events: " << nevent << std::endl;
 
   for (Int_t i=0; i<nevent; ++i) 
   { 
@@ -589,7 +590,9 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
   arma::vec d0vals;
   arma::vec z0vals;
 
-  std::cout << "Num. of events after first filter: " << tracks_vct_.size() << std::endl;
+  if (printoutstdinfo_)
+    std::cout << "Num. of events after first filter: " << 
+      tracks_vct_.size() << std::endl;
 
   coordread.set_size(tracks_vct_.size(), fitter.get_coordim());
   paramread.set_size(tracks_vct_.size(), fitter.get_paramdim());
@@ -767,7 +770,7 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
             {
               if ((z0vals(i) <= z0max_) && (z0vals(i) >= z0min_))
               {
-                if (verbose_)
+                if (verbose_ && printoutstdinfo_)
                 {
                   std::cout << "ETA : " << etavals(i) << std::endl;
                   std::cout << "PT  : " << ptvals(i) << std::endl;
@@ -793,13 +796,16 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
     }
   }
 
-  std::cout << "Layers IDs list: " << std::endl;
-  std::set<int>::iterator lids = layeridlist.begin();
-  for (; lids != layeridlist.end(); ++lids)
-    std::cout << " " << (*lids) << std::endl;
-  std::cout << std::endl;
+  if (printoutstdinfo_)
+  {
+    std::cout << "Layers IDs list: " << std::endl;
+    std::set<int>::iterator lids = layeridlist.begin();
+    for (; lids != layeridlist.end(); ++lids)
+      std::cout << " " << (*lids) << std::endl;
+    std::cout << std::endl;
 
-  std::cout << "Event with DupIds: " << countlayerswithdupid << std::endl;
+    std::cout << "Event with DupIds: " << countlayerswithdupid << std::endl;
+  }
 
   return true;
 }
