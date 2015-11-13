@@ -39,15 +39,23 @@ using namespace pca;
 
 rootfilereader::rootfilereader () 
 {
+  reset();
+}
+
+rootfilereader::~rootfilereader ()
+{
+}
+
+void rootfilereader::reset()
+{
   rzplane_ = false;
   rphiplane_ = false; 
   chargeoverpt_ = false;
   excludesmodule_ = false; 
   verbose_ = false; 
   checklayersids_ = false;
-  useodd_ = false;
-  useeven_ = false;
   savecheckfiles_ = true;
+  printoutstdinfo_ = true;
 
   etamin_ = -INFINITY; 
   etamax_ = INFINITY; 
@@ -67,8 +75,14 @@ rootfilereader::rootfilereader ()
   filename_ = "";
 }
 
-rootfilereader::~rootfilereader ()
+void rootfilereader::set_printoutstdinfo (bool in)
 {
+  printoutstdinfo_ =  in;
+}
+
+bool rootfilereader::get_printoutstdinfo () const
+{
+  return printoutstdinfo_;
 }
 
 void rootfilereader::set_filename (const std::string & in)
@@ -184,26 +198,6 @@ void rootfilereader::set_rphiplane (bool in)
 bool rootfilereader::get_rphiplane () const
 {
   return rphiplane_;
-}
-
-void rootfilereader::set_useodd (bool in)
-{
-  useodd_ = in;
-}
-
-bool rootfilereader::get_useodd () const
-{
-  return useodd_;
-}
-
-void rootfilereader::set_useeven (bool in)
-{
-  useeven_ = in;
-}
-
-bool rootfilereader::get_useeven () const
-{
-  return useeven_;
 }
 
 void rootfilereader::set_chargeoverpt (bool in)
@@ -338,6 +332,8 @@ bool rootfilereader::reading_from_root_file (
   Int_t nevent = TT->GetEntries(); 
   if (savecheckfiles_)
     ss << "We got " << nevent << " events in BankStubs" << std::endl; 
+
+  std::cout << "Total num of events: " << nevent << std::endl;
 
   for (Int_t i=0; i<nevent; ++i) 
   { 
@@ -593,7 +589,7 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
   arma::vec d0vals;
   arma::vec z0vals;
 
-  std::cout << "Num of events: " << tracks_vct_.size() << std::endl;
+  std::cout << "Num. of events after first filter: " << tracks_vct_.size() << std::endl;
 
   coordread.set_size(tracks_vct_.size(), fitter.get_coordim());
   paramread.set_size(tracks_vct_.size(), fitter.get_paramdim());
@@ -602,14 +598,6 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
   ptvals.set_size(tracks_vct_.size());
   d0vals.set_size(tracks_vct_.size());
   z0vals.set_size(tracks_vct_.size());
-
-  bool useonlyeven = useeven_;
-  bool useonlyodd = useodd_;
-  if (useeven_ && useodd_)
-  {
-    useonlyeven = false;
-    useonlyodd = false;
-  }
 
   std::set<int> layeridlist;
   unsigned int countlayerswithdupid = 0;
@@ -651,32 +639,29 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
         
         if (check_charge_sign(chargesign_, pidset))
         {
-          if (check_to_read (useonlyeven,useonlyodd,i))
-          {
 #ifdef INTBITEWISE
-            int16_t ri = sqrt(pow(x, 2.0) + pow (y, 2.0));
+          int16_t ri = sqrt(pow(x, 2.0) + pow (y, 2.0));
 #else
-            double ri = sqrt(pow(x, 2.0) + pow (y, 2.0));
+          double ri = sqrt(pow(x, 2.0) + pow (y, 2.0));
 #endif 
 
-            if (rzplane_)
-            {
-              coordread(counter, j*2) = z;
-              coordread(counter, j*2+1) = ri;
-            }
-            else if (rphiplane_)
-            {
+          if (rzplane_)
+          {
+            coordread(counter, j*2) = z;
+            coordread(counter, j*2+1) = ri;
+          }
+          else if (rphiplane_)
+          {
 //recast x and r for arccos calculation. Though arccos operation not permitted in integer representation.
 //Check X-Y view instead
 #ifdef INTBITEWISE
-              int16_t phii = 10*acos((double) x/(double) ri);
+            int16_t phii = 10*acos((double) x/(double) ri);
 #else
-              double phii = acos(x/ri);
+            double phii = acos(x/ri);
 #endif
           
-              coordread(counter, j*2) = phii;
-              coordread(counter, j*2+1) = ri;
-            }
+            coordread(counter, j*2) = phii;
+            coordread(counter, j*2+1) = ri;
           }
         }
       }
@@ -695,57 +680,53 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
     double etaread = tracks_vct_[i].eta;
     double z0read = tracks_vct_[i].z0;
 
-    if (check_to_read (useonlyeven,useonlyodd,i))
-    {
-      layersids.push_back(osss.str());
-      etavals(counter) = etaread;
-      phivals(counter) = phiread;
-      ptvals(counter) = ptread;
-      z0vals(counter) = z0read;
-      d0vals(counter) = d0read;
+    layersids.push_back(osss.str());
+    etavals(counter) = etaread;
+    phivals(counter) = phiread;
+    ptvals(counter) = ptread;
+    z0vals(counter) = z0read;
+    d0vals(counter) = d0read;
 
-      if (rzplane_)
+    if (rzplane_)
+    {
+      paramread(counter, SPLIT_Z0IDX) = z0read;
+      // lstorchi: I use this to diretcly convert input parameters into
+      //     better parameters for the fitting 
+      // eta = -ln[tan(theta / 2)]
+      // theta = 2 * arctan (e^(-eta))
+      // cotan (theta) = cotan (2 * arctan (e^(-eta)))
+      paramread(counter, SPLIT_COTTHETAIDX) =  cot(2.0 * atan (exp (-1.0e0 * etaread)));
+      //double theta = atan(1.0 /  paramread(counter, SPLIT_COTTHETAIDX));
+      //std::cout << etaread << " " << theta * (180/M_PI) << std::endl;
+      //just to visualize pseudorapidity 
+    }
+    else if (rphiplane_)
+    {
+      if (check_charge_sign(chargesign_, pidset))
       {
-        paramread(counter, SPLIT_Z0IDX) = z0read;
-        // lstorchi: I use this to diretcly convert input parameters into
-        //     better parameters for the fitting 
-        // eta = -ln[tan(theta / 2)]
-        // theta = 2 * arctan (e^(-eta))
-        // cotan (theta) = cotan (2 * arctan (e^(-eta)))
-        paramread(counter, SPLIT_COTTHETAIDX) =  cot(2.0 * atan (exp (-1.0e0 * etaread)));
-        //double theta = atan(1.0 /  paramread(counter, SPLIT_COTTHETAIDX));
-        //std::cout << etaread << " " << theta * (180/M_PI) << std::endl;
-        //just to visualize pseudorapidity 
-      }
-      else if (rphiplane_)
-      {
-        if (check_charge_sign(chargesign_, pidset))
+        paramread(counter, SPLIT_PHIIDX) = phiread;
+        // use 1/pt
+        if (chargeoverpt_)
         {
-          paramread(counter, SPLIT_PHIIDX) = phiread;
-          // use 1/pt
-          if (chargeoverpt_)
+          if (pidset.size() != 1)
           {
-            if (pidset.size() != 1)
-            {
-              std::cerr << "pid values differ" << std::endl;
-              return false;
-            }
-          
-            if (*(pidset.begin()) < 0)
-              paramread(counter, SPLIT_ONEOVERPTIDX) = -1.0e0 / ptread;
-            else
-              paramread(counter, SPLIT_ONEOVERPTIDX) = 1.0e0 / ptread;
+            std::cerr << "pid values differ" << std::endl;
+            return false;
           }
+        
+          if (*(pidset.begin()) < 0)
+            paramread(counter, SPLIT_ONEOVERPTIDX) = -1.0e0 / ptread;
           else
             paramread(counter, SPLIT_ONEOVERPTIDX) = 1.0e0 / ptread;
         }
+        else
+          paramread(counter, SPLIT_ONEOVERPTIDX) = 1.0e0 / ptread;
       }
-
-      if (check_charge_sign(chargesign_, pidset))
-        ++counter;
     }
-  }
 
+    if (check_charge_sign(chargesign_, pidset))
+      ++counter;
+  }
 
   assert (coordread.n_rows == paramread.n_rows);
   assert (etavals.n_rows == paramread.n_rows);

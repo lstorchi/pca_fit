@@ -54,7 +54,6 @@ void usage (char * name)
   std::cerr << std::endl;
   std::cerr << " -k, --check-layersids           : check exact layers sequence (is_a_valid_layers_seq for seq list)" 
     << std::endl;
-  std::cerr << " -j, --jump-tracks               : generate the constants using only even tracks" << std::endl;
   std::cerr << " -g, --charge-sign=[+/-]         : use only + particle or - paricle (again both planes) " << std::endl;
   std::cerr << " -t, --eta-range=\"etamin;etamax\" : specify the eta range to use " << std::endl;
   std::cerr << " -n, --pt-range=\"ptmin;ptmax\"    : specify the pt range to use " << std::endl;
@@ -111,7 +110,6 @@ int main (int argc, char ** argv)
 
   pca::pcafitter fitter; 
 
-  bool useonlyeven = false;
   bool printallcoords = false;
   bool rzplane = false;
   bool rphiplane = false;
@@ -142,7 +140,6 @@ int main (int argc, char ** argv)
       {"version", 0, NULL, 'v'},
       {"verbose", 0, NULL, 'V'},
       {"correlation", 0, NULL, 'l'},
-      {"jump-tracks", 0, NULL, 'j'},
       {"dump-allcoords", 0, NULL, 'p'},
       {"charge-sign", 1, NULL, 'g'},
       {"rz-plane", 0, NULL, 'z'},
@@ -159,7 +156,7 @@ int main (int argc, char ** argv)
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "aVlkxhvjpzrb:g:t:n:m:o:u:", long_options, &option_index);
+    c = getopt_long (argc, argv, "aVlkxhvpzrb:g:t:n:m:o:u:", long_options, &option_index);
 
     if (c == -1)
       break;
@@ -264,9 +261,6 @@ int main (int argc, char ** argv)
       case 'p':
         printallcoords = true;
         break;
-      case 'j':
-        useonlyeven = true;
-        break;
       case 'h':
         usage (argv[0]);
         break;
@@ -347,8 +341,6 @@ int main (int argc, char ** argv)
   int mxnumoflayers = 6;
   rootrdr.set_maxnumoflayers(mxnumoflayers);
  
-  rootrdr.set_useeven(useonlyeven);
-  rootrdr.set_useodd(false);
   rootrdr.set_rzplane(rzplane);
   rootrdr.set_rphiplane(rphiplane);
   rootrdr.set_etalimits(etamin, etamax);
@@ -369,15 +361,6 @@ int main (int argc, char ** argv)
     std::cerr << rootrdr.get_errmsg() << std::endl;
     return EXIT_FAILURE;
   }
-
-  /*
-  if (!pca::reading_from_file_split (fitter, filename, paramin, coordin, 
-         useonlyeven, false, rzplane, rphiplane, 
-         etamin, etamax, ptmin, ptmax, usecharge, chargesign, excludesmodule, 
-         usealsod0, usex0y0, singleparam, phimin, phimax, z0min, z0max,
-         d0min, d0max, usealsox0, verbose, ptvals, checklayersids, 6))
-    return EXIT_FAILURE;
-  */
 
   if (userelativecoord)
     pca::global_to_relative(coordin, coord1min, coord2min);

@@ -251,7 +251,6 @@ void usage (char * name)
   std::cerr << " -c, --amtx=[fillename]          : AMTX filename [default is a.[rz/rphi].bin]" << std::endl;
   std::cerr << " -y, --kvct=[fillename]          : KVCT filename [default is k.[rz/rphi].bin]" << std::endl;
   std::cerr << " -q, --vmtx=[fillename]          : VMTX filename [default is v.[rz/rphi].bin]" << std::endl;
-  std::cerr << " -j, --jump-tracks               : perform the fittin only for odd tracks" << std::endl;
   std::cerr << std::endl;
   std::cerr << " -z, --rz-plane                  : use rz plane view (fit eta and z0)" << std::endl;
   std::cerr << " -r, --rphi-plane                : use r-phi plane view (fit ot and phi)" << std::endl;
@@ -290,7 +289,6 @@ int main (int argc, char ** argv)
   std::string subsec = "";
   std::string sublad = "";
   bool verbose = false;
-  bool useonlyodd = false;
   bool rzplane = false;
   bool rphiplane = false;
   bool checklayersids = false;
@@ -338,7 +336,7 @@ int main (int argc, char ** argv)
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "kxzrhaVjy:b:A:B:t:g:c:q:n:s:m:o:u", 
+    c = getopt_long (argc, argv, "kxzrhaVy:b:A:B:t:g:c:q:n:s:m:o:u", 
         long_options, &option_index);
 
     if (c == -1)
@@ -434,9 +432,6 @@ int main (int argc, char ** argv)
         break;
       case 'r':
         rphiplane = true;
-        break;
-      case 'j':
-        useonlyodd = true;
         break;
       case 'V':
         verbose = true;
@@ -543,8 +538,6 @@ int main (int argc, char ** argv)
   int mxnumoflayers = 6;
   rootrdr.set_maxnumoflayers(mxnumoflayers);
  
-  rootrdr.set_useodd(useonlyodd);
-  rootrdr.set_useodd(false);
   rootrdr.set_rzplane(rzplane);
   rootrdr.set_rphiplane(rphiplane);
   rootrdr.set_etalimits(etamin, etamax);
@@ -565,17 +558,6 @@ int main (int argc, char ** argv)
     std::cerr << rootrdr.get_errmsg() << std::endl;
     return EXIT_FAILURE;
   }
-
-  /*
-  if (!pca::reading_from_file_split (fitter, filename, 
-       param, coord, false, useonlyodd,
-       rzplane, rphiplane, etamin, etamax, ptmin, ptmax, 
-       usecharge, chargesign, excludesmodule, usealsod0,
-       usex0y0, singleparam, phimin, phimax, z0min, z0max,
-       d0min, d0max, usealsox0, verbose, ptvals, 
-       checklayersids, 6))
-    return EXIT_FAILURE;
-  */
 
   if (userelativecoord)
     pca::global_to_relative(coord, coord1min, coord2min);
