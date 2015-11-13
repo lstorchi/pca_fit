@@ -110,11 +110,12 @@ int main (int argc, char ** argv)
 
   pca::pcafitter fitter; 
 
-  bool printallcoords = false;
   bool rzplane = false;
   bool rphiplane = false;
   bool correlation = false;
+  bool savecheckfiles = false;
   bool checklayersids = false;
+  bool printallcoords = false;
   bool userelativecoord = false;
 
   int chargesign = 0;
@@ -353,7 +354,7 @@ int main (int argc, char ** argv)
   rootrdr.set_verbose(verbose);
   rootrdr.set_checklayersids(checklayersids);
 
-  rootrdr.set_savecheckfiles(false);
+  rootrdr.set_savecheckfiles(savecheckfiles);
 
   if (!rootrdr.reading_from_root_file (fitter, paramin, coordin, 
         ptvals))
@@ -444,8 +445,11 @@ int main (int argc, char ** argv)
 
   if (rzplane)
   {
-    pca::write_to_file("cottheta.txt", paramin, SPLIT_COTTHETAIDX);
-    pca::write_to_file("z0.txt", paramin, SPLIT_Z0IDX);
+    if (savecheckfiles)
+    {
+      pca::write_to_file("cottheta.txt", paramin, SPLIT_COTTHETAIDX);
+      pca::write_to_file("z0.txt", paramin, SPLIT_Z0IDX);
+    }
 
     cfname << "c.rz.bin";
     qfname << "q.rz.bin";
@@ -455,8 +459,11 @@ int main (int argc, char ** argv)
   }
   else if (rphiplane)
   {
-    pca::write_to_file("phi.txt", paramin, SPLIT_PHIIDX);
-    pca::write_to_file("oneoverpt.txt", paramin, SPLIT_ONEOVERPTIDX);
+    if (savecheckfiles)
+    {
+      pca::write_to_file("phi.txt", paramin, SPLIT_PHIIDX);
+      pca::write_to_file("oneoverpt.txt", paramin, SPLIT_ONEOVERPTIDX);
+    }
 
     cfname << "c.rphi.bin";
     qfname << "q.rphi.bin";
