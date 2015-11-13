@@ -438,7 +438,6 @@ int main (int argc, char ** argv)
   }
 
   std::cout << "Using " << paramin.n_rows << " tracks" << std::endl;
-
   std::cout << "Writing parameters to files" << std::endl;
 
   std::ostringstream cfname, qfname, afname, vfname, kfname; 
