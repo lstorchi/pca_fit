@@ -461,16 +461,19 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
     }
   }
 
+  std::cout << layersids.size() << " " << paramread.n_rows << std::endl;
+
+  assert (layersids.size() <= paramread.n_rows);
+
   assert (coordread.n_rows == paramread.n_rows);
   assert (etavals.n_rows == paramread.n_rows);
   assert (phivals.n_rows == paramread.n_rows);
   assert (ptvals.n_rows == paramread.n_rows);
   assert (z0vals.n_rows == paramread.n_rows);
   assert (d0vals.n_rows == paramread.n_rows);
-  assert (layersids.size() == paramread.n_rows);
 
   extdim = 0;
-  for (int i=0; i<(int)etavals.n_rows; ++i)
+  for (int i=0; i<(int)layersids.size(); ++i)
     if (is_a_valid_layers_seq(layersids[i], checklayersids))
       if ((etavals(i) <= etamax) && (etavals(i) >= etamin))
         if ((ptvals(i) <= ptmax) && (ptvals(i) >= ptmin))
@@ -483,10 +486,10 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
   paramin.resize(extdim, fitter.get_paramdim());
   ptvalsout.resize(extdim);
 
-  //std::cout << "extdim: " << extdim << std::endl;
+  std::cout << "extdim: " << extdim << std::endl;
 
   counter = 0;
-  for (int i=0; i<(int)etavals.n_rows; ++i)
+  for (int i=0; i<(int)layersids.size(); ++i)
   {
     if (is_a_valid_layers_seq(layersids[i], checklayersids))
     {
