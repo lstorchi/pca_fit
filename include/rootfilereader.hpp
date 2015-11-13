@@ -30,6 +30,8 @@ namespace pca
       rootfilereader();
       ~rootfilereader();
   
+      void reset();
+
       std::string get_filename();
       void set_filename(const std::string &);
       
@@ -40,11 +42,6 @@ namespace pca
       bool get_rzplane () const;
       void set_rphiplane (bool);
       bool get_rphiplane () const;
-
-      void set_useodd (bool);
-      bool get_useodd () const;
-      void set_useeven (bool);
-      bool get_useeven () const;
 
       void set_savecheckfiles (bool in);
       bool get_savecheckfiles () const;
@@ -57,6 +54,9 @@ namespace pca
 
       void set_excludesmodule (bool);
       bool get_excludesmodule () const;
+
+      void set_printoutstdinfo (bool);
+      bool get_printoutstdinfo () const;
 
       void set_verbose (bool);
       bool get_verbose () const;
@@ -92,7 +92,7 @@ namespace pca
 
       bool rzplane_, rphiplane_, chargeoverpt_, 
           excludesmodule_, verbose_, checklayersids_, 
-          useodd_, useeven_, savecheckfiles_;
+          savecheckfiles_, printoutstdinfo_ ;
       double etamin_, etamax_, phimin_, phimax_,
             z0min_, z0max_, d0min_, d0max_, 
             ptmin_, ptmax_;
