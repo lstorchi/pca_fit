@@ -292,6 +292,7 @@ int main (int argc, char ** argv)
   bool rzplane = false;
   bool rphiplane = false;
   bool checklayersids = false;
+  bool savecheckfiles = false;
   bool userelativecoord = false;
 
   double etamin = -1.0e0 * INFINITY, etamax = +1.0e0 * INFINITY;
@@ -566,8 +567,11 @@ int main (int argc, char ** argv)
 
   if (rzplane)
   {
-    pca::write_to_file("tofit_cottheta.txt", param, SPLIT_COTTHETAIDX);
-    pca::write_to_file("tofit_z0.txt", param, SPLIT_Z0IDX);
+    if (savecheckfiles)
+    {
+      pca::write_to_file("tofit_cottheta.txt", param, SPLIT_COTTHETAIDX);
+      pca::write_to_file("tofit_z0.txt", param, SPLIT_Z0IDX);
+    }
 
     if (cfname == "")
       cfname = "c.rz.bin";
@@ -586,8 +590,11 @@ int main (int argc, char ** argv)
   }
   else if (rphiplane)
   {
-    pca::write_to_file("tofit_phi.txt", param, SPLIT_PHIIDX);
-    pca::write_to_file("tofit_oneoverpt.txt", param, SPLIT_ONEOVERPTIDX);
+    if (savecheckfiles)
+    {
+      pca::write_to_file("tofit_phi.txt", param, SPLIT_PHIIDX);
+      pca::write_to_file("tofit_oneoverpt.txt", param, SPLIT_ONEOVERPTIDX);
+    }
 
     if (cfname == "")
       cfname = "c.rphi.bin";
