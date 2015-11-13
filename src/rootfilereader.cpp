@@ -394,20 +394,9 @@ bool rootfilereader::reading_from_root_file (
        int j = 0;
        for (; j<(int)moduleid.size(); ++j)
        {
-#ifdef INTBITEWISE         
-         //Can we provide these scale factors from outside
-         int16_t stubX = stubx[j]*10;
-         int16_t stubY = stuby[j]*10;
-         int16_t stubZ = stubz[j]*10;
-         
-         if (savecheckfiles_)
-           ss << stubX << " " << stubY << " " <<
-             stubZ << " ";
-#else    
          if (savecheckfiles_)
            ss << stubx[j] << " " << stuby[j] << " " <<
              stubz[j] << " ";
-#endif   
          
          single_track.x.push_back(stubx[j]);
          single_track.y.push_back(stuby[j]);
@@ -421,7 +410,6 @@ bool rootfilereader::reading_from_root_file (
          int module = value/100;
          value = value-module*100;
          int segid = value; // QA is just this ? from the source code seems so, I need to / by 10 ?
-         
          
          if (savecheckfiles_)
            ss << layer << " " << ladder << " " << 
@@ -474,19 +462,10 @@ bool rootfilereader::reading_from_root_file (
        int j = 0;
        for (; j<(int)moduleid.size(); ++j)
        {
-#ifdef INTBITEWISE
-        int16_t stubX = stubx[j]*10;
-        int16_t stubY = stuby[j]*10;
-        int16_t stubZ = stubz[j]*10;
-
-        if (savecheckfiles_)
-          ssext1 << stubX << " " << stubY << " " <<
-             stubZ << " ";
-#else
         if (savecheckfiles_)
           ssext1 << stubx[j] << " " << stuby[j] << " " <<
              stubz[j] << " ";
-#endif
+
         int value = moduleid[j];
         int layer = value/1000000;
         value = value-layer*1000000;
@@ -531,19 +510,10 @@ bool rootfilereader::reading_from_root_file (
        int j = 0;
        for (; j<(int)moduleid.size(); ++j)
        {
-#ifdef INTBITEWISE
-        int16_t stubX = stubx[j]*10;
-        int16_t stubY = stuby[j]*10;
-        int16_t stubZ = stubz[j]*10;
-
-        if (savecheckfiles_)
-          ssext << stubX << " " << stubY << " " <<
-             stubZ << " ";
-#else
         if (savecheckfiles_)
           ssext << stubx[j] << " " << stuby[j] << " " <<
              stubz[j] << " ";
-#endif
+
         int value = moduleid[j];
         int layer = value/1000000;
         value = value-layer*1000000;
@@ -693,10 +663,6 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
             {
               coordread(counter, j*2) = z;
               coordread(counter, j*2+1) = ri;
-        
-              // fake to use XY or similar plane
-              //coordread(counter, j*2) = x;
-              //coordread(counter, j*2+1) = y; 
             }
             else if (rphiplane_)
             {
@@ -710,10 +676,6 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
           
               coordread(counter, j*2) = phii;
               coordread(counter, j*2+1) = ri;
-
-              // quick switch to XY view
-              //coordread(counter, j*2) = x;
-              //coordread(counter, j*2+1) = y;
             }
           }
         }
@@ -723,7 +685,6 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
     if (layeridset.size() != (unsigned int)realsize)
     {
       ++countlayerswithdupid;
-      //std::cerr << "Layer id duplicated " << std::endl;
     }
 
     //Need to change for Integer Representation , but for the time 
@@ -835,12 +796,7 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
                 }
                 
                 for (int j=0; j<(int)paramread.n_cols; ++j)
-                {
                   paramin(counter, j) = paramread(i, j);
-                  //std::cout << "Track: " << counter+1 << std::endl;
-                  //std::cout <<  paramin(counter, j) << " from " << 
-                  //  paramread(i, j) << std::endl;
-                }
                 
                 for (int j=0; j<(int)coordread.n_cols; ++j)
                   coordin(counter, j) = coordread(i, j);
@@ -856,8 +812,6 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
     }
   }
 
-  //std::cout << "counter: " << counter << std::endl;
-  
   std::cout << "Layers IDs list: " << std::endl;
   std::set<int>::iterator lids = layeridlist.begin();
   for (; lids != layeridlist.end(); ++lids)
