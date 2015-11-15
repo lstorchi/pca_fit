@@ -295,12 +295,12 @@ int main (int argc, char ** argv)
 
   if (rzplane)
   {
-    if (!fitter.set_paramidx(SPLIT_COTTHETAIDX, "cot(theta)"))
+    if (!fitter.set_paramidx(PCA_COTTHETAIDX, "cot(theta)"))
     {
       std::cerr << fitter.get_errmsg() << std::endl;
       return EXIT_FAILURE;
     }
-    if (!fitter.set_paramidx(SPLIT_Z0IDX, "z0"))
+    if (!fitter.set_paramidx(PCA_Z0IDX, "z0"))
     {
       std::cerr << fitter.get_errmsg() << std::endl;
       return EXIT_FAILURE;
@@ -308,13 +308,13 @@ int main (int argc, char ** argv)
   }
   else if (rphiplane)
   {
-    if (!fitter.set_paramidx(SPLIT_PHIIDX, "phi"))
+    if (!fitter.set_paramidx(PCA_PHIIDX, "phi"))
     {
       std::cerr << fitter.get_errmsg() << std::endl;
       return EXIT_FAILURE;
     }
     
-    if (!fitter.set_paramidx(SPLIT_ONEOVERPTIDX, "q/pt"))
+    if (!fitter.set_paramidx(PCA_ONEOVERPTIDX, "q/pt"))
     {
       std::cerr << fitter.get_errmsg() << std::endl;
       return EXIT_FAILURE;
@@ -448,8 +448,8 @@ int main (int argc, char ** argv)
   {
     if (savecheckfiles)
     {
-      pca::write_to_file("cottheta.txt", paramin, SPLIT_COTTHETAIDX);
-      pca::write_to_file("z0.txt", paramin, SPLIT_Z0IDX);
+      pca::write_to_file("cottheta.txt", paramin, PCA_COTTHETAIDX);
+      pca::write_to_file("z0.txt", paramin, PCA_Z0IDX);
     }
 
     cfname << "c.rz.bin";
@@ -462,8 +462,8 @@ int main (int argc, char ** argv)
   {
     if (savecheckfiles)
     {
-      pca::write_to_file("phi.txt", paramin, SPLIT_PHIIDX);
-      pca::write_to_file("oneoverpt.txt", paramin, SPLIT_ONEOVERPTIDX);
+      pca::write_to_file("phi.txt", paramin, PCA_PHIIDX);
+      pca::write_to_file("oneoverpt.txt", paramin, PCA_ONEOVERPTIDX);
     }
 
     cfname << "c.rphi.bin";
