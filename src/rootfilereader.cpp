@@ -50,7 +50,7 @@ void rootfilereader::reset()
 {
   rzplane_ = false;
   rphiplane_ = false; 
-  chargeoverpt_ = false;
+  chargeoverpt_ = true;
   excludesmodule_ = false; 
   verbose_ = false; 
   checklayersids_ = false;
@@ -135,6 +135,16 @@ int rootfilereader::get_maxnumoflayers () const
   return maxnumoflayers_;
 }
 
+void rootfilereader::set_chargeoverpt (bool in)
+{
+  chargeoverpt_ = in;
+}
+
+bool rootfilereader::get_chargeoverpt () const
+{
+  return chargeoverpt_;
+}
+
 int rootfilereader::get_chargesign () const
 {
   return chargesign_;
@@ -177,6 +187,9 @@ void rootfilereader::set_maxnumoflayers (int & val)
 
 void rootfilereader::set_chargesign (int & val)
 {
+  bool setval = true;
+  set_chargeoverpt (setval);
+
   chargesign_ = val;
 }
 
@@ -198,16 +211,6 @@ void rootfilereader::set_rphiplane (bool in)
 bool rootfilereader::get_rphiplane () const
 {
   return rphiplane_;
-}
-
-void rootfilereader::set_chargeoverpt (bool in)
-{
-  chargeoverpt_ = in;
-}
-
-bool rootfilereader::get_chargeoverpt () const
-{
-  return chargeoverpt_;
 }
 
 void rootfilereader::set_checklayersids (bool in)
@@ -694,6 +697,7 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
       //double theta = atan(1.0 /  paramread(counter, SPLIT_COTTHETAIDX));
       //std::cout << etaread << " " << theta * (180/M_PI) << std::endl;
       //just to visualize pseudorapidity 
+      counter++;
     }
     else if (rphiplane_)
     {
@@ -709,19 +713,21 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
             return false;
           }
         
-          if (*(pidset.begin()) < 0)
+          if (chargesign_ < 0)
             paramread(counter, SPLIT_ONEOVERPTIDX) = -1.0e0 / track->pt;
           else
             paramread(counter, SPLIT_ONEOVERPTIDX) = 1.0e0 / track->pt;
         }
         else
           paramread(counter, SPLIT_ONEOVERPTIDX) = 1.0e0 / track->pt;
+
+        ++counter;
       }
     }
-
-    if (check_charge_sign(chargesign_, pidset))
-      ++counter;
   }
+
+  if (printoutstdinfo_)
+    std::cout << "After first read " << counter << std::endl;
 
   assert (coordread.n_rows == paramread.n_rows);
   assert (etavals.n_rows == paramread.n_rows);

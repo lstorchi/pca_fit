@@ -9,23 +9,11 @@
 #include <set>
 
 // to be moved
-#define ONEOVERPTIDX 0
-#define PHIIDX 1
-#define D0IDX 2
-#define COTTHETAIDX 3
-#define Z0IDX 4
+#define PCA_COTTHETAIDX 0
+#define PCA_Z0IDX 1
 
-#define SPLIT_COTTHETAIDX 0
-#define SPLIT_Z0IDX 1
-
-#define SPLIT_ONEOVERPTIDX 0
-#define SPLIT_PHIIDX 1
-
-#define SPLIT_X0IDX 0
-#define SPLIT_Y0IDX 1
-
-#define SPLIT_D0IDX 2
-#define SPLIT_X0IDX_NS 2
+#define PCA_ONEOVERPTIDX 0
+#define PCA_PHIIDX 1
 
 namespace pca
 {
