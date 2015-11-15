@@ -36,43 +36,25 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
      bool rzplane, bool rphiplane, arma::vec & ptvals)
 {
 
-#ifdef INTBITEWISE
-  int16_t ** ptrs;
-  ptrs = new int16_t* [fitter.get_paramdim()];
-
-  int16_t * cothetacmp = NULL, * z0cmp = NULL, * oneoverptcmp = NULL, 
-    * phicmp = NULL;
-#else
   double ** ptrs;
   ptrs = new double* [fitter.get_paramdim()];
 
-  double * cothetacmp = NULL, * z0cmp = NULL, * oneoverptcmp = NULL, 
+  double * cothetacmp = NULL, * z0cmp = NULL, * qoverptcmp = NULL, 
     * phicmp = NULL;
-#endif
  
   if (rzplane)
   {
-#ifdef INTBITEWISE        
-    cothetacmp = new int16_t [(int)coordslt.n_rows];
-    z0cmp = new int16_t [(int)coordslt.n_rows];
-#else
     cothetacmp = new double [(int)coordslt.n_rows];
     z0cmp = new double [(int)coordslt.n_rows];
-#endif        
-    ptrs[SPLIT_COTTHETAIDX] = cothetacmp;
-    ptrs[SPLIT_Z0IDX] = z0cmp;
+    ptrs[PCA_COTTHETAIDX] = cothetacmp;
+    ptrs[PCA_Z0IDX] = z0cmp;
   }
   else if (rphiplane)
   {
-#ifdef INTBITEWISE        
-    oneoverptcmp = new int16_t [(int)coordslt.n_rows];
-    phicmp = new int16_t [(int)coordslt.n_rows];
-#else
-    oneoverptcmp = new double [(int)coordslt.n_rows];
+    qoverptcmp = new double [(int)coordslt.n_rows];
     phicmp = new double [(int)coordslt.n_rows];
-#endif
-    ptrs[SPLIT_ONEOVERPTIDX] = oneoverptcmp;
-    ptrs[SPLIT_PHIIDX] = phicmp;
+    ptrs[PCA_ONEOVERPTIDX] = qoverptcmp;
+    ptrs[PCA_PHIIDX] = phicmp;
   }
 
   arma::rowvec chi2values;
@@ -104,32 +86,19 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
 
   if (rzplane)
   {
-#ifdef INTBITEWISE          
-    myfile << "pt cot0_orig cot0_fitt diff z0_orig z0_fitt diff" << std::endl; 
-#else
     myfile << "pt eta_orig eta_fitt diff z0_orig z0_fitt diff" << std::endl; 
-#endif
     
     for (int i=0; i<(int)coordslt.n_rows; ++i)
     {
-#ifdef INTBITEWISE          
-      //It will not converge. Lets not try this now. Instead compare Cot(theta) itself (easier).
-      //int16_t thetacmp = atan(1.0e0 / cothetacmp[i]) ; 
-      //int16_t etacmps = 0.0e0, tantheta2;
-#else
       double thetacmp = atan(1.0e0 / cothetacmp[i]) ; 
       double etacmps = 0.0e0, tantheta2;
-#endif
       tantheta2 = tan (thetacmp/2.0e0); 
       if (tantheta2 < 0.0)
         etacmps = 1.0e0 * log (-1.0e0 * tantheta2);
       else
         etacmps = -1.0e0 * log (tantheta2);
-#ifdef INTBITEWISE
-      //int16_t theta = atan(1.0e0 / paramslt(i, SPLIT_COTTHETAIDX));
-#else
-      double theta = atan(1.0e0 / paramslt(i, SPLIT_COTTHETAIDX));
-#endif
+
+      double theta = atan(1.0e0 / paramslt(i, PCA_COTTHETAIDX));
       double etaorig = 0.0e0;
       tantheta2 = tan (theta/2.0e0);
       if (tantheta2 < 0.0)
@@ -137,33 +106,25 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
       else
         etaorig = -1.0e0 * log (tantheta2);
       
-      pcrelative[SPLIT_COTTHETAIDX]((etacmps - etaorig)/
+      pcrelative[PCA_COTTHETAIDX]((etacmps - etaorig)/
           etaorig);
-      pcrelative[SPLIT_Z0IDX]((z0cmp[i] - paramslt(i, SPLIT_Z0IDX))/
-          paramslt(i, SPLIT_Z0IDX));
+      pcrelative[PCA_Z0IDX]((z0cmp[i] - paramslt(i, PCA_Z0IDX))/
+          paramslt(i, PCA_Z0IDX));
       
-      pcabsolute[SPLIT_COTTHETAIDX](etacmps - etaorig);
-      pcabsolute[SPLIT_Z0IDX](z0cmp[i] - paramslt(i, SPLIT_Z0IDX));
+      pcabsolute[PCA_COTTHETAIDX](etacmps - etaorig);
+      pcabsolute[PCA_Z0IDX](z0cmp[i] - paramslt(i, PCA_Z0IDX));
         
-#ifdef INTBITEWISE
-      myfile << ptvals(i) << "   " <<
-        paramslt(i, SPLIT_COTTHETAIDX) << "   " << cothetacmp[i] << "   " <<
-        (cothetacmp[i] - paramslt(i, SPLIT_COTTHETAIDX)) << " " <<
-        paramslt(i, SPLIT_Z0IDX) << " " << z0cmp[i] << " " <<
-        (z0cmp[i] - paramslt(i, SPLIT_Z0IDX)) << std::endl;
-#else
       myfile << ptvals(i) << " " <<
         etaorig << " " << etacmps << " " <<
         (etacmps - etaorig) << " " <<
-        paramslt(i, SPLIT_Z0IDX) << " " << z0cmp[i] << " " <<
-        (z0cmp[i] - paramslt(i, SPLIT_Z0IDX)) << std::endl;
-#endif
+        paramslt(i, PCA_Z0IDX) << " " << z0cmp[i] << " " <<
+        (z0cmp[i] - paramslt(i, PCA_Z0IDX)) << std::endl;
       
       if (verbose)
       {
         std::cout << "For track : " << i+1 << std::endl;
         std::cout << " cotheta      fitt " << cothetacmp[i] << std::endl;
-        std::cout << " cotheta      orig " << paramslt(i, SPLIT_COTTHETAIDX) << std::endl;
+        std::cout << " cotheta      orig " << paramslt(i, PCA_COTTHETAIDX) << std::endl;
         std::cout << " theta rad    fitt " << thetacmp << std::endl;
         std::cout << " theta rad    orig " << theta << std::endl;
         std::cout << " theta deg    fitt " << thetacmp*(180.0e0/M_PI) << std::endl;
@@ -171,7 +132,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
         std::cout << " eta          fitt " << etacmps << std::endl;
         std::cout << " eta          orig " << etaorig << std::endl;
         std::cout << " z0           fitt " << z0cmp[i] << std::endl;
-        std::cout << " z0           orig " << paramslt(i, SPLIT_Z0IDX) << std::endl;
+        std::cout << " z0           orig " << paramslt(i, PCA_Z0IDX) << std::endl;
       }
     }
   }
@@ -182,25 +143,22 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
         
     for (int i=0; i<(int)coordslt.n_rows; ++i)
     {
-      double qoverptorig = paramslt(i, SPLIT_ONEOVERPTIDX);
-#ifdef INTBITEWISE            
-      int16_t qoverptcmp = oneoverptcmp[i];
-#else
-      double qoverptcmp = oneoverptcmp[i];
-#endif        
-      pcrelative[SPLIT_PHIIDX]((phicmp[i] - paramslt(i, SPLIT_PHIIDX))/
-          paramslt(i, SPLIT_PHIIDX));
-      pcrelative[SPLIT_ONEOVERPTIDX]((qoverptcmp - qoverptorig)/
+      double qoverptorig = paramslt(i, PCA_ONEOVERPTIDX);
+      double qoverptcmp = qverptcmp[i];
+
+      pcrelative[PCA_PHIIDX]((phicmp[i] - paramslt(i, PCA_PHIIDX))/
+          paramslt(i, PCA_PHIIDX));
+      pcrelative[PCA_ONEOVERPTIDX]((qoverptcmp - qoverptorig)/
           qoverptorig);
     
-      pcabsolute[SPLIT_PHIIDX](phicmp[i] - paramslt(i, SPLIT_PHIIDX));
-      pcabsolute[SPLIT_ONEOVERPTIDX](qoverptcmp - qoverptorig);
+      pcabsolute[PCA_PHIIDX](phicmp[i] - paramslt(i, PCA_PHIIDX));
+      pcabsolute[PCA_ONEOVERPTIDX](qoverptcmp - qoverptorig);
     
       myfile << ptvals(i) << " " <<
         qoverptorig << " " << qoverptcmp << " " <<
         (qoverptcmp - qoverptorig) <<  " " <<
-        paramslt(i, SPLIT_PHIIDX) << " " << phicmp[i] << " " <<
-        (phicmp[i] - paramslt(i, SPLIT_PHIIDX)) << std::endl;
+        paramslt(i, PCA_PHIIDX) << " " << phicmp[i] << " " <<
+        (phicmp[i] - paramslt(i, PCA_PHIIDX)) << std::endl;
     
       if (verbose)
       {
@@ -208,7 +166,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
         std::cout << " q/pt         fitt " << qoverptcmp << std::endl;
         std::cout << " q/pt         orig " << qoverptorig << std::endl;
         std::cout << " phi          fitt " << phicmp[i] << std::endl;
-        std::cout << " phi          orig " << paramslt(i, SPLIT_PHIIDX) << std::endl;
+        std::cout << " phi          orig " << paramslt(i, PCA_PHIIDX) << std::endl;
       }
     }
   }
@@ -232,7 +190,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
   }
   else if (rphiplane)
   {
-    delete [] oneoverptcmp;
+    delete [] qoverptcmp;
     delete [] phicmp;
   }
 
@@ -484,12 +442,12 @@ int main (int argc, char ** argv)
 
   if (rzplane)
   {
-    if (!fitter.set_paramidx(SPLIT_COTTHETAIDX, "cot(theta)"))
+    if (!fitter.set_paramidx(PCA_COTTHETAIDX, "cot(theta)"))
     {
       std::cerr << fitter.get_errmsg() << std::endl;
       return EXIT_FAILURE;
     }
-    if (!fitter.set_paramidx(SPLIT_Z0IDX, "z0"))
+    if (!fitter.set_paramidx(PCA_Z0IDX, "z0"))
     {
       std::cerr << fitter.get_errmsg() << std::endl;
       return EXIT_FAILURE;
@@ -497,13 +455,13 @@ int main (int argc, char ** argv)
   }
   else if (rphiplane)
   {
-    if (!fitter.set_paramidx(SPLIT_PHIIDX, "phi"))
+    if (!fitter.set_paramidx(PCA_PHIIDX, "phi"))
     {
       std::cerr << fitter.get_errmsg() << std::endl;
       return EXIT_FAILURE;
     }
     
-    if (!fitter.set_paramidx(SPLIT_ONEOVERPTIDX, "q/pt"))
+    if (!fitter.set_paramidx(PCA_ONEOVERPTIDX, "q/pt"))
     {
       std::cerr << fitter.get_errmsg() << std::endl;
       return EXIT_FAILURE;
@@ -569,8 +527,8 @@ int main (int argc, char ** argv)
   {
     if (savecheckfiles)
     {
-      pca::write_to_file("tofit_cottheta.txt", param, SPLIT_COTTHETAIDX);
-      pca::write_to_file("tofit_z0.txt", param, SPLIT_Z0IDX);
+      pca::write_to_file("tofit_cottheta.txt", param, PCA_COTTHETAIDX);
+      pca::write_to_file("tofit_z0.txt", param, PCA_Z0IDX);
     }
 
     if (cfname == "")
@@ -592,8 +550,8 @@ int main (int argc, char ** argv)
   {
     if (savecheckfiles)
     {
-      pca::write_to_file("tofit_phi.txt", param, SPLIT_PHIIDX);
-      pca::write_to_file("tofit_oneoverpt.txt", param, SPLIT_ONEOVERPTIDX);
+      pca::write_to_file("tofit_phi.txt", param, PCA_PHIIDX);
+      pca::write_to_file("tofit_oneoverpt.txt", param, PCA_ONEOVERPTIDX);
     }
 
     if (cfname == "")
