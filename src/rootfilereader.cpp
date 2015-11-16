@@ -37,6 +37,25 @@
 
 using namespace pca;
 
+namespace 
+{
+  bool check_charge (int inval, int chargesign)
+  {
+    if (chargesign == 0)
+      return true;
+    else 
+    {
+      if ((chargesign > 0) && (inval > 0))
+        return true;
+
+      if ((chargesign < 0) && (inval < 0))
+        return true;
+    }
+
+    return false;
+  }
+}
+
 rootfilereader::rootfilereader () 
 {
   reset();
@@ -592,6 +611,7 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
   arma::vec ptvals;
   arma::vec d0vals;
   arma::vec z0vals;
+  arma::vec chargevals;
 
   if (printoutstdinfo_)
     std::cout << "Num. of events after first filter: " << 
@@ -604,6 +624,7 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
   ptvals.set_size(tracks_vct_.size());
   d0vals.set_size(tracks_vct_.size());
   z0vals.set_size(tracks_vct_.size());
+  chargevals.set_size(tracks_vct_.size());
 
   std::set<int> layeridlist;
   unsigned int countlayerswithdupid = 0;
@@ -619,11 +640,7 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
     for (int j = 0; j < track->dim; ++j)
     {
       int pid;
-#ifdef INTBITEWISE
-      int16_t x, y, z;
-#else
       double x, y, z;
-#endif
 
       x = track->x[j];
       y = track->y[j];
@@ -642,35 +659,24 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
         
         pidset.insert(pid);
         
-        if (check_charge_sign(chargesign_, pidset))
-        {
-#ifdef INTBITEWISE
-          int16_t ri = sqrt(pow(x, 2.0) + pow (y, 2.0));
-#else
-          double ri = sqrt(pow(x, 2.0) + pow (y, 2.0));
-#endif 
+        double ri = sqrt(pow(x, 2.0) + pow (y, 2.0));
 
-          if (rzplane_)
-          {
-            coordread(counter, j*2) = z;
-            coordread(counter, j*2+1) = ri;
-          }
-          else if (rphiplane_)
-          {
-//recast x and r for arccos calculation. Though arccos operation not permitted in integer representation.
-//Check X-Y view instead
-#ifdef INTBITEWISE
-            int16_t phii = 10*acos((double) x/(double) ri);
-#else
-            double phii = acos(x/ri);
-#endif
-          
-            coordread(counter, j*2) = phii;
-            coordread(counter, j*2+1) = ri;
-          }
+        if (rzplane_)
+        {
+          coordread(counter, j*2) = z;
+          coordread(counter, j*2+1) = ri;
+        }
+        else if (rphiplane_)
+        {
+          double phii = acos(x/ri);
+         
+          coordread(counter, j*2) = phii;
+          coordread(counter, j*2+1) = ri;
         }
       }
     }
+
+    assert(pidset.size() == 1);
 
     if (layeridset.size() != (unsigned int)track->dim)
       ++countlayerswithdupid;
@@ -683,6 +689,7 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
     ptvals(counter) = track->pt;
     z0vals(counter) = track->z0;
     d0vals(counter) = track->d0;
+    chargevals(counter) = *(pidset.begin());
 
     if (rzplane_)
     {
@@ -701,28 +708,25 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
     }
     else if (rphiplane_)
     {
-      //if (check_charge_sign(chargesign_, pidset))
-      //{
-        paramread(counter, PCA_PHIIDX) = track->phi;
-        // use 1/pt
-        if (chargeoverpt_)
+      paramread(counter, PCA_PHIIDX) = track->phi;
+      // use 1/pt
+      if (chargeoverpt_)
+      {
+        if (pidset.size() != 1)
         {
-          if (pidset.size() != 1)
-          {
-            std::cerr << "pid values differ" << std::endl;
-            return false;
-          }
-        
-          if (chargesign_ < 0)
-            paramread(counter, PCA_ONEOVERPTIDX) = -1.0e0 / track->pt;
-          else
-            paramread(counter, PCA_ONEOVERPTIDX) = 1.0e0 / track->pt;
+          std::cerr << "pid values differ" << std::endl;
+          return false;
         }
+      
+        if (chargesign_ < 0)
+          paramread(counter, PCA_ONEOVERPTIDX) = -1.0e0 / track->pt;
         else
           paramread(counter, PCA_ONEOVERPTIDX) = 1.0e0 / track->pt;
+      }
+      else
+        paramread(counter, PCA_ONEOVERPTIDX) = 1.0e0 / track->pt;
 
-        ++counter;
-      //}
+      ++counter;
     }
   }
 
@@ -735,17 +739,19 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
   assert (ptvals.n_rows == paramread.n_rows);
   assert (z0vals.n_rows == paramread.n_rows);
   assert (d0vals.n_rows == paramread.n_rows);
+  assert (chargevals.n_rows == paramread.n_rows);
   assert (layersids.size() == paramread.n_rows);
 
   extdim = 0;
   for (int i=0; i<(int)etavals.n_rows; ++i)
     if (is_a_valid_layers_seq(layersids[i], checklayersids_))
-      if ((etavals(i) <= etamax_) && (etavals(i) >= etamin_))
-        if ((ptvals(i) <= ptmax_) && (ptvals(i) >= ptmin_))
-          if ((phivals(i) <= phimax_) && (phivals(i) >= phimin_))
-            if ((d0vals(i) <= d0max_) && (d0vals(i) >= d0min_))
-              if ((z0vals(i) <= z0max_) && (z0vals(i) >= z0min_))
-                ++extdim;
+      if (check_charge (chargevals(i), chargesign_))
+        if ((etavals(i) <= etamax_) && (etavals(i) >= etamin_))
+          if ((ptvals(i) <= ptmax_) && (ptvals(i) >= ptmin_))
+            if ((phivals(i) <= phimax_) && (phivals(i) >= phimin_))
+              if ((d0vals(i) <= d0max_) && (d0vals(i) >= d0min_))
+                if ((z0vals(i) <= z0max_) && (z0vals(i) >= z0min_))
+                  ++extdim;
 
   coordin.resize(extdim, fitter.get_coordim());
   paramin.resize(extdim, fitter.get_paramdim());
@@ -758,34 +764,37 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
   {
     if (is_a_valid_layers_seq(layersids[i], checklayersids_))
     {
-      if ((etavals(i) <= etamax_) && (etavals(i) >= etamin_))
+      if (check_charge (chargevals(i), chargesign_))
       {
-        if ((ptvals(i) <= ptmax_) && (ptvals(i) >= ptmin_))
+        if ((etavals(i) <= etamax_) && (etavals(i) >= etamin_))
         {
-          if ((phivals(i) <= phimax_) && (phivals(i) >= phimin_))
+          if ((ptvals(i) <= ptmax_) && (ptvals(i) >= ptmin_))
           {
-            if ((d0vals(i) <= d0max_) && (d0vals(i) >= d0min_))
+            if ((phivals(i) <= phimax_) && (phivals(i) >= phimin_))
             {
-              if ((z0vals(i) <= z0max_) && (z0vals(i) >= z0min_))
+              if ((d0vals(i) <= d0max_) && (d0vals(i) >= d0min_))
               {
-                if (verbose_ && printoutstdinfo_)
+                if ((z0vals(i) <= z0max_) && (z0vals(i) >= z0min_))
                 {
-                  std::cout << "ETA : " << etavals(i) << std::endl;
-                  std::cout << "PT  : " << ptvals(i) << std::endl;
-                  std::cout << "PHI : " << phivals(i) << std::endl;
-                  std::cout << "D0  : " << d0vals(i) << std::endl;
-                  std::cout << "Z0  : " << z0vals(i) << std::endl;
+                  if (verbose_ && printoutstdinfo_)
+                  {
+                    std::cout << "ETA : " << etavals(i) << std::endl;
+                    std::cout << "PT  : " << ptvals(i) << std::endl;
+                    std::cout << "PHI : " << phivals(i) << std::endl;
+                    std::cout << "D0  : " << d0vals(i) << std::endl;
+                    std::cout << "Z0  : " << z0vals(i) << std::endl;
+                  }
+                  
+                  for (int j=0; j<(int)paramread.n_cols; ++j)
+                    paramin(counter, j) = paramread(i, j);
+                  
+                  for (int j=0; j<(int)coordread.n_cols; ++j)
+                    coordin(counter, j) = coordread(i, j);
+                  
+                  ptvalsout(counter) = ptvals(i);
+                  
+                  ++counter;
                 }
-                
-                for (int j=0; j<(int)paramread.n_cols; ++j)
-                  paramin(counter, j) = paramread(i, j);
-                
-                for (int j=0; j<(int)coordread.n_cols; ++j)
-                  coordin(counter, j) = coordread(i, j);
-                
-                ptvalsout(counter) = ptvals(i);
-                
-                ++counter;
               }
             }
           }
