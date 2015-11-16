@@ -28,7 +28,7 @@
 
 using namespace pca;
 
-bool pca::is_a_valid_layers_seq(const std::string & in, bool tocheck)
+bool pca::is_a_valid_layers_seq(const std::string & in, const bool & tocheck)
 {
   static const char * valid_layers_seq[STDDIM_PRV_VLS];
   valid_layers_seq[0] = "5678910";
@@ -302,6 +302,8 @@ void pca::global_to_relative (arma::mat & coordin,
   }
 
 }
+
+#if 0 
 
 bool pca::reading_from_file_split (const pca::pcafitter & fitter, 
      const char * filename, 
@@ -586,27 +588,27 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
         {
           if (usex0y0)
           {
-            paramread(counter, SPLIT_X0IDX) = x0read;
-            paramread(counter, SPLIT_Y0IDX) = y0read;
+            paramread(counter, PCA_X0IDX) = x0read;
+            paramread(counter, PCA_Y0IDX) = y0read;
           }
           else
           {
-            paramread(counter, SPLIT_Z0IDX) = z0read;
+            paramread(counter, PCA_Z0IDX) = z0read;
             // lstorchi: I use this to diretcly convert input parameters into
             //     better parameters for the fitting 
             // eta = -ln[tan(theta / 2)]
             // theta = 2 * arctan (e^(-eta))
             // cotan (theta) = cotan (2 * arctan (e^(-eta)))
-            paramread(counter, SPLIT_COTTHETAIDX) =  cot(2.0 * atan (exp (-1.0e0 * etaread)));
-            //double theta = atan(1.0 /  paramread(counter, SPLIT_COTTHETAIDX));
+            paramread(counter, PCA_COTTHETAIDX) =  cot(2.0 * atan (exp (-1.0e0 * etaread)));
+            //double theta = atan(1.0 /  paramread(counter, PCA_COTTHETAIDX));
             //std::cout << etaread << " " << theta * (180/M_PI) << std::endl;
             //just to visualize pseudorapidity 
           }
         
           if (usealsod0)
-            paramread(counter, SPLIT_D0IDX) = d0read;
+            paramread(counter, PCA_D0IDX) = d0read;
           else if (usealsox0)
-            paramread(counter, SPLIT_X0IDX_NS) = x0read;
+            paramread(counter, PCA_X0IDX_NS) = x0read;
         }
         else if (rphiplane)
         {
@@ -614,12 +616,12 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
           {
             if (usex0y0)
             {
-              paramread(counter, SPLIT_X0IDX) = x0read;
-              paramread(counter, SPLIT_Y0IDX) = y0read;
+              paramread(counter, PCA_X0IDX) = x0read;
+              paramread(counter, PCA_Y0IDX) = y0read;
             }
             else
             {
-              paramread(counter, SPLIT_PHIIDX) = phiread;
+              paramread(counter, PCA_PHIIDX) = phiread;
               // use 1/pt
               if (chargeoverpt)
               {
@@ -630,18 +632,18 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
                 }
              
                 if (*(pidset.begin()) < 0)
-                  paramread(counter, SPLIT_ONEOVERPTIDX) = -1.0e0 / ptread;
+                  paramread(counter, PCA_ONEOVERPTIDX) = -1.0e0 / ptread;
                 else
-                  paramread(counter, SPLIT_ONEOVERPTIDX) = 1.0e0 / ptread;
+                  paramread(counter, PCA_ONEOVERPTIDX) = 1.0e0 / ptread;
               }
               else
-                paramread(counter, SPLIT_ONEOVERPTIDX) = 1.0e0 / ptread;
+                paramread(counter, PCA_ONEOVERPTIDX) = 1.0e0 / ptread;
             }
         
             if (usealsod0)
-              paramread(counter, SPLIT_D0IDX) = d0read;
+              paramread(counter, PCA_D0IDX) = d0read;
             else if (usealsox0)
-              paramread(counter, SPLIT_X0IDX_NS) = x0read;
+              paramread(counter, PCA_X0IDX_NS) = x0read;
           }
         }
       }
@@ -748,8 +750,6 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
     }
   }
 
-  //std::cout << "counter: " << counter << std::endl;
-  
 
   std::cout << "Layers IDs list: " << std::endl;
   std::set<int>::iterator lids = layeridlist.begin();
@@ -763,6 +763,7 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
 
   return true;
 }
+#endif
 
 std::string pca::get_paramname_from_id (int id)
 {
