@@ -33,8 +33,6 @@
 
 #include <sys/stat.h>
 
-#define STD_NUMOFLAYERS  6
-
 using namespace pca;
 
 namespace 
@@ -288,8 +286,8 @@ bool rootfilereader::reading_from_root_file (
 {
   TFile* inputFile = TFile::Open(filename_.c_str());
 
-  std::ofstream ss, ssext, ssext1, ptfile, phifile, 
-    d0file, etafile, z0file;
+  std::ofstream ss, ssext, ssext1, ssext2, ptfile, 
+    phifile, d0file, etafile, z0file;
 
   if (rzplane_ && rphiplane_) 
   {
@@ -307,7 +305,9 @@ bool rootfilereader::reading_from_root_file (
   {
     ss.open("bankstub.txt");
     ssext.open("bankstub_notequal.txt");
-    ssext1.open("bankstub_lesst6layers.txt");
+    ssext1.open("bankstub_less_layers.txt");
+    ssext2.open("bankstub_more_layers.txt");
+
     ptfile.open("pt_bankstubs.txt");
     phifile.open("phi_bankstubs.txt");
     d0file.open("d0_bankstubs.txt");
@@ -358,6 +358,9 @@ bool rootfilereader::reading_from_root_file (
   if (printoutstdinfo_)
     std::cout << "Total num of events: " << nevent << std::endl;
 
+  std::set<int> layeridlist;
+  unsigned int countlayerswithdupid = 0;
+
   for (Int_t i=0; i<nevent; ++i) 
   { 
      TT->GetEntry(i);
@@ -388,7 +391,8 @@ bool rootfilereader::reading_from_root_file (
                         (std::find_if(pdg.begin() + 1, pdg.end(),
         std::bind1st(std::not_equal_to<int>(), pdg.front())) == pdg.end()));
 
-     if ((moduleid.size() >= STD_NUMOFLAYERS)  && allAreEqual) // QA nel caso dei BankStubs questo check e' utile ?
+     if ((moduleid.size() == (unsigned int) maxnumoflayers_)  && 
+         allAreEqual) // QA nel caso dei BankStubs questo check e' utile ?
      {
        rootfilereader::track_str single_track;
 
@@ -410,6 +414,9 @@ bool rootfilereader::reading_from_root_file (
 
        single_track.dim = (int)moduleid.size();
 
+       std::ostringstream osss;
+       std::set<int> layeridset;
+ 
        int j = 0;
        for (; j<(int)moduleid.size(); ++j)
        {
@@ -429,7 +436,9 @@ bool rootfilereader::reading_from_root_file (
          int module = value/100;
          value = value-module*100;
          int segid = value; // QA is just this ? from the source code seems so, I need to / by 10 ?
-         
+
+         osss << layer;
+
          if (savecheckfiles_)
            ss << layer << " " << ladder << " " << 
              module << " " << segid << " " << pdg[j] << std::endl;
@@ -438,6 +447,9 @@ bool rootfilereader::reading_from_root_file (
          single_track.ladder.push_back(ladder);
          single_track.module.push_back(module);
          single_track.segid.push_back(segid);
+
+         layeridset.insert(layer);
+         layeridlist.insert(layer);
        }
        --j;
 
@@ -456,19 +468,66 @@ bool rootfilereader::reading_from_root_file (
        single_track.y0 = y0[j];
        single_track.z0 = z0[j];
 
-       tracks_vct_.push_back(single_track);
+       if (layeridset.size() != (unsigned int)single_track.dim)
+         ++countlayerswithdupid;
+
+       if (check_if_withinranges (pdg[j], 
+             eta[j], phi[j], d0val, z0[j], 
+             pt[j], osss.str()))
+         tracks_vct_.push_back(single_track);
 
        countevt++;
      }
-     else if ((moduleid.size() < STD_NUMOFLAYERS) && allAreEqual)
+     else if ((moduleid.size() > (unsigned int) maxnumoflayers_) && allAreEqual)
      {
-       double d0val;
-       //d0val = (y0[0]-(tan(phi[0])*x0[0]))*cos(phi[0]);
-       d0val = y0[0]*cos(phi[0])-x0[0]*sin(phi[0]);
-       //double d0val = x0[0];
-
        if (savecheckfiles_)
        {
+         double d0val;
+         d0val = y0[0]*cos(phi[0])-x0[0]*sin(phi[0]);
+
+         ptfile << pt[0] << std::endl;
+         phifile << phi[0] << std::endl;
+         d0file << d0val << std::endl;
+         etafile << eta[0] << std::endl;
+         z0file << z0[0] << std::endl;
+
+         ssext2 << i+1 << " " << moduleid.size() << std::endl;
+
+         int j = 0;
+         for (; j<(int)moduleid.size(); ++j)
+         {
+           ssext2 << stubx[j] << " " << stuby[j] << " " <<
+              stubz[j] << " ";
+         
+           int value = moduleid[j];
+           int layer = value/1000000;
+           value = value-layer*1000000;
+           int ladder = value/10000;
+           value = value-ladder*10000;
+           int module = value/100;
+           value = value-module*100;
+           int segid = value; // QA is just this ? from the source code seems so, I need to / by 10 ?
+           
+           ssext2 << layer << " " << ladder << " " << 
+             module << " " << segid << " " << pdg[j] << std::endl;
+         }
+         --j;
+         
+         ssext2 << pt[j]<< " "  <<
+           phi[j] << " " << d0val << " " 
+           << eta[j] << " " << z0[j] << " " <<
+           x0[j] << " " << y0[j] << std::endl;
+       }
+
+       countevt++;
+     }
+     else if ((moduleid.size() < (unsigned int) maxnumoflayers_) && allAreEqual)
+     {
+       if (savecheckfiles_)
+       {
+         double d0val;
+         d0val = y0[0]*cos(phi[0])-x0[0]*sin(phi[0]);
+
          ptfile << pt[0] << std::endl;
          phifile << phi[0] << std::endl;
          d0file << d0val << std::endl;
@@ -476,47 +535,42 @@ bool rootfilereader::reading_from_root_file (
          z0file << z0[0] << std::endl;
 
          ssext1 << i+1 << " " << moduleid.size() << std::endl;
-       }
 
-       int j = 0;
-       for (; j<(int)moduleid.size(); ++j)
-       {
-        if (savecheckfiles_)
-          ssext1 << stubx[j] << " " << stuby[j] << " " <<
-             stubz[j] << " ";
-
-        int value = moduleid[j];
-        int layer = value/1000000;
-        value = value-layer*1000000;
-        int ladder = value/10000;
-        value = value-ladder*10000;
-        int module = value/100;
-        value = value-module*100;
-        int segid = value; // QA is just this ? from the source code seems so, I need to / by 10 ?
-
-        if (savecheckfiles_)
-          ssext1 << layer << " " << ladder << " " << 
-            module << " " << segid << " " << pdg[j] << std::endl;
-       }
-       --j;
-
-       if (savecheckfiles_)
+         int j = 0;
+         for (; j<(int)moduleid.size(); ++j)
+         {
+           ssext1 << stubx[j] << " " << stuby[j] << " " <<
+              stubz[j] << " ";
+         
+           int value = moduleid[j];
+           int layer = value/1000000;
+           value = value-layer*1000000;
+           int ladder = value/10000;
+           value = value-ladder*10000;
+           int module = value/100;
+           value = value-module*100;
+           int segid = value; // QA is just this ? from the source code seems so, I need to / by 10 ?
+           
+           ssext1 << layer << " " << ladder << " " << 
+             module << " " << segid << " " << pdg[j] << std::endl;
+         }
+         --j;
+         
          ssext1 << pt[j]<< " "  <<
            phi[j] << " " << d0val << " " 
            << eta[j] << " " << z0[j] << " " <<
            x0[j] << " " << y0[j] << std::endl;
+       }
 
        countevt++;
      }
      else
      {
-       double d0val;
-       //d0val = (y0[0]-(tan(phi[0])*x0[0]))*cos(phi[0]);
-       d0val = y0[0]*cos(phi[0])-x0[0]*sin(phi[0]);
-       //double d0val = x0[0];
-
        if (savecheckfiles_)
        {
+         double d0val;
+         d0val = y0[0]*cos(phi[0])-x0[0]*sin(phi[0]);
+
          ptfile << pt[0] << std::endl;
          phifile << phi[0] << std::endl;
          d0file << d0val << std::endl;
@@ -524,35 +578,33 @@ bool rootfilereader::reading_from_root_file (
          z0file << z0[0] << std::endl;
 
          ssext << i+1 << " " << moduleid.size() << std::endl;
-       }
 
-       int j = 0;
-       for (; j<(int)moduleid.size(); ++j)
-       {
-        if (savecheckfiles_)
-          ssext << stubx[j] << " " << stuby[j] << " " <<
-             stubz[j] << " ";
+         int j = 0;
+         for (; j<(int)moduleid.size(); ++j)
+         {
+          if (savecheckfiles_)
+            ssext << stubx[j] << " " << stuby[j] << " " <<
+               stubz[j] << " ";
 
-        int value = moduleid[j];
-        int layer = value/1000000;
-        value = value-layer*1000000;
-        int ladder = value/10000;
-        value = value-ladder*10000;
-        int module = value/100;
-        value = value-module*100;
-        int segid = value; // QA is just this ? from the source code seems so, I need to / by 10 ?
-
-        if (savecheckfiles_)
+          int value = moduleid[j];
+          int layer = value/1000000;
+          value = value-layer*1000000;
+          int ladder = value/10000;
+          value = value-ladder*10000;
+          int module = value/100;
+          value = value-module*100;
+          int segid = value; // QA is just this ? from the source code seems so, I need to / by 10 ?
+          
           ssext << layer << " " << ladder << " " << 
             module << " " << segid << " " << pdg[j] << std::endl;
-       }
-       --j;
+         }
+         --j;
 
-       if (savecheckfiles_)
          ssext << pt[j]<< " "  <<
            phi[j] << " " << d0val << " " 
            << eta[j] << " " << z0[j] << " " <<
            x0[j] << " " << y0[j] << std::endl;
+       }
 
        countevt++;
      }
@@ -573,6 +625,18 @@ bool rootfilereader::reading_from_root_file (
     ss.close();
     ssext.close();
     ssext1.close();
+    ssext2.close();
+  }
+
+  if (printoutstdinfo_)
+  {
+    std::cout << "Layers IDs list: " << std::endl;
+    std::set<int>::iterator lids = layeridlist.begin();
+    for (; lids != layeridlist.end(); ++lids)
+      std::cout << " " << (*lids) << std::endl;
+    std::cout << std::endl;
+
+    std::cout << "Event with DupIds: " << countlayerswithdupid << std::endl;
   }
 
   return rootfilereader::extract_data (fitter, 
@@ -615,97 +679,52 @@ void rootfilereader::reset_error ()
 bool rootfilereader::extract_data (const pca::pcafitter & fitter, 
     arma::mat & paramin, arma::mat & coordin, arma::vec & ptvalsout)
 {
-  std::vector<std::string> layersids;
-
-  int extdim = 9;
-  std::string line;
-
-  arma::mat paramread;
-  arma::mat coordread;
-
-  arma::vec etavals;
-  arma::vec phivals;
-  arma::vec ptvals;
-  arma::vec d0vals;
-  arma::vec z0vals;
-  arma::vec chargevals;
-
   if (printoutstdinfo_)
-    std::cout << "Num. of events after first filter: " << 
-      tracks_vct_.size() << std::endl;
+    std::cout << "Extracted  " << tracks_vct_.size() << " tracks " << std::endl;
 
-  coordread.set_size(tracks_vct_.size(), fitter.get_coordim());
-  paramread.set_size(tracks_vct_.size(), fitter.get_paramdim());
-  etavals.set_size(tracks_vct_.size());
-  phivals.set_size(tracks_vct_.size());
-  ptvals.set_size(tracks_vct_.size());
-  d0vals.set_size(tracks_vct_.size());
-  z0vals.set_size(tracks_vct_.size());
-  chargevals.set_size(tracks_vct_.size());
-
-  std::set<int> layeridlist;
-  unsigned int countlayerswithdupid = 0;
+  coordin.resize(tracks_vct_.size(), fitter.get_coordim());
+  paramin.resize(tracks_vct_.size(), fitter.get_paramdim());
+  ptvalsout.resize(tracks_vct_.size());
 
   /* leave the code as it was */
   int counter = 0;
   std::vector<track_str>::const_iterator track = tracks_vct_.begin();
   for (; track != tracks_vct_.end(); ++track)
   {
-    std::ostringstream osss;
-    std::set<int> layeridset;
-    
     for (int j = 0; j < track->dim; ++j)
     {
-      osss << track->layer[j];
-      layeridset.insert(track->layer[j]);
-      layeridlist.insert(track->layer[j]);
+      if (excludesmodule_)
+        if (j > 2)
+          continue;
+      
+      double ri = sqrt(pow(track->x[j], 2.0) + 
+          pow (track->y[j], 2.0));
 
-      if (j < maxnumoflayers_)
+      if (rzplane_)
       {
-        if (excludesmodule_)
-          if (j > 2)
-            continue;
-        
-        double ri = sqrt(pow(track->x[j], 2.0) + 
-            pow (track->y[j], 2.0));
-
-        if (rzplane_)
-        {
-          coordread(counter, j*2) = track->z[j];
-          coordread(counter, j*2+1) = ri;
-        }
-        else if (rphiplane_)
-        {
-          double phii = acos(track->x[j]/ri);
-         
-          coordread(counter, j*2) = phii;
-          coordread(counter, j*2+1) = ri;
-        }
+        coordin(counter, j*2) = track->z[j];
+        coordin(counter, j*2+1) = ri;
+      }
+      else if (rphiplane_)
+      {
+        double phii = acos(track->x[j]/ri);
+       
+        coordin(counter, j*2) = phii;
+        coordin(counter, j*2+1) = ri;
       }
     }
 
-    if (layeridset.size() != (unsigned int)track->dim)
-      ++countlayerswithdupid;
-
-    //Need to change for Integer Representation , but for the time 
-    //being its alright since bankstub.txt has int16_t
-    layersids.push_back(osss.str());
-    etavals(counter) = track->eta;
-    phivals(counter) = track->phi;
-    ptvals(counter) = track->pt;
-    z0vals(counter) = track->z0;
-    d0vals(counter) = track->d0;
-    chargevals(counter) = track->pdg;
+    ptvalsout(counter) = track->pt;
 
     if (rzplane_)
     {
-      paramread(counter, PCA_Z0IDX) = track->z0;
+      paramin(counter, PCA_Z0IDX) = track->z0;
       // lstorchi: I use this to diretcly convert input parameters into
       //     better parameters for the fitting 
       // eta = -ln[tan(theta / 2)]
       // theta = 2 * arctan (e^(-eta))
       // cotan (theta) = cotan (2 * arctan (e^(-eta)))
-      paramread(counter, PCA_COTTHETAIDX) =  
+      paramin(counter, PCA_COTTHETAIDX) =  
         cot(2.0 * atan (exp (-1.0e0 * track->eta)));
       //double theta = atan(1.0 /  paramread(counter, PCA_COTTHETAIDX));
       //std::cout << etaread << " " << theta * (180/M_PI) << std::endl;
@@ -714,104 +733,29 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
     }
     else if (rphiplane_)
     {
-      paramread(counter, PCA_PHIIDX) = track->phi;
+      paramin(counter, PCA_PHIIDX) = track->phi;
       // use 1/pt
       if (chargeoverpt_)
       {
         if (chargesign_ < 0)
-          paramread(counter, PCA_ONEOVERPTIDX) = -1.0e0 / track->pt;
+          paramin(counter, PCA_ONEOVERPTIDX) = -1.0e0 / track->pt;
         else
-          paramread(counter, PCA_ONEOVERPTIDX) = 1.0e0 / track->pt;
+          paramin(counter, PCA_ONEOVERPTIDX) = 1.0e0 / track->pt;
       }
       else
-        paramread(counter, PCA_ONEOVERPTIDX) = 1.0e0 / track->pt;
+        paramin(counter, PCA_ONEOVERPTIDX) = 1.0e0 / track->pt;
 
       ++counter;
     }
-  }
 
-  if (printoutstdinfo_)
-    std::cout << "After first read " << counter << std::endl;
-
-  assert (coordread.n_rows == paramread.n_rows);
-  assert (etavals.n_rows == paramread.n_rows);
-  assert (phivals.n_rows == paramread.n_rows);
-  assert (ptvals.n_rows == paramread.n_rows);
-  assert (z0vals.n_rows == paramread.n_rows);
-  assert (d0vals.n_rows == paramread.n_rows);
-  assert (chargevals.n_rows == paramread.n_rows);
-  assert (layersids.size() == paramread.n_rows);
-
-  extdim = 0;
-  for (int i=0; i<(int)etavals.n_rows; ++i)
-    if (is_a_valid_layers_seq(layersids[i], checklayersids_))
-      if (check_charge (chargevals(i), chargesign_))
-        if ((etavals(i) <= etamax_) && (etavals(i) >= etamin_))
-          if ((ptvals(i) <= ptmax_) && (ptvals(i) >= ptmin_))
-            if ((phivals(i) <= phimax_) && (phivals(i) >= phimin_))
-              if ((d0vals(i) <= d0max_) && (d0vals(i) >= d0min_))
-                if ((z0vals(i) <= z0max_) && (z0vals(i) >= z0min_))
-                  ++extdim;
-
-  coordin.resize(extdim, fitter.get_coordim());
-  paramin.resize(extdim, fitter.get_paramdim());
-  ptvalsout.resize(extdim);
-
-  //std::cout << "extdim: " << extdim << std::endl;
-
-  counter = 0;
-  for (int i=0; i<(int)etavals.n_rows; ++i)
-  {
-    if (is_a_valid_layers_seq(layersids[i], checklayersids_))
+    if (verbose_ && printoutstdinfo_)
     {
-      if (check_charge (chargevals(i), chargesign_))
-      {
-        if ((etavals(i) <= etamax_) && (etavals(i) >= etamin_))
-        {
-          if ((ptvals(i) <= ptmax_) && (ptvals(i) >= ptmin_))
-          {
-            if ((phivals(i) <= phimax_) && (phivals(i) >= phimin_))
-            {
-              if ((d0vals(i) <= d0max_) && (d0vals(i) >= d0min_))
-              {
-                if ((z0vals(i) <= z0max_) && (z0vals(i) >= z0min_))
-                {
-                  if (verbose_ && printoutstdinfo_)
-                  {
-                    std::cout << "ETA : " << etavals(i) << std::endl;
-                    std::cout << "PT  : " << ptvals(i) << std::endl;
-                    std::cout << "PHI : " << phivals(i) << std::endl;
-                    std::cout << "D0  : " << d0vals(i) << std::endl;
-                    std::cout << "Z0  : " << z0vals(i) << std::endl;
-                  }
-                  
-                  for (int j=0; j<(int)paramread.n_cols; ++j)
-                    paramin(counter, j) = paramread(i, j);
-                  
-                  for (int j=0; j<(int)coordread.n_cols; ++j)
-                    coordin(counter, j) = coordread(i, j);
-                  
-                  ptvalsout(counter) = ptvals(i);
-                  
-                  ++counter;
-                }
-              }
-            }
-          }
-        }
-      }
+      std::cout << "ETA : " << track->eta << std::endl;
+      std::cout << "PT  : " << track->pt << std::endl;
+      std::cout << "PHI : " << track->phi << std::endl;
+      std::cout << "D0  : " << track->d0 << std::endl;
+      std::cout << "Z0  : " << track->z0 << std::endl;
     }
-  }
-
-  if (printoutstdinfo_)
-  {
-    std::cout << "Layers IDs list: " << std::endl;
-    std::set<int>::iterator lids = layeridlist.begin();
-    for (; lids != layeridlist.end(); ++lids)
-      std::cout << " " << (*lids) << std::endl;
-    std::cout << std::endl;
-
-    std::cout << "Event with DupIds: " << countlayerswithdupid << std::endl;
   }
 
   return true;
