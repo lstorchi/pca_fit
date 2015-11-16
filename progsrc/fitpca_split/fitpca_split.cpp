@@ -144,29 +144,30 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
     for (int i=0; i<(int)coordslt.n_rows; ++i)
     {
       double qoverptorig = paramslt(i, PCA_ONEOVERPTIDX);
-      double qoverptcmp = qverptcmp[i];
+      double qoverptcmps = qoverptcmp[i];
+      double diffqoverpt = qoverptcmps - qoverptorig;
 
-      pcrelative[PCA_PHIIDX]((phicmp[i] - paramslt(i, PCA_PHIIDX))/
-          paramslt(i, PCA_PHIIDX));
-      pcrelative[PCA_ONEOVERPTIDX]((qoverptcmp - qoverptorig)/
-          qoverptorig);
+      double phiorig = paramslt(i, PCA_PHIIDX);
+      double phicmps = phicmp[i];
+      double diffphi = phicmps - phiorig;
+
+      pcrelative[PCA_PHIIDX](diffphi/phiorig);
+      pcrelative[PCA_ONEOVERPTIDX](diffqoverpt/qoverptorig);
     
-      pcabsolute[PCA_PHIIDX](phicmp[i] - paramslt(i, PCA_PHIIDX));
-      pcabsolute[PCA_ONEOVERPTIDX](qoverptcmp - qoverptorig);
+      pcabsolute[PCA_PHIIDX](diffphi);
+      pcabsolute[PCA_ONEOVERPTIDX](diffqoverpt);
     
       myfile << ptvals(i) << " " <<
-        qoverptorig << " " << qoverptcmp << " " <<
-        (qoverptcmp - qoverptorig) <<  " " <<
-        paramslt(i, PCA_PHIIDX) << " " << phicmp[i] << " " <<
-        (phicmp[i] - paramslt(i, PCA_PHIIDX)) << std::endl;
+        qoverptorig << " " << qoverptcmps << " " << diffqoverpt <<  " " <<
+        phiorig << " " << phicmps << " " << diffphi << std::endl;
     
       if (verbose)
       {
         std::cout << "For track : " << i+1 << std::endl;
-        std::cout << " q/pt         fitt " << qoverptcmp << std::endl;
+        std::cout << " q/pt         fitt " << qoverptcmps << std::endl;
         std::cout << " q/pt         orig " << qoverptorig << std::endl;
-        std::cout << " phi          fitt " << phicmp[i] << std::endl;
-        std::cout << " phi          orig " << paramslt(i, PCA_PHIIDX) << std::endl;
+        std::cout << " phi          fitt " << phicmps << std::endl;
+        std::cout << " phi          orig " << phiorig << std::endl;
       }
     }
   }
