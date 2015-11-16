@@ -686,24 +686,24 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
 
     if (rzplane_)
     {
-      paramread(counter, SPLIT_Z0IDX) = track->z0;
+      paramread(counter, PCA_Z0IDX) = track->z0;
       // lstorchi: I use this to diretcly convert input parameters into
       //     better parameters for the fitting 
       // eta = -ln[tan(theta / 2)]
       // theta = 2 * arctan (e^(-eta))
       // cotan (theta) = cotan (2 * arctan (e^(-eta)))
-      paramread(counter, SPLIT_COTTHETAIDX) =  
+      paramread(counter, PCA_COTTHETAIDX) =  
         cot(2.0 * atan (exp (-1.0e0 * track->eta)));
-      //double theta = atan(1.0 /  paramread(counter, SPLIT_COTTHETAIDX));
+      //double theta = atan(1.0 /  paramread(counter, PCA_COTTHETAIDX));
       //std::cout << etaread << " " << theta * (180/M_PI) << std::endl;
       //just to visualize pseudorapidity 
       counter++;
     }
     else if (rphiplane_)
     {
-      if (check_charge_sign(chargesign_, pidset))
-      {
-        paramread(counter, SPLIT_PHIIDX) = track->phi;
+      //if (check_charge_sign(chargesign_, pidset))
+      //{
+        paramread(counter, PCA_PHIIDX) = track->phi;
         // use 1/pt
         if (chargeoverpt_)
         {
@@ -714,15 +714,15 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
           }
         
           if (chargesign_ < 0)
-            paramread(counter, SPLIT_ONEOVERPTIDX) = -1.0e0 / track->pt;
+            paramread(counter, PCA_ONEOVERPTIDX) = -1.0e0 / track->pt;
           else
-            paramread(counter, SPLIT_ONEOVERPTIDX) = 1.0e0 / track->pt;
+            paramread(counter, PCA_ONEOVERPTIDX) = 1.0e0 / track->pt;
         }
         else
-          paramread(counter, SPLIT_ONEOVERPTIDX) = 1.0e0 / track->pt;
+          paramread(counter, PCA_ONEOVERPTIDX) = 1.0e0 / track->pt;
 
         ++counter;
-      }
+      //}
     }
   }
 
