@@ -17,7 +17,8 @@
 
 namespace pca
 {
-  bool is_a_valid_layers_seq(const std::string &, bool );
+  bool is_a_valid_layers_seq(const std::string &, 
+      const bool &);
   
   bool check_to_read (bool, bool, int);
   
@@ -43,6 +44,7 @@ namespace pca
 
   int get_num_of_ent(const char *);
 
+#if 0
   bool reading_from_file_split (const pca::pcafitter &, const char * filename, 
           arma::mat & paramin, arma::mat & coordin,
           bool useonlyeven, bool useonlyodd, 
@@ -59,6 +61,7 @@ namespace pca
           arma::vec & ptvals,
           bool checklayersid,
           int maxnumoflayers);
+#endif
 
   void global_to_relative (arma::mat & coordin, 
       double coord1min = std::numeric_limits<double>::infinity(), 
