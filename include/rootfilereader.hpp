@@ -103,6 +103,11 @@ namespace pca
           arma::mat & paramin, arma::mat & coordin, 
           arma::vec & ptvalsout);
 
+      bool check_if_withinranges (const int & charge, 
+          const double & eta, const double & phi, 
+          const double & z0, const double & d0, 
+          const double & pt, const std::string &) const;
+
       void set_errmsg (int , const std::string &);
       void reset_error ();
   };

@@ -39,7 +39,7 @@ using namespace pca;
 
 namespace 
 {
-  bool check_charge (int inval, int chargesign)
+  bool check_charge (const int inval, const int chargesign)
   {
     if (chargesign == 0)
       return true;
@@ -579,9 +579,26 @@ bool rootfilereader::reading_from_root_file (
     paramin, coordin, ptvalsout);
 }
 
-/*****************************************************************************
- *                                PRIVATE                                    *
- *****************************************************************************/
+///////////////////////////////////////////////////////////////////////////////
+//                                PRIVATE                                    //
+///////////////////////////////////////////////////////////////////////////////
+
+bool rootfilereader::check_if_withinranges (const int & charge, 
+    const double & eta, const double & phi, const double & z0, 
+    const double & d0, const double & pt, 
+    const std::string & layersid) const
+{
+  if (is_a_valid_layers_seq(layersid, checklayersids_))
+    if (check_charge (charge, chargesign_))
+      if ((eta <= etamax_) && (eta >= etamin_))
+        if ((pt <= ptmax_) && (pt >= ptmin_))
+          if ((phi <= phimax_) && (phi >= phimin_))
+            if ((d0 <= d0max_) && (d0 >= d0min_))
+              if ((z0 <= z0max_) && (z0 >= z0min_))
+                return true;
+
+  return false;
+}
 
 void rootfilereader::set_errmsg (int num, const std::string & msg)
 { 
@@ -635,18 +652,10 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
   for (; track != tracks_vct_.end(); ++track)
   {
     std::ostringstream osss;
-    std::set<int> pidset, layeridset;
+    std::set<int> layeridset;
     
     for (int j = 0; j < track->dim; ++j)
     {
-      int pid;
-      double x, y, z;
-
-      x = track->x[j];
-      y = track->y[j];
-      z = track->z[j];
-      pid = track->pdg;
-
       osss << track->layer[j];
       layeridset.insert(track->layer[j]);
       layeridlist.insert(track->layer[j]);
@@ -657,26 +666,23 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
           if (j > 2)
             continue;
         
-        pidset.insert(pid);
-        
-        double ri = sqrt(pow(x, 2.0) + pow (y, 2.0));
+        double ri = sqrt(pow(track->x[j], 2.0) + 
+            pow (track->y[j], 2.0));
 
         if (rzplane_)
         {
-          coordread(counter, j*2) = z;
+          coordread(counter, j*2) = track->z[j];
           coordread(counter, j*2+1) = ri;
         }
         else if (rphiplane_)
         {
-          double phii = acos(x/ri);
+          double phii = acos(track->x[j]/ri);
          
           coordread(counter, j*2) = phii;
           coordread(counter, j*2+1) = ri;
         }
       }
     }
-
-    assert(pidset.size() == 1);
 
     if (layeridset.size() != (unsigned int)track->dim)
       ++countlayerswithdupid;
@@ -689,7 +695,7 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
     ptvals(counter) = track->pt;
     z0vals(counter) = track->z0;
     d0vals(counter) = track->d0;
-    chargevals(counter) = *(pidset.begin());
+    chargevals(counter) = track->pdg;
 
     if (rzplane_)
     {
@@ -712,12 +718,6 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
       // use 1/pt
       if (chargeoverpt_)
       {
-        if (pidset.size() != 1)
-        {
-          std::cerr << "pid values differ" << std::endl;
-          return false;
-        }
-      
         if (chargesign_ < 0)
           paramread(counter, PCA_ONEOVERPTIDX) = -1.0e0 / track->pt;
         else
