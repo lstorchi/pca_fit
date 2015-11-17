@@ -95,14 +95,11 @@ bool pcafitter::compute_parameters (
     const arma::mat & cmtx, 
     const arma::rowvec & q, 
     const arma::mat & amtx,
-    const arma::mat & vmtx,
+    const arma::mat & vinv,
     const arma::rowvec & kvct, 
+    const arma::rowvec & coordm,
     const arma::mat & coord, 
-#ifdef INTBITEWISE
-    int16_t ** paraptr, 
-#else
     double ** paraptr,
-#endif
     int paramdim,
     arma::rowvec & chi2values)
 {
@@ -118,11 +115,7 @@ bool pcafitter::compute_parameters (
 
   for (int j=0; j<paramdim; ++j)
   {
-#ifdef INTBITEWISE    
-    int16_t *ptr = paraptr[j];
-#else
     double *ptr = paraptr[j];
-#endif
     for (int i=0; i<(int)coord.n_rows; ++i)
     {
       ptr[i] = q(j);
@@ -137,8 +130,9 @@ bool pcafitter::compute_parameters (
   /*
   for (int k=0; k<coordim_; ++k)
   {
-    std::cout << coordmval[k].mean() << " " 
-       << coordmval[k].stddev() << std::endl;
+    std::cout << coord[k].mean() << " " 
+       << coord[k].stddev() << std::endl;
+    std::cout << coordm(k) << std::endl;
   }
   */
 
@@ -148,30 +142,25 @@ bool pcafitter::compute_parameters (
     {
       for (int j=0; j<coordim_; ++j)
       {
-        chi2values(k) += (coord(k,i) - coordmval[i].mean()) * 
-          vmtx(i, j) * (coord(k,j) - coordmval[j].mean());
+        chi2values(k) += (coord(k,i) - coordm(i)) * 
+          vinv(i, j) * (coord(k,j) - coordm(i));
       }
     }
 
-    //std::cout << "chi2 using eq 10 pg 112 " << k << " ==> " 
-    //  << chi2values(k)  << std::endl;
+    std::cout << "chi2 using eq 10 pg 112 " << k << " ==> " 
+      << chi2values(k)  << std::endl;
   }
+
+  std::cout << "coord.n_rows : " << coord.n_rows << std::endl;
+  std::cout << "coord.n_cols : " << coord.n_cols << std::endl;
 
   for (int b=0; b<(int)coord.n_rows; ++b) // loop over tracks 
   {
-#ifdef INTBITEWISE    
-    int16_t chi2check = 0.0;
-#else
     double chi2check = 0.0;
-#endif
 
     for (int i=0; i<coordim_-paramdim_; ++i)
     {
-#ifdef INTBITEWISE      
-      int16_t val = 0;
-#else
       double val = 0.0;
-#endif
 
       /* sum over j */
       for (int j=0; j<coordim_; ++j)
@@ -184,8 +173,8 @@ bool pcafitter::compute_parameters (
       chi2check += val*val;
     }
 
-    //std::cout << "chi2 using eq 11 pg 112 " << b << " ==> " 
-    //  << chi2check  << std::endl;
+    std::cout << "chi2 using eq 11 pg 112 " << b << " ==> " 
+      << chi2check  << std::endl;
   }
 
   return true;
@@ -249,9 +238,10 @@ bool pcafitter::compute_pca_constants (
     const arma::mat & coord,
     arma::mat & cmtx, 
     arma::rowvec & q, 
-    arma::mat & vmtx,
+    arma::mat & vinv,
     arma::mat & amtx,
     arma::rowvec & kivec,
+    arma::rowvec & coordm,
     int verbositylevel)
 {
 
@@ -269,24 +259,22 @@ bool pcafitter::compute_pca_constants (
   if (verbositylevel == 1)
     std::cout << "Compute covariance mtx" << std::endl;
 
-  arma::mat hca = arma::zeros<arma::mat>(this->get_coordim(),
-      this->get_coordim());
-  arma::vec eigvaltmp = arma::zeros<arma::vec>(this->get_coordim());
+  arma::mat v = arma::zeros<arma::mat>(coordim_, coordim_);
+  arma::vec eigvaltmp = arma::zeros<arma::vec>(coordim_);
 
-  eigvec = arma::zeros<arma::mat>(this->get_coordim(),
-      this->get_coordim());
-  eigval = arma::zeros<arma::vec>(this->get_coordim());
+  eigvec = arma::zeros<arma::mat>(coordim_, coordim_);
+  eigval = arma::zeros<arma::vec>(coordim_);
 
-  hca = arma::cov(coord);
-  //hca = arma::cor(coord);
+  v = arma::cov(coord);
+  //v = arma::cor(coord);
 
   if (verbositylevel == 1)
     std::cout << "Eigensystem" << std::endl;
 
-  arma::eig_sym(eigvaltmp, eigvec, hca);
+  arma::eig_sym(eigvaltmp, eigvec, v);
   //arma::mat coeff;
   //arma::mat score;
-  //arma::princomp(coeff, score, hca);
+  //arma::princomp(coeff, score, v);
 
   /* stored column by column  
   for (int i=0; i<(int)eigvaltmp.n_rows; ++i)
@@ -311,17 +299,16 @@ bool pcafitter::compute_pca_constants (
     {
       double lam = 0.0;
       for (int k=0; k<(int)eigvec.n_rows; ++k)
-        lam += hca(j, k) * eigvec(k,i);
+        lam += v(j, k) * eigvec(k,i);
       std::cout << lam << " ";
       resvec(i) = lam;
     }
     std::cout << std::endl;
   }
 
-  arma::mat deltas = eigvec.t() * hca * eigvec;
+  arma::mat deltas = eigvec.t() * v * eigvec;
   deltas.print(std::cout);
   */
-  
 
   /* compute A matrix */
   amtx.resize(this->get_coordim()-this->get_paramdim(), 
@@ -370,7 +357,7 @@ bool pcafitter::compute_pca_constants (
   if (verbositylevel == 1)
     std::cout << this->get_paramdim() << " eigenvalues: " << totvar << std::endl;
 
-  arma::mat v = arma::zeros<arma::mat>(coordim_,coordim_);
+  v = arma::zeros<arma::mat>(coordim_,coordim_);
   v = arma::cov(coord);
 
 #ifdef DEBUG
@@ -388,20 +375,22 @@ bool pcafitter::compute_pca_constants (
 #endif
 
   //arma::mat vi = arma::zeros<arma::mat>(coordim_,coordim_);
-  vmtx = arma::inv(v); 
+  vinv = arma::inv(v); 
   //vi = v.i();
 
 #ifdef DEBUG
   std::cout << "inverse by cov matrix: " << std::endl;
-  std::cout << v * vmtx;
+  std::cout << v * vinv;
 #endif
 
   // and so on ...
   arma::mat hcap = arma::zeros<arma::mat>(coordim_,paramdim_);
   arma::rowvec paramm = arma::zeros<arma::rowvec>(paramdim_);
-  arma::rowvec coordm = arma::zeros<arma::rowvec>(coordim_);
+  coordm.resize(coordim_);
+  coordm = arma::zeros<arma::rowvec>(coordim_);
 
-  //hcap = arma::cov()
+  coordm = mean(coord, 0);
+  paramm = mean(param, 0);
 
   /*
   for (int i=0; i<(int)coord.n_cols; ++i)
@@ -411,11 +400,7 @@ bool pcafitter::compute_pca_constants (
     coordm(i) /= (double) coord.n_rows;
   } 
   std::cout << coordm << std::endl;
-  */ 
 
-  coordm = mean(coord, 0);
-
-  /*
   for (int i=0; i<(int)coord.n_rows; ++i)
   {
     paramm(PTIDX) += param(i, PTIDX);
@@ -434,8 +419,6 @@ bool pcafitter::compute_pca_constants (
   std::cout << paramm(PTIDX) << " " << mean(param, 0) << std::endl;
   */
 
-  paramm = mean(param, 0);
-
   hcap = arma::cov(coord, param);
 
   //std::cout << hcap << std::endl;
@@ -443,7 +426,7 @@ bool pcafitter::compute_pca_constants (
   for (int i=0; i<paramdim_; ++i)
     for (int l=0; l<coordim_; ++l)
       for (int m=0; m<coordim_; ++m)
-        cmtx(i,l) += vmtx(l,m) * hcap (m,i);
+        cmtx(i,l) += vinv(l,m) * hcap (m,i);
 
   for (int i=0; i<paramdim_; ++i)
   {
@@ -451,21 +434,6 @@ bool pcafitter::compute_pca_constants (
     for (int l=0; l<coordim_; ++l)
       q(i) -= cmtx(i,l)*coordm(l);
   }
-
-#ifdef INTBITEWISE
-  //cmtx and q constants are still in float point. Multiply them to bring in integer range.
-  //They are casted as int16_t while reading from pca::read_armmat and pca::read_armvct in fit pca step.
-  cmtx *= 200; 
-
-  std::cout << "C matrix: " << std::endl;
-  std::cout << cmtx;
-
-  q *= 2000;
-
-  std::cout << "Q vector: " << std::endl;
-  for (int i=0; i<paramdim_; ++i)
-    std::cout << q(i) << std::endl;
-#endif
 
   return true;
 }
