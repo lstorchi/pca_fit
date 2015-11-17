@@ -34,12 +34,9 @@ namespace pca
           const arma::mat & amtx,
           const arma::mat & vmtx,
           const arma::rowvec & kvct, 
+          const arma::rowvec & coordm, 
           const arma::mat & coord, 
-#ifdef INTBITEWISE         
-          int16_t ** paraptr,
-#else
           double ** paraptr,
-#endif
           int paramdim,
           arma::rowvec & chi2values);
            
@@ -60,9 +57,10 @@ namespace pca
           const arma::mat & coord,
           arma::mat & cmtx, 
           arma::rowvec & q,
-          arma::mat & vmtx, 
+          arma::mat & vinv, 
           arma::mat & amtx, 
           arma::rowvec & kivec,
+          arma::rowvec & coordm,
           int verbositylevel);
 
       const std::string & get_errmsg () const;
