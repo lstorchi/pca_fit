@@ -143,7 +143,7 @@ bool pcafitter::compute_parameters (
       for (int j=0; j<coordim_; ++j)
       {
         chi2values(k) += (coord(k,i) - coordm(i)) * 
-          vinv(i, j) * (coord(k,j) - coordm(i));
+          vinv(i, j) * (coord(k,j) - coordm(j));
       }
     }
 
