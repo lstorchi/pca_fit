@@ -32,7 +32,7 @@
 
 bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt, 
      arma::mat & cmtx, arma::rowvec & q, arma::mat & amtx, arma::mat & vmtx, 
-     arma::rowvec & k, bool verbose, pca::pcafitter & fitter, 
+     arma::rowvec & k, arma::rowvec & cm, bool verbose, pca::pcafitter & fitter, 
      bool rzplane, bool rphiplane, arma::vec & ptvals)
 {
 
@@ -60,7 +60,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
   arma::rowvec chi2values;
   chi2values.resize(coordslt.n_rows);
 
-  if (!fitter.compute_parameters (cmtx, q, amtx, vmtx, k,
+  if (!fitter.compute_parameters (cmtx, q, amtx, vmtx, k, cm,
         coordslt, ptrs, fitter.get_paramdim(), 
         chi2values))
   {
@@ -209,6 +209,7 @@ void usage (char * name)
   std::cerr << " -q, --qvct=[fillename]          : QVCT filename [default is q.[rz/rphi].bin]" << std::endl;
   std::cerr << " -c, --amtx=[fillename]          : AMTX filename [default is a.[rz/rphi].bin]" << std::endl;
   std::cerr << " -y, --kvct=[fillename]          : KVCT filename [default is k.[rz/rphi].bin]" << std::endl;
+  std::cerr << " -d, --cvct=[fillename]          : CVCT filename [default is cm.[rz/rphi].bin]" << std::endl;
   std::cerr << " -q, --vmtx=[fillename]          : VMTX filename [default is v.[rz/rphi].bin]" << std::endl;
   std::cerr << std::endl;
   std::cerr << " -z, --rz-plane                  : use rz plane view (fit eta and z0)" << std::endl;
@@ -245,8 +246,7 @@ int main (int argc, char ** argv)
   std::string afname = "";
   std::string vfname = "";
   std::string kfname = "";
-  std::string subsec = "";
-  std::string sublad = "";
+  std::string cmfname = "";
   bool verbose = false;
   bool rzplane = false;
   bool rphiplane = false;
@@ -278,6 +278,7 @@ int main (int argc, char ** argv)
       {"vmtx", 1, NULL, 'B'},
       {"qvct", 1, NULL, 'q'},
       {"kvct", 1, NULL, 'y'},
+      {"cvct", 1, NULL, 'd'},
       {"verbose", 0, NULL, 'V'},
       {"version", 0, NULL, 'v'},
       {"jump-tracks", 0, NULL, 'j'},
@@ -296,7 +297,7 @@ int main (int argc, char ** argv)
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "kxzrhaVy:b:A:B:t:g:c:q:n:s:m:o:u", 
+    c = getopt_long (argc, argv, "kxzrhaVd:y:b:A:B:t:g:c:q:n:s:m:o:u", 
         long_options, &option_index);
 
     if (c == -1)
@@ -406,6 +407,9 @@ int main (int argc, char ** argv)
       case'c':
         cfname = optarg;
         break;
+      case'd':
+        cmfname = optarg;
+        break;
       case 'q':
         qfname = optarg;
         break;
@@ -477,7 +481,7 @@ int main (int argc, char ** argv)
   // matrice C e vettore q sono le costanti
   
   arma::mat cmtx, amtx, vmtx;
-  arma::rowvec q, k;
+  arma::rowvec q, k, cm;
 
   // leggere file coordinate tracce simulate plus parametri
   if (!pca::file_exists(filename))
@@ -546,6 +550,9 @@ int main (int argc, char ** argv)
 
     if (kfname == "")
       kfname = "k.rz.bin";
+
+    if (cmfname == "")
+      cmfname = "cm.rz.bin";
   }
   else if (rphiplane)
   {
@@ -569,6 +576,20 @@ int main (int argc, char ** argv)
 
     if (kfname == "")
       kfname = "k.rphi.bin";
+
+    if (cmfname == "")
+      cmfname = "mc.rphi.bin";
+  }
+
+  if (pca::file_exists(cmfname.c_str()))
+  {
+    std::cout << "Reading " << cmfname << std::endl;
+    pca::read_armvct(cmfname.c_str(), cm);
+  }
+  else
+  {
+    std::cerr << cmfname << " does not exist" << std::endl;
+    return 1;
   }
 
   if (pca::file_exists(afname.c_str()))
@@ -626,7 +647,7 @@ int main (int argc, char ** argv)
     return 1;
   }
 
-  if (!build_and_compare (param, coord, cmtx, q, amtx, vmtx, k,
+  if (!build_and_compare (param, coord, cmtx, q, amtx, vmtx, k, cm,
         verbose, fitter, rzplane, rphiplane, ptvals))
     return EXIT_FAILURE;
 

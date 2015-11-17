@@ -68,9 +68,15 @@ void usage (char * name)
   exit(1);
 }
 
-void perform_main_computation (const arma::mat & coord, const arma::mat & param, 
-    const std::string & cfname, const std::string & qfname, const std::string & afname,
-    const std::string & vfname, const std::string & kfname, pca::pcafitter & fitter, bool verbose)
+void perform_main_computation (const arma::mat & coord, 
+    const arma::mat & param, 
+    const std::string & cfname, 
+    const std::string & qfname, 
+    const std::string & afname,
+    const std::string & vfname, 
+    const std::string & kfname, 
+    const std::string & cmfname ,
+    pca::pcafitter & fitter, bool verbose)
 {
   std::cout << fitter.get_paramdim() << " X " << fitter.get_coordim() << std::endl;
 
@@ -87,10 +93,11 @@ void perform_main_computation (const arma::mat & coord, const arma::mat & param,
   if (verbose) 
     verbositylevel = 2;
 
-  arma::rowvec kivec;
+  arma::rowvec kivec, coordmvec;
   std::cout << "Compute PCA constants " << std::endl;
   if (!fitter.compute_pca_constants (param,
-         coord, cmtx, q, vmtx, amtx, kivec, verbositylevel))
+         coord, cmtx, q, vmtx, amtx, kivec, coordmvec, 
+         verbositylevel))
   {
     std::cerr << "compute_pca_constants error" << std::endl;
     return;
@@ -102,6 +109,7 @@ void perform_main_computation (const arma::mat & coord, const arma::mat & param,
   pca::write_armmat(afname.c_str(), amtx);
   pca::write_armmat(vfname.c_str(), vmtx);
   pca::write_armvct(kfname.c_str(), kivec);
+  pca::write_armvct(cmfname.c_str(), coordmvec);
 }
 
 # ifndef __CINT__
@@ -442,7 +450,7 @@ int main (int argc, char ** argv)
   std::cout << "Using " << paramin.n_rows << " tracks" << std::endl;
   std::cout << "Writing parameters to files" << std::endl;
 
-  std::ostringstream cfname, qfname, afname, vfname, kfname; 
+  std::ostringstream cfname, qfname, afname, vfname, kfname, coordmfname; 
 
   if (rzplane)
   {
@@ -457,6 +465,7 @@ int main (int argc, char ** argv)
     afname << "a.rz.bin";
     vfname << "v.rz.bin";
     kfname << "k.rz.bin";
+    coordmfname << "cm.rz.bin";
   }
   else if (rphiplane)
   {
@@ -471,6 +480,7 @@ int main (int argc, char ** argv)
     afname << "a.rphi.bin";
     vfname << "v.rphi.bin";
     kfname << "k.rphi.bin";
+    coordmfname << "cm.rphi.bin";
   }
 
   if (printallcoords)
@@ -486,7 +496,7 @@ int main (int argc, char ** argv)
 
   perform_main_computation (coordin, paramin,
       cfname.str(), qfname.str(), afname.str() ,
-      vfname.str(), kfname.str(),  
+      vfname.str(), kfname.str(), coordmfname.str(),
       fitter, verbose);
 
   return EXIT_SUCCESS;
