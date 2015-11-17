@@ -490,52 +490,8 @@ int main (int argc, char ** argv)
     return EXIT_FAILURE;
   }
 
-  std::cout << "Reading data from " << filename << " file " << std::endl;
-
-  arma::mat coord, param;
-  arma::vec ptvals;
-
-  pca::rootfilereader rootrdr;
-
-  rootrdr.set_filename(filename);
-
-  int mxnumoflayers = 6;
-  rootrdr.set_maxnumoflayers(mxnumoflayers);
- 
-  rootrdr.set_rzplane(rzplane);
-  rootrdr.set_rphiplane(rphiplane);
-  rootrdr.set_etalimits(etamin, etamax);
-  rootrdr.set_ptlimits(ptmin, ptmax);
-  rootrdr.set_chargesign(chargesign);
-  rootrdr.set_excludesmodule(excludesmodule);
-  rootrdr.set_philimits(phimin, phimax);
-  rootrdr.set_z0limits(z0min, z0max);
-  rootrdr.set_d0limits(d0min, d0max);
-  rootrdr.set_verbose(verbose);
-  rootrdr.set_checklayersids(checklayersids);
-
-  rootrdr.set_savecheckfiles(false);
-
-  if (!rootrdr.reading_from_root_file (fitter, param, coord, 
-        ptvals))
-  {
-    std::cerr << rootrdr.get_errmsg() << std::endl;
-    return EXIT_FAILURE;
-  }
-
-  if (userelativecoord)
-    pca::global_to_relative(coord, coord1min, coord2min);
-
-  std::cout << "Using " << param.n_rows << " tracks" << std::endl;
-
   if (rzplane)
   {
-    if (savecheckfiles)
-    {
-      pca::write_to_file("tofit_cottheta.txt", param, PCA_COTTHETAIDX);
-      pca::write_to_file("tofit_z0.txt", param, PCA_Z0IDX);
-    }
-
     if (cfname == "")
       cfname = "c.rz.bin";
 
@@ -556,12 +512,6 @@ int main (int argc, char ** argv)
   }
   else if (rphiplane)
   {
-    if (savecheckfiles)
-    {
-      pca::write_to_file("tofit_phi.txt", param, PCA_PHIIDX);
-      pca::write_to_file("tofit_oneoverpt.txt", param, PCA_ONEOVERPTIDX);
-    }
-
     if (cfname == "")
       cfname = "c.rphi.bin";
 
@@ -645,6 +595,61 @@ int main (int argc, char ** argv)
   {
     std::cerr << qfname << " does not exist" << std::endl;
     return 1;
+  }
+
+  std::cout << "Reading data from " << filename << " file " << std::endl;
+
+  arma::mat coord, param;
+  arma::vec ptvals;
+
+  pca::rootfilereader rootrdr;
+
+  rootrdr.set_filename(filename);
+
+  int mxnumoflayers = 6;
+  rootrdr.set_maxnumoflayers(mxnumoflayers);
+ 
+  rootrdr.set_rzplane(rzplane);
+  rootrdr.set_rphiplane(rphiplane);
+  rootrdr.set_etalimits(etamin, etamax);
+  rootrdr.set_ptlimits(ptmin, ptmax);
+  rootrdr.set_chargesign(chargesign);
+  rootrdr.set_excludesmodule(excludesmodule);
+  rootrdr.set_philimits(phimin, phimax);
+  rootrdr.set_z0limits(z0min, z0max);
+  rootrdr.set_d0limits(d0min, d0max);
+  rootrdr.set_verbose(verbose);
+  rootrdr.set_checklayersids(checklayersids);
+
+  rootrdr.set_savecheckfiles(false);
+
+  if (!rootrdr.reading_from_root_file (fitter, param, coord, 
+        ptvals))
+  {
+    std::cerr << rootrdr.get_errmsg() << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  if (userelativecoord)
+    pca::global_to_relative(coord, coord1min, coord2min);
+
+  std::cout << "Using " << param.n_rows << " tracks" << std::endl;
+
+  if (rzplane)
+  {
+    if (savecheckfiles)
+    {
+      pca::write_to_file("tofit_cottheta.txt", param, PCA_COTTHETAIDX);
+      pca::write_to_file("tofit_z0.txt", param, PCA_Z0IDX);
+    }
+  }
+  else if (rphiplane)
+  {
+    if (savecheckfiles)
+    {
+      pca::write_to_file("tofit_phi.txt", param, PCA_PHIIDX);
+      pca::write_to_file("tofit_oneoverpt.txt", param, PCA_ONEOVERPTIDX);
+    }
   }
 
   if (!build_and_compare (param, coord, cmtx, q, amtx, vmtx, k, cm,
