@@ -147,8 +147,8 @@ bool pcafitter::compute_parameters (
       }
     }
 
-    std::cout << "chi2 using eq 10 pg 112 " << k << " ==> " 
-      << chi2values(k)  << std::endl;
+    // std::cout << "chi2 using eq 10 pg 112 " << k << " ==> " 
+    //   << chi2values(k)  << std::endl;
   }
 
   std::cout << "coord.n_rows : " << coord.n_rows << std::endl;
@@ -173,8 +173,8 @@ bool pcafitter::compute_parameters (
       chi2check += val*val;
     }
 
-    std::cout << "chi2 using eq 11 pg 112 " << b << " ==> " 
-      << chi2check  << std::endl;
+    //std::cout << "chi2 using eq 11 pg 112 " << b << " ==> " 
+    //  << chi2check  << std::endl;
   }
 
   return true;
