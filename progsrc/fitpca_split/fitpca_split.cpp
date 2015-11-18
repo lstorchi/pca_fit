@@ -39,8 +39,6 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
      arma::rowvec & k, arma::rowvec & cm, bool verbose, pca::pcafitter & fitter, 
      bool rzplane, bool rphiplane, arma::vec & ptvals)
 {
-
-  double eta_min, eta_max, z0_min, z0_max;
   int nbins = 100;
 
   double ** ptrs;
@@ -95,20 +93,18 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
   {
     myfile << "pt eta_orig eta_fitt diff z0_orig z0_fitt diff" << std::endl; 
 
-    TH1F *hist_z0 = new TH1F("hist_diff_z0","z0 diff histogram",nbins, 
-        z0_min, z0_max);
-    TH1F *hist_eta = new TH1F("hist_diff_eta","eta diff histogram",nbins, 
-        eta_min, eta_max);
-    
+    arma::rowvec etadiffvct(coordslt.n_rows), 
+      z0diffvct(coordslt.n_rows);
+   
     for (int i=0; i<(int)coordslt.n_rows; ++i)
     {
       double thetacmp = atan(1.0e0 / cothetacmp[i]) ; 
-      double etacmps = 0.0e0, tantheta2;
+      double etacmp = 0.0e0, tantheta2;
       tantheta2 = tan (thetacmp/2.0e0); 
       if (tantheta2 < 0.0)
-        etacmps = 1.0e0 * log (-1.0e0 * tantheta2);
+        etacmp = 1.0e0 * log (-1.0e0 * tantheta2);
       else
-        etacmps = -1.0e0 * log (tantheta2);
+        etacmp = -1.0e0 * log (tantheta2);
 
       double theta = atan(1.0e0 / paramslt(i, PCA_COTTHETAIDX));
       double etaorig = 0.0e0;
@@ -118,22 +114,23 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
       else
         etaorig = -1.0e0 * log (tantheta2);
 
-      hist_z0->Fill((Double_t) (z0cmp[i] - paramslt(i, PCA_Z0IDX)));
-      hist_eta->Fill((double_t) (etacmps - etaorig));
+      double etadiff =  (etacmp - etaorig);
+      etadiffvct(i) = etadiff;
 
-      pcrelative[PCA_COTTHETAIDX]((etacmps - etaorig)/
-          etaorig);
-      pcrelative[PCA_Z0IDX]((z0cmp[i] - paramslt(i, PCA_Z0IDX))/
-          paramslt(i, PCA_Z0IDX));
+      double z0cmps = z0cmp[i];
+      double z0orig = paramslt(i, PCA_Z0IDX);
+      double z0diff = z0cmp[i] - paramslt(i, PCA_Z0IDX);
+      z0diffvct(i) = z0diff;
+
+      pcrelative[PCA_COTTHETAIDX](etadiff/etaorig);
+      pcrelative[PCA_Z0IDX](z0diff/z0orig);
       
-      pcabsolute[PCA_COTTHETAIDX](etacmps - etaorig);
-      pcabsolute[PCA_Z0IDX](z0cmp[i] - paramslt(i, PCA_Z0IDX));
+      pcabsolute[PCA_COTTHETAIDX](etadiff);
+      pcabsolute[PCA_Z0IDX](z0diff);
         
       myfile << ptvals(i) << " " <<
-        etaorig << " " << etacmps << " " <<
-        (etacmps - etaorig) << " " <<
-        paramslt(i, PCA_Z0IDX) << " " << z0cmp[i] << " " <<
-        (z0cmp[i] - paramslt(i, PCA_Z0IDX)) << std::endl;
+        etaorig << " " << etacmp << " " << etadiff << " " <<
+        z0orig << " " << z0cmps << " " << z0diff << std::endl;
       
       if (verbose)
       {
@@ -144,28 +141,42 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
         std::cout << " theta rad    orig " << theta << std::endl;
         std::cout << " theta deg    fitt " << thetacmp*(180.0e0/M_PI) << std::endl;
         std::cout << " theta deg    orig " << theta*(180.0e0/M_PI) << std::endl;
-        std::cout << " eta          fitt " << etacmps << std::endl;
+        std::cout << " eta          fitt " << etacmp << std::endl;
         std::cout << " eta          orig " << etaorig << std::endl;
-        std::cout << " z0           fitt " << z0cmp[i] << std::endl;
-        std::cout << " z0           orig " << paramslt(i, PCA_Z0IDX) << std::endl;
+        std::cout << " z0           fitt " << z0cmps << std::endl;
+        std::cout << " z0           orig " << z0orig << std::endl;
       }
     }
+
+    TH1D *hist_z0 = new TH1D("hist_diff_z0","z0 diff histogram",nbins, 
+        z0diffvct.min(), z0diffvct.max());
+    TH1D *hist_eta = new TH1D("hist_diff_eta","eta diff histogram",nbins, 
+        etadiffvct.min(), etadiffvct.max());
+
+    for (int i=0; i<(int)coordslt.n_rows; ++i)
+    {
+      hist_z0->Fill((Double_t) z0diffvct(i));
+      hist_eta->Fill((double_t) etadiffvct(i));
+    }
+
+    hist_z0->Fit("gaus","","",z0diffvct.min(),z0diffvct.max());
+    hist_eta->Fit("gaus","","",etadiffvct.min(),etadiffvct.max());
 
     TF1 *func_eta = (TF1*)hist_eta->GetFunction("gaus");
     TF1 *func_z0 = (TF1*)hist_z0->GetFunction("gaus");
 
     std::cout << 
-      func_eta->GetParameter("Mean") << "  " << 
-      func_eta->GetParError(1) << "  " << 
-      func_eta->GetParameter("Sigma") << "  " <<
+      "Eta fitted mean: " << func_eta->GetParameter("Mean") << " +/- " << 
+      func_eta->GetParError(1) << std::endl << 
+      "Eta fitted isigma: " << func_eta->GetParameter("Sigma") << " +/- " <<
       func_eta->GetParError(2) << std::endl;
 
     std::cout << 
-      func_z0->GetParameter("Mean") << "  " << 
-      func_z0->GetParError(1) << "  " << 
-      func_z0->GetParameter("Sigma") << "  " <<
+      "z0 fitted mean: " << func_z0->GetParameter("Mean") << " +/- " << 
+      func_z0->GetParError(1) << std::endl << 
+      "z0 fitted sigma: " << func_z0->GetParameter("Sigma") << " +/- " <<
       func_z0->GetParError(2) << std::endl;
- 
+
   }
   else if (rphiplane)
   {
