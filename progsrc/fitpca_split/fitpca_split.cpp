@@ -19,6 +19,10 @@
 #include <rootfilereader.hpp>
 
 #include "TROOT.h"
+#include "TTree.h"
+#include "TH1.h"
+#include "TF1.h"
+
 
 // lstorchi : can be included in any case 
 #ifdef INTBITEWISE
@@ -35,6 +39,9 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
      arma::rowvec & k, arma::rowvec & cm, bool verbose, pca::pcafitter & fitter, 
      bool rzplane, bool rphiplane, arma::vec & ptvals)
 {
+
+  double eta_min, eta_max, z0_min, z0_max;
+  int nbins = 100;
 
   double ** ptrs;
   ptrs = new double* [fitter.get_paramdim()];
@@ -87,6 +94,11 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
   if (rzplane)
   {
     myfile << "pt eta_orig eta_fitt diff z0_orig z0_fitt diff" << std::endl; 
+
+    TH1F *hist_z0 = new TH1F("hist_diff_z0","z0 diff histogram",nbins, 
+        z0_min, z0_max);
+    TH1F *hist_eta = new TH1F("hist_diff_eta","eta diff histogram",nbins, 
+        eta_min, eta_max);
     
     for (int i=0; i<(int)coordslt.n_rows; ++i)
     {
@@ -105,7 +117,10 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
         etaorig = 1.0e0 * log (-1.0e0 * tantheta2);
       else
         etaorig = -1.0e0 * log (tantheta2);
-      
+
+      hist_z0->Fill((Double_t) (z0cmp[i] - paramslt(i, PCA_Z0IDX)));
+      hist_eta->Fill((double_t) (etacmps - etaorig));
+
       pcrelative[PCA_COTTHETAIDX]((etacmps - etaorig)/
           etaorig);
       pcrelative[PCA_Z0IDX]((z0cmp[i] - paramslt(i, PCA_Z0IDX))/
@@ -135,6 +150,22 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
         std::cout << " z0           orig " << paramslt(i, PCA_Z0IDX) << std::endl;
       }
     }
+
+    TF1 *func_eta = (TF1*)hist_eta->GetFunction("gaus");
+    TF1 *func_z0 = (TF1*)hist_z0->GetFunction("gaus");
+
+    std::cout << 
+      func_eta->GetParameter("Mean") << "  " << 
+      func_eta->GetParError(1) << "  " << 
+      func_eta->GetParameter("Sigma") << "  " <<
+      func_eta->GetParError(2) << std::endl;
+
+    std::cout << 
+      func_z0->GetParameter("Mean") << "  " << 
+      func_z0->GetParError(1) << "  " << 
+      func_z0->GetParameter("Sigma") << "  " <<
+      func_z0->GetParError(2) << std::endl;
+ 
   }
   else if (rphiplane)
   {
