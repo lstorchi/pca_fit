@@ -168,7 +168,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
     std::cout << 
       "Eta fitted mean: " << func_eta->GetParameter("Mean") << " +/- " << 
       func_eta->GetParError(1) << std::endl << 
-      "Eta fitted isigma: " << func_eta->GetParameter("Sigma") << " +/- " <<
+      "Eta fitted sigma: " << func_eta->GetParameter("Sigma") << " +/- " <<
       func_eta->GetParError(2) << std::endl;
 
     std::cout << 
