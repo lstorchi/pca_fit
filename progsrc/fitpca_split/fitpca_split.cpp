@@ -182,6 +182,9 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
   {
     std::ofstream myfile(fname.str().c_str());
       myfile << "pt q/pt_orig q/pt_fitt diff phi_orig phi_fitt diff" << std::endl; 
+
+    arma::rowvec qoverptdiffvct(coordslt.n_rows), 
+      phidiffvct(coordslt.n_rows);
         
     for (int i=0; i<(int)coordslt.n_rows; ++i)
     {
@@ -198,6 +201,9 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
     
       pcabsolute[PCA_PHIIDX](diffphi);
       pcabsolute[PCA_ONEOVERPTIDX](diffqoverpt);
+
+      qoverptdiffvct(i) = diffqoverpt/qoverptorig;
+      phidiffvct(i) = diffphi;
     
       myfile << ptvals(i) << " " <<
         qoverptorig << " " << qoverptcmps << " " << diffqoverpt <<  " " <<
@@ -212,6 +218,37 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
         std::cout << " phi          orig " << phiorig << std::endl;
       }
     }
+
+    TH1D *hist_qoverpt = new TH1D("hist_diff_qoverpt","q/pt diff histogram",nbins, 
+        qoverptdiffvct.min(), qoverptdiffvct.max());
+    TH1D *hist_phi = new TH1D("hist_diff_phi","phi diff histogram",nbins, 
+        phidiffvct.min(), phidiffvct.max());
+
+    for (int i=0; i<(int)coordslt.n_rows; ++i)
+    {
+      hist_qoverpt->Fill((Double_t) qoverptdiffvct(i));
+      hist_phi->Fill((double_t) phidiffvct(i));
+    }
+
+    hist_qoverpt->Fit("gaus","","",qoverptdiffvct.min(),
+        qoverptdiffvct.max());
+    hist_phi->Fit("gaus","","",phidiffvct.min(),
+        phidiffvct.max());
+
+    TF1 *func_qoverpt = (TF1*)hist_qoverpt->GetFunction("gaus");
+    TF1 *func_phi = (TF1*)hist_phi->GetFunction("gaus");
+
+    std::cout << 
+      "q/pt fitted mean: " << func_qoverpt->GetParameter("Mean")*100.0 << " +/- " << 
+      func_qoverpt->GetParError(1)*100.0 << std::endl << 
+      "p/pt fitted sigma: " << func_phi->GetParameter("Sigma")*100.0 << " +/- " <<
+      func_phi->GetParError(2)*100.0 << std::endl;
+
+    std::cout << 
+      "Phi fitted mean: " << func_phi->GetParameter("Mean") << " +/- " << 
+      func_phi->GetParError(1) << std::endl << 
+      "Phi fitted sigma: " << func_phi->GetParameter("Sigma") << " +/- " <<
+      func_phi->GetParError(2) << std::endl;
   }
 
   myfile.close();
