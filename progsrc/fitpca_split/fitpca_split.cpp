@@ -607,7 +607,7 @@ int main (int argc, char ** argv)
       kfname = "k.rphi.bin";
 
     if (cmfname == "")
-      cmfname = "mc.rphi.bin";
+      cmfname = "cm.rphi.bin";
   }
 
   if (pca::file_exists(cmfname.c_str()))
