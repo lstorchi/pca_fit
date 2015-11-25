@@ -73,12 +73,11 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
     return false;
   }
 
-  std::ofstream myfilechi2("chi2results.txt");
-
-  myfilechi2 << "chi2_value" << std::endl;
-  for (int i=0; i<(int) chi2values.n_cols; ++i)
-    myfilechi2 << chi2values(i) << std::endl;
-  myfilechi2.close();
+  //std::ofstream myfilechi2("chi2results.txt");
+  //myfilechi2 << "chi2_value" << std::endl;
+  //for (int i=0; i<(int) chi2values.n_cols; ++i)
+  //  myfilechi2 << chi2values(i) << std::endl;
+  //myfilechi2.close();
 
   delete [] ptrs; 
 
@@ -87,11 +86,14 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
 
   arma::running_stat<double> pcrelative[fitter.get_paramdim()];
   arma::running_stat<double> pcabsolute[fitter.get_paramdim()];
+  arma::running_stat<double> chi2stat;
   std::ofstream myfile(fname.str().c_str());
+
+  assert(chi2values.n_cols == coordslt.n_rows);
 
   if (rzplane)
   {
-    myfile << "pt eta_orig eta_fitt diff z0_orig z0_fitt diff" << std::endl; 
+    myfile << "pt eta_orig eta_fitt diff z0_orig z0_fitt diff chi2" << std::endl; 
 
     arma::rowvec etadiffvct(coordslt.n_rows), 
       z0diffvct(coordslt.n_rows);
@@ -127,10 +129,13 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
       
       pcabsolute[PCA_COTTHETAIDX](etadiff);
       pcabsolute[PCA_Z0IDX](z0diff);
+
+      chi2stat(chi2values(i));
         
       myfile << ptvals(i) << " " <<
         etaorig << " " << etacmp << " " << etadiff << " " <<
-        z0orig << " " << z0cmps << " " << z0diff << std::endl;
+        z0orig  << " " << z0cmps << " " << z0diff  << " " << 
+        chi2values(i) << std::endl;
       
       if (verbose)
       {
@@ -145,6 +150,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
         std::cout << " eta          orig " << etaorig << std::endl;
         std::cout << " z0           fitt " << z0cmps << std::endl;
         std::cout << " z0           orig " << z0orig << std::endl;
+        std::cout << " chi2              " << chi2values(i) << std::endl;
       }
     }
 
@@ -181,7 +187,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
   else if (rphiplane)
   {
     std::ofstream myfile(fname.str().c_str());
-      myfile << "pt q/pt_orig q/pt_fitt diff phi_orig phi_fitt diff" << std::endl; 
+      myfile << "pt q/pt_orig q/pt_fitt diff phi_orig phi_fitt diff chi2" << std::endl; 
 
     arma::rowvec qoverptdiffvct(coordslt.n_rows), 
       phidiffvct(coordslt.n_rows);
@@ -202,12 +208,15 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
       pcabsolute[PCA_PHIIDX](diffphi);
       pcabsolute[PCA_ONEOVERPTIDX](diffqoverpt);
 
+      chi2stat(chi2values(i));
+
       qoverptdiffvct(i) = diffqoverpt/qoverptorig;
       phidiffvct(i) = diffphi;
     
       myfile << ptvals(i) << " " <<
-        qoverptorig << " " << qoverptcmps << " " << diffqoverpt <<  " " <<
-        phiorig << " " << phicmps << " " << diffphi << std::endl;
+        qoverptorig << " " << qoverptcmps << " " << diffqoverpt << " " <<
+        phiorig     << " " << phicmps     << " " << diffphi     << " " << 
+        chi2values(i) << std::endl;
     
       if (verbose)
       {
@@ -216,6 +225,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
         std::cout << " q/pt         orig " << qoverptorig << std::endl;
         std::cout << " phi          fitt " << phicmps << std::endl;
         std::cout << " phi          orig " << phiorig << std::endl;
+        std::cout << " chi2              " << chi2values(i) << std::endl;
       }
     }
 
@@ -255,13 +265,17 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
 
   for (int i=0; i<fitter.get_paramdim(); ++i)
   {
-     std::cout << "For " << fitter.paramidx_to_string(i) << " error " << 
-       pcabsolute[i].mean() << " " << pcabsolute[i].stddev() << std::endl;
+    std::cout << "For " << fitter.paramidx_to_string(i) << " error " << 
+      pcabsolute[i].mean() << " " << pcabsolute[i].stddev() << std::endl;
 
-     std::cout << "For " << fitter.paramidx_to_string(i) << " error " << 
-       100.0 * pcrelative[i].mean() << " % " << 100.0 * pcrelative[i].stddev() << 
-       " % " << std::endl;
+    std::cout << "For " << fitter.paramidx_to_string(i) << " error " << 
+      100.0 * pcrelative[i].mean() << " % " << 100.0 * pcrelative[i].stddev() << 
+      " % " << std::endl;
   }
+
+  std::cout << " " << std::endl;
+  std::cout << "Chivalue mean " << chi2stat.mean() << " stdev " << 
+    chi2stat.stddev() << std::endl;
 
   if (rzplane)
   {
