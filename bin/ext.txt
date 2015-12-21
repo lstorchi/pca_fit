@@ -1,5 +1,7 @@
 cat results.txt | awk '{if ($4 > -0.02 && $4 < 0.02 && $8 < 10) print $4*10000, $8}'  > etadiff_vs_chi2.txt
 
+cat results.txt | awk '{if ($4 > -0.5 && $4 < 0.5 && $8 < 10) print $7*1000, $8}'  > z0diff_vs_chi2.txt
+
 
 file <- read.table("./etadiff_vs_chi2.txt", header=T)
 xy <- file
