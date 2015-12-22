@@ -5,59 +5,67 @@
 //
 namespace
 {
-	/** @brief A guard object that will delete all of the objects in a container when
-	 * it goes out of scope.
-	 *
-	 * This should have the same lifetime as the vector who's elements it will delete.
-	 * The template parameter should be the container type, not the contained object.
-	 *
-	 * This is so that a vector of 'new'ed pointers can have each element deleted when
-	 * a function returns, without having to worry about where it returns.
-	 * It would have been much easier to use an edm::OwnVector but the vector is passed
-	 * around and it would mean changing the class interface. This seemed to be the least
-	 * invasive way to achieve the required result.
-	 */
-	template<class T>
-	class DeleteContainerElementsGuard
-	{
-	public:
-		DeleteContainerElementsGuard( T& container ) : container_(container) {}
-		~DeleteContainerElementsGuard() { for( auto pElement : container_ ) delete pElement; }
-	protected:
-		T& container_;
-	};
+  /** @brief A guard object that will delete all of the objects in a container when
+   * it goes out of scope.
+   *
+   * This should have the same lifetime as the vector who's elements it will delete.
+   * The template parameter should be the container type, not the contained object.
+   *
+   * This is so that a vector of 'new'ed pointers can have each element deleted when
+   * a function returns, without having to worry about where it returns.
+   * It would have been much easier to use an edm::OwnVector but the vector is passed
+   * around and it would mean changing the class interface. This seemed to be the least
+   * invasive way to achieve the required result.
+   */
+  template<class T>
+  class DeleteContainerElementsGuard
+  {
+  public:
+  	DeleteContainerElementsGuard( T& container ) : container_(container) {}
+  	~DeleteContainerElementsGuard() { for( auto pElement : container_ ) delete pElement; }
+  protected:
+  	T& container_;
+  };
 }
 
 PCATrackFitter::PCATrackFitter():TrackFitter(0)
 {
-  verboseLevel  = 0;
-  event_counter = 0;
-  road_id       = 0;
+  verboseLevel_ = 0;
+  event_counter_ = 0;
+  road_id_ = 0;
+
+  nb_layers_ = 6;
 
   initialize();
 }
 
 PCATrackFitter::PCATrackFitter(int nb):TrackFitter(nb)
 {
-  verboseLevel  = 0;
-  event_counter = 0;
-  road_id       = 0;
+  verboseLevel_ = 0;
+  event_counter_ = 0;
+  road_id_ = 0;
+
+  nb_layers_ = nb;
 
   initialize();
 }
 
-PCATrackFitter::~PCATrackFitter(){
+PCATrackFitter::~PCATrackFitter()
+{
 }
 
+void PCATrackFitter::fit(vector<Hit*> hits_)
+{
 
-void PCATrackFitter::fit(vector<Hit*> hits_){
-  if ( hits_.size()>1024 ){
+  if ( hits_.size() > 1024)
+  {
     cout << "*** ERROR in PCATrackFitter::fit() at event/road = " << event_counter << "/" 
 	 << road_id << ": too many stubs for fitting, fit aborted!" << endl;
     return;
   }
 
-  if ( hits_.size()<(unsigned int) nb_layers ){
+  if ( hits_.size()<(unsigned int) nb_layers_ )
+  {
     cout << "*** ERROR in PCATrackFitter::fit() at event/road = " << event_counter << "/" 
 	 << road_id << ": only " << hits_.size() << " stubs found, fit aborted!" << endl;
     return;
@@ -90,8 +98,8 @@ void PCATrackFitter::fit(vector<Hit*> hits_){
   // required changing the class interface because it's passed around.
   ::DeleteContainerElementsGuard< std::vector<Hit_t*> > deleteHitsGuard( hits );
 
-  for(unsigned int ihit=0; ihit<hits_.size(); ihit++){
-  
+  for(unsigned int ihit=0; ihit<hits_.size(); ihit++)
+  {
     Hit_t* hit = new Hit_t();
     hit->x     = hits_[ihit]->getX();
     hit->y     = hits_[ihit]->getY();
@@ -538,7 +546,8 @@ void PCATrackFitter::fit(vector<Hit*> hits_){
   
 }
 
-void PCATrackFitter::fit(){
+void PCATrackFitter::fit()
+{
 
   vector<Hit*> activatedHits;
 
@@ -546,10 +555,13 @@ void PCATrackFitter::fit(){
   set<int> ids;
   int total=0;
   
-  for(unsigned int i=0;i<patterns.size();i++){
+  for(unsigned int i=0;i<patterns.size();i++)
+  {
     vector<Hit*> allHits = patterns[i]->getHits();
     total+=allHits.size();
-    for(unsigned int j=0;j<allHits.size();j++){
+    
+    for(unsigned int j=0;j<allHits.size();j++)
+    {
       pair<set<int>::iterator,bool> result = ids.insert(allHits[j]->getID());
       if(result.second==true)
 	activatedHits.push_back(allHits[j]);
@@ -557,29 +569,33 @@ void PCATrackFitter::fit(){
   }
 
   fit(activatedHits);
- 
 }
 
 
-void PCATrackFitter::mergePatterns(){
+void PCATrackFitter::mergePatterns()
+{
   //cout<<"Merging of patterns not implemented"<<endl;
 }
 
 
-void PCATrackFitter::mergeTracks(){
+void PCATrackFitter::mergeTracks()
+{
 }
 
-
-TrackFitter* PCATrackFitter::clone(){
+TrackFitter* PCATrackFitter::clone()
+{
   PCATrackFitter* fit = new PCATrackFitter(nb_layers);
   fit->setPhiRotation(sec_phi);
   fit->setSectorID(sector_id);
+
   return fit;
 }
 
-void PCATrackFitter::rotateHits(vector<Hit_t*> hits, double angle){
+void PCATrackFitter::rotateHits(vector<Hit_t*> hits, double angle)
+{
   
-  for (unsigned int ihit=0; ihit<hits.size(); ihit++) {
+  for (unsigned int ihit=0; ihit<hits.size(); ihit++) 
+  {
     double x = hits[ihit]->x*cos(angle) - hits[ihit]->y*sin(angle);
     double y = hits[ihit]->x*sin(angle) + hits[ihit]->y*cos(angle);
     hits[ihit]->x = x;
@@ -588,192 +604,18 @@ void PCATrackFitter::rotateHits(vector<Hit_t*> hits, double angle){
 
 }
 
-void PCATrackFitter::confTrans(vector<Hit_t*> hits){
+void PCATrackFitter::confTrans(vector<Hit_t*> hits)
+{
   
-  for (unsigned int ihit=0; ihit<hits.size(); ihit++) {
+  for (unsigned int ihit=0; ihit<hits.size(); ihit++) 
+  {
     double R2 = hits[ihit]->x*hits[ihit]->x + hits[ihit]->y*hits[ihit]->y;
     hits[ihit]->x /= R2;
     hits[ihit]->y /= R2;
   }
-
 }
 
-void PCATrackFitter::initialize(){
-
-  // Enter all the retina parameters
-  // (we refer to the detector geometry in
-  //  http://sviret.web.cern.ch/sviret/Images/CMS/Upgrade/Eta6_Phi8.jpg)
-
-  // --- Central trigger tower:
-  config[0]["xy_pbins_step1"]     = 40.;
-  config[0]["xy_qbins_step1"]     = 40.;
-  config[0]["xy_pmin_step1"]      = -0.05;
-  config[0]["xy_pmax_step1"]      =  0.05;
-  config[0]["xy_qmin_step1"]      = -0.05;
-  config[0]["xy_qmax_step1"]      =  0.05;
-  config[0]["xy_threshold_step1"] =  4.5;
-  config[0]["xy_sigma1_step1"]    =  0.;
-  config[0]["xy_sigma2_step1"]    =  0.;
-  config[0]["xy_sigma3_step1"]    =  0.;
-  config[0]["xy_sigma4_step1"]    =  0.;
-  config[0]["xy_sigma5_step1"]    =  0.;
-  config[0]["xy_sigma6_step1"]    =  0.;
-  config[0]["xy_sigma7_step1"]    =  0.;
-  config[0]["xy_sigma8_step1"]    =  0.;
-  config[0]["xy_pbins_step2"]     = 100.;
-  config[0]["xy_qbins_step2"]     = 100.;
-  config[0]["xy_zoom_step2"]      = 1.;
-  config[0]["xy_threshold_step2"] =  4.5;
-  config[0]["xy_sigma1_step2"]    =  0.;
-  config[0]["xy_sigma2_step2"]    =  0.;
-  config[0]["xy_sigma3_step2"]    =  0.;
-  config[0]["xy_sigma4_step2"]    =  0.;
-  config[0]["xy_sigma5_step2"]    =  0.;
-  config[0]["xy_sigma6_step2"]    =  0.;
-  config[0]["xy_sigma7_step2"]    =  0.;
-  config[0]["xy_sigma8_step2"]    =  0.;
-
-  config[0]["rz_pbins_step1"]     = 20.;
-  config[0]["rz_qbins_step1"]     = 20.;
-  config[0]["rz_pmin_step1"]      = -20.;
-  config[0]["rz_pmax_step1"]      =  60.;
-  config[0]["rz_qmin_step1"]      = -60.;
-  config[0]["rz_qmax_step1"]      =  60.;
-  config[0]["rz_threshold_step1"] =  4.5;
-  config[0]["rz_sigma1_step1"]    =  0.;
-  config[0]["rz_sigma2_step1"]    =  0.;
-  config[0]["rz_sigma3_step1"]    =  0.;
-  config[0]["rz_sigma4_step1"]    =  0.;
-  config[0]["rz_sigma5_step1"]    =  0.;
-  config[0]["rz_sigma6_step1"]    =  0.;
-  config[0]["rz_sigma7_step1"]    =  0.;
-  config[0]["rz_sigma8_step1"]    =  0.;
-  config[0]["rz_pbins_step2"]     = 80.;
-  config[0]["rz_qbins_step2"]     = 80.;
-  config[0]["rz_zoom_step2"]      = 1.5;
-  config[0]["rz_threshold_step2"] =  4.;
-  config[0]["rz_sigma1_step2"]    =  0.;
-  config[0]["rz_sigma2_step2"]    =  0.;
-  config[0]["rz_sigma3_step2"]    =  0.;
-  config[0]["rz_sigma4_step2"]    =  0.;
-  config[0]["rz_sigma5_step2"]    =  0.;
-  config[0]["rz_sigma6_step2"]    =  0.;
-  config[0]["rz_sigma7_step2"]    =  0.;
-  config[0]["rz_sigma8_step2"]    =  0.;
-
-  // --- Hybrid trigger tower:
-  config[1]["xy_pbins_step1"]     = 40.;
-  config[1]["xy_qbins_step1"]     = 40.;
-  config[1]["xy_pmin_step1"]      = -0.05;
-  config[1]["xy_pmax_step1"]      =  0.05;
-  config[1]["xy_qmin_step1"]      = -0.05;
-  config[1]["xy_qmax_step1"]      =  0.05;
-  config[1]["xy_threshold_step1"] =  4.;
-  config[1]["xy_sigma1_step1"]    =  0.;
-  config[1]["xy_sigma2_step1"]    =  0.;
-  config[1]["xy_sigma3_step1"]    =  0.;
-  config[1]["xy_sigma4_step1"]    =  0.;
-  config[1]["xy_sigma5_step1"]    =  0.;
-  config[1]["xy_sigma6_step1"]    =  0.;
-  config[1]["xy_sigma7_step1"]    =  0.;
-  config[1]["xy_sigma8_step1"]    =  0.;
-  config[1]["xy_pbins_step2"]     = 100.;
-  config[1]["xy_qbins_step2"]     = 100.;
-  config[1]["xy_zoom_step2"]      = 1.;
-  config[1]["xy_threshold_step2"] =  4.;
-  config[1]["xy_sigma1_step2"]    =  0.;
-  config[1]["xy_sigma2_step2"]    =  0.;
-  config[1]["xy_sigma3_step2"]    =  0.;
-  config[1]["xy_sigma4_step2"]    =  0.;
-  config[1]["xy_sigma5_step2"]    =  0.;
-  config[1]["xy_sigma6_step2"]    =  0.;
-  config[1]["xy_sigma7_step2"]    =  0.;
-  config[1]["xy_sigma8_step2"]    =  0.;
-
-  config[1]["rz_pbins_step1"]     = 20.;
-  config[1]["rz_qbins_step1"]     = 20.;
-  config[1]["rz_pmin_step1"]      = 40.;
-  config[1]["rz_pmax_step1"]      = 140.;
-  config[1]["rz_qmin_step1"]      = 0.;
-  config[1]["rz_qmax_step1"]      = 120.;
-  config[1]["rz_threshold_step1"] =  4.;
-  config[1]["rz_sigma1_step1"]    =  0.;
-  config[1]["rz_sigma2_step1"]    =  0.;
-  config[1]["rz_sigma3_step1"]    =  0.;
-  config[1]["rz_sigma4_step1"]    =  0.;
-  config[1]["rz_sigma5_step1"]    =  0.;
-  config[1]["rz_sigma6_step1"]    =  0.;
-  config[1]["rz_sigma7_step1"]    =  0.;
-  config[1]["rz_sigma8_step1"]    =  0.;
-  config[1]["rz_pbins_step2"]     = 80.;
-  config[1]["rz_qbins_step2"]     = 80.;
-  config[1]["rz_zoom_step2"]      = 1.5;
-  config[1]["rz_threshold_step2"] =  3.;
-  config[1]["rz_sigma1_step2"]    =  0.;
-  config[1]["rz_sigma2_step2"]    =  0.;
-  config[1]["rz_sigma3_step2"]    =  0.;
-  config[1]["rz_sigma4_step2"]    =  0.;
-  config[1]["rz_sigma5_step2"]    =  0.;
-  config[1]["rz_sigma6_step2"]    =  0.;
-  config[1]["rz_sigma7_step2"]    =  0.;
-  config[1]["rz_sigma8_step2"]    =  0.;
-
-  // --- Forward trigger tower:
-  config[2]["xy_pbins_step1"]     = 40.;
-  config[2]["xy_qbins_step1"]     = 40.;
-  config[2]["xy_pmin_step1"]      = -0.05;
-  config[2]["xy_pmax_step1"]      =  0.05;
-  config[2]["xy_qmin_step1"]      = -0.05;
-  config[2]["xy_qmax_step1"]      =  0.05;
-  config[2]["xy_threshold_step1"] =  4.;
-  config[2]["xy_sigma1_step1"]    =  0.;
-  config[2]["xy_sigma2_step1"]    =  0.;
-  config[2]["xy_sigma3_step1"]    =  0.;
-  config[2]["xy_sigma4_step1"]    =  0.;
-  config[2]["xy_sigma5_step1"]    =  0.;
-  config[2]["xy_sigma6_step1"]    =  0.;
-  config[2]["xy_sigma7_step1"]    =  0.;
-  config[2]["xy_sigma8_step1"]    =  0.;
-  config[2]["xy_pbins_step2"]     = 100.;
-  config[2]["xy_qbins_step2"]     = 100.;
-  config[2]["xy_zoom_step2"]      = 1.;
-  config[2]["xy_threshold_step2"] =  4.;
-  config[2]["xy_sigma1_step2"]    =  0.;
-  config[2]["xy_sigma2_step2"]    =  0.;
-  config[2]["xy_sigma3_step2"]    =  0.;
-  config[2]["xy_sigma4_step2"]    =  0.;
-  config[2]["xy_sigma5_step2"]    =  0.;
-  config[2]["xy_sigma6_step2"]    =  0.;
-  config[2]["xy_sigma7_step2"]    =  0.;
-  config[2]["xy_sigma8_step2"]    =  0.;
-
-  config[2]["rz_pbins_step1"]     = 20.;
-  config[2]["rz_qbins_step1"]     = 20.;
-  config[2]["rz_pmin_step1"]      = 140.;
-  config[2]["rz_pmax_step1"]      = 240.;
-  config[2]["rz_qmin_step1"]      = 80.;
-  config[2]["rz_qmax_step1"]      = 180.;
-  config[2]["rz_threshold_step1"] =  4.;
-  config[2]["rz_sigma1_step1"]    =  1.5;
-  config[2]["rz_sigma2_step1"]    =  1.5;
-  config[2]["rz_sigma3_step1"]    =  1.5;
-  config[2]["rz_sigma4_step1"]    =  1.5;
-  config[2]["rz_sigma5_step1"]    =  1.5;
-  config[2]["rz_sigma6_step1"]    =  1.5;
-  config[2]["rz_sigma7_step1"]    =  1.5;
-  config[2]["rz_sigma8_step1"]    =  1.5;
-  config[2]["rz_pbins_step2"]     = 80.;
-  config[2]["rz_qbins_step2"]     = 80.;
-  config[2]["rz_zoom_step2"]      = 1.5;
-  config[2]["rz_threshold_step2"] = 3.;
-  config[2]["rz_sigma1_step2"]    = 0.;
-  config[2]["rz_sigma2_step2"]    = 0.;
-  config[2]["rz_sigma3_step2"]    = 0.;
-  config[2]["rz_sigma4_step2"]    = 0.;
-  config[2]["rz_sigma5_step2"]    = 0.;
-  config[2]["rz_sigma6_step2"]    = 0.;
-  config[2]["rz_sigma7_step2"]    = 0.;
-  config[2]["rz_sigma8_step2"]    = 0.;
-
+void PCATrackFitter::initialize()
+{
 
 }
