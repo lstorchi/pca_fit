@@ -2,7 +2,9 @@
 #define _PCATRACKFITTER_H_
 
 #include "TrackFitter.h"
+#include "Hit.h"
 
+#include <vector>
 #include <set>
 #include <map>
 
@@ -21,8 +23,8 @@ class PCATrackFitter:public TrackFitter{
   unsigned int road_id_;
 
   void initialize();
-  void rotateHits(vector<Hit_t*> hits, double angle);
-  void confTrans(vector<Hit_t*> hits);
+  void rotateHits(vector<Hit*> hits, double angle);
+  void confTrans(vector<Hit*> hits);
 
   friend class boost::serialization::access;
   
