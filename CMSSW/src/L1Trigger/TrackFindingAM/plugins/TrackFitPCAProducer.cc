@@ -416,7 +416,7 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
 
       std::vector<Track*> tracks; 
       std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > > tempVec;
-      PCATrackFitter* fitter = new PCATrackFitter(5);
+      PCATrackFitter* fitter = new PCATrackFitter();
 
       fitter->setSectorID(seedSector);
       fitter->setEventCounter(icount);
@@ -502,7 +502,7 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
     if ( fitPerTriggerTower_ ) 
     {
 
-      PCATrackFitter* fitter = new PCATrackFitter(5);
+      PCATrackFitter* fitter = new PCATrackFitter(6);
       vector<Track*> tracks; 
       std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > > tempVec;
 
