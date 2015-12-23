@@ -6,9 +6,12 @@
 #include <iomanip>
 #include <string>
 
-#ifdef INTBITEWISE
 #include "stdint.h"
-#endif 
+
+#ifdef INTBITEWISEFIT
+#endif
+#ifdef INTBITEWISEGEN
+#endif
 
 // Loriano: let's try Armadillo quick code 
 #include <armadillo>
@@ -142,8 +145,8 @@ void pca::read_armmat (const char * fname, arma::mat & cmtx)
       double v;
       myfilec.read((char *)&v, sizeof(v));
 
-#ifdef INTBITEWISE      
-      cmtx(i, j) = (int16_t) v;
+#ifdef INTBITEWISEFIT
+      cmtx(i, j) = (int32_t) v;
 #else
       cmtx(i, j) = v;
 #endif
@@ -164,8 +167,8 @@ void pca::read_armvct (const char * fname, arma::rowvec & q)
     double v;
     myfileq.read((char*)&v, sizeof(v));
 
-#ifdef INTBITEWISE
-    q(i) = (int16_t) v;
+#ifdef INTBITEWISEFIT
+    q(i) = (int32_t) v;
 #else
     q(i) = v;
 #endif
@@ -414,11 +417,7 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
     for (int j = 0; j < realsize; ++j)
     {
       int a, b, c, segid, pid;
-#ifdef INTBITEWISE
-      int16_t x, y, z;
-#else
       double x, y, z;
-#endif
 
       if (chargeoverpt)
       {
@@ -455,12 +454,13 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
         {
           if (check_to_read (useonlyeven,useonlyodd,i))
           {
-#ifdef INTBITEWISE
-            int16_t ri = sqrt(pow(x, 2.0) + pow (y, 2.0));
+#ifdef INTBITEWISEFIT
+	    int32_t ri = sqrt(pow(x, 2.0) + pow (y, 2.0));
+	    z  = (int32_t) z;
 #else
-            double ri = sqrt(pow(x, 2.0) + pow (y, 2.0));
-#endif 
-
+	    double ri = sqrt(pow(x, 2.0) + pow (y, 2.0));
+#endif
+	    
 #ifdef DEBUG
             xyzvals(counter, (3*j)+0) = x;
             xyzvals(counter, (3*j)+1) = y;
@@ -479,14 +479,13 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
             }
             else if (rphiplane)
             {
-//recast x and r for arccos calculation. Though arccos operation not permitted in integer representation.
-//Check X-Y view instead
-#ifdef INTBITEWISE
-              int16_t phii = 10*acos((double) x/(double) ri);
+
+#ifdef INTBITEWISEFIT
+	      int32_t phii = 50000*acos((double) x/(double) ri);
 #else
-              double phii = acos(x/ri);
+	      double phii = acos(x/ri);
 #endif
-          
+	      
               coordread(counter, j*2) = phii;
               coordread(counter, j*2+1) = ri;
 
