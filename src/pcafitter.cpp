@@ -17,6 +17,10 @@
 #include <pcafitter.hpp>
 #include <pcaffunctype.hpp>
 
+#ifdef INTBITEWISEFIT
+#endif
+#ifdef INTBITEWISEGEN
+#endif
 // lstorchi: here all the basic routines, in principles can be used 
 //           to start building a proper class.
 
@@ -99,7 +103,13 @@ bool pcafitter::compute_parameters (
     const arma::rowvec & kvct, 
     const arma::rowvec & coordm,
     const arma::mat & coord, 
+
+#ifdef INTBITEWISEFIT
+    int32_t ** paraptr,
+#else
     double ** paraptr,
+#endif
+    
     int paramdim,
     arma::rowvec & chi2values)
 {
@@ -126,7 +136,26 @@ bool pcafitter::compute_parameters (
       }
     }
   }
-
+  for (int j=0; j<paramdim; ++j){
+    #ifdef INTBITEWISEFIT
+    int32_t *ptr = paraptr[j];
+    #else
+    double *ptr = paraptr[j];
+    #endif
+    for (int i=0; i<(int)coord.n_rows; ++i){
+      ptr[i] = q(j);
+      for (int k=0; k<coordim_; ++k){
+	coordmval[k](coord(i,k));
+	#ifdef INTBITEWISEFIT
+	ptr[i] += (int32_t) (double (cmtx(j,k)*coord(i,k)) /50.0);  //Probably no need to convert to double and then to int32
+	//ptr[i] += ((cmtx(j,k)*coord(i,k))/1000.0);
+	#else
+	ptr[i] += (cmtx(j,k)*coord(i,k));
+	#endif
+      }
+    }
+  }
+    
   /*
   for (int k=0; k<coordim_; ++k)
   {
@@ -156,12 +185,21 @@ bool pcafitter::compute_parameters (
 
   for (int b=0; b<(int)coord.n_rows; ++b) // loop over tracks 
   {
+
+#ifdef INTBITEWISEFIT
+    int32_t chi2check = 0.0;
+#else
     double chi2check = 0.0;
+#endif
 
     for (int i=0; i<coordim_-paramdim_; ++i)
     {
+#ifdef INTBITEWISEFIT
+      int32_t val = 0.0;
+#else
       double val = 0.0;
-
+#endif
+      
       /* sum over j */
       for (int j=0; j<coordim_; ++j)
         val += amtx(i,j) * coord(b,j);
@@ -435,6 +473,41 @@ bool pcafitter::compute_pca_constants (
       q(i) -= cmtx(i,l)*coordm(l);
   }
 
+#ifdef INTBITEWISEGEN
+  //cmtx and q constants are still in float point. Multiply them to bring in integer range.
+  //They are casted as int32_t while reading from pca::read_armmat and pca::read_armvct in fit pca step.
+
+  for (int i=0; i<paramdim_; ++i){
+    for (int l=0; l<coordim_; ++l){
+      //R-Z Factors
+      //if (i == 0) cmtx(i,l) *= 15000000;
+      //else if (i == 1) cmtx(i,l) *= 1000000;
+      //if (i == 0) cmtx(i,l) *= 30000;
+      //else if (i == 1) cmtx(i,l) *= 2000;
+      //R-Phi Fcators
+      if (i == 0) cmtx(i,l) *= 60000;  //if (i == 0) cmtx(i,l) *= 60000;
+      else if (i == 1) cmtx(i,l) *= 8000; //else if (i == 1) cmtx(i,l) *= 8000;
+      if (l%2 == 1) cmtx(i, l) *= 50; //Further scale up the r corresponding constants
+    }
+  }
+
+  for (int i=0; i<paramdim_; ++i){
+    //R-Z Factors
+    //if (i == 0) q(i) *=15000000;
+    //else if (i == 1) q(i) *= 1000000;
+    //R-Phi Factors
+    if (i == 0)      q(i) = (q(i)*60000000 - 14000000);  //if (i == 0)      q(i) = (q(i)*60000000 - 14000000);//- for Pt+ & + for Pt-
+    else if (i == 1) q(i) = (q(i)*8000000 - 16000000);
+  }
+#endif
+
+  std::cout << "C matrix: " << std::endl;
+  std::cout << cmtx;
+
+  std::cout << "Q vector: " << std::endl;
+  for (int i=0; i<paramdim_; ++i)
+    std::cout << q(i) << std::endl;
+  
   return true;
 }
 
