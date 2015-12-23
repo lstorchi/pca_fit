@@ -23,16 +23,12 @@
 #include "TH1.h"
 #include "TF1.h"
 
-
-// lstorchi : can be included in any case 
-#ifdef INTBITEWISE
-// lstorchi: should we use cstdint and -std=c++11 ? 
+#ifdef INTBITEWISEFIT
 #include "stdint.h"
 #endif
 
 // lstorchi: basi code to fit tracks, using the PCA constants generated 
 //           by the related generatepca
-
 
 bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt, 
      arma::mat & cmtx, arma::rowvec & q, arma::mat & amtx, arma::mat & vmtx, 
@@ -41,23 +37,41 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
 {
   int nbins = 100;
 
+#ifdef INTBITEWISEFIT
+  int32_t ** ptrs;
+  ptrs = new int32_t* [fitter.get_paramdim()];
+
+  int32_t * cothetacmp = NULL, * z0cmp = NULL, * qoverptcmp = NULL,
+    * phicmp = NULL;
+#else
   double ** ptrs;
   ptrs = new double* [fitter.get_paramdim()];
 
-  double * cothetacmp = NULL, * z0cmp = NULL, * qoverptcmp = NULL, 
+  double * cothetacmp = NULL, * z0cmp = NULL, * qoverptcmp = NULL,
     * phicmp = NULL;
- 
+#endif
+  
   if (rzplane)
   {
+#ifdef INTBITEWISEFIT
+    cothetacmp = new int32_t [(int)coordslt.n_rows];
+    z0cmp = new int32_t [(int)coordslt.n_rows];
+#else
     cothetacmp = new double [(int)coordslt.n_rows];
     z0cmp = new double [(int)coordslt.n_rows];
+#endif
     ptrs[PCA_COTTHETAIDX] = cothetacmp;
     ptrs[PCA_Z0IDX] = z0cmp;
   }
   else if (rphiplane)
   {
+#ifdef INTBITEWISEFIT
+    qoverptcmp = new int32_t [(int)coordslt.n_rows];
+    phicmp = new int32_t [(int)coordslt.n_rows];
+#else
     qoverptcmp = new double [(int)coordslt.n_rows];
     phicmp = new double [(int)coordslt.n_rows];
+#endif
     ptrs[PCA_ONEOVERPTIDX] = qoverptcmp;
     ptrs[PCA_PHIIDX] = phicmp;
   }
@@ -93,8 +107,13 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
 
   if (rzplane)
   {
-    myfile << "pt eta_orig eta_fitt diff z0_orig z0_fitt diff chi2" << std::endl; 
-
+#ifdef INTBITEWISEFIT
+    myfile << "pt cot0_orig cot0_fitt diff z0_orig z0_fitt diff  chi2" << std::endl;
+#else
+    myfile << "pt eta_orig eta_fitt diff z0_orig z0_fitt diff  chi2" << std::endl;
+    //myfile << "pt cot0_orig cot0_fitt diff z0_orig z0_fitt diff" << std::endl;
+#endif
+    
     arma::rowvec etadiffvct(coordslt.n_rows), 
       z0diffvct(coordslt.n_rows);
    
@@ -136,6 +155,25 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
         etaorig << " " << etacmp << " " << etadiff << " " <<
         z0orig  << " " << z0cmps << " " << z0diff  << " " << 
         chi2values(i) << std::endl;
+#ifdef INTBITEWISEFIT
+      myfile << ptvals(i) << "   " <<
+	paramslt(i, PCA_COTTHETAIDX) << "   " << cothetacmp[i] << "   " <<
+	(cothetacmp[i] - paramslt(i, PCA_COTTHETAIDX)) << " " <<
+	z0orig << " " << z0cmps << " " <<
+	(z0cmps - z0orig) << chi2values(i) << std::endl;
+#else
+      /*
+      myfile << ptvals(i) << " " <<
+        etaorig << " " << etacmp << " " << etadiff << " " <<
+        z0orig  << " " << z0cmps << " " << z0diff  << " " << 
+        chi2values(i) << std::endl;
+      */
+      myfile << ptvals(i) << "   " <<
+	paramslt(i, PCA_COTTHETAIDX) << "   " << cothetacmp[i] << "   " <<
+	(cothetacmp[i] - paramslt(i, PCA_COTTHETAIDX)) << " " <<
+	z0orig << " " << z0cmps << " " <<
+	(z0cmps - z0orig) << chi2values(i) << std::endl;
+#endif
       
       if (verbose)
       {
@@ -195,11 +233,20 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
     for (int i=0; i<(int)coordslt.n_rows; ++i)
     {
       double qoverptorig = paramslt(i, PCA_ONEOVERPTIDX);
+#ifdef INTBITEWISEFIT
+      int32_t qoverptcmps = qoverptcmp[i];
+#else
       double qoverptcmps = qoverptcmp[i];
+#endif
+      
       double diffqoverpt = qoverptcmps - qoverptorig;
 
       double phiorig = paramslt(i, PCA_PHIIDX);
-      double phicmps = phicmp[i];
+#ifdef INTBITEWISEFIT
+      int32_t phicmps = phicmp[i];
+#else
+      double phicmps = phicmp[i];      
+#endif      
       double diffphi = phicmps - phiorig;
 
       pcrelative[PCA_PHIIDX](diffphi/phiorig);
@@ -749,14 +796,23 @@ int main (int argc, char ** argv)
         verbose, fitter, rzplane, rphiplane, ptvals))
     return EXIT_FAILURE;
 
-#ifdef INTBITEWISE
-  //To cross check whether constants have been read correctly in int16_t mode
   std::cout << "Constants Used: C matrix: " << std::endl;
   std::cout << cmtx;
   std::cout << "Constants Used: q matrix: " << std::endl;
   std::cout << q;
-#endif
 
+#ifdef INTBITEWISEFIT
+  std::cout << "Constants Used with precision:" << std::endl;
+  std::cout << "Constants Used: C matrix: " << std::endl;
+  for (int i=0; i<2; ++i)
+    for (int j=0; j<12; ++j)
+      std::cout << std::setprecision(9) << (double) cmtx(i, j) << std::endl;
+
+  std::cout << "Constants Used: q matrix: " << std::endl;
+  for (int i=0; i<2; ++i)
+    std::cout << std::setprecision(9) << (double) q(i) << std::endl;
+#endif
+  
   return EXIT_SUCCESS;
 }
 #endif

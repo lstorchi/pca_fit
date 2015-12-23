@@ -21,21 +21,23 @@ DEBUG=no
 CERN = no
 
 # BITEWISE 
-# yes to use integer 
+# yes to use integer, either generation or fit 
 # no
-USEINTBITEWISE = no
+USEINTBITEWISEGEN = yes
+USEINTBITEWISEFIT = no
 
 # if needed you sould specify here armadillo library path 
 CFLAGS += -I/home/atanu/Downloads/armadillo-5.200.2/include
-#LIBS += -L/home/atanu/Downloads/armadillo-5.200.2 
+LIBS += -L/home/atanu/Downloads/armadillo-5.200.2 
 #CFLAGS += -I/afs/cern.ch/user/l/$(USER)/armadillo-3.930.4/include
-LIBS += -L/afs/cern.ch/user/l/$(USER)/armadillo-3.930.4 
+#LIBS += -L/afs/cern.ch/user/l/$(USER)/armadillo-3.930.4 
 #CFLAGS =
 #LIBS =
-ARMALIBPATH = /afs/cern.ch/user/l/lstorchi/armadillo-3.930.4
-ARMAINCPATH = /afs/cern.ch/user/l/lstorchi/armadillo-3.930.4/include
-#ARMALIBPATH = /home/atanu/Downloads/armadillo-5.200.2
-#ARMAINCPATH = /home/atanu/Downloads/armadillo-5.200.2/include
+#ARMALIBPATH = /afs/cern.ch/user/l/lstorchi/armadillo-3.930.4
+#ARMAINCPATH = /afs/cern.ch/user/l/lstorchi/armadillo-3.930.4/include
+ARMALIBPATH = /home/atanu/Downloads/armadillo-5.200.2
+ARMAINCPATH = /home/atanu/Downloads/armadillo-5.200.2/include
+
 
 CC = gcc
 CXX = g++
@@ -47,8 +49,12 @@ else
 	CFLAGS = -Wall -W -O0 -g -DDEBUG
 endif
 
-ifeq ($(USEINTBITEWISE),yes)
-  CFLAGS += -DINTBITEWISE 
+ifeq ($(USEINTBITEWISEGEN),yes)
+  CFLAGS += -DINTBITEWISEGEN 
+endif
+
+ifeq ($(USEINTBITEWISEFIT),yes)
+  CFLAGS += -DINTBITEWISEFIT 
 endif
 
 CXXFLAGS = $(CFLAGS)
