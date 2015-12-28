@@ -108,10 +108,9 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
   if (rzplane)
   {
 #ifdef INTBITEWISEFIT
-    myfile << "pt cot0_orig cot0_fitt diff z0_orig z0_fitt diff  chi2" << std::endl;
+    myfile << "pt cot0_orig cot0_fitt diff z0_orig z0_fitt diff chi2" << std::endl;
 #else
-    myfile << "pt eta_orig eta_fitt diff z0_orig z0_fitt diff  chi2" << std::endl;
-    //myfile << "pt cot0_orig cot0_fitt diff z0_orig z0_fitt diff" << std::endl;
+    myfile << "pt eta_orig eta_fitt diff z0_orig z0_fitt diff chi2" << std::endl;
 #endif
     
     arma::rowvec etadiffvct(coordslt.n_rows), 
@@ -151,10 +150,6 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
 
       chi2stat(chi2values(i));
         
-      myfile << ptvals(i) << " " <<
-        etaorig << " " << etacmp << " " << etadiff << " " <<
-        z0orig  << " " << z0cmps << " " << z0diff  << " " << 
-        chi2values(i) << std::endl;
 #ifdef INTBITEWISEFIT
       myfile << ptvals(i) << "   " <<
 	paramslt(i, PCA_COTTHETAIDX) << "   " << cothetacmp[i] << "   " <<
@@ -162,17 +157,11 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
 	z0orig << " " << z0cmps << " " <<
 	(z0cmps - z0orig) << chi2values(i) << std::endl;
 #else
-      /*
-      myfile << ptvals(i) << " " <<
-        etaorig << " " << etacmp << " " << etadiff << " " <<
-        z0orig  << " " << z0cmps << " " << z0diff  << " " << 
-        chi2values(i) << std::endl;
-      */
       myfile << ptvals(i) << "   " <<
 	paramslt(i, PCA_COTTHETAIDX) << "   " << cothetacmp[i] << "   " <<
 	(cothetacmp[i] - paramslt(i, PCA_COTTHETAIDX)) << " " <<
 	z0orig << " " << z0cmps << " " <<
-	(z0cmps - z0orig) << chi2values(i) << std::endl;
+	(z0cmps - z0orig) << " " << chi2values(i) << std::endl;
 #endif
       
       if (verbose)
