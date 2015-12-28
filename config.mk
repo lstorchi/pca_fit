@@ -23,7 +23,7 @@ CERN = no
 # BITEWISE 
 # yes to use integer, either generation or fit 
 # no
-USEINTBITEWISEGEN = yes
+USEINTBITEWISEGEN = no
 USEINTBITEWISEFIT = no
 
 # if needed you sould specify here armadillo library path 
