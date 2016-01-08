@@ -38,6 +38,9 @@
 #include "L1Trigger/TrackFindingAM/interface/SectorTree.h"
 #include "L1Trigger/TrackFindingAM/interface/Hit.h"
 
+#include "L1Trigger/TrackFindingAM/interface/PCATrackFitter.h"
+
+
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/shared_ptr.hpp>
@@ -199,7 +202,7 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
       cout << "\nEvent = " << icount 
 	   << " ---------------------------------------------------------------------------------" << endl;
       cout << "  Generated particles:" << endl; 
-      std::vector <reco::GenParticle>::const_iterator thepar = 
+      std::vector <reco::GenParticle>::const_iterator thepart = 
         genPart->begin();
       for (; thepart != genPart->end(); ++thepart )
       {	
