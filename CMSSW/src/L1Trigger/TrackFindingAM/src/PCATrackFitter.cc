@@ -119,30 +119,6 @@ TrackFitter* PCATrackFitter::clone()
   return fit;
 }
 
-void PCATrackFitter::rotateHits(vector<Hit*> hits, double angle)
-{
-  
-  for (unsigned int ihit=0; ihit<hits.size(); ihit++) 
-  {
-    double x = hits[ihit]->x*cos(angle) - hits[ihit]->y*sin(angle);
-    double y = hits[ihit]->x*sin(angle) + hits[ihit]->y*cos(angle);
-    hits[ihit]->x = x;
-    hits[ihit]->y = y;
-  }
-
-}
-
-void PCATrackFitter::confTrans(vector<Hit_t*> hits)
-{
-  
-  for (unsigned int ihit=0; ihit<hits.size(); ihit++) 
-  {
-    double R2 = hits[ihit]->x*hits[ihit]->x + hits[ihit]->y*hits[ihit]->y;
-    hits[ihit]->x /= R2;
-    hits[ihit]->y /= R2;
-  }
-}
-
 void PCATrackFitter::initialize()
 {
 

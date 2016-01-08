@@ -23,8 +23,6 @@ class PCATrackFitter:public TrackFitter{
   unsigned int road_id_;
 
   void initialize();
-  void rotateHits(vector<Hit*> hits, double angle);
-  void confTrans(vector<Hit*> hits);
 
   friend class boost::serialization::access;
   
