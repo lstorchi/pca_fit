@@ -710,20 +710,39 @@ void PCATrackFitter::fit(vector<Hit*> hits)
   z_est   = invZX[1][0]*resZX[0] + invZX[1][1]*resZX[1];
 
   // Here having the parameters estimated I should perform the fitting 
-  // TODO 
-  
-
   Track* fit_track = new Track(); 
-  /* 
-  fit_track->setCurve(pt_est);
-  fit_track->setPhi0(phi_est);
-  fit_track->setEta0(eta_est);
-  fit_track->setZ0(z_est);
-  */
-
   for(unsigned int hitIndex=0;hitIndex < bestTC.size();hitIndex++)
-  {
     fit_track->addStubIndex(bestTC[hitIndex]->getID());
+
+  if (bestTC.size() == 6)
+  {
+    // TODO perform the fitting
+    /* 
+    fit_track->setCurve(pt_est);
+    fit_track->setPhi0(phi_est);
+    fit_track->setEta0(eta_est);
+    fit_track->setZ0(z_est);
+    */
+    for(unsigned int hitIndex=0;hitIndex < bestTC.size();hitIndex++)
+    {
+      double xi, yi, zi, ri, pi;
+
+      xi = hits[idx_i]->getX()*ci+ hits[idx_i]->getY()*si;
+      yi = -hits[idx_i]->getX()*si+ hits[idx_i]->getY()*ci;
+      
+      // RZPHI ? is it correct ?
+      zi = hits[idx_i]->getZ();
+      ri = sqrt(xi*xi+yi*yi);
+      pi = atan2(yi,xi);
+
+    }
+  }
+  else
+  {
+    fit_track->setCurve(pt_est);
+    fit_track->setPhi0(phi_est);
+    fit_track->setEta0(eta_est);
+    fit_track->setZ0(z_est);
   }
   
   tracks.push_back(fit_track);

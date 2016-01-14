@@ -276,6 +276,10 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
       TCB->setSectorID(tempTrackPtr->getSector());
       TCB->fit(m_hits);
 
+      // After this we have a first estimation of track parameters
+      // here add the PCA fitter 
+      // TODO
+
       //Recover it...
       tracks = TCB->getTracks();
       TCB->clean();
