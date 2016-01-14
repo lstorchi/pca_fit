@@ -1,44 +1,52 @@
-#ifndef _PCATRACKFITTER_H_
-#define _PCATRACKFITTER_H_
+#ifndef _PCAFITTER_H_
+#define _PCAFITTER_H_
 
 #include "TrackFitter.h"
-#include "Hit.h"
+#include <math.h>
 
-#include <vector>
+#include <iomanip>
 #include <set>
-#include <map>
 
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
 
 /**
-   \brief Implementation of a PCA track fitter
+   \brief Implementation of PCA fitter
 **/
 class PCATrackFitter:public TrackFitter{
 
  private:
 
-  unsigned int verboseLevel_; 
-  unsigned int event_counter_;
-  unsigned int road_id_;
-
-  void initialize();
-
   friend class boost::serialization::access;
   
   template<class Archive> void save(Archive & ar, const unsigned int version) const
-  {
-    ar << boost::serialization::base_object<TrackFitter>(*this);
-    ar << sec_phi;
-  }
+    {
+      ar << boost::serialization::base_object<TrackFitter>(*this);
+      ar << sec_phi;
+    }
   
   template<class Archive> void load(Archive & ar, const unsigned int version)
-  {
-    ar >> boost::serialization::base_object<TrackFitter>(*this);
-    ar >> sec_phi;
-  }
+    {
+      ar >> boost::serialization::base_object<TrackFitter>(*this);
+      ar >> sec_phi;
+    }
   
   BOOST_SERIALIZATION_SPLIT_MEMBER()
+
+
+  double fenetre_b_z[3][6];
+  double fenetre_b_phi[3][6];
+
+  double fenetre_e_r[3][15];
+  double fenetre_e_phi[3][15];
+
+  std::vector< std::vector<int> > idxs_lay;
+  std::vector< std::vector<int> > list_cand6;
+  std::vector<float> list_scores6;
+  std::vector< std::vector<int> > list_cand5;
+  std::vector<float> list_scores5;
+  
+  unsigned int m_nLayer;
 
  public:
 
@@ -46,35 +54,19 @@ class PCATrackFitter:public TrackFitter{
      \brief Default constructor   
   **/
   PCATrackFitter();
-
   /**
      \brief Constructor   
      \param nb Layers number
   **/  
   PCATrackFitter(int nb);
-
   ~PCATrackFitter();
 
+  void initialize();
   void mergePatterns();
   void mergeTracks();
   void fit();
-  void fit(std::vector<Hit*> hits);
+  void fit(vector<Hit*> hits);
+
   TrackFitter* clone();
-
-  void setEventCounter(unsigned int event_counter)
-  {
-    event_counter_ = event_counter;
-  };
-  
-  void setRoadID(unsigned int road_id)
-  {
-    road_id_ = road_id;
-  };
-  
-  void setVerboseLevel(unsigned int verboseLevel)
-  {
-    verboseLevel_ = verboseLevel;
-  }; 
-
 };
 #endif
