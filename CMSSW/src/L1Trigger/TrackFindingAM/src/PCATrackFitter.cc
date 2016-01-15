@@ -72,10 +72,66 @@ void PCATrackFitter::setTracks(std::vector<Track*> & intc)
 
 void PCATrackFitter::fit(vector<Hit*> hits)
 {
-  // TODO
+  int tow = sector_id; // The tower ID, necessary to get the phi shift
+
+  float sec_phi = 0;
+  switch (tow%8)
+  {
+    case 0:
+      sec_phi = 0.4;
+      break;
+    case 1:
+      sec_phi = 1.2;
+      break;
+    case 3:
+      sec_phi = 2.0;
+      break;
+    case 4:
+      sec_phi = 2.7;
+      break;
+    case 5:
+      sec_phi = -2.0;
+      break;
+    case 6:
+      sec_phi = -1.2;
+      break;
+    case 7:
+      sec_phi = -0.4;
+      break;
+  }
+  
+  float ci = cos(sec_phi);
+  float si = sin(sec_phi);
+
   for(unsigned int tt=0; tt<tracks_.size(); ++tt)
   {
+    vector<int> stubids = tracks_[tt]->getStubs();
+    if (stubids.size() == 6)
+    {
+      std::vector<float> zv, rv, pv;
 
+      for(unsigned int idx_i=0; idx_i<stubids.size(); ++idx_i)
+      {
+        float xi = hits[idx_i]->getX()*ci+ hits[idx_i]->getY()*si;
+        float yi = -hits[idx_i]->getX()*si+ hits[idx_i]->getY()*ci;
+
+        float zi = hits[idx_i]->getZ();
+        float ri = sqrt(xi*xi+yi*yi);
+        float pi = atan2(yi,xi);
+
+        zv.push_back(zi);
+        rv.push_back(ri);
+        pv.push_back(pi);
+
+        std::cout << xi << yi << zi << ri << pi << std::endl;
+      }
+
+      // TODO
+    }
+    else
+    {
+      // TODO non 6 layers 
+    }
   }
 }
 
