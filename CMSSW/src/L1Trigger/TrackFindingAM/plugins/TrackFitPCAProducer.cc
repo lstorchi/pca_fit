@@ -2,6 +2,7 @@
  *
  * Interface plugin for the PCA fitter 
  *
+ *  Copy and paste from plugin for the TC builder by S Viret / G Baulieu / G Galbit
  *  \author L Storchi / A Modak / SR Chowdhury
  *  \date   2016
  *
@@ -155,6 +156,7 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
 
   // The fitter
   TCBuilder* TCB = new TCBuilder(nbLayers);
+  PCATrackFitter* pcafitter = new PCATrackFitter(nbLayers);
 
   //
   // TCs are build pattern per pattern
@@ -162,7 +164,7 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
 
   std::vector<Hit*> m_hits;
   for(unsigned int i=0;i<m_hits.size();i++) delete m_hits[i];
-  std::vector<Track*> tracks;
+  std::vector<Track*> tracks, tcb_tracks;
   for(unsigned int i=0;i<tracks.size();i++) delete tracks[i];
 
   edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >::const_iterator inputIter;
@@ -185,6 +187,7 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
       m_hits.clear();
       tracks.clear();
       stubMap.clear();
+      tcb_tracks.clear();
 
       /// Get everything relevant
       unsigned int seedSector = tempTrackPtr->getSector();
@@ -278,13 +281,17 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
 
       // After this we have a first estimation of track parameters
       // here add the PCA fitter 
-      // TODO
-
+      
       //Recover it...
-      tracks = TCB->getTracks();
+      tcb_tracks = TCB->getTracks();
       TCB->clean();
 
       // Store the tracks (no duplicate cleaning yet)
+      
+      // run the PCA fitter 
+      pcafitter->setTracks (tcb_tracks);
+      pcafitter->fit();
+      tracks = pcafitter->getTracks();
 
       std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, 
         TTStub< Ref_PixelDigi_ > > > tempVec;
@@ -319,6 +326,7 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
   }
 
   delete(TCB);    
+  delete(pcafitter);
   /// Put in the event content
   iEvent.put( TTTracksForOutput, TTTrackOutputTag);
 }
