@@ -40,6 +40,9 @@
 #include "L1Trigger/TrackFindingAM/interface/SectorTree.h"
 #include "L1Trigger/TrackFindingAM/interface/Hit.h"
 
+#include "L1Trigger/TrackFindingAM/interface/TCBuilder.h"
+#include "L1Trigger/TrackFindingAM/interface/PCATrackFitter.h"
+
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/shared_ptr.hpp>
