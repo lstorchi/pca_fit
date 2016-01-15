@@ -65,9 +65,10 @@ void PCATrackFitter::mergeTracks()
   }
 }
 
-// TC builder module
-//
-// Take as input the list of stubs contained in a matched road
+void PCATrackFitter::setTracks(std::vector<Track*>)
+{
+
+}
 
 void PCATrackFitter::fit(vector<Hit*> hits)
 {

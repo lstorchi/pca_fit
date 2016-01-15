@@ -155,7 +155,8 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
 
   unsigned int j     = 0;
   unsigned int tkCnt = 0;
-  std::map< unsigned int , edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > > stubMap;
+  std::map< unsigned int , edm::Ref< edmNew::DetSetVector< 
+    TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > > stubMap;
 
   // The fitter
   TCBuilder* TCB = new TCBuilder(nbLayers);
