@@ -16,3 +16,14 @@ git checkout CMSSW_6_2_SLHCDEV_X
 cp HL_LHC/IOPool_hack/PoolSource.cc IOPool/Input/src/
 scramv1 b -j4
 
+cd ../../
+
+git clone git@github.com:sviret/cmssw.git
+cd cmssw 
+git checkout TrackFindingAM_SV_141215
+cd cmssw/L1Trigger/
+cp -rfdav TrackFindingAM CMSSW_6_2_0_SLHC27/src/L1Trigger/
+cd CMSSW_6_2_0_SLHC27/src/L1Trigger/
+scramv1 b -j4
+
+

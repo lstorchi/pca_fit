@@ -65,14 +65,18 @@ void PCATrackFitter::mergeTracks()
   }
 }
 
-void PCATrackFitter::setTracks(std::vector<Track*>)
+void PCATrackFitter::setTracks(std::vector<Track*> & intc)
 {
-
+  tracks_ = intc;
 }
 
 void PCATrackFitter::fit(vector<Hit*> hits)
 {
   // TODO
+  for(unsigned int tt=0; tt<tracks_.size(); ++tt)
+  {
+
+  }
 }
 
 void PCATrackFitter::fit(){
@@ -80,13 +84,32 @@ void PCATrackFitter::fit(){
   vector<Hit*> activatedHits;
 
   //////// Get the list of unique stubs from the tracks ///////////
-  // TODO
 
+  // TODO not sure will work as it is now need to deal with given 
+  //      tracks
+  
+  set<int> ids;
+  int total=0;
+  for (unsigned int i=0; i<patterns.size(); ++i)
+  {
+    vector<Hit*> allHits = patterns[i]->getHits();
+    total+=allHits.size();
+    for(unsigned int j=0; j<allHits.size(); ++j)
+    {
+      pair<set<int>::iterator,bool> result = ids.insert(allHits[j]->getID());
+      if (result.second == true )
+        activatedHits.push_back(allHits[j]);                                
+    }
+  }
+  
   fit(activatedHits);
 }
 
 TrackFitter* PCATrackFitter::clone()
 {
   PCATrackFitter* fit = new PCATrackFitter(nb_layers);
+
+  // TODO
+
   return fit;
 }

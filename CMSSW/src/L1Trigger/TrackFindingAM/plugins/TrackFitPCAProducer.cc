@@ -294,7 +294,7 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
       
       // run the PCA fitter 
       pcafitter->setTracks (tcb_tracks);
-      pcafitter->fit();
+      pcafitter->fit(m_hits);
       tracks = pcafitter->getTracks();
 
       std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, 
