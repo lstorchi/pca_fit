@@ -6,8 +6,113 @@ L.Storchi, A.Modak, S.R.Chowdhury : 2016
 
 #include "../interface/PCATrackFitter.h"
 
-PCATrackFitter::PCATrackFitter():TrackFitter(0){
+// to store PCA constants very quick, quite dirty and very ugly (may be a class or ....)
+// is there a 2d array class in cmssw ? 
+#define PCA_RZ_RDIM 2
+#define PCA_RZ_CDIM 6
+#define PCA_RPHI_RDIM 2
+#define PCA_RPHI_CDIM 12
+namespace 
+{
+  double c_18_rz_1[PCA_RZ_RDIM][PCA_RZ_CDIM] = {};
+  double q_18_rz_1[PCA_RZ_RDIM] = {};
+  double c_18_rphi_1[PCA_RPHI_RDIM][PCA_RPHI_CDIM] = {};
+  double q_18_rphi_1[PCA_RPHI_RDIM] = {};
 
+  void get_c_matrix_rz (double eta, int towerid, 
+      double c[PCA_RZ_RDIM][PCA_RZ_CDIM])
+  {
+    if (towerid == 18)
+    {
+      if ((eta >= -0.6) && (eta <= -0.55))
+      {
+        // TODO read and store
+        for (int i=0; i<PCA_RZ_RDIM; ++i)
+          for (int j=0; j<PCA_RZ_CDIM; ++j)
+            c[i][j] = c_18_rz_1[i][j];
+      }
+      else 
+      {
+        // TODO
+      }
+    }
+    else
+    {
+      // TODO
+    }
+  }
+
+  void get_c_matrix_rphi (double pt, int towerid, 
+      double c[PCA_RPHI_RDIM][PCA_RPHI_CDIM])
+  {
+    if (towerid == 18)
+    {
+      if ((pt >= 3.0) && (pt <= 7))
+      {
+        // TODO read and store
+        for (int i=0; i<PCA_RPHI_RDIM; ++i)
+          for (int j=0; j<PCA_RPHI_CDIM; ++j)
+            c[i][j] = c_18_rphi_1[i][j];
+      }
+      else 
+      {
+        // TODO
+      }
+    }
+    else
+    {
+      // TODO
+    }
+  }
+
+
+  void get_q_vector_rz (double eta, int towerid, 
+      double q[PCA_RZ_RDIM])
+  {
+    if (towerid == 18)
+    {
+      if ((eta >= -0.6) && (eta <= -0.55))
+      {
+        // TODO read and store
+        for (int i=0; i<PCA_RZ_RDIM; ++i)
+          q[i] = q_18_rz_1[i];
+      }
+      else 
+      {
+        // TODO
+      }
+    }
+    else
+    {
+      // TODO
+    }
+  }
+
+  void get_q_vector_rphi (double pt, int towerid, 
+      double q[PCA_RPHI_RDIM])
+  {
+    if (towerid == 18)
+    {
+      if ((pt >= 3.0) && (pt <= 7))
+      {
+        // TODO read and store
+        for (int i=0; i<PCA_RPHI_RDIM; ++i)
+          q[i] = q_18_rphi_1[i];
+      }
+      else 
+      {
+        // TODO
+      }
+    }
+    else
+    {
+      // TODO
+    }
+  }
+}
+
+PCATrackFitter::PCATrackFitter():TrackFitter(0)
+{
 }
 
 PCATrackFitter::PCATrackFitter(int nb):TrackFitter(nb)
@@ -74,7 +179,7 @@ void PCATrackFitter::fit(vector<Hit*> hits)
 {
   int tow = sector_id; // The tower ID, necessary to get the phi shift
 
-  float sec_phi = 0;
+  double sec_phi = 0;
   switch (tow%8)
   {
     case 0:
@@ -100,33 +205,38 @@ void PCATrackFitter::fit(vector<Hit*> hits)
       break;
   }
   
-  float ci = cos(sec_phi);
-  float si = sin(sec_phi);
+  double ci = cos(sec_phi);
+  double si = sin(sec_phi);
 
   for(unsigned int tt=0; tt<tracks_.size(); ++tt)
   {
     vector<int> stubids = tracks_[tt]->getStubs();
     if (stubids.size() == 6)
     {
-      std::vector<float> zv, rv, pv;
+      std::vector<double> zv, rv, pv;
 
       for(unsigned int idx_i=0; idx_i<stubids.size(); ++idx_i)
       {
-        float xi = hits[idx_i]->getX()*ci+ hits[idx_i]->getY()*si;
-        float yi = -hits[idx_i]->getX()*si+ hits[idx_i]->getY()*ci;
+        double xi = hits[idx_i]->getX()*ci+ hits[idx_i]->getY()*si;
+        double yi = -hits[idx_i]->getX()*si+ hits[idx_i]->getY()*ci;
 
-        float zi = hits[idx_i]->getZ();
-        float ri = sqrt(xi*xi+yi*yi);
-        float pi = atan2(yi,xi);
+        double zi = hits[idx_i]->getZ();
+        double ri = sqrt(xi*xi+yi*yi);
+        double pi = atan2(yi,xi);
 
         zv.push_back(zi);
         rv.push_back(ri);
         pv.push_back(pi);
-
-        std::cout << xi << yi << zi << ri << pi << std::endl;
       }
 
+      double pt_est, eta_est;
+
+      pt_est = tracks_[tt]->getCurve();
+      eta_est = tracks_[tt]->getEta0();
+
       // TODO
+      
+      std::cout << pt_est << " " << eta_est << std::endl;
     }
     else
     {
@@ -135,7 +245,8 @@ void PCATrackFitter::fit(vector<Hit*> hits)
   }
 }
 
-void PCATrackFitter::fit(){
+void PCATrackFitter::fit()
+{
 
   vector<Hit*> activatedHits;
 
