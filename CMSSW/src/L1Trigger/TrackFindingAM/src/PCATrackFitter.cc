@@ -223,10 +223,10 @@ void PCATrackFitter::fit(vector<Hit*> hits)
 
   for(unsigned int tt=0; tt<tracks_.size(); ++tt)
   {
-    vector<int> stubids = tracks_[tt]->getStubs();
+    vector<int> stubids = tracks_[tt]->getStubs(); // TODO are the the hits idx ? 
     if (stubids.size() == 6)
     {
-      std::vector<double> zv, rv, pv;
+      std::vector<double> zrv, phirv;
       int charge = 0;
       // TODO estimate the charge as in the TCB ? or store it from the TCB 
 
@@ -234,6 +234,7 @@ void PCATrackFitter::fit(vector<Hit*> hits)
       for(; idx != stubids.end(); ++idx)
       {
         int idx_i = *idx;
+
         // TODO is it ok ? 
         double xi = hits[idx_i]->getX()*ci+ hits[idx_i]->getY()*si;
         double yi = -hits[idx_i]->getX()*si+ hits[idx_i]->getY()*ci;
@@ -242,9 +243,11 @@ void PCATrackFitter::fit(vector<Hit*> hits)
         double ri = sqrt(xi*xi+yi*yi);
         double pi = atan2(yi,xi);
 
-        zv.push_back(zi);
-        rv.push_back(ri);
-        pv.push_back(pi);
+        zrv.push_back(zi);
+        zrv.push_back(ri);
+
+        phirv.push_back(pi);
+        phirv.push_back(ri);
       }
 
       double pt_est, eta_est;
@@ -263,16 +266,30 @@ void PCATrackFitter::fit(vector<Hit*> hits)
       get_c_matrix_rz (eta_est, tow, c_rz);
       get_q_vector_rz (eta_est, tow, q_rz);
 
-      // TODO perform the multiplication
+      // TODO checkit
+      cottheta = q_rz[0];
+      z0 = q_rz[1];
+      for (int i=0; i<PCA_RPHI_CDIM; ++i)
+      {
+        cottheta += c_rz[0][i]*zrv[i];
+        z0 += c_rz[1][i]*zrv[i];
+      }
  
       double coverpt = 0.0; // pt
       double phi = 0.0;
       get_c_matrix_rphi (pt_est, charge, tow, c_rphi);
       get_q_vector_rphi (pt_est, charge, tow, q_rphi);
 
-      // TODO perform the multiplication
+      // TODO checkit
+      coverpt = q_rphi[0];
+      phi = q_rphi[1];
+      for (int i=0; i<PCA_RPHI_CDIM; ++i)
+      {
+        coverpt += c_rphi[0][i]*phirv[i];
+        z0 += c_rphi[1][i]*phirv[i];
+      }
 
-      double pt = (double)charge/coverpt;
+      double pt = (double)(charge)/coverpt;
 
       double eta = 0.0e0;
       double theta = atan(1.0e0 / cottheta); 
@@ -294,10 +311,6 @@ void PCATrackFitter::fit(vector<Hit*> hits)
         fit_track->addStubIndex(*idx);
  
       tracks.push_back(fit_track);
- 
-      // TODO
-      
-      std::cout << pt_est << " " << eta_est << std::endl;
     }
     else
     {
