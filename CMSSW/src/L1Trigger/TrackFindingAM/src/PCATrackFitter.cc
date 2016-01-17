@@ -16,8 +16,8 @@ namespace
 {
   double c_18_rz_1[PCA_RZ_RDIM][PCA_RZ_CDIM] = {};
   double q_18_rz_1[PCA_RZ_RDIM] = {};
-  double c_18_rphi_1[PCA_RPHI_RDIM][PCA_RPHI_CDIM] = {};
-  double q_18_rphi_1[PCA_RPHI_RDIM] = {};
+  double c_18_rphi_1_cgt0[PCA_RPHI_RDIM][PCA_RPHI_CDIM] = {};
+  double q_18_rphi_1_cgt0[PCA_RPHI_RDIM] = {};
 
   void get_c_matrix_rz (double eta, int towerid, 
       double c[PCA_RZ_RDIM][PCA_RZ_CDIM])
@@ -42,19 +42,26 @@ namespace
     }
   }
 
-  void get_c_matrix_rphi (double pt, int towerid, 
-      double c[PCA_RPHI_RDIM][PCA_RPHI_CDIM])
+  void get_c_matrix_rphi (double pt, int charge, 
+      int towerid, double c[PCA_RPHI_RDIM][PCA_RPHI_CDIM])
   {
-    if (towerid == 18)
+    if (charge > 0)
     {
-      if ((pt >= 3.0) && (pt <= 7))
+      if (towerid == 18)
       {
-        // TODO read and store
-        for (int i=0; i<PCA_RPHI_RDIM; ++i)
-          for (int j=0; j<PCA_RPHI_CDIM; ++j)
-            c[i][j] = c_18_rphi_1[i][j];
+        if ((pt >= 3.0) && (pt <= 7))
+        {
+          // TODO read and store
+          for (int i=0; i<PCA_RPHI_RDIM; ++i)
+            for (int j=0; j<PCA_RPHI_CDIM; ++j)
+              c[i][j] = c_18_rphi_1_cgt0[i][j];
+        }
+        else 
+        {
+          // TODO
+        }
       }
-      else 
+      else
       {
         // TODO
       }
@@ -66,8 +73,7 @@ namespace
   }
 
 
-  void get_q_vector_rz (double eta, int towerid, 
-      double q[PCA_RZ_RDIM])
+  void get_q_vector_rz (double eta, int towerid, double q[PCA_RZ_RDIM])
   {
     if (towerid == 18)
     {
@@ -88,23 +94,30 @@ namespace
     }
   }
 
-  void get_q_vector_rphi (double pt, int towerid, 
-      double q[PCA_RPHI_RDIM])
+  void get_q_vector_rphi (double pt, int charge,  
+      int towerid, double q[PCA_RPHI_RDIM])
   {
-    if (towerid == 18)
+    if (charge > 0)
     {
-      if ((pt >= 3.0) && (pt <= 7))
+      if (towerid == 18)
       {
-        // TODO read and store
-        for (int i=0; i<PCA_RPHI_RDIM; ++i)
-          q[i] = q_18_rphi_1[i];
+        if ((pt >= 3.0) && (pt <= 7))
+        {
+          // TODO read and store
+          for (int i=0; i<PCA_RPHI_RDIM; ++i)
+            q[i] = q_18_rphi_1_cgt0[i];
+        }
+        else 
+        {
+          // TODO
+        }
       }
-      else 
+      else
       {
         // TODO
       }
     }
-    else
+    else 
     {
       // TODO
     }
@@ -214,9 +227,14 @@ void PCATrackFitter::fit(vector<Hit*> hits)
     if (stubids.size() == 6)
     {
       std::vector<double> zv, rv, pv;
+      int charge = 0;
+      // TODO estimate the charge as in the TCB ? or store it from the TCB 
 
-      for(unsigned int idx_i=0; idx_i<stubids.size(); ++idx_i)
+      vector<int>::const_iterator idx = stubids.begin();
+      for(; idx != stubids.end(); ++idx)
       {
+        int idx_i = *idx;
+        // TODO is it ok ? 
         double xi = hits[idx_i]->getX()*ci+ hits[idx_i]->getY()*si;
         double yi = -hits[idx_i]->getX()*si+ hits[idx_i]->getY()*ci;
 
@@ -234,6 +252,49 @@ void PCATrackFitter::fit(vector<Hit*> hits)
       pt_est = tracks_[tt]->getCurve();
       eta_est = tracks_[tt]->getEta0();
 
+      double c_rz[PCA_RZ_RDIM][PCA_RZ_CDIM];
+      double q_rz[PCA_RZ_RDIM];
+
+      double c_rphi[PCA_RPHI_RDIM][PCA_RPHI_CDIM];
+      double q_rphi[PCA_RPHI_RDIM];
+
+      double cottheta = 0.0; // eta
+      double z0 = 0.0;
+      get_c_matrix_rz (eta_est, tow, c_rz);
+      get_q_vector_rz (eta_est, tow, q_rz);
+
+      // TODO perform the multiplication
+ 
+      double coverpt = 0.0; // pt
+      double phi = 0.0;
+      get_c_matrix_rphi (pt_est, charge, tow, c_rphi);
+      get_q_vector_rphi (pt_est, charge, tow, q_rphi);
+
+      // TODO perform the multiplication
+
+      double pt = (double)charge/coverpt;
+
+      double eta = 0.0e0;
+      double theta = atan(1.0e0 / cottheta); 
+      double tantheta2 = tan (theta/2.0e0); 
+      if (tantheta2 < 0.0)
+        eta = 1.0e0 * log (-1.0e0 * tantheta2);
+      else
+        eta = -1.0e0 * log (tantheta2);
+
+      Track* fit_track = new Track();
+
+      fit_track->setCurve(pt);
+      fit_track->setPhi0(phi);
+      fit_track->setEta0(eta);
+      fit_track->setZ0(z0);
+                      
+      idx = stubids.begin();
+      for(; idx != stubids.end(); ++idx)
+        fit_track->addStubIndex(*idx);
+ 
+      tracks.push_back(fit_track);
+ 
       // TODO
       
       std::cout << pt_est << " " << eta_est << std::endl;
