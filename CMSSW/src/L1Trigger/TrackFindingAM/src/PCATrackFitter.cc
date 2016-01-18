@@ -223,19 +223,29 @@ void PCATrackFitter::fit(vector<Hit*> hits)
 
   for(unsigned int tt=0; tt<tracks_.size(); ++tt)
   {
-    vector<int> stubids = tracks_[tt]->getStubs(); // TODO are the the hits idx ? 
+    vector<int> stubids = tracks_[tt]->getStubs(); // TODO are they the hits idx ? 
+
+    /*
+     
+       [9:21:08 AM] atanu  modak: https://github.com/sviret/cmssw/blob/TrackFindingAM_SV_141215/L1Trigger/TrackFindingAM/plugins/TrackFitTCProducer.cc
+
+       [9:30:34 AM] atanu  modak: edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > tempStubRef = trackStubs.at(i);
+       [9:32:09 AM] Suvankar Roy Chowdhury: https://github.com/cms-sw/cmssw/tree/CMSSW_6_2_X_SLHC/DataFormats/L1TrackTrigger/interface
+       [9:32:41 AM] Suvankar Roy Chowdhury: std::vector< edm::Ref< edmNew::DetSetVector< TTCluster< T > >, TTCluster< T > > > getClusterRefs()
+
+
+     */
+
     if (stubids.size() == 6)
     {
       std::vector<double> zrv, phirv;
-      int charge = 0;
-      // TODO estimate the charge as in the TCB ? or store it from the TCB 
+      int charge = 1; // TODO estimate the charge as in the TCB ? or store it from the TCB 
 
       vector<int>::const_iterator idx = stubids.begin();
       for(; idx != stubids.end(); ++idx)
       {
+        // TODO is it ok ? are they the hits id ?
         int idx_i = *idx;
-
-        // TODO is it ok ? 
         double xi = hits[idx_i]->getX()*ci+ hits[idx_i]->getY()*si;
         double yi = -hits[idx_i]->getX()*si+ hits[idx_i]->getY()*ci;
 
@@ -291,6 +301,7 @@ void PCATrackFitter::fit(vector<Hit*> hits)
 
       double pt = (double)(charge)/coverpt;
 
+      // TODO: checkit theta to eta 
       double eta = 0.0e0;
       double theta = atan(1.0e0 / cottheta); 
       double tantheta2 = tan (theta/2.0e0); 
