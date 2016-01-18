@@ -232,8 +232,6 @@ void PCATrackFitter::fit(vector<Hit*> hits)
       vector<int>::const_iterator idx = stubids.begin();
       for(; idx != stubids.end(); ++idx)
       {
-        indexOfStubsInTracks.find(active_hits[k]->getID())!=indexOfStubsInTracks.end()
-
         // TODO is it ok ? are they the hits id ? looking at the implementation seems so 
         //      the stubID is idx in the hit vector
         double xi = hits[*idx]->getX()*ci+ hits[*idx]->getY()*si;
