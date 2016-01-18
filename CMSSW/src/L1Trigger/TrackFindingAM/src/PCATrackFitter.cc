@@ -3,7 +3,6 @@ C++ implementation of the PCA fitter
 
 L.Storchi, A.Modak, S.R.Chowdhury : 2016
 */
-
 #include "../interface/PCATrackFitter.h"
 
 // to store PCA constants very quick, quite dirty and very ugly (may be a class or ....)
@@ -224,32 +223,23 @@ void PCATrackFitter::fit(vector<Hit*> hits)
   for(unsigned int tt=0; tt<tracks_.size(); ++tt)
   {
     vector<int> stubids = tracks_[tt]->getStubs(); // TODO are they the hits idx ? 
-
-    /*
-     
-       [9:21:08 AM] atanu  modak: https://github.com/sviret/cmssw/blob/TrackFindingAM_SV_141215/L1Trigger/TrackFindingAM/plugins/TrackFitTCProducer.cc
-
-       [9:30:34 AM] atanu  modak: edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > tempStubRef = trackStubs.at(i);
-       [9:32:09 AM] Suvankar Roy Chowdhury: https://github.com/cms-sw/cmssw/tree/CMSSW_6_2_X_SLHC/DataFormats/L1TrackTrigger/interface
-       [9:32:41 AM] Suvankar Roy Chowdhury: std::vector< edm::Ref< edmNew::DetSetVector< TTCluster< T > >, TTCluster< T > > > getClusterRefs()
-
-
-     */
-
     if (stubids.size() == 6)
     {
       std::vector<double> zrv, phirv;
       int charge = 1; // TODO estimate the charge as in the TCB ? or store it from the TCB 
+                      //      we should be able to get charge from Hit part_id 
 
       vector<int>::const_iterator idx = stubids.begin();
       for(; idx != stubids.end(); ++idx)
       {
-        // TODO is it ok ? are they the hits id ?
-        int idx_i = *idx;
-        double xi = hits[idx_i]->getX()*ci+ hits[idx_i]->getY()*si;
-        double yi = -hits[idx_i]->getX()*si+ hits[idx_i]->getY()*ci;
+        indexOfStubsInTracks.find(active_hits[k]->getID())!=indexOfStubsInTracks.end()
 
-        double zi = hits[idx_i]->getZ();
+        // TODO is it ok ? are they the hits id ? looking at the implementation seems so 
+        //      the stubID is idx in the hit vector
+        double xi = hits[*idx]->getX()*ci+ hits[*idx]->getY()*si;
+        double yi = -hits[*idx]->getX()*si+ hits[*idx]->getY()*ci;
+
+        double zi = hits[*idx]->getZ();
         double ri = sqrt(xi*xi+yi*yi);
         double pi = atan2(yi,xi);
 
