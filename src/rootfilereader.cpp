@@ -652,7 +652,10 @@ bool rootfilereader::check_if_withinranges (const int & charge,
     const double & d0, const double & pt, 
     const std::string & layersid) const
 {
-  if (is_a_valid_layers_seq(layersid, checklayersids_))
+  bool isbarrel = true;
+
+  if (is_a_valid_layers_seq(layersid, maxnumoflayers_, 
+        isbarrel, checklayersids_))
     if (check_charge (charge, chargesign_))
       if ((eta <= etamax_) && (eta >= etamin_))
         if ((pt <= ptmax_) && (pt >= ptmin_))

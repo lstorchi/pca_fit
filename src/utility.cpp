@@ -26,21 +26,42 @@
 
 //#define DEBUG 1
 
-#define STDDIM_PRV_VLS 1
-
+#define STDDIM_BARREL_PRV_VLS_6 1
+#define STDDIM_BARREL_PRV_VLS_5 6
 
 using namespace pca;
 
-bool pca::is_a_valid_layers_seq(const std::string & in, const bool & tocheck)
+bool pca::is_a_valid_layers_seq(const std::string & in, int maxnumoflayers, 
+    const bool isbarrel, const bool tocheck)
 {
-  static const char * valid_layers_seq[STDDIM_PRV_VLS];
-  valid_layers_seq[0] = "5678910";
+  static const char * valid_barrel_layers_seq_6[STDDIM_BARREL_PRV_VLS_6];
+  valid_barrel_layers_seq_6[0] = "5678910";
+
+  static const char * valid_barrel_layers_seq_5[STDDIM_BARREL_PRV_VLS_5];
+  valid_barrel_layers_seq_5[0] = "678910";
+  valid_barrel_layers_seq_5[1] = "578910";
+  valid_barrel_layers_seq_5[2] = "568910";
+  valid_barrel_layers_seq_5[3] = "567910";
+  valid_barrel_layers_seq_5[4] = "567810";
+  valid_barrel_layers_seq_5[5] = "56789";
 
   if (tocheck)
   {
-    for (int i=0; i<STDDIM_PRV_VLS; i++)
-      if (in == valid_layers_seq[i])
-        return true;
+    if (isbarrel)
+    {
+      if (maxnumoflayers == 6)
+      {
+        for (int i=0; i<STDDIM_BARREL_PRV_VLS_6; i++)
+          if (in == valid_barrel_layers_seq_6[i])
+            return true;
+      }
+      else if (maxnumoflayers == 5)
+      {
+        for (int i=0; i<STDDIM_BARREL_PRV_VLS_5; i++)
+          if (in == valid_barrel_layers_seq_5[i])
+            return true;
+      }
+    }
 
     return false;
   }

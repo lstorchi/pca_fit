@@ -55,6 +55,8 @@ void usage (char * name)
   std::cerr << std::endl;
   std::cerr << " -k, --check-layersids           : check exact layers sequence (is_a_valid_layers_seq for seq list)" 
     << std::endl;
+  std::cerr << " -f, --five-hits=["sequence"]    : build constants for 5 / 6, specify the sequence, " << std::endl;
+  std::cerr << "                                   if -x is used you should specify three layers sequence"  << std::endl;
   std::cerr << " -g, --charge-sign=[+/-]         : use only + particle or - paricle (again both planes) " << std::endl;
   std::cerr << " -t, --eta-range=\"etamin;etamax\" : specify the eta range to use " << std::endl;
   std::cerr << " -n, --pt-range=\"ptmin;ptmax\"    : specify the pt range to use " << std::endl;
@@ -128,6 +130,7 @@ int main (int argc, char ** argv)
   bool userelativecoord = false;
 
   int chargesign = 0;
+  int numoflayers =  6;
 
   double etamin = -1.0e0 * INFINITY, etamax = +1.0e0 * INFINITY;
   double ptmin = -1.0e0 * INFINITY, ptmax = +1.0e0 * INFINITY;
@@ -138,6 +141,7 @@ int main (int argc, char ** argv)
   double coord2min = std::numeric_limits<double>::infinity();
 
   std::vector<std::string> tokens;
+  std::string sequence;
 
   bool excludesmodule = false;
   bool verbose = false;
@@ -162,17 +166,22 @@ int main (int argc, char ** argv)
       {"d0-range", 1, NULL, 'u'},
       {"check-layersids", 1, NULL, 'k'},
       {"relative", 0, NULL, 'a'},
+      {"five-hits", 1, NULL, 'f'},
       {"relative-values", 1, NULL, 'b'},
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "aVlkxhvpzrb:g:t:n:m:o:u:", long_options, &option_index);
+    c = getopt_long (argc, argv, "aVlkxhvpzrb:g:t:n:m:o:u:f:", long_options, &option_index);
 
     if (c == -1)
       break;
 
     switch (c)
     {
+      case 'f':
+        numoflayers = 5;
+        sequence = optarg;
+        break;
       case 'b':
         userelativecoord = true;
         tokens.clear();
@@ -283,6 +292,9 @@ int main (int argc, char ** argv)
         break;
     } 
   }
+
+  TODO 
+  chevk sequence also given -x option value
 
   if (optind >= argc) 
     usage (argv[0]);

@@ -18,7 +18,7 @@
 namespace pca
 {
   bool is_a_valid_layers_seq(const std::string &, 
-      const bool &);
+      int, const bool, const bool);
   
   bool check_to_read (bool, bool, int);
   
