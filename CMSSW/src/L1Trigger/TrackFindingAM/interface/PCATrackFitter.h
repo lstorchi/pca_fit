@@ -72,7 +72,7 @@ class PCATrackFitter:public TrackFitter{
   void setTracks(const std::vector<Track*> &, const 
       std::map< unsigned int , edm::Ref< edmNew::DetSetVector<
          TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > > &,
-         const unsigned int &);
+         unsigned int);
 
   void mergePatterns();
   void mergeTracks();
