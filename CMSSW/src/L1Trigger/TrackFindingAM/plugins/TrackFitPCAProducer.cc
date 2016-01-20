@@ -293,7 +293,7 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
       // Store the tracks (no duplicate cleaning yet)
       
       // run the PCA fitter 
-      pcafitter->setTracks (tcb_tracks);
+      pcafitter->setTracks (tcb_tracks, stubMap, seedSector);
       pcafitter->fit(m_hits);
       tracks = pcafitter->getTracks();
 
