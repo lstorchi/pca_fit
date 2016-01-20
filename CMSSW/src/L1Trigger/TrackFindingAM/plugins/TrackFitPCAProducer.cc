@@ -297,6 +297,10 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
       pcafitter->fit(m_hits);
       tracks = pcafitter->getTracks();
 
+      // free TCB tracks
+      for (unsigned int tt=0; tt<tcb_tracks.size(); ++tt)
+	delete tcb_tracks[tt];
+
       std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, 
         TTStub< Ref_PixelDigi_ > > > tempVec;
 
