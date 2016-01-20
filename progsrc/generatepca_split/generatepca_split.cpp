@@ -55,7 +55,7 @@ void usage (char * name)
   std::cerr << std::endl;
   std::cerr << " -k, --check-layersids           : check exact layers sequence (is_a_valid_layers_seq for seq list)" 
     << std::endl;
-  std::cerr << " -f, --five-hits=["sequence"]    : build constants for 5 / 6, specify the sequence, " << std::endl;
+  std::cerr << " -f, --five-hits=[\"sequence\"]    : build constants for 5 / 6, specify the sequence, " << std::endl;
   std::cerr << "                                   if -x is used you should specify three layers sequence"  << std::endl;
   std::cerr << " -g, --charge-sign=[+/-]         : use only + particle or - paricle (again both planes) " << std::endl;
   std::cerr << " -t, --eta-range=\"etamin;etamax\" : specify the eta range to use " << std::endl;
@@ -293,8 +293,17 @@ int main (int argc, char ** argv)
     } 
   }
 
+  if (numoflayers == 5)
+  {
+    if (!pca::validate_barrel_sequence_5 (excludesmodule, 
+          sequence))
+    {
+      std::cerr << "Wrong sequence" << std::endl;
+      return EXIT_FAILURE;
+    }
+  }
+
   TODO 
-  chevk sequence also given -x option value
 
   if (optind >= argc) 
     usage (argv[0]);

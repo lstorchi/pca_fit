@@ -28,23 +28,52 @@
 
 #define STDDIM_BARREL_PRV_VLS_6 1
 #define STDDIM_BARREL_PRV_VLS_5 6
+#define STDDIM_BARREL_PRV_VLS_5_NS 3
+
+namespace 
+{
+  static const char * 
+    valid_barrel_layers_seq_6[STDDIM_BARREL_PRV_VLS_6] = {"5678910"};
+
+  static const char * 
+    valid_barrel_layers_seq_5[STDDIM_BARREL_PRV_VLS_5] = {"678910",
+                                                          "578910",
+                                                          "568910",
+                                                          "567910",
+                                                          "567810",
+                                                          "56789" };
+
+  static const char * 
+    valid_barrel_layers_seq_5_ns[STDDIM_BARREL_PRV_VLS_5_NS] = {"78", 
+                                                                "68",
+                                                                "67"};
+}
 
 using namespace pca;
+
+bool pca::validate_barrel_sequence_5 (bool excludesmodule, 
+          const std::string & sequence)
+{
+  if (excludesmodule)
+  {
+    for (int i=0; i<STDDIM_BARREL_PRV_VLS_5_NS; i++)
+      if (sequence.compare(valid_barrel_layers_seq_5_ns[i]) == 0)
+        return true;
+  }
+  else
+  {
+    for (int i=0; i<STDDIM_BARREL_PRV_VLS_5; i++)
+      if (sequence.compare(valid_barrel_layers_seq_5[i]) == 0)
+        return true;
+  }
+
+  return false;
+}
+ 
 
 bool pca::is_a_valid_layers_seq(const std::string & in, int maxnumoflayers, 
     const bool isbarrel, const bool tocheck)
 {
-  static const char * valid_barrel_layers_seq_6[STDDIM_BARREL_PRV_VLS_6];
-  valid_barrel_layers_seq_6[0] = "5678910";
-
-  static const char * valid_barrel_layers_seq_5[STDDIM_BARREL_PRV_VLS_5];
-  valid_barrel_layers_seq_5[0] = "678910";
-  valid_barrel_layers_seq_5[1] = "578910";
-  valid_barrel_layers_seq_5[2] = "568910";
-  valid_barrel_layers_seq_5[3] = "567910";
-  valid_barrel_layers_seq_5[4] = "567810";
-  valid_barrel_layers_seq_5[5] = "56789";
-
   if (tocheck)
   {
     if (isbarrel)
@@ -52,13 +81,13 @@ bool pca::is_a_valid_layers_seq(const std::string & in, int maxnumoflayers,
       if (maxnumoflayers == 6)
       {
         for (int i=0; i<STDDIM_BARREL_PRV_VLS_6; i++)
-          if (in == valid_barrel_layers_seq_6[i])
+          if (in.compare(valid_barrel_layers_seq_6[i]) == 0)
             return true;
       }
       else if (maxnumoflayers == 5)
       {
         for (int i=0; i<STDDIM_BARREL_PRV_VLS_5; i++)
-          if (in == valid_barrel_layers_seq_5[i])
+          if (in.compare(valid_barrel_layers_seq_5[i]) == 0)
             return true;
       }
     }
