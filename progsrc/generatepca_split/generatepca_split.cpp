@@ -303,8 +303,6 @@ int main (int argc, char ** argv)
     }
   }
 
-  TODO 
-
   if (optind >= argc) 
     usage (argv[0]);
 
@@ -315,10 +313,25 @@ int main (int argc, char ** argv)
     usage (argv[0]);
   }
 
-  if (excludesmodule)
-    fitter.set_coordim (2*3);
-  else
-    fitter.set_coordim (2*6);
+  if (numoflayers == 5)
+  {
+    if (excludesmodule)
+      fitter.set_coordim (2*2);
+    else
+      fitter.set_coordim (2*5);
+  }
+  else if (numoflayers == 6)
+  {
+    if (excludesmodule)
+      fitter.set_coordim (2*3);
+    else
+      fitter.set_coordim (2*6);
+  }
+  else 
+  {
+    std::cerr << "Can use 5 or 6 layers" << std::endl;
+    return EXIT_FAILURE;
+  }
 
   fitter.set_paramdim(2);
 
@@ -369,8 +382,7 @@ int main (int argc, char ** argv)
 
   rootrdr.set_filename(filename);
 
-  int mxnumoflayers = 6;
-  rootrdr.set_maxnumoflayers(mxnumoflayers);
+  rootrdr.set_maxnumoflayers(numoflayers);
  
   rootrdr.set_rzplane(rzplane);
   rootrdr.set_rphiplane(rphiplane);
