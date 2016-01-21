@@ -61,6 +61,9 @@ namespace pca
       void set_verbose (bool);
       bool get_verbose () const;
 
+      void set_specificseq (const char *);
+      const std::string & get_specificseq () const;
+
       void set_etalimits (double & min, double & max);
       void set_philimits (double & min, double & max);
       void set_ptlimits (double & min, double & max);
@@ -98,6 +101,7 @@ namespace pca
             ptmin_, ptmax_;
       int maxnumoflayers_, chargesign_;
       unsigned int maxnumoftracks_;
+      std::string specificseq_;
 
       bool extract_data (const pca::pcafitter & fitter, 
           arma::mat & paramin, arma::mat & coordin, 

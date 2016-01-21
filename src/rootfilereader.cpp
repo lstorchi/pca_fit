@@ -52,6 +52,15 @@ namespace
 
     return false;
   }
+
+  bool check_sequence (const std::string & layersid, 
+      const std::string & specificseq)
+  {
+    if ((specificseq == "") || (specificseq == layersid))
+      return true;
+
+    return false;
+  }
 }
 
 rootfilereader::rootfilereader () 
@@ -87,6 +96,7 @@ void rootfilereader::reset()
   maxnumoflayers_ = 6;
   chargesign_ = 0;
   maxnumoftracks_ = INFINITY;
+  specificseq_ = "";
 
   reset_error();
   filename_ = "";
@@ -279,6 +289,16 @@ void rootfilereader::set_maxnumoftracks(unsigned int in)
 {
   maxnumoftracks_ = in;
 } 
+
+void rootfilereader::set_specificseq (const char * in)
+{
+  specificseq_ = in;
+}
+
+const std::string & rootfilereader::get_specificseq () const
+{
+  return specificseq_;
+}
 
 bool rootfilereader::reading_from_root_file (
     const pca::pcafitter & fitter, arma::mat & paramin, 
@@ -656,13 +676,14 @@ bool rootfilereader::check_if_withinranges (const int & charge,
 
   if (is_a_valid_layers_seq(layersid, maxnumoflayers_, 
         isbarrel, checklayersids_))
-    if (check_charge (charge, chargesign_))
-      if ((eta <= etamax_) && (eta >= etamin_))
-        if ((pt <= ptmax_) && (pt >= ptmin_))
-          if ((phi <= phimax_) && (phi >= phimin_))
-            if ((d0 <= d0max_) && (d0 >= d0min_))
-              if ((z0 <= z0max_) && (z0 >= z0min_))
-                return true;
+    if (check_sequence (layersid, specificseq_))
+      if (check_charge (charge, chargesign_))
+        if ((eta <= etamax_) && (eta >= etamin_))
+          if ((pt <= ptmax_) && (pt >= ptmin_))
+            if ((phi <= phimax_) && (phi >= phimin_))
+              if ((d0 <= d0max_) && (d0 >= d0min_))
+                if ((z0 <= z0max_) && (z0 >= z0min_))
+                  return true;
 
   return false;
 }
