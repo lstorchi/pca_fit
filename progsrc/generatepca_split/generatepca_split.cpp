@@ -380,6 +380,8 @@ int main (int argc, char ** argv)
 
   pca::rootfilereader rootrdr;
 
+  rootrdr.set_specificseq (sequence.c_str());
+
   rootrdr.set_filename(filename);
 
   rootrdr.set_maxnumoflayers(numoflayers);
