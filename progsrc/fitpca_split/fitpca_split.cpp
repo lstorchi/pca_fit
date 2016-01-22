@@ -346,6 +346,8 @@ void usage (char * name)
   std::cerr << " -a, --relative                  : use relative coordinates (compute min values)" << std::endl;
   std::cerr << " -b, --relative-values=[v1;v2]   : use relative coordinates (using v1 (phi or z) and v2 (r) as min)" 
     << std::endl;
+  std::cerr << " -f, --five-hits=[\"sequence\"]    : build constants for 5 / 6, specify the sequence, " << std::endl;
+  std::cerr << "                                     if -x is used you should specify three layers sequence"  << std::endl;
   std::cerr << std::endl;
   std::cerr << " -k, --check-layersids           : check exact layers sequence (is_a_valid_layers_seq for seq list)" 
     << std::endl;
@@ -391,6 +393,9 @@ int main (int argc, char ** argv)
   double coord1min = std::numeric_limits<double>::infinity();
   double coord2min = std::numeric_limits<double>::infinity();
 
+  std::string sequence;
+  int numoflayers = 6;
+
   int chargesign = 0;
 
   std::vector<std::string> tokens;
@@ -423,10 +428,11 @@ int main (int argc, char ** argv)
       {"check-layersids", 1, NULL, 'k'},
       {"relative", 0, NULL, 'a'},
       {"relative-values", 1, NULL, 'b'},
+      {"five-hits", 1, NULL, 'f'},
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "kxzrhaVd:y:b:A:B:t:g:c:q:n:s:m:o:u", 
+    c = getopt_long (argc, argv, "kxzrhaVf:d:y:b:A:B:t:g:c:q:n:s:m:o:u", 
         long_options, &option_index);
 
     if (c == -1)
@@ -434,6 +440,10 @@ int main (int argc, char ** argv)
 
     switch (c)
     {
+      case 'f':
+        numoflayers = 5;
+        sequence = optarg;
+        break;
       case 'b':
         userelativecoord = true;
         tokens.clear();
@@ -560,6 +570,16 @@ int main (int argc, char ** argv)
   if (optind >= argc) 
     usage (argv[0]);
 
+  if (numoflayers == 5)
+  {
+    if (!pca::validate_barrel_sequence_5 (excludesmodule, 
+          sequence))
+    {
+      std::cerr << "Wrong sequence" << std::endl;
+      return EXIT_FAILURE;
+    }
+  }
+
   if ((rzplane && rphiplane) ||
       (!rzplane && !rphiplane))
   {
@@ -567,10 +587,25 @@ int main (int argc, char ** argv)
     usage (argv[0]);
   }
 
-  if (excludesmodule)
-    fitter.set_coordim (2*3);
-  else
-    fitter.set_coordim (2*6);
+  if (numoflayers == 5)
+  {
+    if (excludesmodule)
+      fitter.set_coordim (2*2);
+    else
+      fitter.set_coordim (2*5);
+  }
+  else if (numoflayers == 6)
+  {
+    if (excludesmodule)
+      fitter.set_coordim (2*3);
+    else
+      fitter.set_coordim (2*6);
+  }
+  else 
+  {
+    std::cerr << "Can use 5 or 6 layers" << std::endl;
+    return EXIT_FAILURE;
+  }
 
   fitter.set_paramdim(2);
 
@@ -735,8 +770,8 @@ int main (int argc, char ** argv)
 
   rootrdr.set_filename(filename);
 
-  int mxnumoflayers = 6;
-  rootrdr.set_maxnumoflayers(mxnumoflayers);
+  rootrdr.set_specificseq (sequence.c_str());
+  rootrdr.set_maxnumoflayers(numoflayers);
  
   rootrdr.set_rzplane(rzplane);
   rootrdr.set_rphiplane(rphiplane);

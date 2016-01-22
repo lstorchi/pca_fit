@@ -56,7 +56,7 @@ void usage (char * name)
   std::cerr << " -k, --check-layersids           : check exact layers sequence (is_a_valid_layers_seq for seq list)" 
     << std::endl;
   std::cerr << " -f, --five-hits=[\"sequence\"]    : build constants for 5 / 6, specify the sequence, " << std::endl;
-  std::cerr << "                                   if -x is used you should specify three layers sequence"  << std::endl;
+  std::cerr << "                                     if -x is used you should specify three layers sequence"  << std::endl;
   std::cerr << " -g, --charge-sign=[+/-]         : use only + particle or - paricle (again both planes) " << std::endl;
   std::cerr << " -t, --eta-range=\"etamin;etamax\" : specify the eta range to use " << std::endl;
   std::cerr << " -n, --pt-range=\"ptmin;ptmax\"    : specify the pt range to use " << std::endl;
@@ -381,10 +381,9 @@ int main (int argc, char ** argv)
   pca::rootfilereader rootrdr;
 
   rootrdr.set_specificseq (sequence.c_str());
+  rootrdr.set_maxnumoflayers(numoflayers);
 
   rootrdr.set_filename(filename);
-
-  rootrdr.set_maxnumoflayers(numoflayers);
  
   rootrdr.set_rzplane(rzplane);
   rootrdr.set_rphiplane(rphiplane);
