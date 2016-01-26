@@ -124,7 +124,7 @@ int main (int argc, char ** argv)
   bool rzplane = false;
   bool rphiplane = false;
   bool correlation = false;
-  bool savecheckfiles = false;
+  bool savecheckfiles = true;
   bool checklayersids = false;
   bool printallcoords = false;
   bool userelativecoord = false;
