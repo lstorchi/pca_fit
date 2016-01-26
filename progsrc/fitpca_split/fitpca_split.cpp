@@ -331,34 +331,37 @@ void usage (char * name)
 {
   std::cerr << "usage: " << name << " [options] coordinatesfile " << std::endl;
   std::cerr << std::endl;
-  std::cerr << " -h, --help                      : display this help and exit" << std::endl;
-  std::cerr << " -V, --verbose                   : verbose option on" << std::endl;
-  std::cerr << " -v, --version                   : print version and exit" << std::endl;
-  std::cerr << " -c, --cmtx=[fillename]          : CMTX filename [default is c.[rz/rphi].bin]" << std::endl;
-  std::cerr << " -q, --qvct=[fillename]          : QVCT filename [default is q.[rz/rphi].bin]" << std::endl;
-  std::cerr << " -c, --amtx=[fillename]          : AMTX filename [default is a.[rz/rphi].bin]" << std::endl;
-  std::cerr << " -y, --kvct=[fillename]          : KVCT filename [default is k.[rz/rphi].bin]" << std::endl;
-  std::cerr << " -d, --cvct=[fillename]          : CVCT filename [default is cm.[rz/rphi].bin]" << std::endl;
-  std::cerr << " -q, --vmtx=[fillename]          : VMTX filename [default is v.[rz/rphi].bin]" << std::endl;
-  std::cerr << std::endl;
-  std::cerr << " -z, --rz-plane                  : use rz plane view (fit eta and z0)" << std::endl;
-  std::cerr << " -r, --rphi-plane                : use r-phi plane view (fit ot and phi)" << std::endl;
-  std::cerr << " -a, --relative                  : use relative coordinates (compute min values)" << std::endl;
-  std::cerr << " -b, --relative-values=[v1;v2]   : use relative coordinates (using v1 (phi or z) and v2 (r) as min)" 
+  std::cerr << " -h, --help                       : display this help and exit" << std::endl;
+  std::cerr << " -V, --verbose                    : verbose option on" << std::endl;
+  std::cerr << " -v, --version                    : print version and exit" << std::endl;
+  std::cerr << " -c, --cmtx=[fillename]           : CMTX filename [default is c.[rz/rphi].bin]" << std::endl;
+  std::cerr << " -q, --qvct=[fillename]           : QVCT filename [default is q.[rz/rphi].bin]" << std::endl;
+  std::cerr << " -c, --amtx=[fillename]           : AMTX filename [default is a.[rz/rphi].bin]" << std::endl;
+  std::cerr << " -y, --kvct=[fillename]           : KVCT filename [default is k.[rz/rphi].bin]" << std::endl;
+  std::cerr << " -d, --cvct=[fillename]           : CVCT filename [default is cm.[rz/rphi].bin]" << std::endl;
+  std::cerr << " -q, --vmtx=[fillename]           : VMTX filename [default is v.[rz/rphi].bin]" << std::endl;
+  std::cerr << std::endl;                         
+  std::cerr << " -z, --rz-plane                   : use rz plane view (fit eta and z0)" << std::endl;
+  std::cerr << " -r, --rphi-plane                 : use r-phi plane view (fit ot and phi)" << std::endl;
+  std::cerr << " -a, --relative                   : use relative coordinates (compute min values)" << std::endl;
+  std::cerr << " -b, --relative-values=[v1;v2]    : use relative coordinates (using v1 (phi or z) and v2 (r) as min)" 
     << std::endl;
-  std::cerr << " -f, --five-hits=[\"sequence\"]    : build constants for 5 / 6, specify the sequence, " << std::endl;
-  std::cerr << "                                     if -x is used you should specify three layers sequence"  << std::endl;
+  std::cerr << " -f, --five-hits=[\"sequence\"]     : fit a specific 5 / 6 sequence, " << std::endl;
+  std::cerr << "                                    if -x is used you should specify three layers sequence"  << std::endl;
+  std::cerr << " -l, --five-hits-lin=[\"sequence\"] : fit a specific the sequence using standard constat  " << std::endl;
+  std::cerr << "                                    use linear interpolation to approximate the missed hit " << std::endl;
+  std::cerr << "                                    if -x is used you should specify three layers sequence"  << std::endl;
   std::cerr << std::endl;
-  std::cerr << " -k, --check-layersids           : check exact layers sequence (is_a_valid_layers_seq for seq list)" 
+  std::cerr << " -k, --check-layersids            : check exact layers sequence (is_a_valid_layers_seq for seq list)" 
     << std::endl;
-  std::cerr << " -g, --charge-sign=[+/-]         : use only + particle or - paricle (again both planes)" << std::endl;
-  std::cerr << " -t, --eta-range=\"etamin;etamax\" : specify the eta range to use " << std::endl;
-  std::cerr << " -n, --pt-range=\"ptmin;ptmax\"    : specify the pt range to use " << std::endl;
-  std::cerr << " -m, --phi-range=\"phimin;phimax\" : specify the phi range to use " << std::endl;
-  std::cerr << " -o, --z0-range=\"z0min;z0max\"    : specify the z0 range to use " << std::endl;
-  std::cerr << " -u, --d0-range=\"d0min;d0max\"    : specify the d0 range to use " << std::endl;
+  std::cerr << " -g, --charge-sign=[+/-]          : use only + particle or - paricle (again both planes)" << std::endl;
+  std::cerr << " -t, --eta-range=\"etamin;etamax\"  : specify the eta range to use " << std::endl;
+  std::cerr << " -n, --pt-range=\"ptmin;ptmax\"     : specify the pt range to use " << std::endl;
+  std::cerr << " -m, --phi-range=\"phimin;phimax\"  : specify the phi range to use " << std::endl;
+  std::cerr << " -o, --z0-range=\"z0min;z0max\"     : specify the z0 range to use " << std::endl;
+  std::cerr << " -u, --d0-range=\"d0min;d0max\"     : specify the d0 range to use " << std::endl;
   std::cerr << std::endl;
-  std::cerr << " -x, --exclude-s-module          : exclude S-module (last three layer) so 6 " << 
+  std::cerr << " -x, --exclude-s-module           : exclude S-module (last three layer) so 6 " << 
     "coordinates inseatd of 12 " << std::endl;
 
   exit(1);
@@ -384,6 +387,7 @@ int main (int argc, char ** argv)
   bool checklayersids = false;
   bool savecheckfiles = false;
   bool userelativecoord = false;
+  bool lininterpolation = false;
 
   double etamin = -1.0e0 * INFINITY, etamax = +1.0e0 * INFINITY;
   double ptmin = -1.0e0 * INFINITY, ptmax = +1.0e0 * INFINITY;
@@ -429,10 +433,11 @@ int main (int argc, char ** argv)
       {"relative", 0, NULL, 'a'},
       {"relative-values", 1, NULL, 'b'},
       {"five-hits", 1, NULL, 'f'},
+      {"five-hits-lin", 1, NULL, 'l'},
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "kxzrhaVf:d:y:b:A:B:t:g:c:q:n:s:m:o:u", 
+    c = getopt_long (argc, argv, "kxzrhaVl:f:d:y:b:A:B:t:g:c:q:n:s:m:o:u", 
         long_options, &option_index);
 
     if (c == -1)
@@ -440,6 +445,10 @@ int main (int argc, char ** argv)
 
     switch (c)
     {
+      case 'l':
+        sequence = optarg;
+        lininterpolation = true;
+        break;
       case 'f':
         numoflayers = 5;
         sequence = optarg;
@@ -580,6 +589,16 @@ int main (int argc, char ** argv)
     }
   }
 
+  if (lininterpolation)
+  {
+    if (!pca::validate_barrel_sequence_5 (excludesmodule, 
+          sequence))
+    {
+      std::cerr << "Wrong sequence" << std::endl;
+      return EXIT_FAILURE;
+    }
+  }
+
   if ((rzplane && rphiplane) ||
       (!rzplane && !rphiplane))
   {
@@ -616,6 +635,7 @@ int main (int argc, char ** argv)
       std::cerr << fitter.get_errmsg() << std::endl;
       return EXIT_FAILURE;
     }
+
     if (!fitter.set_paramidx(PCA_Z0IDX, "z0"))
     {
       std::cerr << fitter.get_errmsg() << std::endl;
@@ -786,6 +806,13 @@ int main (int argc, char ** argv)
   rootrdr.set_checklayersids(checklayersids);
 
   rootrdr.set_savecheckfiles(false);
+
+  if (lininterpolation)
+  {
+    rootrdr.set_performlinearinterpolation (true);
+    rootrdr.set_specificseq (sequence.c_str());
+    rootrdr.set_maxnumoflayers (5);
+  }
 
   if (!rootrdr.reading_from_root_file (fitter, param, coord, 
         ptvals))

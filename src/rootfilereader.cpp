@@ -207,12 +207,12 @@ void rootfilereader::set_z0limits (double & min, double & max)
   z0max_ = max;
 }
 
-void rootfilereader::set_maxnumoflayers (int & val)
+void rootfilereader::set_maxnumoflayers (int val)
 {
   maxnumoflayers_ = val;
 }
 
-void rootfilereader::set_chargesign (int & val)
+void rootfilereader::set_chargesign (int val)
 {
   bool setval = true;
   set_chargeoverpt (setval);
@@ -298,6 +298,16 @@ void rootfilereader::set_specificseq (const char * in)
 const std::string & rootfilereader::get_specificseq () const
 {
   return specificseq_;
+}
+
+void rootfilereader::set_performlinearinterpolation (bool in)
+{
+  performlinearinterpolation_ = in;
+}
+
+bool rootfilereader::get_performlinearinterpolation () const
+{
+  return performlinearinterpolation_;
 }
 
 bool rootfilereader::reading_from_root_file (
@@ -710,6 +720,21 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
   paramin.resize(tracks_vct_.size(), fitter.get_paramdim());
   ptvalsout.resize(tracks_vct_.size());
 
+  int excludesmodval = 0;
+
+  if (maxnumoflayers_ == 5)
+    excludesmodval = 1;
+  else if (maxnumoflayers_ ==  6)
+    excludesmodval = 2;
+
+  if (performlinearinterpolation_)
+  {
+    if (!linearinterpolation ())
+      return false;
+
+    excludesmodval = 2;
+  }
+
   /* leave the code as it was */
   int counter = 0;
   std::vector<track_str>::const_iterator track = tracks_vct_.begin();
@@ -718,7 +743,7 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
     for (int j = 0; j < track->dim; ++j)
     {
       if (excludesmodule_)
-        if (j > 2)
+        if (j > excludesmodval)
           continue;
       
       double ri = sqrt(pow(track->x[j], 2.0) + 
@@ -780,6 +805,21 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
       std::cout << "D0  : " << track->d0 << std::endl;
       std::cout << "Z0  : " << track->z0 << std::endl;
     }
+  }
+
+  return true;
+}
+
+bool rootfilereader::linearinterpolation ()
+{
+  if (maxnumoflayers_ == 5)
+  {
+    //TODO
+  }
+  else 
+  {
+    set_errmsg (1, "Can work only using 5 layers out of six");
+    return false;
   }
 
   return true;

@@ -14,8 +14,8 @@ README (Loriano Storchi) loriano@storchi.org
 
   a) dowload the code  
 
-  $ git clone https://bitbucket.org/lstorchi/gf_fit PCA
-  $ cd PCA 
+  $ git clone https://github.com/lstorchi/pca_fit
+  $ cd pca_fit
   
   HEAD should be now safe enough to be used
 

@@ -55,6 +55,9 @@ namespace pca
       void set_excludesmodule (bool);
       bool get_excludesmodule () const;
 
+      void set_performlinearinterpolation (bool);
+      bool get_performlinearinterpolation () const;
+
       void set_printoutstdinfo (bool);
       bool get_printoutstdinfo () const;
 
@@ -69,8 +72,8 @@ namespace pca
       void set_ptlimits (double & min, double & max);
       void set_d0limits (double & min, double & max);
       void set_z0limits (double & min, double & max);
-      void set_maxnumoflayers (int & val);
-      void set_chargesign (int & val);
+      void set_maxnumoflayers (int val);
+      void set_chargesign (int val);
       void set_maxnumoftracks (unsigned int);
 
       void get_etalimits (double & min, double & max) const;
@@ -95,7 +98,8 @@ namespace pca
 
       bool rzplane_, rphiplane_, chargeoverpt_, 
           excludesmodule_, verbose_, checklayersids_, 
-          savecheckfiles_, printoutstdinfo_ ;
+          savecheckfiles_, printoutstdinfo_, 
+          performlinearinterpolation_;
       double etamin_, etamax_, phimin_, phimax_,
             z0min_, z0max_, d0min_, d0max_, 
             ptmin_, ptmax_;
@@ -111,6 +115,8 @@ namespace pca
           const double & eta, const double & phi, 
           const double & z0, const double & d0, 
           const double & pt, const std::string &) const;
+
+      bool linearinterpolation ();
 
       void set_errmsg (int , const std::string &);
       void reset_error ();
