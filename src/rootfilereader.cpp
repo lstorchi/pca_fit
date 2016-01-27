@@ -499,6 +499,7 @@ bool rootfilereader::reading_from_root_file (
        single_track.x0 = x0[j];
        single_track.y0 = y0[j];
        single_track.z0 = z0[j];
+       single_track.layersids = osss.str();
  
        if (layeridset.size() != (unsigned int)single_track.dim)
          ++countlayerswithdupid;
@@ -844,7 +845,68 @@ bool rootfilereader::linearinterpolation ()
 {
   if (maxnumoflayers_ == 5)
   {
-    //TODO
+    //TODO   
+    std::vector<track_str>::iterator track = tracks_vct_.begin();
+    for (; track != tracks_vct_.end(); ++track)
+    {
+      if (track->layersids == "678910")
+      {
+      }
+      else if (track->layersids == "578910")
+      {
+        double doverv = 0.4596;
+
+        double v1 = track->x[1] - track->x[0]; 
+        double v2 = track->y[1] - track->y[0]; 
+        double v3 = track->z[1] - track->z[0]; 
+
+        double pd1 = track->x[0] + doverv * v1;
+        double pd2 = track->y[0] + doverv * v2;
+        double pd3 = track->z[0] + doverv * v3;
+
+        std::vector<double>::iterator it = track->x.begin();
+        ++it;
+        track->x.insert(it, pd1);
+
+        it = track->y.begin();
+        ++it;
+        track->y.insert(it, pd2);
+
+        it = track->z.begin();
+        ++it;
+        track->z.insert(it, pd3);
+
+        std::vector<int>::iterator iit = track->layer.begin();
+        ++iit;
+        track->layer.insert(iit, 6);
+
+        iit = track->ladder.begin();
+        ++iit;
+        track->layer.insert(iit, -1);
+
+        iit = track->module.begin();
+        ++iit;
+        track->module.insert(iit, -1);
+ 
+        iit = track->segid.begin();
+        ++iit;
+        track->segid.insert(iit, -1);
+
+        track->layersids == "5678910";
+      }
+      else if (track->layersids == "568910")
+      {
+      }
+      else if (track->layersids == "567910")
+      {
+      }
+      else if (track->layersids ==  "567810")
+      {
+      }
+      else if (track->layersids == "56789")
+      {
+      }
+    }
   }
   else 
   {

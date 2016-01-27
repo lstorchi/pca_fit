@@ -24,6 +24,8 @@ namespace pca
 
         double x0, y0, z0, d0, pt, phi, eta;
         int pdg;
+
+        std::string layersids;
       } track_str;
 
     public:
