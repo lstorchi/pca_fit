@@ -362,7 +362,7 @@ void usage (char * name)
   std::cerr << " -u, --d0-range=\"d0min;d0max\"     : specify the d0 range to use " << std::endl;
   std::cerr << std::endl;
   std::cerr << " -x, --exclude-s-module           : exclude S-module (last three layer) so 6 " << 
-    "coordinates inseatd of 12 " << std::endl;
+    "coordinates inseatd of 12 (rz)" << std::endl;
 
   exit(1);
 }
