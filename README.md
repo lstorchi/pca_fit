@@ -39,6 +39,23 @@ old approach to use specific sub-tower and / or sub-sub-tower has been removed.
 
 Example: 
 
-TODO
+R-Phi (2.0 <= pt <= 7.0): 
 
+./generatepca_split --rphi-plane --charge-sign=+ --pt-range="2.0;7.0" ./MUBANK_pt2To200_phi11To29_etaM06To04.txt
+./fitpca_split --rphi-plane --charge-sign=+ --pt-range="2.0;7.0" ./MUBANK_pt2To200_phi11To29_etaM06To04.txt
+
+R-Z (D_eta = 0.0.5):
+
+export k="-0.6" 
+for i in `seq 1 20`;
+do
+  export start=$k
+  k=$(echo "$k + 0.05" | bc | awk '{printf "%f", $0}')
+  echo "Eta range: " $start " "  $k
+  export rage=$start";"$k
+  ./generatepca_split -x --rz-plane --eta-range="$rage" ./MUBANK_pt2To200_phi11To29_etaM06To04.txt
+  ./fitpca_split -x --rz-plane --eta-range="$rage" ./MUBANK_pt2To200_phi11To29_etaM06To04.txt
+  mv results.txt results_$i.txt
+  echo ""
+done
 
