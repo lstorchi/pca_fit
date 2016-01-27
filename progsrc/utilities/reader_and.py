@@ -166,7 +166,8 @@ for i in range(numofline):
   pz = pt * math.cos(theta)
   
   # quick check for layers id
-  if (layersids == "5678910"):
+  touse  = (layersids == "5678910") # and (eta > -0.6) and (eta < -0.55)
+  if touse:
     meanval1.append(val1)
     meanval2.append(val2)
     meanval3.append(val3)
@@ -185,7 +186,7 @@ for i in range(numofline):
     rphimeanval4.append(val4)
     rphimeanval5.append(val5)
 
-print "Using ", meanval1.size() , " events "
+print "Using ", len(meanval1) , " events "
 
 print " XYZ "
 print " 5  6 ", numpy.mean(meanval1), " ", numpy.std(meanval1)
