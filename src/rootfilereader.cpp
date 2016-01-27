@@ -317,7 +317,7 @@ bool rootfilereader::reading_from_root_file (
   TFile* inputFile = TFile::Open(filename_.c_str());
 
   std::ofstream ss, ssext, ssext1, ssext2, ptfile, 
-    phifile, d0file, etafile, z0file;
+    phifile, d0file, etafile, z0file, sstrack;
 
   if (rzplane_ && rphiplane_) 
   {
@@ -343,6 +343,8 @@ bool rootfilereader::reading_from_root_file (
     d0file.open("d0_bankstubs.txt");
     etafile.open("eta_bankstubs.txt");
     z0file.open("z0_bankstubs.txt");
+
+    sstrack.open("bankstub_filtered.txt");
   }
 
   TChain* TT = (TChain*) inputFile->Get("BankStubs");
@@ -497,14 +499,50 @@ bool rootfilereader::reading_from_root_file (
        single_track.x0 = x0[j];
        single_track.y0 = y0[j];
        single_track.z0 = z0[j];
-
+ 
        if (layeridset.size() != (unsigned int)single_track.dim)
          ++countlayerswithdupid;
 
        if (check_if_withinranges (pdg[j], 
              eta[j], phi[j], d0val, z0[j], 
              pt[j], osss.str()))
+       {
          tracks_vct_.push_back(single_track);
+
+         if (savecheckfiles_)
+         {
+           sstrack << i+1 << " " << moduleid.size() << std::endl;
+
+           for (int i=0; i<(int)moduleid.size(); ++i)
+           {
+             single_track.x[j];
+             single_track.y[j];
+             single_track.z[j];
+
+             single_track.layer[i];
+             single_track.ladder[i];
+             single_track.module[i];
+             single_track.segid[i];
+             
+             sstrack << single_track.x[j] << " " 
+                     << single_track.y[j] << " " 
+                     << single_track.z[j] << " "
+                     << single_track.layer[i] << " " 
+                     << single_track.ladder[i] << " " 
+                     << single_track.module[i] << " "
+                     << single_track.segid[i] << " "
+                     << single_track.pdg << std::endl; 
+           }
+
+           sstrack << single_track.pt << " "  
+                   << single_track.phi << " " 
+                   << single_track.d0 << " " 
+                   << single_track.eta << " " 
+                   << single_track.z0 << " " 
+                   << single_track.x0 << " " 
+                   << single_track.y0 << std::endl;
+         }
+       }
 
        countevt++;
      }
@@ -656,6 +694,7 @@ bool rootfilereader::reading_from_root_file (
     ssext.close();
     ssext1.close();
     ssext2.close();
+    sstrack.close();
   }
 
   if (printoutstdinfo_)

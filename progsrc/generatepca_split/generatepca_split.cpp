@@ -46,6 +46,7 @@ void usage (char * name)
   std::cerr << " -V, --verbose                   : verbose mode on" << std::endl;
   std::cerr << " -l, --correlation               : compute and print correlation" << std::endl;
   std::cerr << " -p, --dump-allcoords            : dump all stub coordinates to a file" << std::endl;
+  std::cerr << " -d, --dump-bankfiles            : dump all coordinates files and more extracted by the rootfile" << std::endl;
   std::cerr << std::endl;
   std::cerr << " -z, --rz-plane                  : use rz plane view (fit eta and z0)" << std::endl;
   std::cerr << " -r, --rphi-plane                : use r-phi plane view (fit pt and phi)" << std::endl;
@@ -65,7 +66,7 @@ void usage (char * name)
   std::cerr << " -u, --d0-range=\"d0min;d0max\"    : specify the d0 range to use " << std::endl;
   std::cerr << std::endl;
   std::cerr << " -x, --exclude-s-module          : exclude S-module (last three layer) so 6 coordinates " << 
-    "inseatd of 12 " << std::endl;                                  
+    "instead of 12 " << std::endl;                                  
 
   exit(1);
 }
@@ -124,7 +125,7 @@ int main (int argc, char ** argv)
   bool rzplane = false;
   bool rphiplane = false;
   bool correlation = false;
-  bool savecheckfiles = true;
+  bool savecheckfiles = false;
   bool checklayersids = false;
   bool printallcoords = false;
   bool userelativecoord = false;
@@ -168,16 +169,20 @@ int main (int argc, char ** argv)
       {"relative", 0, NULL, 'a'},
       {"five-hits", 1, NULL, 'f'},
       {"relative-values", 1, NULL, 'b'},
+      {"dump-bankfiles", 0, NULL, 'd'},
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "aVlkxhvpzrb:g:t:n:m:o:u:f:", long_options, &option_index);
+    c = getopt_long (argc, argv, "aVlkxhvdpzrb:g:t:n:m:o:u:f:", long_options, &option_index);
 
     if (c == -1)
       break;
 
     switch (c)
     {
+      case 'd':
+        savecheckfiles = true;
+        break;
       case 'f':
         numoflayers = 5;
         sequence = optarg;
