@@ -515,18 +515,9 @@ bool rootfilereader::reading_from_root_file (
 
            for (int i=0; i<(int)moduleid.size(); ++i)
            {
-             single_track.x[j];
-             single_track.y[j];
-             single_track.z[j];
-
-             single_track.layer[i];
-             single_track.ladder[i];
-             single_track.module[i];
-             single_track.segid[i];
-             
-             sstrack << single_track.x[j] << " " 
-                     << single_track.y[j] << " " 
-                     << single_track.z[j] << " "
+             sstrack << single_track.x[i] << " " 
+                     << single_track.y[i] << " " 
+                     << single_track.z[i] << " "
                      << single_track.layer[i] << " " 
                      << single_track.ladder[i] << " " 
                      << single_track.module[i] << " "
