@@ -797,6 +797,8 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
   else if (maxnumoflayers_ ==  6)
     excludesmodval = 2;
 
+#if 0 
+
   if (performlinearinterpolation_)
   {
     if (!linearinterpolation ())
@@ -808,6 +810,22 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
   std::vector<track_rphiz_str> rphiz_tracks;
   if (!convertorphiz (rphiz_tracks))
     return false;
+
+#else
+
+  std::vector<track_rphiz_str> rphiz_tracks;
+  if (!convertorphiz (rphiz_tracks))
+    return false;
+
+  if (performlinearinterpolation_)
+  {
+    if (!linearinterpolationrphiz (rphiz_tracks))
+      return false;
+
+    excludesmodval = 2;
+  }
+
+#endif
 
   /* leave the code as it was */
   int counter = 0;
@@ -878,6 +896,77 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
 
   return true;
 }
+
+bool rootfilereader::linearinterpolationrphiz (
+    std::vector<track_rphiz_str> & rphiz_tracks)
+{
+  if (maxnumoflayers_ == 5)
+  {
+    std::vector<track_rphiz_str>::const_iterator track = rphiz_tracks.begin();
+    for (; track != rphiz_tracks.end(); ++track)
+    {
+      if (rphiplane_)
+      {
+        if (track->layersids == "678910")
+        {
+          set_errmsg (1, "TODO not yet implemented");
+          return false;
+        }
+        else if (track->layersids == "578910")
+        {
+          set_errmsg (1, "TODO not yet implemented");
+          return false;
+        }
+        else if (track->layersids == "568910")
+        {
+          set_errmsg (1, "TODO not yet implemented");
+          return false;
+        }
+        else if (track->layersids == "567910")
+        {
+          set_errmsg (1, "TODO not yet implemented");
+          return false;
+        }
+        else if (track->layersids ==  "567810")
+        {
+          set_errmsg (1, "TODO not yet implemented");
+          return false;
+        }
+        else if (track->layersids == "56789")
+        {
+          set_errmsg (1, "TODO not yet implemented");
+          return false;
+        }
+      }
+      else if (rzplane_)
+      {
+        if (track->layersids == "56")
+        {
+          set_errmsg (1, "TODO not yet implemented");
+          return false;
+        }
+        else if (track->layersids == "57")
+        {
+          set_errmsg (1, "TODO not yet implemented");
+          return false;
+        }
+        else if (track->layersids == "67")
+        {
+          set_errmsg (1, "TODO not yet implemented");
+          return false;
+        }
+      }
+    }
+  }
+  else 
+  {
+    set_errmsg (1, "Can work only using 5 layers out of six");
+    return false;
+  }
+
+  return true;
+}
+
 
 bool rootfilereader::linearinterpolation ()
 {

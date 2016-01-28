@@ -132,6 +132,8 @@ namespace pca
 
       bool linearinterpolation ();
 
+      bool linearinterpolationrphiz (std::vector<track_rphiz_str> &);
+
       bool convertorphiz (std::vector<track_rphiz_str> &);
 
       void set_errmsg (int , const std::string &);
