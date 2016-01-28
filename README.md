@@ -39,10 +39,10 @@ old approach to use specific sub-tower and / or sub-sub-tower has been removed.
 
 Example: 
 
-R-Phi (2.0 <= pt <= 7.0): 
+R-Phi (3.0 <= pt <= 7.0): 
 
-./generatepca_split --rphi-plane --charge-sign=+ --pt-range="2.0;7.0" ./MUBANK_pt2To200_phi11To29_etaM06To04.root
-./fitpca_split --rphi-plane --charge-sign=+ --pt-range="2.0;7.0" ./MUBANK_pt2To200_phi11To29_etaM06To04.root
+./generatepca_split --rphi-plane --charge-sign=+ --pt-range="3.0;7.0" ./MUBANK_pt2To200_phi11To29_etaM06To04.root
+./fitpca_split --rphi-plane --charge-sign=+ --pt-range="3.0;7.0" ./MUBANK_pt2To200_phi11To29_etaM06To04.root
 
 R-Z (D_eta = 0.0.5):
 

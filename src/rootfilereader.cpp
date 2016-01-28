@@ -97,6 +97,7 @@ void rootfilereader::reset()
   chargesign_ = 0;
   maxnumoftracks_ = INFINITY;
   specificseq_ = "";
+  performlinearinterpolation_ = false;
 
   reset_error();
   filename_ = "";
@@ -846,12 +847,13 @@ bool rootfilereader::linearinterpolation ()
 {
   if (maxnumoflayers_ == 5)
   {
-    //TODO   
     std::vector<track_str>::iterator track = tracks_vct_.begin();
     for (; track != tracks_vct_.end(); ++track)
     {
       if (track->layersids == "678910")
       {
+        set_errmsg (1, "TODO not yet implemented");
+        return false;
       }
       else if (track->layersids == "578910")
       {
@@ -883,7 +885,7 @@ bool rootfilereader::linearinterpolation ()
 
         iit = track->ladder.begin();
         ++iit;
-        track->layer.insert(iit, -1);
+        track->ladder.insert(iit, -1);
 
         iit = track->module.begin();
         ++iit;
@@ -897,15 +899,23 @@ bool rootfilereader::linearinterpolation ()
       }
       else if (track->layersids == "568910")
       {
+        set_errmsg (1, "TODO not yet implemented");
+        return false;
       }
       else if (track->layersids == "567910")
       {
+        set_errmsg (1, "TODO not yet implemented");
+        return false;
       }
       else if (track->layersids ==  "567810")
       {
+        set_errmsg (1, "TODO not yet implemented");
+        return false;
       }
       else if (track->layersids == "56789")
       {
+        set_errmsg (1, "TODO not yet implemented");
+        return false;
       }
     }
   }
