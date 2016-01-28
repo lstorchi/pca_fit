@@ -896,6 +896,7 @@ bool rootfilereader::linearinterpolation ()
         track->segid.insert(iit, -1);
 
         track->layersids == "5678910";
+        track->dim = 6;
       }
       else if (track->layersids == "568910")
       {

@@ -46,7 +46,8 @@ void usage (char * name)
   std::cerr << " -V, --verbose                   : verbose mode on" << std::endl;
   std::cerr << " -l, --correlation               : compute and print correlation" << std::endl;
   std::cerr << " -p, --dump-allcoords            : dump all stub coordinates to a file" << std::endl;
-  std::cerr << " -d, --dump-bankfiles            : dump all coordinates files and more extracted by the rootfile" << std::endl;
+  std::cerr << " -d, --dump-bankfiles            : dump all coordinates files and more extracted from the rootfile" 
+    << std::endl;
   std::cerr << std::endl;
   std::cerr << " -z, --rz-plane                  : use rz plane view (fit eta and z0)" << std::endl;
   std::cerr << " -r, --rphi-plane                : use r-phi plane view (fit pt and phi)" << std::endl;

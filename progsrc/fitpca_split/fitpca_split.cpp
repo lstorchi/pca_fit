@@ -334,6 +334,7 @@ void usage (char * name)
   std::cerr << " -h, --help                       : display this help and exit" << std::endl;
   std::cerr << " -V, --verbose                    : verbose option on" << std::endl;
   std::cerr << " -v, --version                    : print version and exit" << std::endl;
+  std::cerr << " -p, --dump-allcoords             : dump all stub coordinates to a file" << std::endl;
   std::cerr << " -c, --cmtx=[fillename]           : CMTX filename [default is c.[rz/rphi].bin]" << std::endl;
   std::cerr << " -q, --qvct=[fillename]           : QVCT filename [default is q.[rz/rphi].bin]" << std::endl;
   std::cerr << " -c, --amtx=[fillename]           : AMTX filename [default is a.[rz/rphi].bin]" << std::endl;
@@ -388,6 +389,7 @@ int main (int argc, char ** argv)
   bool savecheckfiles = false;
   bool userelativecoord = false;
   bool lininterpolation = false;
+  bool printallcoords = false;
 
   double etamin = -1.0e0 * INFINITY, etamax = +1.0e0 * INFINITY;
   double ptmin = -1.0e0 * INFINITY, ptmax = +1.0e0 * INFINITY;
@@ -434,10 +436,11 @@ int main (int argc, char ** argv)
       {"relative-values", 1, NULL, 'b'},
       {"five-hits", 1, NULL, 'f'},
       {"five-hits-lin", 1, NULL, 'l'},
+      {"dump-allcoords", 0, NULL, 'p'},
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "kxzrhaVl:f:d:y:b:A:B:t:g:c:q:n:s:m:o:u", 
+    c = getopt_long (argc, argv, "pkxzrhaVl:f:d:y:b:A:B:t:g:c:q:n:s:m:o:u", 
         long_options, &option_index);
 
     if (c == -1)
@@ -445,6 +448,9 @@ int main (int argc, char ** argv)
 
     switch (c)
     {
+      case 'p':
+        printallcoords = true;
+        break;
       case 'l':
         sequence = optarg;
         lininterpolation = true;
@@ -823,6 +829,17 @@ int main (int argc, char ** argv)
 
   if (userelativecoord)
     pca::global_to_relative(coord, coord1min, coord2min);
+
+  if (printallcoords)
+  {
+    std::cout << "Printout coordinates " << std::endl;
+    std::ofstream myfilect("allcoords_fit.txt");
+    for (int i=0; i<(int)coord.n_rows; ++i)
+      for (int j=0; j<fitter.get_coordim(); j=j+2)
+        myfilect << coord(i, j) << " " << 
+                    coord(i, j+1) << std::endl;
+    myfilect.close();
+  }
 
   std::cout << "Using " << param.n_rows << " tracks" << std::endl;
 
