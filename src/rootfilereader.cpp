@@ -710,6 +710,14 @@ bool rootfilereader::reading_from_root_file (
 //                                PRIVATE                                    //
 ///////////////////////////////////////////////////////////////////////////////
 
+bool rootfilereader::convertorphiz (std::vector<track_rphiz_str> & 
+    rphiz_tracks)
+{
+  // TODO
+
+  return true;
+}
+
 bool rootfilereader::check_if_withinranges (const int & charge, 
     const double & eta, const double & phi, const double & z0, 
     const double & d0, const double & pt, 
@@ -767,6 +775,10 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
 
     excludesmodval = 2;
   }
+
+  std::vector<track_rphiz_str> rphiz_tracks;
+  if (!convertorphiz (rphiz_tracks))
+    return false;
 
   /* leave the code as it was */
   int counter = 0;

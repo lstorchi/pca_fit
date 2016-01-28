@@ -28,6 +28,18 @@ namespace pca
         std::string layersids;
       } track_str;
 
+      typedef struct 
+      {
+        int dim;
+        std::vector<double> r, phii, z;
+        std::vector<int> layer;
+
+        double x0, y0, z0, d0, pt, phi, eta;
+        int pdg;
+
+        std::string layersids;
+      } track_rphiz_str;
+
     public:
       rootfilereader();
       ~rootfilereader();
@@ -119,6 +131,8 @@ namespace pca
           const double & pt, const std::string &) const;
 
       bool linearinterpolation ();
+
+      bool convertorphiz (std::vector<track_rphiz_str> &);
 
       void set_errmsg (int , const std::string &);
       void reset_error ();
