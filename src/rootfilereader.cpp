@@ -857,6 +857,8 @@ bool rootfilereader::linearinterpolation ()
       }
       else if (track->layersids == "578910")
       {
+        // simplest approach we will need to store a single scalar 
+        // and maybe a second one to remove the bias 
         double doverv = 0.4596;
 
         double v1 = track->x[1] - track->x[0]; 
