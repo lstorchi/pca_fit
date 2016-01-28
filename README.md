@@ -41,8 +41,8 @@ Example:
 
 R-Phi (2.0 <= pt <= 7.0): 
 
-./generatepca_split --rphi-plane --charge-sign=+ --pt-range="2.0;7.0" ./MUBANK_pt2To200_phi11To29_etaM06To04.txt
-./fitpca_split --rphi-plane --charge-sign=+ --pt-range="2.0;7.0" ./MUBANK_pt2To200_phi11To29_etaM06To04.txt
+./generatepca_split --rphi-plane --charge-sign=+ --pt-range="2.0;7.0" ./MUBANK_pt2To200_phi11To29_etaM06To04.root
+./fitpca_split --rphi-plane --charge-sign=+ --pt-range="2.0;7.0" ./MUBANK_pt2To200_phi11To29_etaM06To04.root
 
 R-Z (D_eta = 0.0.5):
 
@@ -53,8 +53,8 @@ do
   k=$(echo "$k + 0.05" | bc | awk '{printf "%f", $0}')
   echo "Eta range: " $start " "  $k
   export rage=$start";"$k
-  ./generatepca_split -x --rz-plane --eta-range="$rage" ./MUBANK_pt2To200_phi11To29_etaM06To04.txt
-  ./fitpca_split -x --rz-plane --eta-range="$rage" ./MUBANK_pt2To200_phi11To29_etaM06To04.txt
+  ./generatepca_split -x --rz-plane --eta-range="$rage" ./MUBANK_pt2To200_phi11To29_etaM06To04.root
+  ./fitpca_split -x --rz-plane --eta-range="$rage" ./MUBANK_pt2To200_phi11To29_etaM06To04.root
   mv results.txt results_$i.txt
   echo ""
 done
