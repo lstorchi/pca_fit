@@ -512,6 +512,7 @@ bool rootfilereader::reading_from_root_file (
 
          if (savecheckfiles_)
          {
+           sstrack << tracks_vct_.size() << " events " << std::endl;
            sstrack << i+1 << " " << moduleid.size() << std::endl;
 
            for (int i=0; i<(int)moduleid.size(); ++i)
