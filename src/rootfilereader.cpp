@@ -713,7 +713,36 @@ bool rootfilereader::reading_from_root_file (
 bool rootfilereader::convertorphiz (std::vector<track_rphiz_str> & 
     rphiz_tracks)
 {
-  // TODO
+  std::vector<track_str>::const_iterator track = tracks_vct_.begin();
+  for (; track != tracks_vct_.end(); ++track)
+  {
+    track_rphiz_str single_track;
+
+    single_track.dim = track->dim;
+    single_track.layer = track->layer;
+    single_track.x0 = track->x0;
+    single_track.y0 = track->y0;
+    single_track.z0 = track->z0;
+    single_track.d0 = track->d0;
+    single_track.pt = track->pt;
+    single_track.phi = track->phi;
+    single_track.eta = track->eta;
+    single_track.pdg = track->pdg;
+    single_track.layersids = track->layersids;
+
+    for (int j = 0; j < track->dim; ++j)
+    {
+      double ri = sqrt(pow(track->x[j], 2.0) + 
+          pow (track->y[j], 2.0));
+      double phii = acos(track->x[j]/ri);
+
+      single_track.z.push_back(track->z[j]);
+      single_track.r.push_back(ri);
+      single_track.phii.push_back(phii);
+    }
+
+    rphiz_tracks.push_back(single_track);
+  }
 
   return true;
 }
@@ -782,8 +811,8 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
 
   /* leave the code as it was */
   int counter = 0;
-  std::vector<track_str>::const_iterator track = tracks_vct_.begin();
-  for (; track != tracks_vct_.end(); ++track)
+  std::vector<track_rphiz_str>::const_iterator track = rphiz_tracks.begin();
+  for (; track != rphiz_tracks.end(); ++track)
   {
     for (int j = 0; j < track->dim; ++j)
     {
@@ -791,20 +820,15 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
         if (j > excludesmodval)
           continue;
       
-      double ri = sqrt(pow(track->x[j], 2.0) + 
-          pow (track->y[j], 2.0));
-
       if (rzplane_)
       {
         coordin(counter, j*2) = track->z[j];
-        coordin(counter, j*2+1) = ri;
+        coordin(counter, j*2+1) = track->r[j];
       }
       else if (rphiplane_)
       {
-        double phii = acos(track->x[j]/ri);
-       
-        coordin(counter, j*2) = phii;
-        coordin(counter, j*2+1) = ri;
+        coordin(counter, j*2) = track->phii[j];
+        coordin(counter, j*2+1) = track->r[j];
       }
     }
 
