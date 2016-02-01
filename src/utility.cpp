@@ -42,30 +42,15 @@ namespace
                                                           "567910",
                                                           "567810",
                                                           "56789" };
-
-  static const char * 
-    valid_barrel_layers_seq_5_ns[STDDIM_BARREL_PRV_VLS_5_NS] = {"78", 
-                                                                "68",
-                                                                "67"};
 }
 
 using namespace pca;
 
-bool pca::validate_barrel_sequence_5 (bool excludesmodule, 
-          const std::string & sequence)
+bool pca::validate_barrel_sequence_5 (const std::string & sequence)
 {
-  if (excludesmodule)
-  {
-    for (int i=0; i<STDDIM_BARREL_PRV_VLS_5_NS; i++)
-      if (sequence.compare(valid_barrel_layers_seq_5_ns[i]) == 0)
-        return true;
-  }
-  else
-  {
-    for (int i=0; i<STDDIM_BARREL_PRV_VLS_5; i++)
-      if (sequence.compare(valid_barrel_layers_seq_5[i]) == 0)
-        return true;
-  }
+  for (int i=0; i<STDDIM_BARREL_PRV_VLS_5; i++)
+    if (sequence.compare(valid_barrel_layers_seq_5[i]) == 0)
+      return true;
 
   return false;
 }

@@ -20,8 +20,8 @@ namespace pca
   bool is_a_valid_layers_seq(const std::string &, 
       int, const bool, const bool);
 
-  bool validate_barrel_sequence_5 (bool excludesmodule, 
-          const std::string & sequence);
+  bool validate_barrel_sequence_5 (
+      const std::string & sequence);
   
   bool check_to_read (bool, bool, int);
   

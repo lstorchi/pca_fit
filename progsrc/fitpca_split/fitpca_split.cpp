@@ -348,10 +348,8 @@ void usage (char * name)
   std::cerr << " -b, --relative-values=[v1;v2]    : use relative coordinates (using v1 (phi or z) and v2 (r) as min)" 
     << std::endl;
   std::cerr << " -f, --five-hits=[\"sequence\"]     : fit a specific 5 / 6 sequence, " << std::endl;
-  std::cerr << "                                    if -x is used you should specify three layers sequence"  << std::endl;
   std::cerr << " -l, --five-hits-lin=[\"sequence\"] : fit a specific the sequence using standard constat  " << std::endl;
   std::cerr << "                                    use linear interpolation to approximate the missed hit " << std::endl;
-  std::cerr << "                                    if -x is used you should specify three layers sequence"  << std::endl;
   std::cerr << std::endl;
   std::cerr << " -k, --check-layersids            : check exact layers sequence (is_a_valid_layers_seq for seq list)" 
     << std::endl;
@@ -587,8 +585,7 @@ int main (int argc, char ** argv)
 
   if (numoflayers == 5)
   {
-    if (!pca::validate_barrel_sequence_5 (excludesmodule, 
-          sequence))
+    if (!pca::validate_barrel_sequence_5 (sequence))
     {
       std::cerr << "Wrong sequence" << std::endl;
       return EXIT_FAILURE;
@@ -597,8 +594,7 @@ int main (int argc, char ** argv)
 
   if (lininterpolation)
   {
-    if (!pca::validate_barrel_sequence_5 (excludesmodule, 
-          sequence))
+    if (!pca::validate_barrel_sequence_5 (sequence))
     {
       std::cerr << "Wrong sequence" << std::endl;
       return EXIT_FAILURE;
