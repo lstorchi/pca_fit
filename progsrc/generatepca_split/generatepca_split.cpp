@@ -57,7 +57,12 @@ void usage (char * name)
   std::cerr << std::endl;
   std::cerr << " -k, --check-layersids           : check exact layers sequence (is_a_valid_layers_seq for seq list)" 
     << std::endl;
-  std::cerr << " -f, --five-hits=[\"sequence\"]    : build constants for 5 / 6, specify the sequence, " << std::endl;
+  std::cerr << std::endl;
+  std::cerr << " -f, --five-hits=[\"sequence\"]    : build constants for 5 / 6, specify the sequence " << std::endl;
+  std::cerr << "                                     it will use \"real 5 out of 6\" tracks " << std::endl;
+  std::cerr << " -y, --fk-five-hits=[layerid]    : build constants for 5 / 6, specify the layr to be removed " << std::endl;
+  std::cerr << "                                   it will use 6 layers tracks, removing a layer " << std::endl;
+  std::cerr << std::endl;
   std::cerr << " -g, --charge-sign=[+/-]         : use only + particle or - paricle (again both planes) " << std::endl;
   std::cerr << " -t, --eta-range=\"etamin;etamax\" : specify the eta range to use " << std::endl;
   std::cerr << " -n, --pt-range=\"ptmin;ptmax\"    : specify the pt range to use " << std::endl;
@@ -129,9 +134,11 @@ int main (int argc, char ** argv)
   bool checklayersids = false;
   bool printallcoords = false;
   bool userelativecoord = false;
+  bool usefakefiveoutofsix = false;
 
   int chargesign = 0;
-  int numoflayers =  6;
+  int numoflayers = 6;
+  int layeridtorm = -1;
 
   double etamin = -1.0e0 * INFINITY, etamax = +1.0e0 * INFINITY;
   double ptmin = -1.0e0 * INFINITY, ptmax = +1.0e0 * INFINITY;
@@ -170,16 +177,21 @@ int main (int argc, char ** argv)
       {"five-hits", 1, NULL, 'f'},
       {"relative-values", 1, NULL, 'b'},
       {"dump-bankfiles", 0, NULL, 'd'},
+      {"fk-five-hits", 1, NULL, 'y'},
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "aVlkxhvdpzrb:g:t:n:m:o:u:f:", long_options, &option_index);
+    c = getopt_long (argc, argv, "aVlkxhvdpzrb:g:t:n:m:o:u:f:y:", long_options, &option_index);
 
     if (c == -1)
       break;
 
     switch (c)
     {
+      case 'y':
+        usefakefiveoutofsix = true;
+        layeridtorm = atoi(optarg);
+        break;
       case 'd':
         savecheckfiles = true;
         break;
@@ -198,7 +210,6 @@ int main (int argc, char ** argv)
         coord2min = atof(tokens[1].c_str());
 
         break;
- 
       case 'a':
         userelativecoord = true;
         break;
@@ -300,6 +311,12 @@ int main (int argc, char ** argv)
 
   if (numoflayers == 5)
   {
+    if (usefakefiveoutofsix)
+    {
+      std::cerr << "Wrong options, cannot use both options together" << std::endl;
+      return EXIT_FAILURE;
+    }
+
     if (!pca::validate_barrel_sequence_5 (sequence))
     {
       std::cerr << "Wrong sequence" << std::endl;
@@ -317,24 +334,34 @@ int main (int argc, char ** argv)
     usage (argv[0]);
   }
 
-  if (numoflayers == 5)
+  if (usefakefiveoutofsix)
   {
     if (excludesmodule)
       fitter.set_coordim (2*2);
     else
       fitter.set_coordim (2*5);
   }
-  else if (numoflayers == 6)
+  else
   {
-    if (excludesmodule)
-      fitter.set_coordim (2*3);
-    else
-      fitter.set_coordim (2*6);
-  }
-  else 
-  {
-    std::cerr << "Can use 5 or 6 layers" << std::endl;
-    return EXIT_FAILURE;
+    if (numoflayers == 5)
+    {
+      if (excludesmodule)
+        fitter.set_coordim (2*2);
+      else
+        fitter.set_coordim (2*5);
+    }
+    else if (numoflayers == 6)
+    {
+      if (excludesmodule)
+        fitter.set_coordim (2*3);
+      else
+        fitter.set_coordim (2*6);
+    }
+    else 
+    {
+      std::cerr << "Can use 5 or 6 layers" << std::endl;
+      return EXIT_FAILURE;
+    }
   }
 
   fitter.set_paramdim(2);

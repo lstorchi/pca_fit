@@ -69,6 +69,9 @@ namespace pca
       void set_excludesmodule (bool);
       bool get_excludesmodule () const;
 
+      void set_fkfiveoutofsix (bool, int);
+      bool get_fkfiveoutofsix (int &) const;
+
       void set_performlinearinterpolation (bool);
       bool get_performlinearinterpolation () const;
 
@@ -113,11 +116,12 @@ namespace pca
       bool rzplane_, rphiplane_, chargeoverpt_, 
           excludesmodule_, verbose_, checklayersids_, 
           savecheckfiles_, printoutstdinfo_, 
-          performlinearinterpolation_;
+          performlinearinterpolation_,
+          fkfiveoutofsix_, isbarrel_;
       double etamin_, etamax_, phimin_, phimax_,
             z0min_, z0max_, d0min_, d0max_, 
             ptmin_, ptmax_;
-      int maxnumoflayers_, chargesign_;
+      int maxnumoflayers_, chargesign_, layeridtorm_;
       unsigned int maxnumoftracks_;
       std::string specificseq_;
 
@@ -131,6 +135,8 @@ namespace pca
           const double & pt, const std::string &) const;
 
       bool linearinterpolation ();
+
+      bool remove_layer ();
 
       bool linearinterpolationrphiz (std::vector<track_rphiz_str> &);
 

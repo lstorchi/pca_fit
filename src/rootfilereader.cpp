@@ -61,6 +61,29 @@ namespace
 
     return false;
   }
+
+  bool is_avalid_layerid (bool isbarrel, bool excludesmodule, bool layerid)
+  {
+    if (isbarrel)
+    {
+      if (excludesmodule)
+      {
+        if ((layerid >= 5) && (layerid <= 7))
+          return true;
+      }
+      else
+      {
+        if ((layerid >= 5) && (layerid <= 10))
+          return true;
+      }
+
+      return false;
+    }
+    else
+    {
+      return false;
+    }
+  }
 }
 
 rootfilereader::rootfilereader () 
@@ -75,13 +98,15 @@ rootfilereader::~rootfilereader ()
 void rootfilereader::reset()
 {
   rzplane_ = false;
+  verbose_ = false; 
+  isbarrel_ = true;
   rphiplane_ = false; 
   chargeoverpt_ = true;
   excludesmodule_ = false; 
-  verbose_ = false; 
   checklayersids_ = false;
   savecheckfiles_ = true;
   printoutstdinfo_ = true;
+  fkfiveoutofsix_ = false;
 
   etamin_ = -INFINITY; 
   etamax_ = INFINITY; 
@@ -98,6 +123,7 @@ void rootfilereader::reset()
   maxnumoftracks_ = INFINITY;
   specificseq_ = "";
   performlinearinterpolation_ = false;
+  layeridtorm_ = -1;
 
   reset_error();
   filename_ = "";
@@ -111,6 +137,18 @@ void rootfilereader::set_printoutstdinfo (bool in)
 bool rootfilereader::get_printoutstdinfo () const
 {
   return printoutstdinfo_;
+}
+
+void rootfilereader::set_fkfiveoutofsix (bool in, int ini)
+{
+  fkfiveoutofsix_ = in;
+  layeridtorm_ = ini;
+}
+
+bool rootfilereader::get_fkfiveoutofsix (int & out) const
+{
+  out = layeridtorm_;
+  return fkfiveoutofsix_;
 }
 
 void rootfilereader::set_filename (const std::string & in)
@@ -752,10 +790,8 @@ bool rootfilereader::check_if_withinranges (const int & charge,
     const double & d0, const double & pt, 
     const std::string & layersid) const
 {
-  bool isbarrel = true;
-
   if (is_a_valid_layers_seq(layersid, maxnumoflayers_, 
-        isbarrel, checklayersids_))
+        isbarrel_, checklayersids_))
     if (check_sequence (layersid, specificseq_))
       if (check_charge (charge, chargesign_))
         if ((eta <= etamax_) && (eta >= etamin_))
@@ -785,6 +821,31 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
 {
   if (printoutstdinfo_)
     std::cout << "Extracted  " << tracks_vct_.size() << " tracks " << std::endl;
+
+  if (fkfiveoutofsix_)
+  {
+    maxnumoflayers_ = 5;
+
+    if (!remove_layer ())
+      return false;
+  }
+
+  if (excludesmodule_)
+  {
+    if (fitter.get_coordim() != (maxnumoflayers_ - 3) * 2)
+    {
+      set_errmsg (1, "Wrong coord dim");
+      return false;
+    }
+  }
+  else
+  {
+    if (fitter.get_coordim() != maxnumoflayers_ * 2)
+    {
+      set_errmsg (1, "Wrong coord dim");
+      return false;
+    }
+  }
 
   coordin.resize(tracks_vct_.size(), fitter.get_coordim());
   paramin.resize(tracks_vct_.size(), fitter.get_paramdim());
@@ -891,6 +952,50 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
       std::cout << "PHI : " << track->phi << std::endl;
       std::cout << "D0  : " << track->d0 << std::endl;
       std::cout << "Z0  : " << track->z0 << std::endl;
+    }
+  }
+
+  // restore old value
+  if (fkfiveoutofsix_)
+    maxnumoflayers_ = 6;
+
+  return true;
+}
+
+bool rootfilereader::remove_layer()
+{
+  if (!is_avalid_layerid (isbarrel_, excludesmodule_, layeridtorm_) )
+  {
+    set_errmsg (11, "Invalid layer to remove");
+    return false;
+  }
+
+  std::vector<track_str>::iterator track = tracks_vct_.begin();
+  for (; track != tracks_vct_.end(); ++track)
+  {
+    std::ostringstream osss;
+    for (int j = 0; j < track->dim; ++j)
+      if (track->layer[j] != layeridtorm_)
+        osss << track->layer[j];
+  
+    track->layersids = osss.str();
+
+    for (int j = 0; j < track->dim; ++j)
+    {
+      if (track->layer[j] == layeridtorm_)
+      {
+        track->x.erase(track->x.begin()+j);
+        track->y.erase(track->y.begin()+j);
+        track->y.erase(track->y.begin()+j);
+
+        track->layer.erase(track->layer.begin()+j);
+        track->ladder.erase(track->ladder.begin()+j);
+        track->module.erase(track->module.begin()+j);
+        track->segid.erase(track->segid.begin()+j);
+        track->dim--;
+
+        break;
+      }
     }
   }
 

@@ -8,8 +8,8 @@
  *      distributiong some test exe
  * */
 #define PCAFITTER_MAJOR_VER 0
-#define PCAFITTER_MINOR_VER 5
-#define PCAFITTER_PATCH_VER 2
+#define PCAFITTER_MINOR_VER 6
+#define PCAFITTER_PATCH_VER 0
 
 #define PCAFITTER_VERSION ( PCAFITTER_MAJOR_VER * 10000 \
         + PCAFITTER_MINOR_VER * 100 \
