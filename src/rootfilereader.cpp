@@ -989,7 +989,7 @@ bool rootfilereader::remove_layer()
       {
         track->x.erase(track->x.begin()+j);
         track->y.erase(track->y.begin()+j);
-        track->y.erase(track->y.begin()+j);
+        track->z.erase(track->z.begin()+j);
 
         track->layer.erase(track->layer.begin()+j);
         track->ladder.erase(track->ladder.begin()+j);
