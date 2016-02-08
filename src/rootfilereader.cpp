@@ -62,7 +62,7 @@ namespace
     return false;
   }
 
-  bool is_avalid_layerid (bool isbarrel, bool excludesmodule, bool layerid)
+  bool is_avalid_layerid (bool isbarrel, bool excludesmodule, int layerid)
   {
     if (isbarrel)
     {
