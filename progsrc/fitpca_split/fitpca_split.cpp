@@ -347,9 +347,15 @@ void usage (char * name)
   std::cerr << " -a, --relative                   : use relative coordinates (compute min values)" << std::endl;
   std::cerr << " -b, --relative-values=[v1;v2]    : use relative coordinates (using v1 (phi or z) and v2 (r) as min)" 
     << std::endl;
-  std::cerr << " -f, --five-hits=[\"sequence\"]     : fit a specific 5 / 6 sequence, " << std::endl;
+  std::cerr << std::endl; 
+  std::cerr << " -f, --five-hits=[\"sequence\"]     : fit a specific 5 / 6 sequence, it will use " << std::endl;
+  std::cerr << "                                    \"real 5 out of 6\" tracks " << std::endl;
   std::cerr << " -l, --five-hits-lin=[\"sequence\"] : fit a specific the sequence using standard constat  " << std::endl;
   std::cerr << "                                    use linear interpolation to approximate the missed hit " << std::endl;
+
+  std::cerr << " -w, --fk-five-hits=[layerid]     : build constants for 5 / 6, specify the layr to be removed " 
+    << std::endl;
+  std::cerr << "                                   it will use 6 layers tracks, removing a layer " << std::endl;
   std::cerr << std::endl;
   std::cerr << " -k, --check-layersids            : check exact layers sequence (is_a_valid_layers_seq for seq list)" 
     << std::endl;
@@ -388,6 +394,9 @@ int main (int argc, char ** argv)
   bool userelativecoord = false;
   bool lininterpolation = false;
   bool printallcoords = false;
+  bool usefakefiveoutofsix = false;
+
+  int layeridtorm = -1;
 
   double etamin = -1.0e0 * INFINITY, etamax = +1.0e0 * INFINITY;
   double ptmin = -1.0e0 * INFINITY, ptmax = +1.0e0 * INFINITY;
@@ -434,11 +443,12 @@ int main (int argc, char ** argv)
       {"relative-values", 1, NULL, 'b'},
       {"five-hits", 1, NULL, 'f'},
       {"five-hits-lin", 1, NULL, 'l'},
+      {"fk-five-hits", 1, NULL, 'w'},
       {"dump-allcoords", 0, NULL, 'p'},
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "pkxzrhaVl:f:d:y:b:A:B:t:g:c:q:n:s:m:o:u", 
+    c = getopt_long (argc, argv, "pkxzrhaVw:l:f:d:y:b:A:B:t:g:c:q:n:s:m:o:u", 
         long_options, &option_index);
 
     if (c == -1)
@@ -446,6 +456,10 @@ int main (int argc, char ** argv)
 
     switch (c)
     {
+      case 'w':
+        usefakefiveoutofsix = true;
+        layeridtorm = atoi(optarg);
+        break;
       case 'p':
         printallcoords = true;
         break;
@@ -585,6 +599,12 @@ int main (int argc, char ** argv)
 
   if (numoflayers == 5)
   {
+    if (usefakefiveoutofsix)
+    {
+      std::cerr << "Wrong options, cannot use both options together" << std::endl;
+      return EXIT_FAILURE;
+    }
+
     if (!pca::validate_barrel_sequence_5 (sequence))
     {
       std::cerr << "Wrong sequence" << std::endl;
@@ -608,24 +628,34 @@ int main (int argc, char ** argv)
     usage (argv[0]);
   }
 
-  if (numoflayers == 5)
+  if (usefakefiveoutofsix)
   {
     if (excludesmodule)
       fitter.set_coordim (2*2);
     else
       fitter.set_coordim (2*5);
   }
-  else if (numoflayers == 6)
+  else
   {
-    if (excludesmodule)
-      fitter.set_coordim (2*3);
-    else
-      fitter.set_coordim (2*6);
-  }
-  else 
-  {
-    std::cerr << "Can use 5 or 6 layers" << std::endl;
-    return EXIT_FAILURE;
+    if (numoflayers == 5)
+    {
+      if (excludesmodule)
+        fitter.set_coordim (2*2);
+      else
+        fitter.set_coordim (2*5);
+    }
+    else if (numoflayers == 6)
+    {
+      if (excludesmodule)
+        fitter.set_coordim (2*3);
+      else
+        fitter.set_coordim (2*6);
+    }
+    else 
+    {
+      std::cerr << "Can use 5 or 6 layers" << std::endl;
+      return EXIT_FAILURE;
+    }
   }
 
   fitter.set_paramdim(2);
@@ -806,6 +836,9 @@ int main (int argc, char ** argv)
   rootrdr.set_d0limits(d0min, d0max);
   rootrdr.set_verbose(verbose);
   rootrdr.set_checklayersids(checklayersids);
+
+  rootrdr.set_fkfiveoutofsix(usefakefiveoutofsix, 
+      layeridtorm);
 
   rootrdr.set_savecheckfiles(false);
 
