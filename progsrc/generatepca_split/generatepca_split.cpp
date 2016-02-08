@@ -427,6 +427,10 @@ int main (int argc, char ** argv)
   rootrdr.set_d0limits(d0min, d0max);
   rootrdr.set_verbose(verbose);
   rootrdr.set_checklayersids(checklayersids);
+  rootrdr.set_checklayersids(checklayersids);
+
+  rootrdr.set_fkfiveoutofsix(usefakefiveoutofsix, 
+      layeridtorm);
 
   rootrdr.set_savecheckfiles(savecheckfiles);
 
