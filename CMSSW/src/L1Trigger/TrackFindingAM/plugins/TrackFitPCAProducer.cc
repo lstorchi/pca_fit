@@ -288,15 +288,17 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
       
       //Recover it...
       tcb_tracks = TCB->getTracks();
-      TCB->clean();
 
       // Store the tracks (no duplicate cleaning yet)
       
       // run the PCA fitter 
+      pcafitter->setSectorID(tempTrackPtr->getSector());
       pcafitter->setTracks (tcb_tracks, stubMap, seedSector);
       pcafitter->fit(m_hits);
       tracks = pcafitter->getTracks();
 
+
+      TCB->clean();
       // free TCB tracks
       for (unsigned int tt=0; tt<tcb_tracks.size(); ++tt)
 	delete tcb_tracks[tt];
