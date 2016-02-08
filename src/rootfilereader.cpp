@@ -370,6 +370,15 @@ bool rootfilereader::reading_from_root_file (
     return false;
   }
 
+  if (fkfiveoutofsix_)
+  {
+    if (!is_avalid_layerid (isbarrel_, excludesmodule_, layeridtorm_) )
+    {
+      set_errmsg (11, "Invalid layer to remove");
+      return false;
+    }
+  }
+
   if (savecheckfiles_)
   {
     ss.open("bankstub.txt");
@@ -964,12 +973,6 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
 
 bool rootfilereader::remove_layer()
 {
-  if (!is_avalid_layerid (isbarrel_, excludesmodule_, layeridtorm_) )
-  {
-    set_errmsg (11, "Invalid layer to remove");
-    return false;
-  }
-
   std::vector<track_str>::iterator track = tracks_vct_.begin();
   for (; track != tracks_vct_.end(); ++track)
   {
