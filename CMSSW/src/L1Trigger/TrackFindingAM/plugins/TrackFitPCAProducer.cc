@@ -77,7 +77,8 @@ class TrackFitPCAProducer : public edm::EDProducer
   int                          nThresh;
   const StackedTrackerGeometry *theStackedTracker;
   edm::InputTag                TTStubsInputTag;
-  edm::InputTag                TTPatternsInputTag;
+  //edm::InputTag                TTPatternsInputTag;
+  edm::InputTag                TCTTrackInputTag;
   std::string                  TTTrackOutputTag;
 
   /// Mandatory methods
@@ -94,9 +95,10 @@ class TrackFitPCAProducer : public edm::EDProducer
 TrackFitPCAProducer::TrackFitPCAProducer( const edm::ParameterSet& iConfig )
 {
   TTStubsInputTag          = iConfig.getParameter< edm::InputTag >( "TTInputStubs" );
-  TTPatternsInputTag       = iConfig.getParameter< edm::InputTag >( "TTInputPatterns" );
+  //TTPatternsInputTag       = iConfig.getParameter< edm::InputTag >( "TTInputPatterns" );
   TTTrackOutputTag         = iConfig.getParameter< std::string >( "TTTrackName" );       // Container of C++ TCs
   //TTTrackBinaryOutputTag   = iConfig.getParameter< std::string >( "TTTrackBinaryName" ); // Container of bit-wise TCs
+  TCTTrackInputTag = iConfig.getParameter< edm::InputTag >( "TCBuilderTTracks" );
 
   produces< std::vector< TTTrack< Ref_PixelDigi_ > > >( TTTrackOutputTag );
   // produces< std::vector< TTTrack< Ref_PixelDigi_ > > >( TTTrackBinaryOutputTag );
@@ -119,7 +121,7 @@ void TrackFitPCAProducer::beginRun( const edm::Run& run, const edm::EventSetup& 
   const MagneticField* theMagneticField = magneticFieldHandle.product();
   double mMagneticFieldStrength = theMagneticField->inTesla(GlobalPoint(0,0,0)).z();
   mMagneticField = (floor(mMagneticFieldStrength*10.0 + 0.5))/10.0;
-
+  std::cout << "PCA Fitter begin run !!!!" << std::endl;
 
 }
 
@@ -134,19 +136,19 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
   /// before removal of duplicates
   std::auto_ptr< std::vector< TTTrack< Ref_PixelDigi_ > > > TTTracksForOutput( new std::vector< TTTrack< Ref_PixelDigi_ > > );
 
-  //std::auto_ptr< std::vector< TTTrack< Ref_PixelDigi_ > > > TTTracksBinForOutput( new std::vector< TTTrack< Ref_PixelDigi_ > > );
-
   /// Get the Stubs already stored away
   edm::Handle< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > > > TTStubHandle;
-  edm::Handle< std::vector< TTTrack< Ref_PixelDigi_ > > > TTPatternHandle;
+  //edm::Handle< std::vector< TTTrack< Ref_PixelDigi_ > > > TTPatternHandle;
+  edm::Handle< std::vector< TTTrack< Ref_PixelDigi_ > > > TCBuilderTTracksHandle;
 
   iEvent.getByLabel( TTStubsInputTag, TTStubHandle );       // Get the stubs
-  iEvent.getByLabel( TTPatternsInputTag, TTPatternHandle ); // Get the matched roads
+  //iEvent.getByLabel( TTPatternsInputTag, TTPatternHandle ); // Get the matched roads
+  iEvent.getByLabel( TCTTrackInputTag, TCBuilderTTracksHandle); // Get the matched roads
 
+  std::cout << "Inside PCA produce" << std::endl;
   /// STEP 0
   /// Prepare output
   TTTracksForOutput->clear();
-  //TTTracksBinForOutput->clear();
 
   int layer  = 0;
   int ladder = 0;
@@ -154,56 +156,32 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
   int nbLayers = 0;
 
   unsigned int j     = 0;
-  unsigned int tkCnt = 0;
-  std::map< unsigned int , edm::Ref< edmNew::DetSetVector< 
-    TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > > stubMap;
-
-  // The fitter
-  TCBuilder* TCB = new TCBuilder(nbLayers);
+  //unsigned int tkCnt = 0;
   PCATrackFitter* pcafitter = new PCATrackFitter(nbLayers);
 
-  //
-  // TCs are build pattern per pattern
-  //
-
   std::vector<Hit*> m_hits;
-  for(unsigned int i=0;i<m_hits.size();i++) delete m_hits[i];
-  std::vector<Track*> tracks, tcb_tracks;
-  for(unsigned int i=0;i<tracks.size();i++) delete tracks[i];
+  std::vector<Track*> pca_tracks, tcb_tracks;
+  std::map< unsigned int , edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > > stubMap;
 
-  edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >::const_iterator inputIter;
-  edmNew::DetSet< TTStub< Ref_PixelDigi_ > >::const_iterator stubIter;
-
-  std::vector< TTTrack< Ref_PixelDigi_ > >::const_iterator iterTTTrack;
-  
-  /// Go on only if there are Patterns from PixelDigis
-  if ( TTPatternHandle->size() > 0 )
-  {
-    /// Loop over Patterns
- 
-    for ( iterTTTrack = TTPatternHandle->begin(); iterTTTrack != TTPatternHandle->end(); ++iterTTTrack )
-    {
-      edm::Ptr< TTTrack< Ref_PixelDigi_ > > tempTrackPtr( TTPatternHandle, tkCnt++ );
-
-      // Initialize everything for each new road
-
-      j = 0;
-      m_hits.clear();
-      tracks.clear();
-      stubMap.clear();
-      tcb_tracks.clear();
-
-      /// Get everything relevant
-      unsigned int seedSector = tempTrackPtr->getSector();
-      nbLayers                = tempTrackPtr->getWedge();
-
-      // Get the stubs in the road
-
-      std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_  > >, 
-        TTStub< Ref_PixelDigi_  > > > trackStubs = tempTrackPtr->getStubRefs();
-
-      // And loop over them
-      for(unsigned int i=0;i<trackStubs.size();i++)
+  //Loop over TTracks from TCBuilder 
+       
+  for( std::vector< TTTrack< Ref_PixelDigi_ > >::const_iterator iterTCTTrack = (*TCBuilderTTracksHandle.product()).begin();
+                                                                iterTCTTrack != (*TCBuilderTTracksHandle.product()).end(); iterTCTTrack++ ) {
+    const TTTrack< Ref_PixelDigi_ > trk = *iterTCTTrack;
+    Track* tempt = new Track();
+    tempt->setCurve(iterTCTTrack->getMomentum().perp());
+    tempt->setEta0(iterTCTTrack->getMomentum().eta());
+    tempt->setPhi0(iterTCTTrack->getMomentum().phi());
+    tempt->setZ0(iterTCTTrack->getPOCA().z());
+    tcb_tracks.push_back(tempt);
+    nbLayers = iterTCTTrack->getWedge();
+    unsigned int seedSector = iterTCTTrack->getSector();
+    m_hits.clear();
+    tcb_tracks.clear();    
+    stubMap.clear();
+    j = 0;
+    std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_  > >, TTStub< Ref_PixelDigi_  > > > trackStubs = iterTCTTrack->getStubRefs();
+    for(unsigned int i=0;i<trackStubs.size();i++)
       {
 	++j;
 
@@ -277,67 +255,36 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
 
 	m_hits.push_back(h);
 
-      } /// End of loop over track stubs
+      } /// End of loop over tcb_track stubs
+    
+    pcafitter->setTracks (tcb_tracks, stubMap, seedSector);
+    pcafitter->fit(m_hits);
+    pca_tracks = pcafitter->getTracks();
 
-      // Do the TC
-      TCB->setSectorID(tempTrackPtr->getSector());
-      TCB->fit(m_hits);
-
-      // After this we have a first estimation of track parameters
-      // here add the PCA fitter 
-      
-      //Recover it...
-      tcb_tracks = TCB->getTracks();
-
-      // Store the tracks (no duplicate cleaning yet)
-      
-      // run the PCA fitter 
-      pcafitter->setSectorID(tempTrackPtr->getSector());
-      pcafitter->setTracks (tcb_tracks, stubMap, seedSector);
-      pcafitter->fit(m_hits);
-      tracks = pcafitter->getTracks();
-
-
-      TCB->clean();
-      // free TCB tracks
-      for (unsigned int tt=0; tt<tcb_tracks.size(); ++tt)
-	delete tcb_tracks[tt];
-
-      std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, 
-        TTStub< Ref_PixelDigi_ > > > tempVec;
-
-      for(unsigned int tt=0;tt<tracks.size();tt++)
-      {	
-	tempVec.clear();
-
-	//Stubs used for the fit 
-	vector<int> stubs = tracks[tt]->getStubs();
-	for(unsigned int sti=0;sti<stubs.size();sti++) 
-          tempVec.push_back( stubMap[ stubs[sti] ] );
-
-	TTTrack< Ref_PixelDigi_ > tempTrack( tempVec );
-
-	double pz = tracks[tt]->getCurve()/(tan(2*atan(exp(-tracks[tt]->getEta0()))));
-	GlobalPoint POCA(0.,0.,tracks[tt]->getZ0());
-	GlobalVector mom(tracks[tt]->getCurve()*cos(tracks[tt]->getPhi0()),
-			 tracks[tt]->getCurve()*sin(tracks[tt]->getPhi0()),
+    std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > > tempVec;
+    for(unsigned int tt=0;tt<pca_tracks.size();tt++){
+      tempVec.clear();
+      //Stubs used for the fit 
+      vector<int> stubs = pca_tracks[tt]->getStubs();
+      for(unsigned int sti=0;sti<stubs.size();sti++) 
+        tempVec.push_back( stubMap[ stubs[sti] ] );
+      TTTrack< Ref_PixelDigi_ > tempTrack( tempVec );
+      double pz = pca_tracks[tt]->getCurve()/(tan(2*atan(exp(-pca_tracks[tt]->getEta0()))));
+      GlobalPoint POCA(0.,0.,pca_tracks[tt]->getZ0());
+      GlobalVector mom(pca_tracks[tt]->getCurve()*cos(pca_tracks[tt]->getPhi0()),
+			 pca_tracks[tt]->getCurve()*sin(pca_tracks[tt]->getPhi0()),
 			 pz);
-		
-	tempTrack.setSector( seedSector );
-	tempTrack.setWedge( -1 );
-	tempTrack.setMomentum( mom , 5);
-	tempTrack.setPOCA( POCA , 5);
+      tempTrack.setSector( seedSector );
+      tempTrack.setWedge( -1 );
+      tempTrack.setMomentum( mom , 5);
+      tempTrack.setPOCA( POCA , 5);
+  
+      TTTracksForOutput->push_back( tempTrack );
 	
-	TTTracksForOutput->push_back( tempTrack );
-	
-	delete tracks[tt];
-      } // End of loop over TCs
-    } // End of loop over patterns
-  }
-
-  delete(TCB);    
-  delete(pcafitter);
-  /// Put in the event content
+      delete pca_tracks[tt];
+    }
+  
+  }    
   iEvent.put( TTTracksForOutput, TTTrackOutputTag);
 }
 
@@ -345,4 +292,3 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
 DEFINE_FWK_MODULE(TrackFitPCAProducer);
 
 #endif
-
