@@ -65,8 +65,9 @@ process.RAWSIMoutput.outputCommands.append('keep  *_*_MergedTrackTruth_*')
 
 
 # Path and EndPath definitions
-process.L1AMFIT_step         = cms.Path(process.TTTracksFromPatternswStubs)
+process.TTTracksFromPattern.TCBuilderTTracks   = cms.InputTag("TTTracksFromTC", "AML1TracksFromTC")
 #process.L1AMFIT_step         = cms.Path(process.TTTracksFromTCwStubs)
+process.L1AMFIT_step         = cms.Path(process.TTTracksFromPatternswStubs)
 process.endjob_step          = cms.EndPath(process.endOfProcess)
 process.RAWSIMoutput_step    = cms.EndPath(process.RAWSIMoutput)
 

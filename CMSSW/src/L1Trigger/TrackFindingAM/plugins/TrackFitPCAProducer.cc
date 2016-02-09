@@ -169,10 +169,12 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
                                                                 iterTCTTrack != (*TCBuilderTTracksHandle.product()).end(); iterTCTTrack++ ) {
     const TTTrack< Ref_PixelDigi_ > trk = *iterTCTTrack;
     Track* tempt = new Track();
-    tempt->setCurve(iterTCTTrack->getMomentum().perp());
-    tempt->setEta0(iterTCTTrack->getMomentum().eta());
-    tempt->setPhi0(iterTCTTrack->getMomentum().phi());
-    tempt->setZ0(iterTCTTrack->getPOCA().z());
+    tempt->setCurve(iterTCTTrack->getMomentum(5).perp());
+    tempt->setEta0(iterTCTTrack->getMomentum(5).eta());
+    tempt->setPhi0(iterTCTTrack->getMomentum(5).phi());
+    tempt->setZ0(iterTCTTrack->getPOCA(5).z());
+    tempt->setCharge(-(iterTCTTrack->getRInv(5)));//charge = -RInv
+    std::cout << "Charge from TC track=" << tempt->getCharge() << std::endl;
     tcb_tracks.push_back(tempt);
     nbLayers = iterTCTTrack->getWedge();
     unsigned int seedSector = iterTCTTrack->getSector();
@@ -257,7 +259,6 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
 
       } /// End of loop over tcb_track stubs
     
-    pcafitter->setSectorID(seedSector);
     pcafitter->setTracks (tcb_tracks, stubMap, seedSector);
     pcafitter->fit(m_hits);
     pca_tracks = pcafitter->getTracks();
