@@ -9,13 +9,14 @@ process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.Geometry.GeometryExtendedPhase2TkBE5DPixel10DReco_cff')
 process.load('Configuration.Geometry.GeometryExtendedPhase2TkBE5DPixel10D_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
-process.load('L1Trigger.TrackFindingAM.L1AMTrack_cff')
+#process.load('L1Trigger.TrackFindingAM.L1AMTrack_cff')
+process.load('L1Trigger.TrackFindingAM.L1AMPCAFit_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('L1Trigger.TrackTrigger.TrackTrigger_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(50)
 )
 
 # Input source
@@ -26,16 +27,15 @@ process.maxEvents = cms.untracked.PSet(
 #
 
 process.source = cms.Source("PoolSource",
-                            #fileNames = cms.untracked.vstring('file:AM_output.root'),
-                            fileNames = cms.untracked.vstring('file:AMPR_output_1.root'),
+                            fileNames = cms.untracked.vstring('file:/afs/cern.ch/work/s/sroychow/public/L1TrackTrigger/PCACMSSW/forTest/CMSSW_6_2_0_SLHC27/src/AMPR_output_Atanu.root'),
                             duplicateCheckMode = cms.untracked.string( 'noDuplicateCheck' )
 )
 
 # The name of the stub container over which the association is done, please note that the filtered cluster container is
 # not associated due to the lack of simPixelDigis in official samples
 
-process.TTStubAssociatorFromPixelDigis.TTStubs        = cms.VInputTag( cms.InputTag("MergeFITOutput", "StubInTrack"))
-process.TTStubAssociatorFromPixelDigis.TTClusterTruth = cms.VInputTag( cms.InputTag("TTClusterAssociatorFromPixelDigis","ClusterAccepted"))
+#process.TTStubAssociatorFromPixelDigis.TTStubs        = cms.VInputTag( cms.InputTag("MergeFITOutput", "StubInTrack"))
+#process.TTStubAssociatorFromPixelDigis.TTClusterTruth = cms.VInputTag( cms.InputTag("TTClusterAssociatorFromPixelDigis","ClusterAccepted"))
 
 # Additional output definition
 from Configuration.AlCa.GlobalTag import GlobalTag
@@ -63,8 +63,10 @@ process.RAWSIMoutput.outputCommands.append('keep  *_*_*_AMFIT')
 process.RAWSIMoutput.outputCommands.append('drop *_TTTracksFromPattern_*_*')
 process.RAWSIMoutput.outputCommands.append('keep  *_*_MergedTrackTruth_*')
 
+
 # Path and EndPath definitions
 process.L1AMFIT_step         = cms.Path(process.TTTracksFromPatternswStubs)
+#process.L1AMFIT_step         = cms.Path(process.TTTracksFromTCwStubs)
 process.endjob_step          = cms.EndPath(process.endOfProcess)
 process.RAWSIMoutput_step    = cms.EndPath(process.RAWSIMoutput)
 

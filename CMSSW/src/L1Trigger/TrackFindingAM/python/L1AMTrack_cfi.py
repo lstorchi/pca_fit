@@ -22,7 +22,7 @@ TTTracksFromPattern = ( cms.EDProducer("TrackFitRetinaProducer",
                                        removeDuplicates   = cms.untracked.int32(1)
                                        )
                         if doRetinaFit else
-                        cms.EDProducer("TrackFitPCAProducer",
+                        cms.EDProducer("TrackFitTCProducer",
                                        TTInputStubs       = cms.InputTag("TTStubsFromPixelDigis", "StubAccepted"),
                                        TTInputPatterns    = cms.InputTag("MergePROutput", "AML1Patterns"),
                                        TTTrackName        = cms.string("AML1Tracks"),
