@@ -257,6 +257,7 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
 
       } /// End of loop over tcb_track stubs
     
+    pcafitter->setSectorID(seedSector);
     pcafitter->setTracks (tcb_tracks, stubMap, seedSector);
     pcafitter->fit(m_hits);
     pca_tracks = pcafitter->getTracks();
