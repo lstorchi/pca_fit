@@ -155,7 +155,7 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
   int module = 0;
   int nbLayers = 0;
 
-  unsigned int j     = 0;
+  unsigned int j = 0;
   //unsigned int tkCnt = 0;
   PCATrackFitter* pcafitter = new PCATrackFitter(nbLayers);
 
@@ -164,9 +164,10 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
   std::map< unsigned int , edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > > stubMap;
 
   //Loop over TTracks from TCBuilder 
-       
-  for( std::vector< TTTrack< Ref_PixelDigi_ > >::const_iterator iterTCTTrack = (*TCBuilderTTracksHandle.product()).begin();
-                                                                iterTCTTrack != (*TCBuilderTTracksHandle.product()).end(); iterTCTTrack++ ) {
+  std::vector< TTTrack< Ref_PixelDigi_ > >::const_iterator iterTCTTrack;
+  iterTCTTrack = (*TCBuilderTTracksHandle.product()).begin();
+  for(; iterTCTTrack != (*TCBuilderTTracksHandle.product()).end(); iterTCTTrack++ ) 
+  {
     const TTTrack< Ref_PixelDigi_ > trk = *iterTCTTrack;
     Track* tempt = new Track();
     tempt->setCurve(iterTCTTrack->getMomentum().perp());
@@ -180,90 +181,94 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
     tcb_tracks.clear();    
     stubMap.clear();
     j = 0;
-    std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_  > >, TTStub< Ref_PixelDigi_  > > > trackStubs = iterTCTTrack->getStubRefs();
-    for(unsigned int i=0;i<trackStubs.size();i++)
+    std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_  > >, 
+      TTStub< Ref_PixelDigi_  > > > trackStubs = iterTCTTrack->getStubRefs();
+    for(unsigned int i=0; i<trackStubs.size(); ++i)
+    {
+      ++j;
+      
+      edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, 
+        TTStub< Ref_PixelDigi_ > > tempStubRef = trackStubs.at(i);
+      
+      stubMap.insert( std::make_pair( j, tempStubRef ) );
+      
+      /// Calculate average coordinates col/row for inner/outer Cluster
+      /// These are already corrected for being at the center of each pixel
+      MeasurementPoint mp0 = tempStubRef->getClusterRef(0)->findAverageLocalCoordinates();
+      GlobalPoint posStub  = theStackedTracker->findGlobalPosition( &(*tempStubRef) );
+      
+      StackedTrackerDetId detIdStub( tempStubRef->getDetId() );
+      
+      const GeomDetUnit* det0 = theStackedTracker->idToDetUnit( detIdStub, 0 );
+      const GeomDetUnit* det1 = theStackedTracker->idToDetUnit( detIdStub, 1 );
+      
+      /// Find pixel pitch and topology related information
+      const PixelGeomDetUnit* pix0 = dynamic_cast< const PixelGeomDetUnit* >( det0 );
+      const PixelGeomDetUnit* pix1 = dynamic_cast< const PixelGeomDetUnit* >( det1 );
+      const PixelTopology* top0    = dynamic_cast< const PixelTopology* >( &(pix0->specificTopology()) );
+      const PixelTopology* top1    = dynamic_cast< const PixelTopology* >( &(pix1->specificTopology()) );
+      
+      /// Find the z-segment
+      int cols0   = top0->ncolumns();
+      int cols1   = top1->ncolumns();
+      int ratio   = cols0/cols1; /// This assumes the ratio is integer!
+      int segment = floor( mp0.y() / ratio );
+      int strip   =  mp0.x();
+      
+      // Here we rearrange the number in order to be compatible with the TC builder
+      
+      // First of all we 
+      // order the stubs per layers
+      // and count the number of layers touched    
+      
+      // Layers are numbered as follows
+      // Barrel      : 0,1,2,8,9,10
+      // Disk z+/- PS: 3,4,5,6,7
+      // Disk z+/- 2S: 11,12,13,14,15
+      
+      if ( detIdStub.isBarrel() )
       {
-	++j;
+        layer  = detIdStub.iLayer()-1;
+      
+        if (layer>2) layer+=5;
+      
+        ladder = detIdStub.iPhi()-1;
+        module = detIdStub.iZ()-1;
+      
+        //	  cout << layer << " / " << detIdStub.iLayer()+4 << endl;
+      }
+      else if ( detIdStub.isEndcap() )
+      {
+        //layer  = 10+detIdStub.iZ()+abs((int)(detIdStub.iSide())-2)*7;
+        layer = detIdStub.iZ()+2;
+        
+        if (ratio==1) layer+=8;
+      
+        //	  cout << layer << " / " << ratio << " / " << 10+detIdStub.iZ()+abs((int)(detIdStub.iSide())-2)*7 << endl;
+      
+        ladder = detIdStub.iRing()-1;
+        module = detIdStub.iPhi()-1;
+      }
+      
+      Hit* h = new Hit(layer,ladder, module, segment, strip, 
+      		 j, -1, 0, 0, 0, 0, 
+      		 posStub.x(), posStub.y(), posStub.z(), 0, 0, 0, 
+      		 tempStubRef->getTriggerDisplacement()-tempStubRef->getTriggerOffset());
+      
+      m_hits.push_back(h);
 
-	edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, 
-          TTStub< Ref_PixelDigi_ > > tempStubRef = trackStubs.at(i);
-
-	stubMap.insert( std::make_pair( j, tempStubRef ) );
-
-	/// Calculate average coordinates col/row for inner/outer Cluster
-	/// These are already corrected for being at the center of each pixel
-	MeasurementPoint mp0 = tempStubRef->getClusterRef(0)->findAverageLocalCoordinates();
-	GlobalPoint posStub  = theStackedTracker->findGlobalPosition( &(*tempStubRef) );
-	
-	StackedTrackerDetId detIdStub( tempStubRef->getDetId() );
-	
-	const GeomDetUnit* det0 = theStackedTracker->idToDetUnit( detIdStub, 0 );
-	const GeomDetUnit* det1 = theStackedTracker->idToDetUnit( detIdStub, 1 );
-	
-	/// Find pixel pitch and topology related information
-	const PixelGeomDetUnit* pix0 = dynamic_cast< const PixelGeomDetUnit* >( det0 );
-	const PixelGeomDetUnit* pix1 = dynamic_cast< const PixelGeomDetUnit* >( det1 );
-	const PixelTopology* top0    = dynamic_cast< const PixelTopology* >( &(pix0->specificTopology()) );
-	const PixelTopology* top1    = dynamic_cast< const PixelTopology* >( &(pix1->specificTopology()) );
-	
-	/// Find the z-segment
-	int cols0   = top0->ncolumns();
-	int cols1   = top1->ncolumns();
-	int ratio   = cols0/cols1; /// This assumes the ratio is integer!
-	int segment = floor( mp0.y() / ratio );
-	int strip   =  mp0.x();
-     
-	// Here we rearrange the number in order to be compatible with the TC builder
-  
-	// First of all we 
-	// order the stubs per layers
-	// and count the number of layers touched    
-
-	// Layers are numbered as follows
-	// Barrel      : 0,1,2,8,9,10
-	// Disk z+/- PS: 3,4,5,6,7
-	// Disk z+/- 2S: 11,12,13,14,15
-
-	if ( detIdStub.isBarrel() )
-	{
-	  layer  = detIdStub.iLayer()-1;
-
-	  if (layer>2) layer+=5;
-
-	  ladder = detIdStub.iPhi()-1;
-	  module = detIdStub.iZ()-1;
-
-	  //	  cout << layer << " / " << detIdStub.iLayer()+4 << endl;
-	}
-	else if ( detIdStub.isEndcap() )
-	{
-	  //layer  = 10+detIdStub.iZ()+abs((int)(detIdStub.iSide())-2)*7;
-	  layer = detIdStub.iZ()+2;
-	  
-	  if (ratio==1) layer+=8;
-
-	  //	  cout << layer << " / " << ratio << " / " << 10+detIdStub.iZ()+abs((int)(detIdStub.iSide())-2)*7 << endl;
-
-	  ladder = detIdStub.iRing()-1;
-	  module = detIdStub.iPhi()-1;
-	}
-	
-	Hit* h = new Hit(layer,ladder, module, segment, strip, 
-			 j, -1, 0, 0, 0, 0, 
-			 posStub.x(), posStub.y(), posStub.z(), 0, 0, 0, 
-			 tempStubRef->getTriggerDisplacement()-tempStubRef->getTriggerOffset());
-
-	m_hits.push_back(h);
-
-      } /// End of loop over tcb_track stubs
+    } /// End of loop over tcb_track stubs
     
     pcafitter->setSectorID(seedSector);
     pcafitter->setTracks (tcb_tracks, stubMap, seedSector);
     pcafitter->fit(m_hits);
     pca_tracks = pcafitter->getTracks();
 
-    std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > > tempVec;
-    for(unsigned int tt=0;tt<pca_tracks.size();tt++){
+    std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, 
+      TTStub< Ref_PixelDigi_ > > > tempVec;
+
+    for(unsigned int tt=0; tt<pca_tracks.size(); ++tt)
+    {
       tempVec.clear();
       //Stubs used for the fit 
       vector<int> stubs = pca_tracks[tt]->getStubs();
@@ -284,8 +289,8 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
 	
       delete pca_tracks[tt];
     }
-  
   }    
+
   iEvent.put( TTTracksForOutput, TTTrackOutputTag);
 }
 
