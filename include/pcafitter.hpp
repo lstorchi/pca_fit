@@ -38,7 +38,8 @@ namespace pca
           const arma::mat & coord, 
           double ** paraptr,
           int paramdim,
-          arma::rowvec & chi2values);
+          arma::rowvec & chi2values, 
+          arma::rowvec & chi2values1);
            
       void select_bigger_sub (
           const std::map<std::string, int> & sublist, 

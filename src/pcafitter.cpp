@@ -111,7 +111,8 @@ bool pcafitter::compute_parameters (
 #endif
     
     int paramdim,
-    arma::rowvec & chi2values)
+    arma::rowvec & chi2values,
+    arma::rowvec & chi2values1)
 {
   reset_error();
 
@@ -176,7 +177,7 @@ bool pcafitter::compute_parameters (
       }
     }
 
-    // std::cout << "chi2 using eq 10 pg 112 " << k << " ==> " 
+    //std::cout << "chi2 using eq 10 pg 112 " << k << " ==> " 
     //   << chi2values(k)  << std::endl;
   }
 
@@ -204,12 +205,16 @@ bool pcafitter::compute_parameters (
       for (int j=0; j<coordim_; ++j)
         val += amtx(i,j) * coord(b,j);
 
-      val += kvct(i);
+      /* wrronmg sign */
+      val -= kvct(i);
 
       //std::cout << "  val:" << val << std::endl;
 
       chi2check += val*val;
     }
+
+
+    chi2values1(b) = chi2check;
 
     //std::cout << "chi2 using eq 11 pg 112 " << b << " ==> " 
     //  << chi2check  << std::endl;

@@ -76,12 +76,13 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
     ptrs[PCA_PHIIDX] = phicmp;
   }
 
-  arma::rowvec chi2values;
+  arma::rowvec chi2values, chi2values1;
   chi2values.resize(coordslt.n_rows);
+  chi2values1.resize(coordslt.n_rows);
 
   if (!fitter.compute_parameters (cmtx, q, amtx, vmtx, k, cm,
         coordslt, ptrs, fitter.get_paramdim(), 
-        chi2values))
+        chi2values, chi2values1))
   {
     std::cerr << fitter.get_errmsg() << std::endl;
     return false;
@@ -100,17 +101,18 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
 
   arma::running_stat<double> pcrelative[fitter.get_paramdim()];
   arma::running_stat<double> pcabsolute[fitter.get_paramdim()];
-  arma::running_stat<double> chi2stat;
+  arma::running_stat<double> chi2stat, chi2stat1;
   std::ofstream myfile(fname.str().c_str());
 
   assert(chi2values.n_cols == coordslt.n_rows);
+  assert(chi2values1.n_cols == coordslt.n_rows);
 
   if (rzplane)
   {
 #ifdef INTBITEWISEFIT
-    myfile << "pt cot0_orig cot0_fitt diff z0_orig z0_fitt diff chi2" << std::endl;
+    myfile << "pt cot0_orig cot0_fitt diff z0_orig z0_fitt diff chi2 chi2" << std::endl;
 #else
-    myfile << "pt eta_orig eta_fitt diff z0_orig z0_fitt diff chi2" << std::endl;
+    myfile << "pt eta_orig eta_fitt diff z0_orig z0_fitt diff chi2 chi2" << std::endl;
 #endif
     
     arma::rowvec etadiffvct(coordslt.n_rows), 
@@ -149,19 +151,22 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
       pcabsolute[PCA_Z0IDX](z0diff);
 
       chi2stat(chi2values(i));
+      chi2stat1(chi2values1(i));
         
 #ifdef INTBITEWISEFIT
       myfile << ptvals(i) << "   " <<
 	paramslt(i, PCA_COTTHETAIDX) << "   " << cothetacmp[i] << "   " <<
 	(cothetacmp[i] - paramslt(i, PCA_COTTHETAIDX)) << " " <<
 	z0orig << " " << z0cmps << " " <<
-	(z0cmps - z0orig) << chi2values(i) << std::endl;
+	(z0cmps - z0orig) << " " << chi2values(i) << " " 
+        << chi2values1(i) << std::endl;
 #else
       myfile << ptvals(i) << "   " <<
 	paramslt(i, PCA_COTTHETAIDX) << "   " << cothetacmp[i] << "   " <<
 	(cothetacmp[i] - paramslt(i, PCA_COTTHETAIDX)) << " " <<
 	z0orig << " " << z0cmps << " " <<
-	(z0cmps - z0orig) << " " << chi2values(i) << std::endl;
+	(z0cmps - z0orig) << " " << chi2values(i) << " "
+        << chi2values1(i) << std::endl;
 #endif
       
       if (verbose)
@@ -177,7 +182,8 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
         std::cout << " eta          orig " << etaorig << std::endl;
         std::cout << " z0           fitt " << z0cmps << std::endl;
         std::cout << " z0           orig " << z0orig << std::endl;
-        std::cout << " chi2              " << chi2values(i) << std::endl;
+        std::cout << " chi2  10          " << chi2values(i) << std::endl;
+        std::cout << " chi2  11          " << chi2values1(i) << std::endl;
       }
     }
 
@@ -214,7 +220,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
   else if (rphiplane)
   {
     std::ofstream myfile(fname.str().c_str());
-      myfile << "pt q/pt_orig q/pt_fitt diff phi_orig phi_fitt diff chi2" << std::endl; 
+      myfile << "pt q/pt_orig q/pt_fitt diff phi_orig phi_fitt diff chi2 chi2" << std::endl; 
 
     arma::rowvec qoverptdiffvct(coordslt.n_rows), 
       phidiffvct(coordslt.n_rows);
@@ -245,6 +251,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
       pcabsolute[PCA_ONEOVERPTIDX](diffqoverpt);
 
       chi2stat(chi2values(i));
+      chi2stat1(chi2values1(i));
 
       qoverptdiffvct(i) = diffqoverpt/qoverptorig;
       phidiffvct(i) = diffphi;
@@ -252,7 +259,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
       myfile << ptvals(i) << " " <<
         qoverptorig << " " << qoverptcmps << " " << diffqoverpt << " " <<
         phiorig     << " " << phicmps     << " " << diffphi     << " " << 
-        chi2values(i) << std::endl;
+        chi2values(i) << " " << chi2values1(i) << std::endl;
     
       if (verbose)
       {
@@ -261,7 +268,8 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
         std::cout << " q/pt         orig " << qoverptorig << std::endl;
         std::cout << " phi          fitt " << phicmps << std::endl;
         std::cout << " phi          orig " << phiorig << std::endl;
-        std::cout << " chi2              " << chi2values(i) << std::endl;
+        std::cout << " chi2 10           " << chi2values(i) << std::endl;
+        std::cout << " chi2 11           " << chi2values1(i) << std::endl;
       }
     }
 
@@ -310,8 +318,11 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
   }
 
   std::cout << " " << std::endl;
-  std::cout << "Chivalue mean " << chi2stat.mean() << " stdev " << 
+  std::cout << "Chivalue mean 10 " << chi2stat.mean() << " stdev " << 
     chi2stat.stddev() << std::endl;
+  std::cout << "Chivalue mean 11 " << chi2stat1.mean() << " stdev " << 
+    chi2stat1.stddev() << std::endl;
+
 
   if (rzplane)
   {
