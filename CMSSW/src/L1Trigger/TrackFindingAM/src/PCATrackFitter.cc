@@ -196,6 +196,8 @@ void PCATrackFitter::fit(vector<Hit*> hits)
 {
   int tow = sector_id; // The tower ID, necessary to get the phi shift
 
+  std::cout << "In PCA::fit tow: " << tow << std::endl;
+
   double sec_phi = 0;
   switch (tow%8)
   {
