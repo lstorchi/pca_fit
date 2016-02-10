@@ -182,21 +182,16 @@ void PCATrackFitter::mergeTracks()
   }
 }
 
-void PCATrackFitter::setTracks(const std::vector<Track*> & intc,
-     const std::map< unsigned int , edm::Ref< edmNew::DetSetVector<
-       TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > > & stubmap, 
-       unsigned int seedsector)
+void PCATrackFitter::setTracks(const std::vector<Track*> & intc)
 {
   tracks_ = intc;
-  stubmap_ = stubmap;
-  seedsector_ = seedsector; // TODO: is it the towerid ?
 }
 
 void PCATrackFitter::fit(vector<Hit*> hits)
 {
   int tow = sector_id; // The tower ID, necessary to get the phi shift
 
-  std::cout << "PCA fit for tow: " << tow << std::endl;
+  std::cout << "In PCA::fit tow: " << tow << std::endl;
 
   double sec_phi = 0;
   switch (tow%8)
@@ -227,61 +222,26 @@ void PCATrackFitter::fit(vector<Hit*> hits)
   double ci = cos(sec_phi);
   double si = sin(sec_phi);
 
-  std::cout << "tracks_.size(): " << tracks_.size() << std::endl;
-
   for(unsigned int tt=0; tt<tracks_.size(); ++tt)
   {
     vector<int> stubids = tracks_[tt]->getStubs(); // TODO are they the hits idx ? 
 
-    /* TODO segfault 
-    std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, 
-      TTStub< Ref_PixelDigi_ > > > tempvec;
-
-    for(unsigned int sti=0; sti<stubids.size(); ++sti) 
-      tempvec.push_back( stubmap_[ stubids[sti] ] );
-
-    TTTrack< Ref_PixelDigi_ > temptrack( tempvec );
-
-    double pz = tracks_[tt]->getCurve()/
-      (tan(2*atan(exp(-tracks_[tt]->getEta0()))));
-    GlobalPoint POCA(0.,0.,tracks[tt]->getZ0());
-    GlobalVector mom(tracks_[tt]->getCurve()*cos(tracks_[tt]->getPhi0()),
-		     tracks_[tt]->getCurve()*sin(tracks_[tt]->getPhi0()),
-		     pz);
-		
-    temptrack.setSector( seedsector_ ); // TODO: is it the towerid ?
-    temptrack.setWedge( -1 );
-    temptrack.setMomentum( mom , 5);
-    temptrack.setPOCA( POCA , 5);
-    */
-
-    std::cout << "stubids.size(): " << stubids.size() << std::endl;
-	
     if (stubids.size() == 6)
     {
       std::vector<double> zrv, phirv;
-      int charge = 1; // TODO estimate the charge as in the TCB ? or store it from the TCB 
-                      //      we should be able to get charge from Hit part_id 
-     
-      // TODO segfault 
-      //temptrack.getRInv() > 0 ? charge = 1 : charge = -1; // TODO is it correct ?
+      int charge = tracks_[tt]->getCharge(); 
 
       vector<int>::const_iterator idx = stubids.begin();
       for(; idx != stubids.end(); ++idx)
       {
         // TODO is it ok ? are they the hits id ? looking at the implementation seems so 
-        //      the stubID is idx in the hit vector, Seb say yes but sgfault
-        std::cout << "idx: " << *idx << std::endl;
-
+        //      the stubID is idx in the hit vector
         double xi = hits[*idx]->getX()*ci+ hits[*idx]->getY()*si;
         double yi = -hits[*idx]->getX()*si+ hits[*idx]->getY()*ci;
 
         double zi = hits[*idx]->getZ();
         double ri = sqrt(xi*xi+yi*yi);
         double pi = atan2(yi,xi);
-
-        std::cout << xi << " " << yi << " " << zi << " " 
-          << ri  << " " << pi << std::endl;
 
         zrv.push_back(zi);
         zrv.push_back(ri);
@@ -306,8 +266,6 @@ void PCATrackFitter::fit(vector<Hit*> hits)
       get_c_matrix_rz (eta_est, tow, c_rz);
       get_q_vector_rz (eta_est, tow, q_rz);
 
-      std::cout << "Here 1" << std::endl;
-
       // TODO checkit
       cottheta = q_rz[0];
       z0 = q_rz[1];
@@ -322,8 +280,6 @@ void PCATrackFitter::fit(vector<Hit*> hits)
       get_c_matrix_rphi (pt_est, charge, tow, c_rphi);
       get_q_vector_rphi (pt_est, charge, tow, q_rphi);
 
-      std::cout << "Here 2" << std::endl;
-
       // TODO checkit
       coverpt = q_rphi[0];
       phi = q_rphi[1];
@@ -332,8 +288,6 @@ void PCATrackFitter::fit(vector<Hit*> hits)
         coverpt += c_rphi[0][i]*phirv[i];
         z0 += c_rphi[1][i]*phirv[i];
       }
-
-      std::cout << "Here 3" << std::endl;
 
       double pt = (double)(charge)/coverpt;
 
@@ -345,8 +299,6 @@ void PCATrackFitter::fit(vector<Hit*> hits)
         eta = 1.0e0 * log (-1.0e0 * tantheta2);
       else
         eta = -1.0e0 * log (tantheta2);
-
-      std::cout << "New fit track " << std::endl;
 
       Track* fit_track = new Track();
 

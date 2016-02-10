@@ -305,7 +305,7 @@ void TrackFitTCProducer::produce( edm::Event& iEvent, const edm::EventSetup& iSe
 	tempTrack.setRInv( -(tracks[tt]->getCharge()) , 5);
 	
 	TTTracksForOutput->push_back( tempTrack );
-	std::cout << "Charge from TC=" << tempTrack.getRInv() << std::endl;
+	std::cout << "At the end!!!RInv from TC=" << tempTrack.getRInv(5) << std::endl;
 	delete tracks[tt];
       } // End of loop over TCs
     } // End of loop over patterns

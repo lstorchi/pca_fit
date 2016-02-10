@@ -134,7 +134,8 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
   /// Prepare output
   /// The temporary collection is used to store tracks
   /// before removal of duplicates
-  std::auto_ptr< std::vector< TTTrack< Ref_PixelDigi_ > > > TTTracksForOutput( new std::vector< TTTrack< Ref_PixelDigi_ > > );
+  std::auto_ptr< std::vector< TTTrack< Ref_PixelDigi_ > > > 
+    TTTracksForOutput( new std::vector< TTTrack< Ref_PixelDigi_ > > );
 
   /// Get the Stubs already stored away
   edm::Handle< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > > > TTStubHandle;
@@ -155,30 +156,32 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
   int module = 0;
   int nbLayers = 0;
 
-  unsigned int j = 0;
+  unsigned int j     = 0;
   //unsigned int tkCnt = 0;
   PCATrackFitter* pcafitter = new PCATrackFitter(nbLayers);
 
   std::vector<Hit*> m_hits;
   std::vector<Track*> pca_tracks, tcb_tracks;
-  std::map< unsigned int , edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > > stubMap;
+  std::map< unsigned int , edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, 
+    TTStub< Ref_PixelDigi_ > > > stubMap;
 
   //Loop over TTracks from TCBuilder 
   std::vector< TTTrack< Ref_PixelDigi_ > >::const_iterator iterTCTTrack;
   iterTCTTrack = (*TCBuilderTTracksHandle.product()).begin();
-  for(; iterTCTTrack != (*TCBuilderTTracksHandle.product()).end(); iterTCTTrack++ ) 
+  for(;iterTCTTrack != (*TCBuilderTTracksHandle.product()).end(); ++iterTCTTrack ) 
   {
     const TTTrack< Ref_PixelDigi_ > trk = *iterTCTTrack;
     Track* tempt = new Track();
-    tempt->setCurve(iterTCTTrack->getMomentum().perp());
-    tempt->setEta0(iterTCTTrack->getMomentum().eta());
-    tempt->setPhi0(iterTCTTrack->getMomentum().phi());
-    tempt->setZ0(iterTCTTrack->getPOCA().z());
+    tempt->setCurve(iterTCTTrack->getMomentum(5).perp());
+    tempt->setEta0(iterTCTTrack->getMomentum(5).eta());
+    tempt->setPhi0(iterTCTTrack->getMomentum(5).phi());
+    tempt->setZ0(iterTCTTrack->getPOCA(5).z());
+    tempt->setCharge(-(iterTCTTrack->getRInv(5)));//charge = -RInv
+    std::cout << "Charge from TC track=" << tempt->getCharge() << std::endl;
     tcb_tracks.push_back(tempt);
     nbLayers = iterTCTTrack->getWedge();
     unsigned int seedSector = iterTCTTrack->getSector();
     m_hits.clear();
-    tcb_tracks.clear();    
     stubMap.clear();
     j = 0;
     std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_  > >, 
@@ -186,12 +189,12 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
     for(unsigned int i=0; i<trackStubs.size(); ++i)
     {
       ++j;
-      
+
       edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, 
         TTStub< Ref_PixelDigi_ > > tempStubRef = trackStubs.at(i);
-      
+
       stubMap.insert( std::make_pair( j, tempStubRef ) );
-      
+
       /// Calculate average coordinates col/row for inner/outer Cluster
       /// These are already corrected for being at the center of each pixel
       MeasurementPoint mp0 = tempStubRef->getClusterRef(0)->findAverageLocalCoordinates();
@@ -214,27 +217,27 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
       int ratio   = cols0/cols1; /// This assumes the ratio is integer!
       int segment = floor( mp0.y() / ratio );
       int strip   =  mp0.x();
-      
+    
       // Here we rearrange the number in order to be compatible with the TC builder
-      
+  
       // First of all we 
       // order the stubs per layers
       // and count the number of layers touched    
-      
+
       // Layers are numbered as follows
       // Barrel      : 0,1,2,8,9,10
       // Disk z+/- PS: 3,4,5,6,7
       // Disk z+/- 2S: 11,12,13,14,15
-      
+
       if ( detIdStub.isBarrel() )
       {
         layer  = detIdStub.iLayer()-1;
-      
+
         if (layer>2) layer+=5;
-      
+
         ladder = detIdStub.iPhi()-1;
         module = detIdStub.iZ()-1;
-      
+
         //	  cout << layer << " / " << detIdStub.iLayer()+4 << endl;
       }
       else if ( detIdStub.isEndcap() )
@@ -243,9 +246,9 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
         layer = detIdStub.iZ()+2;
         
         if (ratio==1) layer+=8;
-      
+
         //	  cout << layer << " / " << ratio << " / " << 10+detIdStub.iZ()+abs((int)(detIdStub.iSide())-2)*7 << endl;
-      
+
         ladder = detIdStub.iRing()-1;
         module = detIdStub.iPhi()-1;
       }
@@ -254,20 +257,19 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
       		 j, -1, 0, 0, 0, 0, 
       		 posStub.x(), posStub.y(), posStub.z(), 0, 0, 0, 
       		 tempStubRef->getTriggerDisplacement()-tempStubRef->getTriggerOffset());
-      
+
       m_hits.push_back(h);
 
     } /// End of loop over tcb_track stubs
     
     pcafitter->setSectorID(seedSector);
-    pcafitter->setTracks (tcb_tracks, stubMap, seedSector);
+    pcafitter->setTracks(tcb_tracks);
     pcafitter->fit(m_hits);
     pca_tracks = pcafitter->getTracks();
 
     std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, 
       TTStub< Ref_PixelDigi_ > > > tempVec;
-
-    for(unsigned int tt=0; tt<pca_tracks.size(); ++tt)
+    for(unsigned int tt=0; tt<pca_tracks.size(); tt++)
     {
       tempVec.clear();
       //Stubs used for the fit 
@@ -290,7 +292,6 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
       delete pca_tracks[tt];
     }
   }    
-
   iEvent.put( TTTracksForOutput, TTTrackOutputTag);
 }
 

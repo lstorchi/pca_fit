@@ -707,7 +707,8 @@ void TCBuilder::fit(vector<Hit*> hits)
   fit_track->setPhi0(phi_est);
   fit_track->setEta0(eta_est);
   fit_track->setZ0(z_est);
-      
+  fit_track->setCharge(charge);
+  //std::cout << "Fit Track charge set to=" << fit_track->getCharge() << std::endl;      
   for(unsigned int hitIndex=0;hitIndex < bestTC.size();hitIndex++)
   {
     fit_track->addStubIndex(bestTC[hitIndex]->getID());
