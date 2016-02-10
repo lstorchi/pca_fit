@@ -226,24 +226,21 @@ void PCATrackFitter::fit(vector<Hit*> hits)
 
   for(unsigned int tt=0; tt<tracks_.size(); ++tt)
   {
-    vector<int> stubids = tracks_[tt]->getStubs(); // TODO are they the hits idx ? 
+    //vector<int> stubids = tracks_[tt]->getStubs(); // TODO are they the hits idx ? 
 
-    std::cout << "stubids.size() : " << stubids.size() << std::endl;
+    std::cout << "hits.size() : " << hits.size() << std::endl;
 
-    if (stubids.size() == 6)
+    if (hits.size() == 6)
     {
       std::vector<double> zrv, phirv;
       int charge = tracks_[tt]->getCharge(); 
 
-      vector<int>::const_iterator idx = stubids.begin();
-      for(; idx != stubids.end(); ++idx)
+      for(unsigned int idx = 0; idx < hits.size(); ++idx)
       {
-        // TODO is it ok ? are they the hits id ? looking at the implementation seems so 
-        //      the stubID is idx in the hit vector
-        double xi = hits[*idx]->getX()*ci+ hits[*idx]->getY()*si;
-        double yi = -hits[*idx]->getX()*si+ hits[*idx]->getY()*ci;
+        double xi =  hits[idx]->getX()*ci+ hits[idx]->getY()*si;
+        double yi = -hits[idx]->getX()*si+ hits[idx]->getY()*ci;
 
-        double zi = hits[*idx]->getZ();
+        double zi = hits[idx]->getZ();
         double ri = sqrt(xi*xi+yi*yi);
         double pi = atan2(yi,xi);
 
@@ -314,9 +311,9 @@ void PCATrackFitter::fit(vector<Hit*> hits)
       fit_track->setEta0(eta);
       fit_track->setZ0(z0);
                       
-      idx = stubids.begin();
-      for(; idx != stubids.end(); ++idx)
-        fit_track->addStubIndex(*idx);
+      for(unsigned int idx = 0; idx < hits.size(); ++idx)
+        fit_track->addStubIndex(idx);
+ 
  
       tracks.push_back(fit_track);
     }
