@@ -222,9 +222,13 @@ void PCATrackFitter::fit(vector<Hit*> hits)
   double ci = cos(sec_phi);
   double si = sin(sec_phi);
 
+  std::cout << "tracks_.size() : " << tracks_.size() << std::endl;
+
   for(unsigned int tt=0; tt<tracks_.size(); ++tt)
   {
     vector<int> stubids = tracks_[tt]->getStubs(); // TODO are they the hits idx ? 
+
+    std::cout << "stubids.size() : " << stubids.size() << std::endl;
 
     if (stubids.size() == 6)
     {
@@ -242,6 +246,9 @@ void PCATrackFitter::fit(vector<Hit*> hits)
         double zi = hits[*idx]->getZ();
         double ri = sqrt(xi*xi+yi*yi);
         double pi = atan2(yi,xi);
+
+        std::cout << xi << " " << yi << " " << zi << std::endl;
+        std::cout << ri << " " << pi << std::endl;
 
         zrv.push_back(zi);
         zrv.push_back(ri);
