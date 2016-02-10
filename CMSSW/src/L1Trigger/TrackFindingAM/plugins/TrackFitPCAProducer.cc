@@ -265,7 +265,7 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
     pcafitter->setSectorID(seedSector);
     pcafitter->setTracks(tcb_tracks);
     pcafitter->fit(m_hits);
-    std::cout << "get back tracks"
+    std::cout << "get back tracks" << std::endl;
     pca_tracks = pcafitter->getTracks();
 
     std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, 

@@ -314,7 +314,6 @@ void PCATrackFitter::fit(vector<Hit*> hits)
       for(unsigned int idx = 0; idx < hits.size(); ++idx)
         fit_track->addStubIndex(idx);
  
- 
       tracks.push_back(fit_track);
     }
     else
