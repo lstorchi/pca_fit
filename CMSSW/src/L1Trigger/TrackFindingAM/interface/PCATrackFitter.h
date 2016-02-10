@@ -49,9 +49,6 @@ class PCATrackFitter:public TrackFitter{
   BOOST_SERIALIZATION_SPLIT_MEMBER()
 
   std::vector<Track*> tracks_;
-  std::map< unsigned int , edm::Ref< edmNew::DetSetVector<
-            TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > > stubmap_;
-  unsigned int seedsector_;
 
  public:
 
@@ -69,10 +66,7 @@ class PCATrackFitter:public TrackFitter{
   void initialize();
   void fit(vector<Hit*> hits);
   void fit();
-  void setTracks(const std::vector<Track*> &, const 
-      std::map< unsigned int , edm::Ref< edmNew::DetSetVector<
-         TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > > &,
-         unsigned int);
+  void setTracks(const std::vector<Track*> &); 
 
   void mergePatterns();
   void mergeTracks();

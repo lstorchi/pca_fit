@@ -162,7 +162,8 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
 
   std::vector<Hit*> m_hits;
   std::vector<Track*> pca_tracks, tcb_tracks;
-  std::map< unsigned int , edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > > stubMap;
+  std::map< unsigned int , edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, 
+    TTStub< Ref_PixelDigi_ > > > stubMap;
 
   //Loop over TTracks from TCBuilder 
   std::vector< TTTrack< Ref_PixelDigi_ > >::const_iterator iterTCTTrack;
@@ -181,7 +182,6 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
     nbLayers = iterTCTTrack->getWedge();
     unsigned int seedSector = iterTCTTrack->getSector();
     m_hits.clear();
-    tcb_tracks.clear();    
     stubMap.clear();
     j = 0;
     std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_  > >, 
@@ -263,7 +263,7 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
     } /// End of loop over tcb_track stubs
     
     pcafitter->setSectorID(seedSector);
-    pcafitter->setTracks(tcb_tracks, stubMap, seedSector);
+    pcafitter->setTracks(tcb_tracks);
     pcafitter->fit(m_hits);
     pca_tracks = pcafitter->getTracks();
 

@@ -182,14 +182,9 @@ void PCATrackFitter::mergeTracks()
   }
 }
 
-void PCATrackFitter::setTracks(const std::vector<Track*> & intc,
-     const std::map< unsigned int , edm::Ref< edmNew::DetSetVector<
-       TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > > & stubmap, 
-       unsigned int seedsector)
+void PCATrackFitter::setTracks(const std::vector<Track*> & intc)
 {
   tracks_ = intc;
-  stubmap_ = stubmap;
-  seedsector_ = seedsector; // TODO: is it the towerid ?
 }
 
 void PCATrackFitter::fit(vector<Hit*> hits)
@@ -231,33 +226,10 @@ void PCATrackFitter::fit(vector<Hit*> hits)
   {
     vector<int> stubids = tracks_[tt]->getStubs(); // TODO are they the hits idx ? 
 
-    std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, 
-      TTStub< Ref_PixelDigi_ > > > tempvec;
-
-    for(unsigned int sti=0; sti<stubids.size(); ++sti) 
-      tempvec.push_back( stubmap_[ stubids[sti] ] );
-
-    TTTrack< Ref_PixelDigi_ > temptrack( tempvec );
-
-    double pz = tracks_[tt]->getCurve()/
-      (tan(2*atan(exp(-tracks_[tt]->getEta0()))));
-    GlobalPoint POCA(0.,0.,tracks[tt]->getZ0());
-    GlobalVector mom(tracks_[tt]->getCurve()*cos(tracks_[tt]->getPhi0()),
-		     tracks_[tt]->getCurve()*sin(tracks_[tt]->getPhi0()),
-		     pz);
-		
-    temptrack.setSector( seedsector_ ); // TODO: is it the towerid ?
-    temptrack.setWedge( -1 );
-    temptrack.setMomentum( mom , 5);
-    temptrack.setPOCA( POCA , 5);
-	
     if (stubids.size() == 6)
     {
       std::vector<double> zrv, phirv;
-      int charge = 1; // TODO estimate the charge as in the TCB ? or store it from the TCB 
-                      //      we should be able to get charge from Hit part_id 
-      
-      temptrack.getRInv() > 0 ? charge = 1 : charge = -1; // TODO is it correct ?
+      int charge = tracks_[tt]->getCharge(); 
 
       vector<int>::const_iterator idx = stubids.begin();
       for(; idx != stubids.end(); ++idx)
