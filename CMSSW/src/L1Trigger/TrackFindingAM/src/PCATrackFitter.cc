@@ -244,6 +244,7 @@ void PCATrackFitter::fit(vector<Hit*> hits)
         double ri = sqrt(xi*xi+yi*yi);
         double pi = atan2(yi,xi);
 
+        std::cout << (int) hits[idx]->getLayer() << std::endl;
         std::cout << xi << " " << yi << " " << zi << std::endl;
         std::cout << ri << " " << pi << std::endl;
 

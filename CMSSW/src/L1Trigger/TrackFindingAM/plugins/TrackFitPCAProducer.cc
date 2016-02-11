@@ -252,6 +252,9 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
         ladder = detIdStub.iRing()-1;
         module = detIdStub.iPhi()-1;
       }
+
+      std::cout << layer << " " << ladder << " " << module << std::endl;
+      std::cout << posStub.x() << " "<< posStub.y() << " " << posStub.z() << std::endl;
       
       Hit* h = new Hit(layer,ladder, module, segment, strip, 
       		 j, -1, 0, 0, 0, 0, 
