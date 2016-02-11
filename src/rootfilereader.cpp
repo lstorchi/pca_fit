@@ -120,7 +120,7 @@ void rootfilereader::reset()
   d0max_ = INFINITY; 
   maxnumoflayers_ = 6;
   chargesign_ = 0;
-  maxnumoftracks_ = INFINITY;
+  maxnumoftracks_ = (unsigned int)  INFINITY;
   specificseq_ = "";
   performlinearinterpolation_ = false;
   layeridtorm_ = -1;

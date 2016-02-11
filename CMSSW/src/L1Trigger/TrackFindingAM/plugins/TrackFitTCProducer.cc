@@ -169,6 +169,9 @@ void TrackFitTCProducer::produce( edm::Event& iEvent, const edm::EventSetup& iSe
   edmNew::DetSet< TTStub< Ref_PixelDigi_ > >::const_iterator stubIter;
 
   std::vector< TTTrack< Ref_PixelDigi_ > >::const_iterator iterTTTrack;
+
+  std::ofstream coordfile;
+  coordfile.open ("TCBcoord.txt");
   
   /// Go on only if there are Patterns from PixelDigis
   if ( TTPatternHandle->size() > 0 )
@@ -260,6 +263,13 @@ void TrackFitTCProducer::produce( edm::Event& iEvent, const edm::EventSetup& iSe
 	  ladder = detIdStub.iRing()-1;
 	  module = detIdStub.iPhi()-1;
 	}
+
+        coordfile << posStub.x() << " "<< posStub.y() << " " << posStub.z() << " " << 
+          layer << " " << ladder << " " << module << std::endl;
+
+        std::cout << "TCBxyz " << 
+          posStub.x() << " "<< posStub.y() << " " << posStub.z() << " " << 
+          layer << " " << ladder << " " << module << std::endl;
 	
 	Hit* h = new Hit(layer,ladder, module, segment, strip, 
 			 j, -1, 0, 0, 0, 0, 
@@ -310,6 +320,8 @@ void TrackFitTCProducer::produce( edm::Event& iEvent, const edm::EventSetup& iSe
       } // End of loop over TCs
     } // End of loop over patterns
   }
+
+  coordfile.close();
 
   delete(TCB);    
   std::cout << "#TTracks from TC=" << TTTracksForOutput->size() << std::endl;

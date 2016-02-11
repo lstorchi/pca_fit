@@ -223,6 +223,12 @@ void PCATrackFitter::fit(vector<Hit*> hits)
   double si = sin(sec_phi);
 
   std::cout << "tracks_.size() : " << tracks_.size() << std::endl;
+  
+  std::ofstream xyzfile;
+  xyzfile.open ("PCAxyzfile.txt");
+
+  std::ofstream rpzfile;
+  rpzfile.open ("PCArphizfile.txt");
 
   for(unsigned int tt=0; tt<tracks_.size(); ++tt)
   {
@@ -244,9 +250,17 @@ void PCATrackFitter::fit(vector<Hit*> hits)
         double ri = sqrt(xi*xi+yi*yi);
         double pi = atan2(yi,xi);
 
-        std::cout << (int) hits[idx]->getLayer() << std::endl;
-        std::cout << xi << " " << yi << " " << zi << std::endl;
-        std::cout << ri << " " << pi << std::endl;
+        std::cout << "PCAxyz " << xi << " " << yi << " " << zi << " " << 
+          (int) hits[idx]->getLayer() << std::endl;
+
+        xyzfile << xi << " " << yi << " " << zi << " " << 
+          (int) hits[idx]->getLayer() << std::endl;
+
+        std::cout << "PCArpz " << xi << " " << yi << " " << zi << " " << 
+          (int) hits[idx]->getLayer() << std::endl;
+
+        rpzfile << ri << " " << pi << zi << " " << 
+          (int) hits[idx]->getLayer() << std::endl;
 
         zrv.push_back(zi);
         zrv.push_back(ri);
@@ -322,6 +336,11 @@ void PCATrackFitter::fit(vector<Hit*> hits)
       // TODO non 6 layers 
     }
   }
+
+  xyzfile.close();
+  rpzfile.close();
+
+
 }
 
 void PCATrackFitter::fit()

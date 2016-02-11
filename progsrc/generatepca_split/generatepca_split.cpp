@@ -48,6 +48,7 @@ void usage (char * name)
   std::cerr << " -p, --dump-allcoords            : dump all stub coordinates to a file" << std::endl;
   std::cerr << " -d, --dump-bankfiles            : dump all coordinates files and more extracted from the rootfile" 
     << std::endl;
+  std::cerr << " -X, --max-num-oftracks=[n]      : stop reading root file after n tracks" << std::endl;
   std::cerr << std::endl;
   std::cerr << " -z, --rz-plane                  : use rz plane view (fit eta and z0)" << std::endl;
   std::cerr << " -r, --rphi-plane                : use r-phi plane view (fit pt and phi)" << std::endl;
@@ -140,6 +141,8 @@ int main (int argc, char ** argv)
   int numoflayers = 6;
   int layeridtorm = -1;
 
+  unsigned int maxnumoftracks = (unsigned int) INFINITY;
+
   double etamin = -1.0e0 * INFINITY, etamax = +1.0e0 * INFINITY;
   double ptmin = -1.0e0 * INFINITY, ptmax = +1.0e0 * INFINITY;
   double phimin = -1.0e0 * INFINITY, phimax = +1.0e0 * INFINITY;
@@ -178,16 +181,20 @@ int main (int argc, char ** argv)
       {"relative-values", 1, NULL, 'b'},
       {"dump-bankfiles", 0, NULL, 'd'},
       {"fk-five-hits", 1, NULL, 'y'},
+      {"max-num-oftracks", 1, NULL, 'X'},
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "aVlkxhvdpzrb:g:t:n:m:o:u:f:y:", long_options, &option_index);
+    c = getopt_long (argc, argv, "aVlkxhvdpzrX:b:g:t:n:m:o:u:f:y:", long_options, &option_index);
 
     if (c == -1)
       break;
 
     switch (c)
     {
+      case 'X':
+        maxnumoftracks = atoi(optarg);
+        break;
       case 'y':
         usefakefiveoutofsix = true;
         layeridtorm = atoi(optarg);
@@ -428,6 +435,7 @@ int main (int argc, char ** argv)
   rootrdr.set_verbose(verbose);
   rootrdr.set_checklayersids(checklayersids);
   rootrdr.set_checklayersids(checklayersids);
+  rootrdr.set_maxnumoftracks(maxnumoftracks);
 
   rootrdr.set_fkfiveoutofsix(usefakefiveoutofsix, 
       layeridtorm);
