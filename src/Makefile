@@ -22,7 +22,8 @@ LIBNAME = libpcafitter.a
 OBJ = $(LIBNAME)(pcafitter.o) \
       $(LIBNAME)(utility.o) \
       $(LIBNAME)(dicts.o) \
-      $(LIBNAME)(rootfilereader.o)
+      $(LIBNAME)(rootfilereader.o) \
+      $(LIBNAME)(pcaconst.o)
 
 all: $(LIBNAME)
 

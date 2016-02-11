@@ -116,8 +116,17 @@ void perform_main_computation (const arma::mat & coord,
   pca::write_armmat(cfname.c_str(), cmtx);
   pca::write_armvct(qfname.c_str(), q);
   pca::write_armmat(afname.c_str(), amtx);
-  pca::write_armmat(vfname.c_str(), vmtx);
   pca::write_armvct(kfname.c_str(), kivec);
+
+  pca::matrix<double> 
+    pcmtx(cmtx.n_rows, cmtx.n_cols), 
+    pqvct(q.n_rows, q.n_cols), 
+    pamtx(amtx.n_rows, amtx.n_cols), 
+    pkvct(kivec.n_rows, kivec.n_cols);
+
+  pca::armamat_to_pcamat (cmtx, pcmtx);
+
+  pca::write_armmat(vfname.c_str(), vmtx);
   pca::write_armvct(cmfname.c_str(), coordmvec);
 }
 
