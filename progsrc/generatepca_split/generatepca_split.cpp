@@ -125,6 +125,9 @@ void perform_main_computation (const arma::mat & coord,
     pkvct(kivec.n_rows, kivec.n_cols);
 
   pca::armamat_to_pcamat (cmtx, pcmtx);
+  pca::armamat_to_pcamat (q, pqvct);
+  pca::armamat_to_pcamat (amtx, pamtx);
+  pca::armamat_to_pcamat (kivec, pkvct);
 
   pca::write_armmat(vfname.c_str(), vmtx);
   pca::write_armvct(cmfname.c_str(), coordmvec);
