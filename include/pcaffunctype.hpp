@@ -86,7 +86,7 @@ namespace pca
     out.reset(in.n_rows, in.n_cols);
 
     for (unsigned int i=0; i<in.n_rows; ++i)
-      for (unsigned int j=0; j<in.n_rows; ++j)
+      for (unsigned int j=0; j<in.n_cols; ++j)
         out.element(i, j) = in(i, j);
 
     return true;

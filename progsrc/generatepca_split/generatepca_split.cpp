@@ -136,6 +136,7 @@ void perform_main_computation (const arma::mat & coord,
   /* TODO should be given as input */
   pcmtx.set_sector_type (pca::matrixpcaconst<double>::BARREL);
   pcmtx.set_towerid (18);
+  pcmtx.set_ttype (pca::matrixpcaconst<double>::FLOATPT);
   /* */
   if (rootrdr.get_rphiplane())
     pcmtx.set_plane_type (pca::matrixpcaconst<double>::RPHI);
@@ -144,11 +145,14 @@ void perform_main_computation (const arma::mat & coord,
   pcmtx.set_ptrange (ptmin, ptmax);
   pcmtx.set_etarange (etamin, etamax); 
 
+  write_pcacont_to_file (pcmtx, "const.txt");
+
   pca::armamat_to_pcamat (q, pqvct);
   pqvct.set_const_type (pca::matrixpcaconst<double>::QVEC);
   /* TODO should be given as input */
   pqvct.set_sector_type (pca::matrixpcaconst<double>::BARREL);
   pqvct.set_towerid (18);
+  pqvct.set_ttype (pca::matrixpcaconst<double>::FLOATPT);
   /* */
   if (rootrdr.get_rphiplane())
     pqvct.set_plane_type (pca::matrixpcaconst<double>::RPHI);
@@ -162,6 +166,7 @@ void perform_main_computation (const arma::mat & coord,
   /* TODO should be given as input */
   pamtx.set_sector_type (pca::matrixpcaconst<double>::BARREL);
   pamtx.set_towerid (18);
+  pamtx.set_ttype (pca::matrixpcaconst<double>::FLOATPT);
   /* */
   if (rootrdr.get_rphiplane())
     pamtx.set_plane_type (pca::matrixpcaconst<double>::RPHI);
@@ -175,6 +180,7 @@ void perform_main_computation (const arma::mat & coord,
   /* TODO should be given as input */
   pkvct.set_sector_type (pca::matrixpcaconst<double>::BARREL);
   pkvct.set_towerid (18);
+  pkvct.set_ttype (pca::matrixpcaconst<double>::FLOATPT);
   /* */
   if (rootrdr.get_rphiplane())
     pkvct.set_plane_type (pca::matrixpcaconst<double>::RPHI);

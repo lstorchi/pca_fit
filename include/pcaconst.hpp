@@ -36,11 +36,19 @@ namespace pca
           UNDEF
         };
 
+        enum ttype 
+        {
+          FLOATPT,
+          INTEGPT,
+          NOONE
+        };
+
      private:
         std::vector<T> elements_; 
         unsigned int rows_;  
         unsigned int cols_;  
 
+        ttype ttype_;
         const_type ctype_;
         sector_type stype_;
         plane_type ptype_;
@@ -58,6 +66,9 @@ namespace pca
         matrixpcaconst<T>& operator=( const matrixpcaconst<T>& );
     
         bool operator==( const matrixpcaconst<T>& ) const;
+
+        void set_ttype (ttype in) {ttype_ = in;};
+        ttype get_ttype () const {return ttype_;};
 
         void set_const_type (const_type in) {ctype_ = in;};
         const_type get_const_type () const {return ctype_;};
@@ -131,6 +142,72 @@ namespace pca
            #endif
            return elements_[i*cols_+j];
         }
+
+        static std::string const_type_to_string (matrixpcaconst<T>::const_type in)
+        {
+          switch (in)
+          {
+            case matrixpcaconst<T>::QVEC:
+              return "QVEC";
+            case matrixpcaconst<T>::CMTX:
+              return "CMTX";
+            case matrixpcaconst<T>::AMTX:
+              return "AMTX";
+            case matrixpcaconst<T>::KVEC:
+              return "KVEC";
+            case matrixpcaconst<T>::NONDEF:
+              return "NONDEF";
+          }
+        
+          return "";
+        }
+
+        static std::string sector_type_to_string (matrixpcaconst<T>::sector_type in)
+        {
+          switch (in)
+          {
+            case matrixpcaconst<T>::BARREL:
+              return "BARREL";
+            case matrixpcaconst<T>::HYBRID:
+              return "HYBRID";
+            case matrixpcaconst<T>::ENDCAP:
+              return "ENDCAP";
+            case matrixpcaconst<T>::UNKN:
+              return "UNKN";
+          }
+        
+          return "";
+        }
+
+        static std::string plane_type_to_string (matrixpcaconst<T>::plane_type in)
+        {
+          switch (in)
+          {
+            case matrixpcaconst<T>::RPHI:
+              return "RPHI";
+            case matrixpcaconst<T>::RZ:
+              return "RZ";
+            case matrixpcaconst<T>::UNDEF:
+              return "UNDEF";
+          }
+        
+          return "";
+        }
+
+        static std::string ttype_to_string (matrixpcaconst<T>::ttype in)
+        {
+          switch (in)
+          {
+            case matrixpcaconst<T>::FLOATPT:
+              return "FLOATPT";
+            case matrixpcaconst<T>::INTEGPT:
+              return "INTEGPT";
+            case matrixpcaconst<T>::NOONE:
+              return "NOONE";
+          }
+        
+          return "";
+        }
   };
 
   template<class T>
@@ -140,6 +217,7 @@ namespace pca
     rows_ = rows;
     cols_ = cols;
 
+    ttype_ = NOONE;
     ctype_ = NONDEF;
     stype_ = UNKN;
     ptype_ = UNDEF;
@@ -168,6 +246,7 @@ namespace pca
     cols_ = cp.cols_; 
     elements_ = cp.elements_;
 
+    ttype_ = cp.ttype_;
     ctype_ = cp.ctype_;
     stype_ = cp.stype_;
     ptype_ = cp.ptype_;
@@ -192,6 +271,7 @@ namespace pca
     rows_ = 0;
     cols_ = 0;
 
+    ttype_= NOONE;
     ctype_ = NONDEF;
     stype_ = UNKN;
     ptype_ = UNDEF;
@@ -219,35 +299,63 @@ namespace pca
   matrixpcaconst<T>& pca::matrixpcaconst<T>::operator=( 
       const pca::matrixpcaconst<T>& cp )
   {
-     if (cp.rows_ != rows_ && cp.cols_ != cols_ )
-        throw std::domain_error("matrix op= not of same order");
-     
-     for(unsigned i=0; i<rows_*cols_; i++)
-       elements_.push_back(cp.elements_[i]);
+    if (cp.rows_ != rows_ && cp.cols_ != cols_ )
+       throw std::domain_error("matrix op= not of same order");
+    
+    for(unsigned i=0; i<rows_*cols_; i++)
+      elements_.push_back(cp.elements_[i]);
 
-     ctype_ = cp.ctype_;
-     stype_ = cp.stype_;
-     ptype_ = cp.ptype_;
-     
-     ptmin_ = cp.ptmin_;
-     ptmax_ = cp.ptmax_;
-     etamin_ = cp.etamin_;
-     etamax_ = cp.etamax_;
-     towerid_ = cp.towerid_;
+    ttype_ = cp.ttype_;
+    ctype_ = cp.ctype_;
+    stype_ = cp.stype_;
+    ptype_ = cp.ptype_;
+    
+    ptmin_ = cp.ptmin_;
+    ptmax_ = cp.ptmax_;
+    etamin_ = cp.etamin_;
+    etamax_ = cp.etamax_;
+    towerid_ = cp.towerid_;
   
-     return *this;
+    return *this;
   }
   
-  template<class T>
+  template<typename T>
   void matrixpcaconst<T>::range_check(unsigned i, unsigned j) const
   {
-     if (rows_ <= i)
-       throw std::range_error("matrix access row out of range");
+    if (rows_ <= i)
+      throw std::range_error("matrix access row out of range");
   
-     if (cols_ <= j)
-        throw std::range_error("matrix access col out of range");
+    if (cols_ <= j)
+      throw std::range_error("matrix access col out of range");
   }
 
+
+  template<typename T>
+  bool write_pcacont_to_file (const matrixpcaconst<T> & in, 
+      const char * filename)
+  {
+     std::ofstream outf;
+     outf.open(filename);
+
+     outf << matrixpcaconst<T>::const_type_to_string(in.get_const_type()) 
+       << std::endl;
+     outf << matrixpcaconst<T>::sector_type_to_string(in.get_sector_type()) 
+       << std::endl;
+     outf << matrixpcaconst<T>::plane_type_to_string(in.get_plane_type()) 
+       << std::endl;
+     outf << matrixpcaconst<T>::ttype_to_string(in.get_ttype()) 
+       << std::endl;
+     outf << in.n_rows() << std::endl;
+     outf << in.n_cols() << std::endl;
+     for (unsigned int i = 0; i<in.n_rows(); ++i)
+       for (unsigned int j = 0; j<in.n_cols(); ++j)
+         outf << in(i, j) << " ";
+     outf << std::endl;
+
+     outf.close();
+
+     return true;
+  }
 }
 
 #endif
