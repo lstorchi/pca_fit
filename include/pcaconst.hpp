@@ -329,30 +329,52 @@ namespace pca
       throw std::range_error("matrix access col out of range");
   }
 
+  template<typename T> 
+  bool read_pcacont_to_file (std::vector<matrixpcaconst<T> > & vct, 
+              const char * filename)
+  {
+    // TODO
+
+    return true;
+  }
 
   template<typename T>
   bool write_pcacont_to_file (const matrixpcaconst<T> & in, 
       const char * filename)
   {
-     std::ofstream outf;
-     outf.open(filename);
+    if (std::ifstream(filename))
+    {
+      std::vector<matrixpcaconst<T> > vct;
+      if (read_pcacont_to_file (vct, filename))
+      {
 
-     outf << matrixpcaconst<T>::const_type_to_string(in.get_const_type()) 
-       << std::endl;
-     outf << matrixpcaconst<T>::sector_type_to_string(in.get_sector_type()) 
-       << std::endl;
-     outf << matrixpcaconst<T>::plane_type_to_string(in.get_plane_type()) 
-       << std::endl;
-     outf << matrixpcaconst<T>::ttype_to_string(in.get_ttype()) 
-       << std::endl;
-     outf << in.n_rows() << std::endl;
-     outf << in.n_cols() << std::endl;
-     for (unsigned int i = 0; i<in.n_rows(); ++i)
-       for (unsigned int j = 0; j<in.n_cols(); ++j)
-         outf << in(i, j) << " ";
-     outf << std::endl;
-
-     outf.close();
+      }
+      
+      return false;
+    }
+    else
+    {
+      std::ofstream outf;
+      outf.open(filename);
+      
+      outf << "1" << std::endl;
+      outf << matrixpcaconst<T>::const_type_to_string(in.get_const_type()) 
+        << std::endl;
+      outf << in.get_towerid() << std::endl;
+      outf << matrixpcaconst<T>::sector_type_to_string(in.get_sector_type()) 
+        << std::endl;
+      outf << matrixpcaconst<T>::plane_type_to_string(in.get_plane_type()) 
+        << std::endl;
+      outf << matrixpcaconst<T>::ttype_to_string(in.get_ttype()) 
+        << std::endl;
+      outf << in.n_rows() << std::endl;
+      outf << in.n_cols() << std::endl;
+      for (unsigned int i = 0; i<in.n_rows(); ++i)
+        for (unsigned int j = 0; j<in.n_cols(); ++j)
+          outf << in(i, j) << " ";
+      outf << std::endl;
+      outf.close();
+    }
 
      return true;
   }
