@@ -101,7 +101,7 @@ namespace pca
         void get_etarange (double & min, double & max) const
         {
           min = etamin_;
-          min = etamax_;
+          max = etamax_;
         };
 
         void clear();
@@ -162,6 +162,22 @@ namespace pca
           return "";
         }
 
+        static matrixpcaconst<T>::const_type string_to_const_type (
+            const std::string & in)
+        {
+          if (in == "QVEC")
+            return matrixpcaconst<T>::QVEC;
+          else if (in == "CMTX")
+            return matrixpcaconst<T>::CMTX;
+          else if (in == "AMTX")
+            return matrixpcaconst<T>::AMTX;
+          else if (in == "KVEC")
+            return matrixpcaconst<T>::KVEC;
+
+          return matrixpcaconst<T>::NONDEF;
+        }
+
+
         static std::string sector_type_to_string (matrixpcaconst<T>::sector_type in)
         {
           switch (in)
@@ -179,6 +195,20 @@ namespace pca
           return "";
         }
 
+        static matrixpcaconst<T>::sector_type string_to_sector_type (
+            const std::string & in)
+        {
+          if (in == "BARREL")
+            return matrixpcaconst<T>::BARREL;
+          else if (in == "HYBRID")
+            return matrixpcaconst<T>::HYBRID;
+          else if (in == "ENDCAP")
+            return matrixpcaconst<T>::ENDCAP;
+
+          return matrixpcaconst<T>::UNKN;
+        }
+
+
         static std::string plane_type_to_string (matrixpcaconst<T>::plane_type in)
         {
           switch (in)
@@ -194,6 +224,18 @@ namespace pca
           return "";
         }
 
+        static matrixpcaconst<T>::plane_type string_to_plane_type (
+            const std::string & in)
+        {
+          if (in == "RPHI")
+            return matrixpcaconst<T>::RPHI;
+          else if (in == "RZ")
+            return matrixpcaconst<T>::RZ;
+
+          return matrixpcaconst<T>::UNDEF;
+        }
+
+
         static std::string ttype_to_string (matrixpcaconst<T>::ttype in)
         {
           switch (in)
@@ -208,6 +250,18 @@ namespace pca
         
           return "";
         }
+
+        static matrixpcaconst<T>::ttype string_to_ttype (
+            const std::string & in)
+        {
+          if (in == "FLOATPT")
+            return matrixpcaconst<T>::FLOATPT;
+          else if (in == "INTEGPT")
+            return matrixpcaconst<T>::INTEGPT;
+
+          return matrixpcaconst<T>::NOONE;
+        }
+ 
   };
 
   template<class T>
@@ -228,9 +282,11 @@ namespace pca
     etamin_ = 0.0;
     etamax_ = 0.0;
   
+    /*
     if( rows_ == 0 || cols_ == 0 )
-      throw std::range_error("attempt to create a degenerate matrix");
-  
+      throw std::range_error("0 0 matx");
+    */
+
     if (elements)
       for (unsigned i=0; i<rows_*cols_; i++)
         this->elements_.push_back(elements[i]);
@@ -286,10 +342,10 @@ namespace pca
   template<class T>
   void matrixpcaconst<T>::reset(unsigned rows, unsigned cols) 
   {
-    clear();
-
     rows_ = rows;
     cols_ = cols;
+
+    this->elements_.clear();
 
     for (unsigned i=0; i<rows_*cols_; i++)
       this->elements_.push_back((T)0);
@@ -333,9 +389,50 @@ namespace pca
   bool read_pcacont_to_file (std::vector<matrixpcaconst<T> > & vct, 
               const char * filename)
   {
-    // TODO
+    if (std::ifstream(filename))
+    {
+      std::ifstream infile;
+      infile.open(filename);
 
-    return true;
+      int numof;
+      infile >> numof;
+
+      for (int i=0; i < numof; ++i)
+      {
+        matrixpcaconst<T> matt(0, 0);
+        std::string instr, instr1;
+        int rows, cols;
+
+        infile >> instr;
+        matt.set_const_type(matrixpcaconst<T>::string_to_const_type (instr));
+        infile >> instr;
+        matt.set_towerid(atoi(instr.c_str()));
+        infile >> instr;
+        matt.set_sector_type(matrixpcaconst<T>::string_to_sector_type(instr));
+        infile >> instr;
+        matt.set_plane_type(matrixpcaconst<T>::string_to_plane_type(instr));
+        infile >> instr;
+        matt.set_ttype(matrixpcaconst<T>::string_to_ttype(instr));
+        infile >> instr >> instr1;
+        matt.set_ptrange(atof(instr.c_str()), atof(instr1.c_str()));
+        infile >> instr >> instr1;
+        matt.set_etarange(atof(instr.c_str()), atof(instr1.c_str()));
+        infile >> rows;
+        infile >> cols;
+        matt.reset(rows, cols);
+        for (unsigned int i = 0; i<matt.n_rows(); ++i)
+          for (unsigned int j = 0; j<matt.n_cols(); ++j)
+            infile >> matt(i, j);
+
+        vct.push_back(matt);
+      }
+
+      infile.close();
+
+      return true;
+    }
+
+    return false;
   }
 
   template<typename T>
@@ -347,13 +444,38 @@ namespace pca
       std::vector<matrixpcaconst<T> > vct;
       if (read_pcacont_to_file (vct, filename))
       {
-
+        // TODO
+        std::cout << vct.size() << std::endl;
+        for (unsigned int i = 0; i != vct.size(); ++i)
+        {
+          double min, max;
+          std::cout << matrixpcaconst<T>::const_type_to_string(vct[i].get_const_type()) 
+            << std::endl;
+          std::cout << vct[i].get_towerid() << std::endl;
+          std::cout << matrixpcaconst<T>::sector_type_to_string(vct[i].get_sector_type()) 
+            << std::endl;
+          std::cout << matrixpcaconst<T>::plane_type_to_string(vct[i].get_plane_type()) 
+            << std::endl;
+          std::cout << matrixpcaconst<T>::ttype_to_string(vct[i].get_ttype()) 
+            << std::endl;
+          vct[i].get_ptrange(min, max);
+          std::cout << min << " " << max << std::endl;
+          vct[i].get_etarange(min, max);
+          std::cout << min << " " << max << std::endl;
+          std::cout << vct[i].n_rows() << std::endl;
+          std::cout << vct[i].n_cols() << std::endl;
+          for (unsigned int j = 0; j<vct[i].n_rows(); ++j)
+            for (unsigned int k = 0; k<vct[i].n_cols(); ++k)
+              std::cout << vct[i](j, k) << std::endl;
+        }
       }
       
       return false;
     }
     else
     {
+      double min, max;
+
       std::ofstream outf;
       outf.open(filename);
       
@@ -367,12 +489,15 @@ namespace pca
         << std::endl;
       outf << matrixpcaconst<T>::ttype_to_string(in.get_ttype()) 
         << std::endl;
+      in.get_ptrange(min, max);
+      outf << min << " " << max << std::endl;
+      in.get_etarange(min, max);
+      outf << min << " " << max << std::endl;
       outf << in.n_rows() << std::endl;
       outf << in.n_cols() << std::endl;
       for (unsigned int i = 0; i<in.n_rows(); ++i)
         for (unsigned int j = 0; j<in.n_cols(); ++j)
-          outf << in(i, j) << " ";
-      outf << std::endl;
+          outf << in(i, j) << std::endl;
       outf.close();
     }
 
