@@ -54,6 +54,7 @@ namespace pca
         plane_type ptype_;
         int towerid_;
         double ptmin_, ptmax_, etamin_, etamax_;
+        int chargesign_;
 
         void range_check (unsigned i, unsigned j) const;
 
@@ -81,6 +82,9 @@ namespace pca
 
         void set_towerid (int in) {towerid_ = in;};
         int get_towerid () const {return towerid_;};
+
+        void set_chargesign (int in) {chargesign_ = in;};
+        int get_chargesign () const {return chargesign_;};
 
         void set_ptrange (double min, double max) 
         {
@@ -283,6 +287,7 @@ namespace pca
     ptmax_ = 0.0;
     etamin_ = 0.0;
     etamax_ = 0.0;
+    chargesign_ = 0;
   
     /*
     if( rows_ == 0 || cols_ == 0 )
@@ -314,6 +319,7 @@ namespace pca
     etamin_ = cp.etamin_;
     etamax_ = cp.etamax_;
     towerid_ = cp.towerid_;
+    chargesign_ = cp.chargesign_;
   }
 
   template<class T>
@@ -336,6 +342,7 @@ namespace pca
         (etamin_ == cp.etamin_ ) &&
         (etamax_ == cp.etamax_ ) &&
         (towerid_ == cp.towerid_ ) && 
+        (chargesign_ == cp.chargesign_ ) && 
         (cols_ == cp.cols_ ) && 
         (rows_ == cp.rows_ ));
   }
@@ -352,6 +359,7 @@ namespace pca
     stype_ = UNKN;
     ptype_ = UNDEF;
 
+    chargesign_ = 0;
     towerid_ = 0;
     ptmin_ = 0.0;
     ptmax_ = 0.0;
@@ -391,6 +399,7 @@ namespace pca
     etamin_ = cp.etamin_;
     etamax_ = cp.etamax_;
     towerid_ = cp.towerid_;
+    chargesign_ = cp.chargesign_;
   
     return *this;
   }
@@ -437,6 +446,8 @@ namespace pca
         matt.set_ptrange(atof(instr.c_str()), atof(instr1.c_str()));
         infile >> instr >> instr1;
         matt.set_etarange(atof(instr.c_str()), atof(instr1.c_str()));
+        infile >> instr;
+        matt.set_chargesign(atoi(instr.c_str()));
         infile >> rows;
         infile >> cols;
         matt.reset(rows, cols);
@@ -497,6 +508,7 @@ namespace pca
           outf << min << " " << max << std::endl;
           vct[i].get_etarange(min, max);
           outf << min << " " << max << std::endl;
+          outf << vct[i].get_chargesign () << std::endl;
           outf << vct[i].n_rows() << std::endl;
           outf << vct[i].n_cols() << std::endl;
           for (unsigned int j = 0; j<vct[i].n_rows(); ++j)
@@ -530,6 +542,7 @@ namespace pca
       outf << min << " " << max << std::endl;
       in.get_etarange(min, max);
       outf << min << " " << max << std::endl;
+      outf << in.get_chargesign() << std::endl;
       outf << in.n_rows() << std::endl;
       outf << in.n_cols() << std::endl;
       for (unsigned int i = 0; i<in.n_rows(); ++i)

@@ -138,6 +138,7 @@ void perform_main_computation (const arma::mat & coord,
   pcmtx.set_towerid (18);
   pcmtx.set_ttype (pca::matrixpcaconst<double>::FLOATPT);
   /* */
+  pcmtx.set_chargesign(rootrdr.get_chargesign());
   if (rootrdr.get_rphiplane())
     pcmtx.set_plane_type (pca::matrixpcaconst<double>::RPHI);
   else if (rootrdr.get_rzplane())
@@ -154,6 +155,7 @@ void perform_main_computation (const arma::mat & coord,
   pqvct.set_towerid (18);
   pqvct.set_ttype (pca::matrixpcaconst<double>::FLOATPT);
   /* */
+  pqvct.set_chargesign(rootrdr.get_chargesign());
   if (rootrdr.get_rphiplane())
     pqvct.set_plane_type (pca::matrixpcaconst<double>::RPHI);
   else if (rootrdr.get_rzplane())
@@ -170,6 +172,7 @@ void perform_main_computation (const arma::mat & coord,
   pamtx.set_towerid (18);
   pamtx.set_ttype (pca::matrixpcaconst<double>::FLOATPT);
   /* */
+  pamtx.set_chargesign(rootrdr.get_chargesign());
   if (rootrdr.get_rphiplane())
     pamtx.set_plane_type (pca::matrixpcaconst<double>::RPHI);
   else if (rootrdr.get_rzplane())
@@ -186,6 +189,7 @@ void perform_main_computation (const arma::mat & coord,
   pkvct.set_towerid (18);
   pkvct.set_ttype (pca::matrixpcaconst<double>::FLOATPT);
   /* */
+  pkvct.set_chargesign(rootrdr.get_chargesign());
   if (rootrdr.get_rphiplane())
     pkvct.set_plane_type (pca::matrixpcaconst<double>::RPHI);
   else if (rootrdr.get_rzplane())
