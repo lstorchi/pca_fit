@@ -145,7 +145,7 @@ void perform_main_computation (const arma::mat & coord,
   pcmtx.set_ptrange (ptmin, ptmax);
   pcmtx.set_etarange (etamin, etamax); 
 
-  write_pcacont_to_file (pcmtx, "const.txt");
+  write_pcacont_to_file (pcmtx, "pca_const.txt");
 
   pca::armamat_to_pcamat (q, pqvct);
   pqvct.set_const_type (pca::matrixpcaconst<double>::QVEC);
@@ -161,6 +161,8 @@ void perform_main_computation (const arma::mat & coord,
   pqvct.set_ptrange (ptmin, ptmax);
   pqvct.set_etarange (etamin, etamax); 
 
+  write_pcacont_to_file (pqvct, "pca_const.txt");
+
   pca::armamat_to_pcamat (amtx, pamtx);
   pamtx.set_const_type (pca::matrixpcaconst<double>::AMTX);
   /* TODO should be given as input */
@@ -175,6 +177,8 @@ void perform_main_computation (const arma::mat & coord,
   pamtx.set_ptrange (ptmin, ptmax);
   pamtx.set_etarange (etamin, etamax); 
 
+  write_pcacont_to_file (pamtx, "pca_const.txt");
+
   pca::armamat_to_pcamat (kivec, pkvct);
   pkvct.set_const_type (pca::matrixpcaconst<double>::KVEC);
   /* TODO should be given as input */
@@ -188,6 +192,8 @@ void perform_main_computation (const arma::mat & coord,
     pkvct.set_plane_type (pca::matrixpcaconst<double>::RZ);
   pkvct.set_ptrange (ptmin, ptmax);
   pkvct.set_etarange (etamin, etamax); 
+
+  write_pcacont_to_file (pkvct, "pca_const.txt");
 
   pca::write_armmat(vfname.c_str(), vmtx);
   pca::write_armvct(cmfname.c_str(), coordmvec);

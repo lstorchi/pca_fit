@@ -55,18 +55,6 @@ bool pca::validate_barrel_sequence_5 (const std::string & sequence)
   return false;
 }
 
-template<typename T> bool armamat_to_pcamat (const arma::mat & in, 
-    pca::matrix<T> & out )
-{
-  out.reset(in.n_rows, in.n_cols);
-
-  for (unsigned int i=0; i<in.n_rows; ++i)
-    for (unsigned int j=0; j<in.n_rows; ++j)
-      out(i, j) = in(i, j);
-
-  return true;
-}
-
 bool pca::is_a_valid_layers_seq(const std::string & in, int maxnumoflayers, 
     const bool isbarrel, const bool tocheck)
 {
