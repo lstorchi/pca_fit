@@ -33,3 +33,5 @@ generatepca_split: $(OBJ)
 
 clean:
 	rm -f *.o  ../../bin/generatepca_split 
+
+generatepca_split.o: ../../include/pcaconst.hpp ../../include/pcaffunctype.hpp

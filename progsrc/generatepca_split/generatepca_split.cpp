@@ -85,7 +85,9 @@ void perform_main_computation (const arma::mat & coord,
     const std::string & vfname, 
     const std::string & kfname, 
     const std::string & cmfname ,
-    pca::pcafitter & fitter, bool verbose)
+    pca::pcafitter & fitter, 
+    pca::rootfilereader & rootrdr,
+    bool verbose)
 {
   std::cout << fitter.get_paramdim() << " X " << fitter.get_coordim() << std::endl;
 
@@ -118,16 +120,68 @@ void perform_main_computation (const arma::mat & coord,
   pca::write_armmat(afname.c_str(), amtx);
   pca::write_armvct(kfname.c_str(), kivec);
 
-  pca::matrix<double> 
+  pca::matrixpcaconst<double> 
     pcmtx(cmtx.n_rows, cmtx.n_cols), 
     pqvct(q.n_rows, q.n_cols), 
     pamtx(amtx.n_rows, amtx.n_cols), 
     pkvct(kivec.n_rows, kivec.n_cols);
 
+  double ptmin, ptmax, etamin, etamax;
+  rootrdr.get_ptlimits(ptmin, ptmax);
+  rootrdr.get_etalimits(etamin, etamax);
+  assert(rootrdr.get_rphiplane() != rootrdr.get_rzplane());
+
   pca::armamat_to_pcamat (cmtx, pcmtx);
+  pcmtx.set_const_type (pca::matrixpcaconst<double>::CMTX);
+  /* TODO should be given as input */
+  pcmtx.set_sector_type (pca::matrixpcaconst<double>::BARREL);
+  pcmtx.set_towerid (18);
+  /* */
+  if (rootrdr.get_rphiplane())
+    pcmtx.set_plane_type (pca::matrixpcaconst<double>::RPHI);
+  else if (rootrdr.get_rzplane())
+    pcmtx.set_plane_type (pca::matrixpcaconst<double>::RZ);
+  pcmtx.set_ptrange (ptmin, ptmax);
+  pcmtx.set_etarange (etamin, etamax); 
+
   pca::armamat_to_pcamat (q, pqvct);
+  pqvct.set_const_type (pca::matrixpcaconst<double>::QVEC);
+  /* TODO should be given as input */
+  pqvct.set_sector_type (pca::matrixpcaconst<double>::BARREL);
+  pqvct.set_towerid (18);
+  /* */
+  if (rootrdr.get_rphiplane())
+    pqvct.set_plane_type (pca::matrixpcaconst<double>::RPHI);
+  else if (rootrdr.get_rzplane())
+    pqvct.set_plane_type (pca::matrixpcaconst<double>::RZ);
+  pqvct.set_ptrange (ptmin, ptmax);
+  pqvct.set_etarange (etamin, etamax); 
+
   pca::armamat_to_pcamat (amtx, pamtx);
+  pamtx.set_const_type (pca::matrixpcaconst<double>::AMTX);
+  /* TODO should be given as input */
+  pamtx.set_sector_type (pca::matrixpcaconst<double>::BARREL);
+  pamtx.set_towerid (18);
+  /* */
+  if (rootrdr.get_rphiplane())
+    pamtx.set_plane_type (pca::matrixpcaconst<double>::RPHI);
+  else if (rootrdr.get_rzplane())
+    pamtx.set_plane_type (pca::matrixpcaconst<double>::RZ);
+  pamtx.set_ptrange (ptmin, ptmax);
+  pamtx.set_etarange (etamin, etamax); 
+
   pca::armamat_to_pcamat (kivec, pkvct);
+  pkvct.set_const_type (pca::matrixpcaconst<double>::KVEC);
+  /* TODO should be given as input */
+  pkvct.set_sector_type (pca::matrixpcaconst<double>::BARREL);
+  pkvct.set_towerid (18);
+  /* */
+  if (rootrdr.get_rphiplane())
+    pkvct.set_plane_type (pca::matrixpcaconst<double>::RPHI);
+  else if (rootrdr.get_rzplane())
+    pkvct.set_plane_type (pca::matrixpcaconst<double>::RZ);
+  pkvct.set_ptrange (ptmin, ptmax);
+  pkvct.set_etarange (etamin, etamax); 
 
   pca::write_armmat(vfname.c_str(), vmtx);
   pca::write_armvct(cmfname.c_str(), coordmvec);
@@ -197,7 +251,8 @@ int main (int argc, char ** argv)
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "aVlkxhvdpzrX:b:g:t:n:m:o:u:f:y:", long_options, &option_index);
+    c = getopt_long (argc, argv, "aVlkxhvdpzrX:b:g:t:n:m:o:u:f:y:", 
+        long_options, &option_index);
 
     if (c == -1)
       break;
@@ -586,7 +641,7 @@ int main (int argc, char ** argv)
   perform_main_computation (coordin, paramin,
       cfname.str(), qfname.str(), afname.str() ,
       vfname.str(), kfname.str(), coordmfname.str(),
-      fitter, verbose);
+      fitter, rootrdr, verbose);
 
   return EXIT_SUCCESS;
 }
