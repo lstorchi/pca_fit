@@ -104,6 +104,8 @@ namespace pca
           max = etamax_;
         };
 
+        bool compare_nonelements (const matrixpcaconst<T>&) const;
+
         void clear();
 
         unsigned int n_rows () const {return rows_;};
@@ -313,11 +315,29 @@ namespace pca
     etamax_ = cp.etamax_;
     towerid_ = cp.towerid_;
   }
-  
+
   template<class T>
   matrixpcaconst<T>::~matrixpcaconst()
   {
     clear();
+  }
+
+  template<class T>
+  bool matrixpcaconst<T>::compare_nonelements (const matrixpcaconst<T>& cp) const
+  {
+    return ((rows_ == cp.rows_ ) &&
+        (cols_ == cp.cols_ ) && 
+        (ttype_ == cp.ttype_ ) &&
+        (ctype_ == cp.ctype_ ) &&
+        (stype_ == cp.stype_ ) &&
+        (ptype_ == cp.ptype_ ) &&
+        (ptmin_ == cp.ptmin_ ) &&
+        (ptmax_ == cp.ptmax_ ) &&
+        (etamin_ == cp.etamin_ ) &&
+        (etamax_ == cp.etamax_ ) &&
+        (towerid_ == cp.towerid_ ) && 
+        (cols_ == cp.cols_ ) && 
+        (rows_ == cp.rows_ ));
   }
   
   template<class T>
@@ -444,30 +464,47 @@ namespace pca
       std::vector<matrixpcaconst<T> > vct;
       if (read_pcacont_to_file (vct, filename))
       {
-        // TODO
-        std::cout << vct.size() << std::endl;
+        bool copied = false;
+        for (unsigned int i = 0; i != vct.size(); ++i)
+        {
+          if(vct[i].compare_nonelements(in))
+          {
+            vct[i] = in;
+            copied = true;
+          }
+        }
+
+        if (!copied)
+          vct.push_back(in);
+
+        std::ofstream outf;
+        outf.open(filename);
+
+        outf << vct.size() << std::endl;
         for (unsigned int i = 0; i != vct.size(); ++i)
         {
           double min, max;
-          std::cout << matrixpcaconst<T>::const_type_to_string(vct[i].get_const_type()) 
+          outf << matrixpcaconst<T>::const_type_to_string(vct[i].get_const_type()) 
             << std::endl;
-          std::cout << vct[i].get_towerid() << std::endl;
-          std::cout << matrixpcaconst<T>::sector_type_to_string(vct[i].get_sector_type()) 
+          outf << vct[i].get_towerid() << std::endl;
+          outf << matrixpcaconst<T>::sector_type_to_string(vct[i].get_sector_type()) 
             << std::endl;
-          std::cout << matrixpcaconst<T>::plane_type_to_string(vct[i].get_plane_type()) 
+          outf << matrixpcaconst<T>::plane_type_to_string(vct[i].get_plane_type()) 
             << std::endl;
-          std::cout << matrixpcaconst<T>::ttype_to_string(vct[i].get_ttype()) 
+          outf << matrixpcaconst<T>::ttype_to_string(vct[i].get_ttype()) 
             << std::endl;
           vct[i].get_ptrange(min, max);
-          std::cout << min << " " << max << std::endl;
+          outf << min << " " << max << std::endl;
           vct[i].get_etarange(min, max);
-          std::cout << min << " " << max << std::endl;
-          std::cout << vct[i].n_rows() << std::endl;
-          std::cout << vct[i].n_cols() << std::endl;
+          outf << min << " " << max << std::endl;
+          outf << vct[i].n_rows() << std::endl;
+          outf << vct[i].n_cols() << std::endl;
           for (unsigned int j = 0; j<vct[i].n_rows(); ++j)
             for (unsigned int k = 0; k<vct[i].n_cols(); ++k)
-              std::cout << vct[i](j, k) << std::endl;
+              outf << vct[i](j, k) << std::endl;
         }
+
+        outf.close();
       }
       
       return false;
