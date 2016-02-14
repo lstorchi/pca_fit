@@ -346,12 +346,7 @@ void usage (char * name)
   std::cerr << " -V, --verbose                    : verbose option on" << std::endl;
   std::cerr << " -v, --version                    : print version and exit" << std::endl;
   std::cerr << " -p, --dump-allcoords             : dump all stub coordinates to a file" << std::endl;
-  std::cerr << " -c, --cmtx=[fillename]           : CMTX filename [default is c.[rz/rphi].bin]" << std::endl;
-  std::cerr << " -q, --qvct=[fillename]           : QVCT filename [default is q.[rz/rphi].bin]" << std::endl;
-  std::cerr << " -A, --amtx=[fillename]           : AMTX filename [default is a.[rz/rphi].bin]" << std::endl;
-  std::cerr << " -y, --kvct=[fillename]           : KVCT filename [default is k.[rz/rphi].bin]" << std::endl;
-  std::cerr << " -d, --cvct=[fillename]           : CVCT filename [default is cm.[rz/rphi].bin]" << std::endl;
-  std::cerr << " -B, --vmtx=[fillename]           : VMTX filename [default is v.[rz/rphi].bin]" << std::endl;
+  std::cerr << " -c, --pca-const-file=[fillename] : PCA const txt filename [default is pca_const.txt]" << std::endl;
   std::cerr << std::endl;                         
   std::cerr << " -z, --rz-plane                   : use rz plane view (fit eta and z0)" << std::endl;
   std::cerr << " -r, --rphi-plane                 : use r-phi plane view (fit ot and phi)" << std::endl;
@@ -391,12 +386,7 @@ int main (int argc, char ** argv)
 
   pca::pcafitter fitter;
 
-  std::string qfname = "";
-  std::string cfname = "";
-  std::string afname = "";
-  std::string vfname = "";
-  std::string kfname = "";
-  std::string cmfname = "";
+  std::string cfname = "pca_const.txt";
   bool verbose = false;
   bool rzplane = false;
   bool rphiplane = false;
@@ -431,12 +421,7 @@ int main (int argc, char ** argv)
     int c, option_index;
     static struct option long_options[] = {
       {"help", 0, NULL, 'h'},
-      {"cmtx", 1, NULL, 'c'},
-      {"amtx", 1, NULL, 'A'},
-      {"vmtx", 1, NULL, 'B'},
-      {"qvct", 1, NULL, 'q'},
-      {"kvct", 1, NULL, 'y'},
-      {"cvct", 1, NULL, 'd'},
+      {"pca-const-file", 1, NULL, 'c'},
       {"verbose", 0, NULL, 'V'},
       {"version", 0, NULL, 'v'},
       {"jump-tracks", 0, NULL, 'j'},
@@ -459,7 +444,7 @@ int main (int argc, char ** argv)
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "pkxzrhaVw:l:f:d:y:b:A:B:t:g:c:q:n:s:m:o:u", 
+    c = getopt_long (argc, argv, "pkxzrhaVw:l:f:b:t:g:c:n:s:m:o:u", 
         long_options, &option_index);
 
     if (c == -1)
@@ -584,21 +569,6 @@ int main (int argc, char ** argv)
       case'c':
         cfname = optarg;
         break;
-      case'd':
-        cmfname = optarg;
-        break;
-      case 'q':
-        qfname = optarg;
-        break;
-      case'A':
-        afname = optarg;
-        break;
-      case 'B':
-        vfname = optarg;
-        break;
-      case 'y':
-        kfname = optarg;
-        break;
       default:
         usage (argv[0]);
         break;
@@ -717,110 +687,16 @@ int main (int argc, char ** argv)
     return EXIT_FAILURE;
   }
 
-  if (rzplane)
-  {
-    if (cfname == "")
-      cfname = "c.rz.bin";
-
-    if (qfname == "")
-      qfname = "q.rz.bin";
-
-    if (afname == "")
-      afname = "a.rz.bin";
-
-    if (vfname == "")
-      vfname = "v.rz.bin";
-
-    if (kfname == "")
-      kfname = "k.rz.bin";
-
-    if (cmfname == "")
-      cmfname = "cm.rz.bin";
-  }
-  else if (rphiplane)
-  {
-    if (cfname == "")
-      cfname = "c.rphi.bin";
-
-    if (qfname == "")
-      qfname = "q.rphi.bin";
-
-    if (afname == "")
-      afname = "a.rphi.bin";
-
-    if (vfname == "")
-      vfname = "v.rphi.bin";
-
-    if (kfname == "")
-      kfname = "k.rphi.bin";
-
-    if (cmfname == "")
-      cmfname = "cm.rphi.bin";
-  }
-
-  if (pca::file_exists(cmfname.c_str()))
-  {
-    std::cout << "Reading " << cmfname << std::endl;
-    pca::read_armvct(cmfname.c_str(), cm);
-  }
-  else
-  {
-    std::cerr << cmfname << " does not exist" << std::endl;
-    return 1;
-  }
-
-  if (pca::file_exists(afname.c_str()))
-  {
-    std::cout << "Reading " << afname << std::endl;
-    pca::read_armmat(afname.c_str(), amtx);
-  }
-  else
-  {
-    std::cerr << afname << " does not exist" << std::endl;
-    return 1;
-  }
-
   if (pca::file_exists(cfname.c_str()))
   {
     std::cout << "Reading " << cfname << std::endl;
+
     pca::read_armmat(cfname.c_str(), cmtx);
+
   }
   else
   {
     std::cerr << cfname << " does not exist" << std::endl;
-    return 1;
-  }
-
-  if (pca::file_exists(vfname.c_str()))
-  {
-    std::cout << "Reading " << vfname << std::endl;
-    pca::read_armmat(vfname.c_str(), vmtx);
-  }
-  else
-  {
-    std::cerr << vfname << " does not exist" << std::endl;
-    return 1;
-  }
-
-  if (pca::file_exists(kfname.c_str()))
-  {
-    std::cout << "Reading " << kfname << std::endl;
-    pca::read_armvct(kfname.c_str(), k);
-  }
-  else
-  {
-    std::cerr << kfname << " does not exist" << std::endl;
-    return 1;
-  }
-
-  if (pca::file_exists(qfname.c_str()))
-  {
-    std::cout << "Reading " << qfname << std::endl;
-    pca::read_armvct(qfname.c_str(), q);
-  }
-  else
-  {
-    std::cerr << qfname << " does not exist" << std::endl;
     return 1;
   }
 

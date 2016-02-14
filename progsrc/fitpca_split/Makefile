@@ -25,11 +25,17 @@ LIBS += $(shell root-config --libs)
 
 OBJ = fitpca_split.o
 
-all: fitpca_split 
+OBJ1 = fitpca_split_pcaconst.o
+
+all: fitpca_split fitpca_split_pcaconst
 
 fitpca_split: $(OBJ) 
 	g++ -o $@ $(OBJ) -L../../lib -lpcafitter $(LIBS) 
 	mv -f $@ ../../bin 
 
+fitpca_split_pcaconst: $(OBJ1) 
+	g++ -o $@ $(OBJ1) -L../../lib -lpcafitter $(LIBS) 
+	mv -f $@ ../../bin 
+
 clean:
-	rm -f *.o  ../../bin/fitpca_split
+	rm -f *.o  ../../bin/fitpca_split ../../bin/fitpca_split_pcaconst
