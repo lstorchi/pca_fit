@@ -91,6 +91,41 @@ namespace pca
 
     return true;
   } 
+
+  template<typename T> bool pcamat_to_armamat (const pca::matrixpcaconst<T> & in, 
+      arma::mat & out) 
+  {
+    out.set_size(in.n_rows(), in.n_cols());
+
+    for (unsigned int i=0; i<in.n_rows(); ++i)
+      for (unsigned int j=0; j<in.n_cols(); ++j)
+        out(i, j) = in(i, j);
+
+    return true;
+  } 
+
+  template<typename T> bool pcamat_to_armarowvec (const pca::matrixpcaconst<T> & in, 
+      arma::rowvec & out) 
+  {
+    unsigned int dim = in.n_rows();
+    if (dim == 1)
+      dim= in.n_cols();
+
+    out.set_size(dim);
+
+    unsigned int idx = 0;
+    for (unsigned int i=0; i<in.n_rows(); ++i)
+    {
+      for (unsigned int j=0; j<in.n_cols(); ++j)
+      {
+        out(idx) = in(i, j);
+        ++idx;
+      }
+    }
+
+    return true;
+  } 
+
 };
   
 #endif

@@ -467,7 +467,7 @@ namespace pca
   }
 
   template<typename T>
-  bool write_pcacont_to_file (const matrixpcaconst<T> & in, 
+  bool write_pcaconst_to_file (const matrixpcaconst<T> & in, 
       const char * filename)
   {
     if (std::ifstream(filename))

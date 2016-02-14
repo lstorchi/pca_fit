@@ -578,7 +578,7 @@ int main(int argc, char ** argv)
 {
   bool tkstubs = false;
   bool bkstubs = true;
-  int maxtracks = STOPAFTERMAXEVT;
+  int maxtracks = (int) STOPAFTERMAXEVT;
 
   while (1)
   {
