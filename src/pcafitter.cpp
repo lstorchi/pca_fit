@@ -99,9 +99,7 @@ bool pcafitter::compute_parameters (
     const arma::mat & cmtx, 
     const arma::rowvec & q, 
     const arma::mat & amtx,
-    const arma::mat & vinv,
     const arma::rowvec & kvct, 
-    const arma::rowvec & coordm,
     const arma::mat & coord, 
 
 #ifdef INTBITEWISEFIT
@@ -112,7 +110,9 @@ bool pcafitter::compute_parameters (
     
     int paramdim,
     arma::rowvec & chi2values,
-    arma::rowvec & chi2values1)
+    arma::rowvec & chi2values1,
+    const arma::mat & vinv,
+    const arma::rowvec & coordm)
 {
   reset_error();
 
@@ -166,19 +166,22 @@ bool pcafitter::compute_parameters (
   }
   */
 
-  for (int k=0; k<(int)coord.n_rows; ++k)
+  if ((vinv.n_rows != 0) && (vinv.n_cols != 0))
   {
-    for (int i=0; i<coordim_; ++i)
+    for (int k=0; k<(int)coord.n_rows; ++k)
     {
-      for (int j=0; j<coordim_; ++j)
+      for (int i=0; i<coordim_; ++i)
       {
-        chi2values(k) += (coord(k,i) - coordm(i)) * 
-          vinv(i, j) * (coord(k,j) - coordm(j));
+        for (int j=0; j<coordim_; ++j)
+        {
+          chi2values1(k) += (coord(k,i) - coordm(i)) * 
+            vinv(i, j) * (coord(k,j) - coordm(j));
+        }
       }
+  
+      //std::cout << "chi2 using eq 10 pg 112 " << k << " ==> " 
+      //   << chi2values1(k)  << std::endl;
     }
-
-    //std::cout << "chi2 using eq 10 pg 112 " << k << " ==> " 
-    //   << chi2values(k)  << std::endl;
   }
 
   std::cout << "coord.n_rows : " << coord.n_rows << std::endl;
@@ -188,9 +191,9 @@ bool pcafitter::compute_parameters (
   {
 
 #ifdef INTBITEWISEFIT
-    int32_t chi2check = 0.0;
+    int32_t chi2 = 0.0;
 #else
-    double chi2check = 0.0;
+    double chi2 = 0.0;
 #endif
 
     for (int i=0; i<coordim_-paramdim_; ++i)
@@ -210,14 +213,14 @@ bool pcafitter::compute_parameters (
 
       //std::cout << "  val:" << val << std::endl;
 
-      chi2check += val*val;
+      chi2 += val*val;
     }
 
 
-    chi2values1(b) = chi2check;
+    chi2values(b) = chi2;
 
     //std::cout << "chi2 using eq 11 pg 112 " << b << " ==> " 
-    //  << chi2check  << std::endl;
+    //  << chi2  << std::endl;
   }
 
   return true;

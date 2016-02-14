@@ -31,8 +31,8 @@
 //           by the related generatepca
 
 bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt, 
-     arma::mat & cmtx, arma::rowvec & q, arma::mat & amtx, arma::mat & vmtx, 
-     arma::rowvec & k, arma::rowvec & cm, bool verbose, pca::pcafitter & fitter, 
+     arma::mat & cmtx, arma::rowvec & q, arma::mat & amtx, 
+     arma::rowvec & k, bool verbose, pca::pcafitter & fitter, 
      bool rzplane, bool rphiplane, arma::vec & ptvals)
 {
   int nbins = 100;
@@ -76,23 +76,17 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
     ptrs[PCA_PHIIDX] = phicmp;
   }
 
-  arma::rowvec chi2values, chi2values1;
+  arma::rowvec chi2values, chi2values_fake;
   chi2values.resize(coordslt.n_rows);
-  chi2values1.resize(coordslt.n_rows);
+  chi2values_fake.resize(0);
 
-  if (!fitter.compute_parameters (cmtx, q, amtx, vmtx, k, cm,
+  if (!fitter.compute_parameters (cmtx, q, amtx, k, 
         coordslt, ptrs, fitter.get_paramdim(), 
-        chi2values, chi2values1))
+        chi2values_fake, chi2values))
   {
     std::cerr << fitter.get_errmsg() << std::endl;
     return false;
   }
-
-  //std::ofstream myfilechi2("chi2results.txt");
-  //myfilechi2 << "chi2_value" << std::endl;
-  //for (int i=0; i<(int) chi2values.n_cols; ++i)
-  //  myfilechi2 << chi2values(i) << std::endl;
-  //myfilechi2.close();
 
   delete [] ptrs; 
 
@@ -105,7 +99,6 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
   std::ofstream myfile(fname.str().c_str());
 
   assert(chi2values.n_cols == coordslt.n_rows);
-  assert(chi2values1.n_cols == coordslt.n_rows);
 
   if (rzplane)
   {
@@ -151,22 +144,19 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
       pcabsolute[PCA_Z0IDX](z0diff);
 
       chi2stat(chi2values(i));
-      chi2stat1(chi2values1(i));
         
 #ifdef INTBITEWISEFIT
       myfile << ptvals(i) << "   " <<
 	paramslt(i, PCA_COTTHETAIDX) << "   " << cothetacmp[i] << "   " <<
 	(cothetacmp[i] - paramslt(i, PCA_COTTHETAIDX)) << " " <<
 	z0orig << " " << z0cmps << " " <<
-	(z0cmps - z0orig) << " " << chi2values(i) << " " 
-        << chi2values1(i) << std::endl;
+	(z0cmps - z0orig) << " " << chi2values(i) << std::endl;
 #else
       myfile << ptvals(i) << "   " <<
 	paramslt(i, PCA_COTTHETAIDX) << "   " << cothetacmp[i] << "   " <<
 	(cothetacmp[i] - paramslt(i, PCA_COTTHETAIDX)) << " " <<
 	z0orig << " " << z0cmps << " " <<
-	(z0cmps - z0orig) << " " << chi2values(i) << " "
-        << chi2values1(i) << std::endl;
+	(z0cmps - z0orig) << " " << chi2values(i) << std::endl;
 #endif
       
       if (verbose)
@@ -182,8 +172,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
         std::cout << " eta          orig " << etaorig << std::endl;
         std::cout << " z0           fitt " << z0cmps << std::endl;
         std::cout << " z0           orig " << z0orig << std::endl;
-        std::cout << " chi2  10          " << chi2values(i) << std::endl;
-        std::cout << " chi2  11          " << chi2values1(i) << std::endl;
+        std::cout << " chi2  11          " << chi2values(i) << std::endl;
       }
     }
 
@@ -251,7 +240,6 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
       pcabsolute[PCA_ONEOVERPTIDX](diffqoverpt);
 
       chi2stat(chi2values(i));
-      chi2stat1(chi2values1(i));
 
       qoverptdiffvct(i) = diffqoverpt/qoverptorig;
       phidiffvct(i) = diffphi;
@@ -259,7 +247,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
       myfile << ptvals(i) << " " <<
         qoverptorig << " " << qoverptcmps << " " << diffqoverpt << " " <<
         phiorig     << " " << phicmps     << " " << diffphi     << " " << 
-        chi2values(i) << " " << chi2values1(i) << std::endl;
+        chi2values(i) << std::endl;
     
       if (verbose)
       {
@@ -268,8 +256,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
         std::cout << " q/pt         orig " << qoverptorig << std::endl;
         std::cout << " phi          fitt " << phicmps << std::endl;
         std::cout << " phi          orig " << phiorig << std::endl;
-        std::cout << " chi2 10           " << chi2values(i) << std::endl;
-        std::cout << " chi2 11           " << chi2values1(i) << std::endl;
+        std::cout << " chi2 11           " << chi2values(i) << std::endl;
       }
     }
 
@@ -776,7 +763,7 @@ int main (int argc, char ** argv)
     }
   }
 
-  if (!build_and_compare (param, coord, cmtx, q, amtx, vmtx, k, cm,
+  if (!build_and_compare (param, coord, cmtx, q, amtx, k, 
         verbose, fitter, rzplane, rphiplane, ptvals))
     return EXIT_FAILURE;
 

@@ -415,7 +415,7 @@ namespace pca
   }
 
   template<typename T> 
-  bool read_pcacont_to_file (std::vector<matrixpcaconst<T> > & vct, 
+  bool read_pcacosnt_from_file (std::vector<matrixpcaconst<T> > & vct, 
               const char * filename)
   {
     if (std::ifstream(filename))
@@ -473,7 +473,7 @@ namespace pca
     if (std::ifstream(filename))
     {
       std::vector<matrixpcaconst<T> > vct;
-      if (read_pcacont_to_file (vct, filename))
+      if (read_pcacosnt_from_file (vct, filename))
       {
         bool copied = false;
         for (unsigned int i = 0; i != vct.size(); ++i)

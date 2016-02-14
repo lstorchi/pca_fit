@@ -80,9 +80,9 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
   chi2values.resize(coordslt.n_rows);
   chi2values1.resize(coordslt.n_rows);
 
-  if (!fitter.compute_parameters (cmtx, q, amtx, vmtx, k, cm,
+  if (!fitter.compute_parameters (cmtx, q, amtx, k,
         coordslt, ptrs, fitter.get_paramdim(), 
-        chi2values, chi2values1))
+        chi2values, chi2values1, vmtx, cm))
   {
     std::cerr << fitter.get_errmsg() << std::endl;
     return false;
@@ -182,8 +182,8 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
         std::cout << " eta          orig " << etaorig << std::endl;
         std::cout << " z0           fitt " << z0cmps << std::endl;
         std::cout << " z0           orig " << z0orig << std::endl;
-        std::cout << " chi2  10          " << chi2values(i) << std::endl;
-        std::cout << " chi2  11          " << chi2values1(i) << std::endl;
+        std::cout << " chi2  11          " << chi2values(i) << std::endl;
+        std::cout << " chi2  10          " << chi2values1(i) << std::endl;
       }
     }
 
@@ -268,8 +268,8 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
         std::cout << " q/pt         orig " << qoverptorig << std::endl;
         std::cout << " phi          fitt " << phicmps << std::endl;
         std::cout << " phi          orig " << phiorig << std::endl;
-        std::cout << " chi2 10           " << chi2values(i) << std::endl;
-        std::cout << " chi2 11           " << chi2values1(i) << std::endl;
+        std::cout << " chi2 11           " << chi2values(i) << std::endl;
+        std::cout << " chi2 10           " << chi2values1(i) << std::endl;
       }
     }
 

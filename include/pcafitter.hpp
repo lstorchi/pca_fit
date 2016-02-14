@@ -9,6 +9,12 @@
 //           a class... This is not a proper class, just a way to collect some functions 
 //           as soon as have time please rewrite it and move main_computation here ... 
 
+namespace 
+{
+  static const arma::mat NULLA(0, 0);
+  static const arma::rowvec NULLO((unsigned int)0);
+}
+
 namespace pca
 {
   class pcafitter 
@@ -32,14 +38,14 @@ namespace pca
           const arma::mat & cmtx, 
           const arma::rowvec & q, 
           const arma::mat & amtx,
-          const arma::mat & vmtx,
           const arma::rowvec & kvct, 
-          const arma::rowvec & coordm, 
           const arma::mat & coord, 
           double ** paraptr,
           int paramdim,
           arma::rowvec & chi2values, 
-          arma::rowvec & chi2values1);
+          arma::rowvec & chi2values1,
+          const arma::mat & vmtx = NULLA,
+          const arma::rowvec & coordm = NULLO);
            
       void select_bigger_sub (
           const std::map<std::string, int> & sublist, 
