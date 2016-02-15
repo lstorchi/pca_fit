@@ -127,6 +127,8 @@ bool import_pca_const (const std::string & cfname,
       return false;
   }
 
+  // TODO add consistency check for dims
+
   return false;
 }
  
@@ -196,7 +198,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
 
   arma::running_stat<double> pcrelative[fitter.get_paramdim()];
   arma::running_stat<double> pcabsolute[fitter.get_paramdim()];
-  arma::running_stat<double> chi2stat, chi2stat1;
+  arma::running_stat<double> chi2stat;
   std::ofstream myfile(fname.str().c_str());
 
   assert(chi2values.n_cols == coordslt.n_rows);
@@ -406,10 +408,8 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
   }
 
   std::cout << " " << std::endl;
-  std::cout << "Chivalue mean 10 " << chi2stat.mean() << " stdev " << 
+  std::cout << "Chivalue mean " << chi2stat.mean() << " stdev " << 
     chi2stat.stddev() << std::endl;
-  std::cout << "Chivalue mean 11 " << chi2stat1.mean() << " stdev " << 
-    chi2stat1.stddev() << std::endl;
 
 
   if (rzplane)
@@ -784,6 +784,28 @@ int main (int argc, char ** argv)
           ptmax, chargesign))
     {
       std::cerr << "Error in reading constants from file" << std::endl;
+      return EXIT_FAILURE;
+    }
+
+    unsigned int coorddim = (unsigned int) fitter.get_coordim();
+    unsigned int paramdim = (unsigned int) fitter.get_paramdim();
+
+    std::cout << "using " << coorddim << " coordinates and " << paramdim <<
+      " parameters " << std::endl;
+
+    if (coorddim != cmtx.n_cols)
+    {
+      std::cerr << "Incompatible dimensions CMTX (2S-modules ?)" << std::endl;
+      return EXIT_FAILURE;
+    }
+    if (paramdim != cmtx.n_rows)
+    {
+      std::cerr << "Incompatible dimensions CMTX (2S-modules ?)" << std::endl;
+      return EXIT_FAILURE;
+    }
+    if (paramdim != qvec.n_elem)
+    {
+      std::cerr << "Incompatible dimensions QVEC (2S-modules ?)" << std::endl;
       return EXIT_FAILURE;
     }
   }

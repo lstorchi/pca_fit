@@ -33,7 +33,7 @@ split r-phi and r-z plane:
 
 ./bin/generatepca_split generate pca constants.
 
-./bin/fitpca_split perform spitting.
+./bin/fitpca_split perform fitting
 
 old approach to use specific sub-tower and / or sub-sub-tower has been removed.
 
@@ -44,7 +44,7 @@ R-Phi (3.0 <= pt <= 7.0):
 ./generatepca_split --rphi-plane --charge-sign=+ --pt-range="3.0;7.0" ./MUBANK_pt2To200_phi11To29_etaM06To04.root
 ./fitpca_split --rphi-plane --charge-sign=+ --pt-range="3.0;7.0" ./MUBANK_pt2To200_phi11To29_etaM06To04.root
 
-R-Z (D_eta = 0.0.5):
+R-Z (D_eta = 0.05):
 
 export k="-0.6" 
 for i in `seq 1 20`;
@@ -59,3 +59,7 @@ do
   echo ""
 done
 
+R-Z use txt file format:
+
+./fitpca_split_pcaconst --pca-const-file=barrel_tow18_pca_const.txt \
+    --rz-plane -x -k --eta-range="-0.6;-0.55"./MUBANK_pt2To200_phi11To29_etaM06To04.root
