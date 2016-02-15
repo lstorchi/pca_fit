@@ -505,15 +505,18 @@ namespace pca
           outf << matrixpcaconst<T>::ttype_to_string(vct[i].get_ttype()) 
             << std::endl;
           vct[i].get_ptrange(min, max);
-          outf << min << " " << max << std::endl;
+          outf.precision(10);
+          outf << std::scientific << min << " " << max << std::endl;
           vct[i].get_etarange(min, max);
-          outf << min << " " << max << std::endl;
+          outf << std::scientific << min << " " << max << std::endl;
           outf << vct[i].get_chargesign () << std::endl;
           outf << vct[i].n_rows() << std::endl;
           outf << vct[i].n_cols() << std::endl;
+
+          outf.precision(10);
           for (unsigned int j = 0; j<vct[i].n_rows(); ++j)
             for (unsigned int k = 0; k<vct[i].n_cols(); ++k)
-              outf << vct[i](j, k) << std::endl;
+              outf << std::scientific << vct[i](j, k) << std::endl;
         }
 
         outf.close();
@@ -539,15 +542,18 @@ namespace pca
       outf << matrixpcaconst<T>::ttype_to_string(in.get_ttype()) 
         << std::endl;
       in.get_ptrange(min, max);
-      outf << min << " " << max << std::endl;
+      outf.precision(10);
+      outf << std::scientific << min << " " << max << std::endl;
       in.get_etarange(min, max);
-      outf << min << " " << max << std::endl;
+      outf << std::scientific << min << " " << max << std::endl;
       outf << in.get_chargesign() << std::endl;
       outf << in.n_rows() << std::endl;
       outf << in.n_cols() << std::endl;
+
+      outf.precision(10);
       for (unsigned int i = 0; i<in.n_rows(); ++i)
         for (unsigned int j = 0; j<in.n_cols(); ++j)
-          outf << in(i, j) << std::endl;
+          outf << std::scientific << in(i, j) << std::endl;
       outf.close();
     }
 
