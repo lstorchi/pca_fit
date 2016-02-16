@@ -292,20 +292,20 @@ void PCATrackFitter::fit(vector<Hit*> hits)
         z0 = qvec_rz(0,1);
         for (int i=0; i<(int)cmtx_rz.n_cols(); ++i)
         {
-          cottheta += cmtx_rz(0, i) * zrv(i);
-          z0 += cmtx_rz(1, i) * zrv(i);
+          cottheta += cmtx_rz(0, i) * zrv[i];
+          z0 += cmtx_rz(1, i) * zrv[i];
         }
         
         double coverpt = 0.0; // pt
         double phi = 0.0;
         
         // TODO checkit
-        coverpt = qvec_phi(0,0);
-        phi = qvec_phi(0,1);
-        for (int i=0; i<(int)cmtx_phi.n_cols(); ++i)
+        coverpt = qvec_rphi(0,0);
+        phi = qvec_rphi(0,1);
+        for (int i=0; i<(int)cmtx_rphi.n_cols(); ++i)
         {
-          coverpt += cmtx_phi(0, i)*phirv[i];
-          z0 += cmtx_phi(1, i)*phirv[i];
+          coverpt += cmtx_rphi(0, i)*phirv[i];
+          z0 += cmtx_rphi(1, i)*phirv[i];
         }
         
         double pt = (double)(charge)/coverpt;
