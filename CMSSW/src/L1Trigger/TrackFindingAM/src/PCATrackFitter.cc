@@ -6,6 +6,109 @@ L.Storchi, A.Modak, S.R.Chowdhury : 2016
 #include "../interface/PCATrackFitter.h"
 #include "../interface/pcaconst.hpp"
 
+namespace 
+{
+  bool import_pca_const (const std::string & cfname, 
+      pca::matrixpcaconst<double> & cmtx_rz, 
+      pca::matrixpcaconst<double> & qvec_rz, 
+      pca::matrixpcaconst<double> & amtx_rz, 
+      pca::matrixpcaconst<double> & kvec_rz, 
+      pca::matrixpcaconst<double> & cmtx_rphi, 
+      pca::matrixpcaconst<double> & qvec_rphi, 
+      pca::matrixpcaconst<double> & amtx_rphi, 
+      pca::matrixpcaconst<double> & kvec_rphi, 
+      double eta, double pt, 
+      int chargesignin)
+  {
+    std::vector<pca::matrixpcaconst<double> > vct;
+    if (pca::read_pcacosnt_from_file (vct, cfname.c_str()))
+    {
+      int hwmanygot = 0;
+      std::vector<pca::matrixpcaconst<double> >::const_iterator it = 
+        vct.begin();
+      for (; it != vct.end(); ++it)
+      {
+        double ptmin, ptmax, etamin, etamax;
+        int chargesign;
+  
+        it->get_ptrange(ptmin, ptmax);
+        it->get_etarange(etamin, etamax);
+        chargesign = it->get_chargesign();
+  
+        if (it->get_plane_type() == pca::matrixpcaconst<double>::RZ)
+        {
+          if ((eta >= etamin) && (eta <= etamax)) 
+          {
+            switch(it->get_const_type())
+            {
+              case pca::matrixpcaconst<double>::QVEC :
+                qvec_rz = *it;
+                hwmanygot++;
+                break;
+              case pca::matrixpcaconst<double>::KVEC :
+                kvec_rz = *it;
+                hwmanygot++;
+                break;
+              case pca::matrixpcaconst<double>::CMTX :
+                cmtx_rz = *it;
+                hwmanygot++;
+                break;
+              case pca::matrixpcaconst<double>::AMTX :
+                amtx_rz = *it;
+                hwmanygot++;
+                break;
+              default:
+                break;
+            }
+          } 
+        }
+        else if (it->get_plane_type() == pca::matrixpcaconst<double>::RPHI)
+        {
+          if (chargesignin == chargesign)
+          {
+            if ((pt >= ptmin) && (pt <= ptmax))
+            {
+              switch(it->get_const_type())
+              {
+                case pca::matrixpcaconst<double>::QVEC : 
+                  qvec_rphi = *it;
+                  hwmanygot++;
+                  break;
+                case pca::matrixpcaconst<double>::KVEC :
+                  kvec_rphi = *it;
+                  hwmanygot++;
+                  break;
+                case pca::matrixpcaconst<double>::CMTX :
+                  cmtx_rphi = *it;
+                  hwmanygot++;
+                  break;
+                case pca::matrixpcaconst<double>::AMTX :
+                  amtx_rphi = *it;
+                  hwmanygot++;
+                  break;
+                default:
+                  break;
+              }
+            }
+          } 
+        }
+      }
+  
+      if (hwmanygot == 8)
+        return true;
+      else
+      {
+        std::cerr << "Found " << hwmanygot << " const instead of 8" << std::endl;
+        return false;
+      }
+    }
+  
+    // TODO add consistency check for dims
+  
+    return false;
+  }
+}
+
 PCATrackFitter::PCATrackFitter():TrackFitter(0)
 {
 }
@@ -123,14 +226,6 @@ void PCATrackFitter::fit(vector<Hit*> hits)
     {
       std::vector<double> zrv, phirv;
 
-      int charge;
-      charge = tracks_[tt]->getCharge(); 
-
-      double pt_est, eta_est;
-
-      pt_est = tracks_[tt]->getCurve();
-      eta_est = tracks_[tt]->getEta0();
-
       for(unsigned int idx = 0; idx < hits.size(); ++idx)
       {
         double xi =  hits[idx]->getX()*ci+ hits[idx]->getY()*si;
@@ -159,68 +254,88 @@ void PCATrackFitter::fit(vector<Hit*> hits)
         phirv.push_back(ri);
       }
 
+      int charge;
+      double pt_est, eta_est;
+      charge = tracks_[tt]->getCharge(); 
+      pt_est = tracks_[tt]->getCurve();
+      eta_est = tracks_[tt]->getEta0();
 
-      /*
+      std::string cfname = "./barrel_tow18_pca_const.txt";
 
-      double c_rz[PCA_RZ_RDIM][PCA_RZ_CDIM];
-      double q_rz[PCA_RZ_RDIM];
+      pca::matrixpcaconst<double> cmtx_rz(0, 0);
+      pca::matrixpcaconst<double> qvec_rz(0, 0); 
+      pca::matrixpcaconst<double> amtx_rz(0, 0); 
+      pca::matrixpcaconst<double> kvec_rz(0, 0); 
+      pca::matrixpcaconst<double> cmtx_rphi(0, 0); 
+      pca::matrixpcaconst<double> qvec_rphi(0, 0); 
+      pca::matrixpcaconst<double> amtx_rphi(0, 0); 
+      pca::matrixpcaconst<double> kvec_rphi(0, 0); 
 
-      double c_rphi[PCA_RPHI_RDIM][PCA_RPHI_CDIM];
-      double q_rphi[PCA_RPHI_RDIM];
-
-      double cottheta = 0.0; // eta
-      double z0 = 0.0;
-      get_c_matrix_rz (eta_est, tow, c_rz);
-      get_q_vector_rz (eta_est, tow, q_rz);
-
-      // TODO checkit
-      cottheta = q_rz[0];
-      z0 = q_rz[1];
-      for (int i=0; i<PCA_RPHI_CDIM; ++i)
+      if (import_pca_const (cfname, 
+                            cmtx_rz, 
+                            qvec_rz, 
+                            amtx_rz, 
+                            kvec_rz, 
+                            cmtx_rphi, 
+                            qvec_rphi, 
+                            amtx_rphi, 
+                            kvec_rphi, 
+                            eta_est, 
+                            pt_est, 
+                            charge))
       {
-        cottheta += c_rz[0][i]*zrv[i];
-        z0 += c_rz[1][i]*zrv[i];
+        double cottheta = 0.0; // eta
+        double z0 = 0.0;
+        
+        // TODO checkit
+        cottheta = qvec_rz(0,0);
+        z0 = qvec_rz(0,1);
+        for (int i=0; i<(int)cmtx_rz.n_cols(); ++i)
+        {
+          cottheta += cmtx_rz(0, i) * zrv(i);
+          z0 += cmtx_rz(1, i) * zrv(i);
+        }
+        
+        double coverpt = 0.0; // pt
+        double phi = 0.0;
+        
+        // TODO checkit
+        coverpt = qvec_phi(0,0);
+        phi = qvec_phi(0,1);
+        for (int i=0; i<(int)cmtx_phi.n_cols(); ++i)
+        {
+          coverpt += cmtx_phi(0, i)*phirv[i];
+          z0 += cmtx_phi(1, i)*phirv[i];
+        }
+        
+        double pt = (double)(charge)/coverpt;
+        
+        // TODO: checkit theta to eta 
+        double eta = 0.0e0;
+        double theta = atan(1.0e0 / cottheta); 
+        double tantheta2 = tan (theta/2.0e0); 
+        if (tantheta2 < 0.0)
+          eta = 1.0e0 * log (-1.0e0 * tantheta2);
+        else
+          eta = -1.0e0 * log (tantheta2);
+        
+        Track* fit_track = new Track();
+        
+        fit_track->setCurve(pt);
+        fit_track->setPhi0(phi);
+        fit_track->setEta0(eta);
+        fit_track->setZ0(z0);
+                        
+        for(unsigned int idx = 0; idx < hits.size(); ++idx)
+          fit_track->addStubIndex(idx);
+        
+        tracks.push_back(fit_track);
       }
- 
-      double coverpt = 0.0; // pt
-      double phi = 0.0;
-      get_c_matrix_rphi (pt_est, charge, tow, c_rphi);
-      get_q_vector_rphi (pt_est, charge, tow, q_rphi);
-
-      // TODO checkit
-      coverpt = q_rphi[0];
-      phi = q_rphi[1];
-      for (int i=0; i<PCA_RPHI_CDIM; ++i)
+      else 
       {
-        coverpt += c_rphi[0][i]*phirv[i];
-        z0 += c_rphi[1][i]*phirv[i];
+        std::cerr << "error while reading PCA const" << std::endl;
       }
 
-      double pt = (double)(charge)/coverpt;
-
-      // TODO: checkit theta to eta 
-      double eta = 0.0e0;
-      double theta = atan(1.0e0 / cottheta); 
-      double tantheta2 = tan (theta/2.0e0); 
-      if (tantheta2 < 0.0)
-        eta = 1.0e0 * log (-1.0e0 * tantheta2);
-      else
-        eta = -1.0e0 * log (tantheta2);
-
-
-      Track* fit_track = new Track();
-
-      fit_track->setCurve(pt);
-      fit_track->setPhi0(phi);
-      fit_track->setEta0(eta);
-      fit_track->setZ0(z0);
-                      
-      for(unsigned int idx = 0; idx < hits.size(); ++idx)
-        fit_track->addStubIndex(idx);
- 
-      tracks.push_back(fit_track);
-
-      */
     }
     else
     {
@@ -230,8 +345,6 @@ void PCATrackFitter::fit(vector<Hit*> hits)
 
   xyzfile.close();
   rpzfile.close();
-
-
 }
 
 void PCATrackFitter::fit()
@@ -269,3 +382,4 @@ TrackFitter* PCATrackFitter::clone()
 
   return fit;
 }
+
