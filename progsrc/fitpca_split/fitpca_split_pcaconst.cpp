@@ -124,7 +124,10 @@ bool import_pca_const (const std::string & cfname,
     if (hwmanygot == 4)
       return true;
     else
+    {
+      std::cerr << "Found " << hwmanygot << " const instead of 4" << std::endl;
       return false;
+    }
   }
 
   // TODO add consistency check for dims
