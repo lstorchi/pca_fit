@@ -4,124 +4,7 @@ C++ implementation of the PCA fitter
 L.Storchi, A.Modak, S.R.Chowdhury : 2016
 */
 #include "../interface/PCATrackFitter.h"
-
-// to store PCA constants very quick, quite dirty and very ugly (may be a class or ....)
-// is there a 2d array class in cmssw ? 
-#define PCA_RZ_RDIM 2
-#define PCA_RZ_CDIM 6
-#define PCA_RPHI_RDIM 2
-#define PCA_RPHI_CDIM 12
-namespace 
-{
-  double c_18_rz_1[PCA_RZ_RDIM][PCA_RZ_CDIM] = {};
-  double q_18_rz_1[PCA_RZ_RDIM] = {};
-  double c_18_rphi_1_cgt0[PCA_RPHI_RDIM][PCA_RPHI_CDIM] = {};
-  double q_18_rphi_1_cgt0[PCA_RPHI_RDIM] = {};
-
-  void get_c_matrix_rz (double eta, int towerid, 
-      double c[PCA_RZ_RDIM][PCA_RZ_CDIM])
-  {
-    if (towerid == 18)
-    {
-      if ((eta >= -0.6) && (eta <= -0.55))
-      {
-        // TODO read and store
-        for (int i=0; i<PCA_RZ_RDIM; ++i)
-          for (int j=0; j<PCA_RZ_CDIM; ++j)
-            c[i][j] = c_18_rz_1[i][j];
-      }
-      else 
-      {
-        // TODO
-      }
-    }
-    else
-    {
-      // TODO
-    }
-  }
-
-  void get_c_matrix_rphi (double pt, int charge, 
-      int towerid, double c[PCA_RPHI_RDIM][PCA_RPHI_CDIM])
-  {
-    if (charge > 0)
-    {
-      if (towerid == 18)
-      {
-        if ((pt >= 3.0) && (pt <= 7))
-        {
-          // TODO read and store
-          for (int i=0; i<PCA_RPHI_RDIM; ++i)
-            for (int j=0; j<PCA_RPHI_CDIM; ++j)
-              c[i][j] = c_18_rphi_1_cgt0[i][j];
-        }
-        else 
-        {
-          // TODO
-        }
-      }
-      else
-      {
-        // TODO
-      }
-    }
-    else
-    {
-      // TODO
-    }
-  }
-
-
-  void get_q_vector_rz (double eta, int towerid, double q[PCA_RZ_RDIM])
-  {
-    if (towerid == 18)
-    {
-      if ((eta >= -0.6) && (eta <= -0.55))
-      {
-        // TODO read and store
-        for (int i=0; i<PCA_RZ_RDIM; ++i)
-          q[i] = q_18_rz_1[i];
-      }
-      else 
-      {
-        // TODO
-      }
-    }
-    else
-    {
-      // TODO
-    }
-  }
-
-  void get_q_vector_rphi (double pt, int charge,  
-      int towerid, double q[PCA_RPHI_RDIM])
-  {
-    if (charge > 0)
-    {
-      if (towerid == 18)
-      {
-        if ((pt >= 3.0) && (pt <= 7))
-        {
-          // TODO read and store
-          for (int i=0; i<PCA_RPHI_RDIM; ++i)
-            q[i] = q_18_rphi_1_cgt0[i];
-        }
-        else 
-        {
-          // TODO
-        }
-      }
-      else
-      {
-        // TODO
-      }
-    }
-    else 
-    {
-      // TODO
-    }
-  }
-}
+#include "../interface/pcaconst.hpp"
 
 PCATrackFitter::PCATrackFitter():TrackFitter(0)
 {
@@ -239,7 +122,14 @@ void PCATrackFitter::fit(vector<Hit*> hits)
     if (hits.size() == 6)
     {
       std::vector<double> zrv, phirv;
-      int charge = tracks_[tt]->getCharge(); 
+
+      int charge;
+      charge = tracks_[tt]->getCharge(); 
+
+      double pt_est, eta_est;
+
+      pt_est = tracks_[tt]->getCurve();
+      eta_est = tracks_[tt]->getEta0();
 
       for(unsigned int idx = 0; idx < hits.size(); ++idx)
       {
@@ -269,10 +159,8 @@ void PCATrackFitter::fit(vector<Hit*> hits)
         phirv.push_back(ri);
       }
 
-      double pt_est, eta_est;
 
-      pt_est = tracks_[tt]->getCurve();
-      eta_est = tracks_[tt]->getEta0();
+      /*
 
       double c_rz[PCA_RZ_RDIM][PCA_RZ_CDIM];
       double q_rz[PCA_RZ_RDIM];
@@ -319,6 +207,7 @@ void PCATrackFitter::fit(vector<Hit*> hits)
       else
         eta = -1.0e0 * log (tantheta2);
 
+
       Track* fit_track = new Track();
 
       fit_track->setCurve(pt);
@@ -330,6 +219,8 @@ void PCATrackFitter::fit(vector<Hit*> hits)
         fit_track->addStubIndex(idx);
  
       tracks.push_back(fit_track);
+
+      */
     }
     else
     {
