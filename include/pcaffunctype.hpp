@@ -126,6 +126,8 @@ namespace pca
     return true;
   } 
 
+  void dump_element (const matrixpcaconst<double> & in, 
+    std::ostream & out);
 };
   
 #endif

@@ -121,7 +121,7 @@ void TrackFitPCAProducer::beginRun( const edm::Run& run, const edm::EventSetup& 
   const MagneticField* theMagneticField = magneticFieldHandle.product();
   double mMagneticFieldStrength = theMagneticField->inTesla(GlobalPoint(0,0,0)).z();
   mMagneticField = (floor(mMagneticFieldStrength*10.0 + 0.5))/10.0;
-  std::cout << "PCA Fitter begin run !!!!" << std::endl;
+  //std::cout << "PCA Fitter begin run !!!!" << std::endl;
 
 }
 
@@ -146,7 +146,7 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
   //iEvent.getByLabel( TTPatternsInputTag, TTPatternHandle ); // Get the matched roads
   iEvent.getByLabel( TCTTrackInputTag, TCBuilderTTracksHandle); // Get the matched roads
 
-  std::cout << "Inside PCA produce" << std::endl;
+  //std::cout << "Inside PCA produce" << std::endl;
   /// STEP 0
   /// Prepare output
   TTTracksForOutput->clear();
@@ -177,7 +177,7 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
     tempt->setPhi0(iterTCTTrack->getMomentum(5).phi());
     tempt->setZ0(iterTCTTrack->getPOCA(5).z());
     tempt->setCharge(-(iterTCTTrack->getRInv(5)));//charge = -RInv
-    std::cout << "Charge from TC track=" << tempt->getCharge() << std::endl;
+    //std::cout << "Charge from TC track=" << tempt->getCharge() << std::endl;
     tcb_tracks.push_back(tempt);
     nbLayers = iterTCTTrack->getWedge();
     unsigned int seedSector = iterTCTTrack->getSector();
@@ -253,9 +253,11 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
         module = detIdStub.iPhi()-1;
       }
 
+      /*
       std::cout << layer << " " << ladder << " " << module << std::endl;
       std::cout << posStub.x() << " "<< posStub.y() << " " << posStub.z() << std::endl;
-      
+      */
+
       Hit* h = new Hit(layer,ladder, module, segment, strip, 
       		 j, -1, 0, 0, 0, 0, 
       		 posStub.x(), posStub.y(), posStub.z(), 0, 0, 0, 
@@ -268,7 +270,7 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
     pcafitter->setSectorID(seedSector);
     pcafitter->setTracks(tcb_tracks);
     pcafitter->fit(m_hits);
-    std::cout << "get back tracks" << std::endl;
+    //std::cout << "get back tracks" << std::endl;
     pca_tracks = pcafitter->getTracks();
 
     std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, 

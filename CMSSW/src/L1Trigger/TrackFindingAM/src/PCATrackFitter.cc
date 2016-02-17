@@ -8,6 +8,18 @@ L.Storchi, A.Modak, S.R.Chowdhury : 2016
 
 namespace 
 {
+  /* quick and very dirty */
+  void dump_element (const pca::matrixpcaconst<double> & in, std::ostream & out)
+  {
+    out.precision(6);
+    for (unsigned int i = 0; i<in.n_rows(); ++i)
+    {
+      for (unsigned int j = 0; j<in.n_cols(); ++j)
+        out << std::scientific << in(i, j) << " ";
+      out << std::endl;
+    }
+  }
+
   bool import_pca_const (const std::string & cfname, 
       pca::matrixpcaconst<double> & cmtx_rz, 
       pca::matrixpcaconst<double> & qvec_rz, 
@@ -208,23 +220,25 @@ void PCATrackFitter::fit(vector<Hit*> hits)
   double ci = cos(sec_phi);
   double si = sin(sec_phi);
 
-  std::cout << "tracks_.size() : " << tracks_.size() << std::endl;
+  //std::cout << "tracks_.size() : " << tracks_.size() << std::endl;
   
+  /*
   std::ofstream xyzfile;
   xyzfile.open ("PCAxyzfile.txt");
 
   std::ofstream rpzfile;
   rpzfile.open ("PCArphizfile.txt");
+  */
 
   for(unsigned int tt=0; tt<tracks_.size(); ++tt)
   {
     //vector<int> stubids = tracks_[tt]->getStubs(); // TODO are they the hits idx ? 
 
-    std::cout << "hits.size() : " << hits.size() << std::endl;
+    //std::cout << "hits.size() : " << hits.size() << std::endl;
 
     if (hits.size() == 6)
     {
-      std::vector<double> zrv, phirv;
+      pca::matrixpcaconst<double> zrv(2, 6), phirv(2, 6);
 
       for(unsigned int idx = 0; idx < hits.size(); ++idx)
       {
@@ -238,27 +252,48 @@ void PCATrackFitter::fit(vector<Hit*> hits)
         std::cout << "PCAxyz " << xi << " " << yi << " " << zi << " " << 
           (int) hits[idx]->getLayer() << std::endl;
 
-        xyzfile << xi << " " << yi << " " << zi << " " << 
+        std::cout << "PCArpz " << xi << " " << yi << " " << zi << " " << 
           (int) hits[idx]->getLayer() << std::endl;
 
-        std::cout << "PCArpz " << xi << " " << yi << " " << zi << " " << 
+        /*
+        xyzfile << xi << " " << yi << " " << zi << " " << 
           (int) hits[idx]->getLayer() << std::endl;
 
         rpzfile << ri << " " << pi << zi << " " << 
           (int) hits[idx]->getLayer() << std::endl;
+        */
 
-        zrv.push_back(zi);
-        zrv.push_back(ri);
+        zrv(0, idx) = zi;
+        zrv(1, idx) = ri;
 
-        phirv.push_back(pi);
-        phirv.push_back(ri);
+        phirv(0, idx) = pi;
+        phirv(1, idx) = ri;
       }
 
       int charge;
-      double pt_est, eta_est;
+      double pt_est, eta_est, z0_est, phi_est;
       charge = tracks_[tt]->getCharge(); 
       pt_est = tracks_[tt]->getCurve();
       eta_est = tracks_[tt]->getEta0();
+      z0_est = tracks_[tt]->getZ0 ();
+      phi_est = tracks_[tt]->getPhi0();
+
+      /* */
+      zrv(0, 0) = -16.1314; zrv(1, 0) = 23.3135;
+      zrv(0, 1) = -22.7054; zrv(1, 1) = 34.8367;
+      zrv(0, 2) = -32.6362; zrv(1, 2) = 51.9131;
+      eta_est = -0.580448;
+      z0_est = -2.65203;
+
+      phirv(0, 0) = 2.74588; phirv(0, 0) = 23.2105;
+      phirv(0, 1) = 2.76857; phirv(0, 1) = 37.0286;
+      phirv(0, 2) = 2.79267; phirv(0, 2) = 51.2692;
+      phirv(0, 3) = 2.82109; phirv(0, 3) = 67.7289;
+      phirv(0, 4) = 2.85643; phirv(0, 4) = 87.8179;
+      phirv(0, 5) = 2.89452; phirv(0, 5) = 109.012;
+      pt_est = 1.0/0.315806;
+      phi_est = 2.70006;
+      charge = +1;
 
       std::string cfname = "./barrel_tow18_pca_const.txt";
 
@@ -284,36 +319,40 @@ void PCATrackFitter::fit(vector<Hit*> hits)
                             pt_est, 
                             charge))
       {
-
         std::cout << "CMTX RZ: " << std::endl;
-        pca::dump_element(cmtx_rz, std::cout);
+        dump_element(cmtx_rz, std::cout);
 
         std::cout << "QVEC RZ: " << std::endl;
-        pca::dump_element(cmtx_rz, std::cout);
+        dump_element(cmtx_rz, std::cout);
 
+        std::cout << "CMTX RPHI: " << std::endl;
+        dump_element(cmtx_rphi, std::cout);
+
+        std::cout << "QVEC RPHI: " << std::endl;
+        dump_element(cmtx_rphi, std::cout);
 
         double cottheta = 0.0; // eta
         double z0 = 0.0;
         
-        // TODO checkit
         cottheta = qvec_rz(0,0);
         z0 = qvec_rz(0,1);
         for (int i=0; i<(int)cmtx_rz.n_cols(); ++i)
         {
-          cottheta += cmtx_rz(0, i) * zrv[i];
-          z0 += cmtx_rz(1, i) * zrv[i];
+          cottheta += cmtx_rz(0, i) * zrv(0, i);
+          z0 += cmtx_rz(1, i) * zrv(1, i);
         }
         
         double coverpt = 0.0; // pt
         double phi = 0.0;
         
-        // TODO checkit
         coverpt = qvec_rphi(0,0);
         phi = qvec_rphi(0,1);
         for (int i=0; i<(int)cmtx_rphi.n_cols(); ++i)
         {
-          coverpt += cmtx_rphi(0, i)*phirv[i];
-          z0 += cmtx_rphi(1, i)*phirv[i];
+          /*
+          coverpt += cmtx_rphi(0, i) * phirv(0, i);
+          phi += cmtx_rphi(1, i) * phirv(1, i);
+          */
         }
         
         double pt = (double)(charge)/coverpt;
@@ -331,8 +370,8 @@ void PCATrackFitter::fit(vector<Hit*> hits)
 
         std::cout << " pt : " << pt << " ==> " << pt_est << std::endl;
         std::cout << " eta: " << eta << " ==> " << eta_est << std::endl;
-        std::cout << " z0 : " << z0 << std::endl;
-        std::cout << " phi: " << phi << std::endl; 
+        std::cout << " z0 : " << z0 << " ==> " << z0_est << std::endl;
+        std::cout << " phi: " << phi << " ==> " << phi_est << std::endl; 
         
         fit_track->setCurve(pt);
         fit_track->setPhi0(phi);
@@ -357,10 +396,12 @@ void PCATrackFitter::fit(vector<Hit*> hits)
     }
   }
 
+  /*
   xyzfile.close();
   rpzfile.close();
 
   std::cout << "Close files" << std::endl;
+  */
 }
 
 void PCATrackFitter::fit()

@@ -566,17 +566,6 @@ namespace pca
      return true;
   }
 
-  /* quick and very dirty */
-  void dump_element (const matrixpcaconst<double> & in, std::ostream & out)
-  {
-    out.precision(6);
-    for (unsigned int i = 0; i<in.n_rows(); ++i)
-    {
-      for (unsigned int j = 0; j<in.n_cols(); ++j)
-        out << std::scientific << in(i, j) << " ";
-      out << std::endl;
-    }
-  }
 }
 
 #endif
