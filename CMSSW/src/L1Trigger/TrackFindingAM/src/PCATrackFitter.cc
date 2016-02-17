@@ -320,6 +320,11 @@ void PCATrackFitter::fit(vector<Hit*> hits)
           eta = -1.0e0 * log (tantheta2);
         
         Track* fit_track = new Track();
+
+        std::cout << " pt : " << pt << " ==> " << pt_est << std::endl;
+        std::cout << " eta: " << eta << " ==> " << eta_est << std::endl;
+        std::cout << " z0 : " << z0 << std::endl;
+        std::cout << " phi: " << phi << std::endl; 
         
         fit_track->setCurve(pt);
         fit_track->setPhi0(phi);
@@ -334,6 +339,7 @@ void PCATrackFitter::fit(vector<Hit*> hits)
       else 
       {
         std::cerr << "error while reading PCA const" << std::endl;
+        std::cout << "error while reading PCA const" << std::endl;
       }
 
     }
@@ -345,6 +351,8 @@ void PCATrackFitter::fit(vector<Hit*> hits)
 
   xyzfile.close();
   rpzfile.close();
+
+  std::cout << "Close files" << std::endl;
 }
 
 void PCATrackFitter::fit()
