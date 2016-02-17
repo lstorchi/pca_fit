@@ -383,9 +383,13 @@ namespace pca
   matrixpcaconst<T>& pca::matrixpcaconst<T>::operator=( 
       const pca::matrixpcaconst<T>& cp )
   {
+    /*
     if (cp.rows_ != rows_ && cp.cols_ != cols_ )
        throw std::domain_error("matrix op= not of same order");
-    
+    */
+
+    this->reset(cp.rows_, cp.cols_);
+
     for(unsigned i=0; i<rows_*cols_; i++)
       elements_.push_back(cp.elements_[i]);
 
