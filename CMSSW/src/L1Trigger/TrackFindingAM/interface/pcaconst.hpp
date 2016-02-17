@@ -272,7 +272,7 @@ namespace pca
  
   };
 
-  template<class T>
+  template<typename T>
   matrixpcaconst<T>::matrixpcaconst (unsigned rows, unsigned cols, 
       const T* elements)
   {
@@ -304,7 +304,7 @@ namespace pca
         this->elements_.push_back((T)0);
   };
   
-  template<class T>
+  template<typename T>
   matrixpcaconst<T>::matrixpcaconst( const matrixpcaconst<T>& cp )
   {
     rows_ = cp.rows_;
@@ -324,13 +324,13 @@ namespace pca
     chargesign_ = cp.chargesign_;
   }
 
-  template<class T>
+  template<typename T>
   matrixpcaconst<T>::~matrixpcaconst()
   {
     clear();
   }
 
-  template<class T>
+  template<typename T>
   bool matrixpcaconst<T>::compare_nonelements (const matrixpcaconst<T>& cp) const
   {
     return ((rows_ == cp.rows_ ) &&
@@ -349,7 +349,7 @@ namespace pca
         (rows_ == cp.rows_ ));
   }
   
-  template<class T>
+  template<typename T>
   void matrixpcaconst<T>::clear() 
   {
     elements_.clear();
@@ -369,7 +369,7 @@ namespace pca
     etamax_ = 0.0;
   }
   
-  template<class T>
+  template<typename T>
   void matrixpcaconst<T>::reset(unsigned rows, unsigned cols) 
   {
     rows_ = rows;
@@ -381,7 +381,7 @@ namespace pca
       this->elements_.push_back((T)0);
   }
   
-  template<class T>
+  template<typename T>
   matrixpcaconst<T>& pca::matrixpcaconst<T>::operator=( 
       const pca::matrixpcaconst<T>& cp )
   {
@@ -392,20 +392,20 @@ namespace pca
 
     this->reset(cp.rows_, cp.cols_);
 
-    for(unsigned i=0; i<rows_*cols_; i++)
-      elements_.push_back(cp.elements_[i]);
+    for(unsigned int i=0; i<rows_*cols_; i++)
+      this->elements_[i] = cp.elements_[i];
 
-    ttype_ = cp.ttype_;
-    ctype_ = cp.ctype_;
-    stype_ = cp.stype_;
-    ptype_ = cp.ptype_;
+    this->ttype_ = cp.ttype_;
+    this->ctype_ = cp.ctype_;
+    this->stype_ = cp.stype_;
+    this->ptype_ = cp.ptype_;
     
-    ptmin_ = cp.ptmin_;
-    ptmax_ = cp.ptmax_;
-    etamin_ = cp.etamin_;
-    etamax_ = cp.etamax_;
-    towerid_ = cp.towerid_;
-    chargesign_ = cp.chargesign_;
+    this->ptmin_ = cp.ptmin_;
+    this->ptmax_ = cp.ptmax_;
+    this->etamin_ = cp.etamin_;
+    this->etamax_ = cp.etamax_;
+    this->towerid_ = cp.towerid_;
+    this->chargesign_ = cp.chargesign_;
   
     return *this;
   }
@@ -564,6 +564,18 @@ namespace pca
     }
 
      return true;
+  }
+
+  /* quick and very dirty */
+  void dump_element (const matrixpcaconst<double> & in, std::ostream & out)
+  {
+    out.precision(6);
+    for (unsigned int i = 0; i<in.n_rows(); ++i)
+    {
+      for (unsigned int j = 0; j<in.n_cols(); ++j)
+        out << std::scientific << in(i, j) << " ";
+      out << std::endl;
+    }
   }
 }
 

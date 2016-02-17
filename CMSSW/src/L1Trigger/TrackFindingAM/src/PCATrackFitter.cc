@@ -284,6 +284,14 @@ void PCATrackFitter::fit(vector<Hit*> hits)
                             pt_est, 
                             charge))
       {
+
+        std::cout << "CMTX RZ: " << std::endl;
+        pca::dump_element(cmtx_rz, std::cout);
+
+        std::cout << "QVEC RZ: " << std::endl;
+        pca::dump_element(cmtx_rz, std::cout);
+
+
         double cottheta = 0.0; // eta
         double z0 = 0.0;
         
