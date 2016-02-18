@@ -238,7 +238,8 @@ void PCATrackFitter::fit(vector<Hit*> hits)
 
     if (hits.size() == 6)
     {
-      pca::matrixpcaconst<double> zrv(2, 6), phirv(2, 6);
+      pca::matrixpcaconst<double> zrv(1, 12), phirv(1, 12);
+      unsigned int coordidx = 0;
 
       for(unsigned int idx = 0; idx < hits.size(); ++idx)
       {
@@ -263,11 +264,15 @@ void PCATrackFitter::fit(vector<Hit*> hits)
           (int) hits[idx]->getLayer() << std::endl;
         */
 
-        zrv(0, idx) = zi;
-        zrv(1, idx) = ri;
+        zrv(0, coordidx) = zi;
+        phirv(0, coordidx) = pi;
 
-        phirv(0, idx) = pi;
-        phirv(1, idx) = ri;
+        ++coordidx;
+
+        zrv(0, coordidx) = ri;
+        phirv(0, coordidx) = ri;
+
+        ++coordidx;
       }
 
       int charge;
@@ -275,22 +280,22 @@ void PCATrackFitter::fit(vector<Hit*> hits)
       charge = tracks_[tt]->getCharge(); 
       pt_est = tracks_[tt]->getCurve();
       eta_est = tracks_[tt]->getEta0();
-      z0_est = tracks_[tt]->getZ0 ();
+      z0_est = tracks_[tt]->getZ0();
       phi_est = tracks_[tt]->getPhi0();
 
-      /* */
-      zrv(0, 0) = -16.1314; zrv(1, 0) = 23.3135;
-      zrv(0, 1) = -22.7054; zrv(1, 1) = 34.8367;
-      zrv(0, 2) = -32.6362; zrv(1, 2) = 51.9131;
+      /* TEST */
+      zrv(0, 0) = -16.1314; zrv(0, 2) = 23.3135;
+      zrv(0, 3) = -22.7054; zrv(0, 4) = 34.8367;
+      zrv(0, 5) = -32.6362; zrv(0, 6) = 51.9131;
       eta_est = -0.580448;
       z0_est = -2.65203;
 
-      phirv(0, 0) = 2.74588; phirv(0, 0) = 23.2105;
-      phirv(0, 1) = 2.76857; phirv(0, 1) = 37.0286;
-      phirv(0, 2) = 2.79267; phirv(0, 2) = 51.2692;
-      phirv(0, 3) = 2.82109; phirv(0, 3) = 67.7289;
-      phirv(0, 4) = 2.85643; phirv(0, 4) = 87.8179;
-      phirv(0, 5) = 2.89452; phirv(0, 5) = 109.012;
+      phirv(0, 0) = 2.74588; phirv(0, 1) = 23.2105;
+      phirv(0, 2) = 2.76857; phirv(0, 3) = 37.0286;
+      phirv(0, 4) = 2.79267; phirv(0, 5) = 51.2692;
+      phirv(0, 6) = 2.82109; phirv(0, 7) = 67.7289;
+      phirv(0, 8) = 2.85643; phirv(0, 9) = 87.8179;
+      phirv(0, 10) = 2.89452; phirv(0, 11) = 109.012;
       pt_est = 1.0/0.315806;
       phi_est = 2.70006;
       charge = +1;
@@ -339,7 +344,7 @@ void PCATrackFitter::fit(vector<Hit*> hits)
         for (int i=0; i<(int)cmtx_rz.n_cols(); ++i)
         {
           cottheta += cmtx_rz(0, i) * zrv(0, i);
-          z0 += cmtx_rz(1, i) * zrv(1, i);
+          z0 += cmtx_rz(1, i) * zrv(0, i);
         }
         
         double coverpt = 0.0; // pt
@@ -349,9 +354,8 @@ void PCATrackFitter::fit(vector<Hit*> hits)
         phi = qvec_rphi(0,1);
         for (int i=0; i<(int)cmtx_rphi.n_cols(); ++i)
         {
-          std::cout << i 
           coverpt += cmtx_rphi(0, i) * phirv(0, i);
-          phi += cmtx_rphi(1, i) * phirv(1, i);
+          phi += cmtx_rphi(1, i) * phirv(0, i);
         }
         
         double pt = (double)(charge)/coverpt;

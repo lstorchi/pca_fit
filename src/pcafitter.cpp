@@ -116,8 +116,6 @@ bool pcafitter::compute_parameters (
 {
   reset_error();
 
-  arma::running_stat<double> coordmval[ coordim_ ];
-
   if (paramdim != paramdim_)
   {
     set_errmsg (2, "invalid number of parameters");
@@ -131,10 +129,7 @@ bool pcafitter::compute_parameters (
     {
       ptr[i] = q(j);
       for (int k=0; k<coordim_; ++k)
-      {
-        coordmval[k](coord(i,k));
         ptr[i] += cmtx(j,k)*coord(i,k);
-      }
     }
   }
   for (int j=0; j<paramdim; ++j){
@@ -146,7 +141,6 @@ bool pcafitter::compute_parameters (
     for (int i=0; i<(int)coord.n_rows; ++i){
       ptr[i] = q(j);
       for (int k=0; k<coordim_; ++k){
-	coordmval[k](coord(i,k));
 	#ifdef INTBITEWISEFIT
 	ptr[i] += (int32_t) (double (cmtx(j,k)*coord(i,k)) /50.0);  //Probably no need to convert to double and then to int32
 	//ptr[i] += ((cmtx(j,k)*coord(i,k))/1000.0);
