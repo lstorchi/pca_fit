@@ -323,13 +323,13 @@ void PCATrackFitter::fit(vector<Hit*> hits)
         dump_element(cmtx_rz, std::cout);
 
         std::cout << "QVEC RZ: " << std::endl;
-        dump_element(cmtx_rz, std::cout);
+        dump_element(qvec_rz, std::cout);
 
         std::cout << "CMTX RPHI: " << std::endl;
         dump_element(cmtx_rphi, std::cout);
 
         std::cout << "QVEC RPHI: " << std::endl;
-        dump_element(cmtx_rphi, std::cout);
+        dump_element(qvec_rphi, std::cout);
 
         double cottheta = 0.0; // eta
         double z0 = 0.0;
@@ -349,10 +349,9 @@ void PCATrackFitter::fit(vector<Hit*> hits)
         phi = qvec_rphi(0,1);
         for (int i=0; i<(int)cmtx_rphi.n_cols(); ++i)
         {
-          /*
+          std::cout << i 
           coverpt += cmtx_rphi(0, i) * phirv(0, i);
           phi += cmtx_rphi(1, i) * phirv(1, i);
-          */
         }
         
         double pt = (double)(charge)/coverpt;
