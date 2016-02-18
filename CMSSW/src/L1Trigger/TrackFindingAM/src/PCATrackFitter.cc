@@ -283,10 +283,10 @@ void PCATrackFitter::fit(vector<Hit*> hits)
       z0_est = tracks_[tt]->getZ0();
       phi_est = tracks_[tt]->getPhi0();
 
-      /* TEST */
-      zrv(0, 0) = -16.1314; zrv(0, 2) = 23.3135;
-      zrv(0, 3) = -22.7054; zrv(0, 4) = 34.8367;
-      zrv(0, 5) = -32.6362; zrv(0, 6) = 51.9131;
+      /* TEST 
+      zrv(0, 0) = -16.1314; zrv(0, 1) = 23.3135;
+      zrv(0, 2) = -22.7054; zrv(0, 3) = 34.8367;
+      zrv(0, 4) = -32.6362; zrv(0, 5) = 51.9131;
       eta_est = -0.580448;
       z0_est = -2.65203;
 
@@ -299,6 +299,7 @@ void PCATrackFitter::fit(vector<Hit*> hits)
       pt_est = 1.0/0.315806;
       phi_est = 2.70006;
       charge = +1;
+      */
 
       std::string cfname = "./barrel_tow18_pca_const.txt";
 
@@ -324,6 +325,7 @@ void PCATrackFitter::fit(vector<Hit*> hits)
                             pt_est, 
                             charge))
       {
+        /*
         std::cout << "CMTX RZ: " << std::endl;
         dump_element(cmtx_rz, std::cout);
 
@@ -335,6 +337,7 @@ void PCATrackFitter::fit(vector<Hit*> hits)
 
         std::cout << "QVEC RPHI: " << std::endl;
         dump_element(qvec_rphi, std::cout);
+        */
 
         double cottheta = 0.0; // eta
         double z0 = 0.0;
@@ -371,10 +374,11 @@ void PCATrackFitter::fit(vector<Hit*> hits)
         
         Track* fit_track = new Track();
 
-        std::cout << " pt : " << pt << " ==> " << pt_est << std::endl;
-        std::cout << " eta: " << eta << " ==> " << eta_est << std::endl;
-        std::cout << " z0 : " << z0 << " ==> " << z0_est << std::endl;
-        std::cout << " phi: " << phi << " ==> " << phi_est << std::endl; 
+        std::cout.precision(8);
+        std::cout << std::scientific << " pt : " << pt << " ==> " << pt_est << std::endl;
+        std::cout << std::scientific << " phi: " << phi << " ==> " << phi_est << std::endl; 
+        std::cout << std::scientific << " eta: " << eta << " ==> " << eta_est << std::endl;
+        std::cout << std::scientific << " z0 : " << z0 << " ==> " << z0_est << std::endl;
         
         fit_track->setCurve(pt);
         fit_track->setPhi0(phi);
