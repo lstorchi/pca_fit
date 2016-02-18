@@ -253,7 +253,7 @@ void PCATrackFitter::fit(vector<Hit*> hits)
         std::cout << "PCAxyz " << xi << " " << yi << " " << zi << " " << 
           (int) hits[idx]->getLayer() << std::endl;
 
-        std::cout << "PCArpz " << xi << " " << yi << " " << zi << " " << 
+        std::cout << "PCArpz " << ri << " " << pi << " " << zi << " " << 
           (int) hits[idx]->getLayer() << std::endl;
 
         /*
@@ -374,11 +374,10 @@ void PCATrackFitter::fit(vector<Hit*> hits)
         
         Track* fit_track = new Track();
 
-        std::cout.precision(8);
-        std::cout << std::scientific << " pt : " << pt << " ==> " << pt_est << std::endl;
-        std::cout << std::scientific << " phi: " << phi << " ==> " << phi_est << std::endl; 
-        std::cout << std::scientific << " eta: " << eta << " ==> " << eta_est << std::endl;
-        std::cout << std::scientific << " z0 : " << z0 << " ==> " << z0_est << std::endl;
+        std::cout << " pt : " << pt << " ==> " << pt_est << std::endl;
+        std::cout << " phi: " << phi << " ==> " << phi_est << std::endl; 
+        std::cout << " eta: " << eta << " ==> " << eta_est << std::endl;
+        std::cout << " z0 : " << z0 << " ==> " << z0_est << std::endl;
         
         fit_track->setCurve(pt);
         fit_track->setPhi0(phi);
