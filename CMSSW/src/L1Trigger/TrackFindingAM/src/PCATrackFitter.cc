@@ -20,6 +20,122 @@ namespace
     }
   }
 
+  void hits_to_zrpmatrix (double ci, double si, 
+      const vector<Hit*> & hits, 
+      pca::matrixpcaconst<double> & zrv, 
+      pca::matrixpcaconst<double> & phirv)
+  {
+    std::vector<int> layerids;
+    std::vector<double> riv, piv, ziv;
+
+    for(unsigned int idx = 0; idx < hits.size(); ++idx)
+    {
+      // TODO double check this
+      double xi =  hits[idx]->getX()*ci+ hits[idx]->getY()*si;
+      double yi = -hits[idx]->getX()*si+ hits[idx]->getY()*ci;
+
+      //xi = hits[idx]->getX();
+      //yi = hits[idx]->getY();
+
+      double zi = hits[idx]->getZ();
+      double ri = sqrt(xi*xi+yi*yi);
+      double pi = atan2(yi,xi);
+
+      /*
+      std::cout << "Layer  " << (int) hits[idx]->getLayer() << std::endl;
+      std::cout << "PCAxyz " << xi << " " << yi << " " << zi << std::endl;
+      std::cout << "PCArpz " << ri << " " << pi << " " << zi << std::endl;
+      */
+
+      layerids.push_back((int)hits[idx]->getLayer());
+
+      riv.push_back(ri);
+      piv.push_back(pi);
+      ziv.push_back(zi);
+    }
+
+    double z1, z3, r1, r3;
+
+    // readoder hits quick test
+    std::vector<int>::iterator it = std::find(layerids.begin(),
+        layerids.end(),0);
+    int pos = (int) std::distance(layerids.begin(), it);
+    zrv(0, 0) = ziv[pos];
+    phirv(0, 0) = piv[pos];
+    zrv(0, 1) = riv[pos];
+    phirv(0, 1) = riv[pos];
+
+    z1 = ziv[pos];
+    r1 = riv[pos];
+
+    std::cout << "Layer  " << layerids[pos] << std::endl;
+    std::cout << "PCArpz " << riv[pos] << " " << piv[pos] << " " << ziv[pos] << std::endl;
+
+    it = std::find(layerids.begin(),
+        layerids.end(),1);
+    pos = (int) std::distance(layerids.begin(), it);
+    zrv(0, 2) = ziv[pos];
+    phirv(0, 2) = piv[pos];
+    zrv(0, 3) = riv[pos];
+    phirv(0, 3) = riv[pos];
+
+    std::cout << "Layer  " << layerids[pos] << std::endl;
+    std::cout << "PCArpz " << riv[pos] << " " << piv[pos] << " " << ziv[pos] << std::endl;
+
+    it = std::find(layerids.begin(),
+        layerids.end(),2);
+    pos = (int) std::distance(layerids.begin(), it);
+    zrv(0, 4) = ziv[pos];
+    phirv(0, 4) = piv[pos];
+    zrv(0, 5) = riv[pos];
+    phirv(0, 5) = riv[pos];
+
+    z3 = ziv[pos];
+    r3 = riv[pos];
+ 
+    std::cout << "Layer  " << layerids[pos] << std::endl;
+    std::cout << "PCArpz " << riv[pos] << " " << piv[pos] << " " << ziv[pos] << std::endl;
+
+    it = std::find(layerids.begin(),
+        layerids.end(),8);
+    pos = (int) std::distance(layerids.begin(), it);
+    zrv(0, 6) = ziv[pos];
+    phirv(0, 6) = piv[pos];
+    zrv(0, 7) = riv[pos];
+    phirv(0, 7) = riv[pos];
+
+    std::cout << "Layer  " << layerids[pos] << std::endl;
+    std::cout << "PCArpz " << riv[pos] << " " << piv[pos] << " " << ziv[pos] << std::endl;
+
+    it = std::find(layerids.begin(),
+        layerids.end(),9);
+    pos = (int) std::distance(layerids.begin(), it);
+    zrv(0, 8) = ziv[pos];
+    phirv(0, 8) = piv[pos];
+    zrv(0, 9) = riv[pos];
+    phirv(0, 9) = riv[pos];
+
+    std::cout << "Layer  " << layerids[pos] << std::endl;
+    std::cout << "PCArpz " << riv[pos] << " " << piv[pos] << " " << ziv[pos] << std::endl;
+
+    it = std::find(layerids.begin(),
+        layerids.end(),10);
+    pos = (int) std::distance(layerids.begin(), it);
+    zrv(0, 10) = ziv[pos];
+    phirv(0, 10) = piv[pos];
+    zrv(0, 11) = riv[pos];
+    phirv(0, 11) = riv[pos];
+
+    std::cout << "Layer  " << layerids[pos] << std::endl;
+    std::cout << "PCArpz " << riv[pos] << " " << piv[pos] << " " << ziv[pos] << std::endl;
+
+    double slope = (z3-z1)/(r3-r1);
+    double intercept = z1 - slope*r1;
+
+    std::cout << "Intercept est z0: " << intercept << std::endl;
+ 
+  }
+
   bool import_pca_const (const std::string & cfname, 
       pca::matrixpcaconst<double> & cmtx_rz, 
       pca::matrixpcaconst<double> & qvec_rz, 
@@ -239,76 +355,8 @@ void PCATrackFitter::fit(vector<Hit*> hits)
     if (hits.size() == 6)
     {
       pca::matrixpcaconst<double> zrv(1, 12), phirv(1, 12);
-      std::vector<int> layerids;
-      std::vector<double> riv, piv, ziv;
 
-      for(unsigned int idx = 0; idx < hits.size(); ++idx)
-      {
-        // TODO double check this
-        double xi =  hits[idx]->getX()*ci+ hits[idx]->getY()*si;
-        double yi = -hits[idx]->getX()*si+ hits[idx]->getY()*ci;
-
-        xi = hits[idx]->getX();
-        yi = hits[idx]->getY();
-
-        double zi = hits[idx]->getZ();
-        double ri = sqrt(xi*xi+yi*yi);
-        double pi = atan2(yi,xi);
-
-        riv.push_back(ri);
-        piv.push_back(pi);
-        ziv.push_back(zi);
-      }
-
-      // readoder hits quick test
-      std::vector<int>::iterator it = std::find(layerids.begin(),
-          layerids.end(),0);
-      int pos = (int) std::distance(layerids.begin(), it);
-      zrv(0, 0) = ziv[pos];
-      phirv(0, 0) = piv[pos];
-      zrv(0, 1) = riv[pos];
-      phirv(0, 1) = riv[pos];
-
-      it = std::find(layerids.begin(),
-          layerids.end(),1);
-      pos = (int) std::distance(layerids.begin(), it);
-      zrv(0, 2) = ziv[pos];
-      phirv(0, 2) = piv[pos];
-      zrv(0, 3) = riv[pos];
-      phirv(0, 3) = riv[pos];
-
-      it = std::find(layerids.begin(),
-          layerids.end(),2);
-      pos = (int) std::distance(layerids.begin(), it);
-      zrv(0, 4) = ziv[pos];
-      phirv(0, 4) = piv[pos];
-      zrv(0, 5) = riv[pos];
-      phirv(0, 5) = riv[pos];
-
-      it = std::find(layerids.begin(),
-          layerids.end(),8);
-      pos = (int) std::distance(layerids.begin(), it);
-      zrv(0, 6) = ziv[pos];
-      phirv(0, 6) = piv[pos];
-      zrv(0, 7) = riv[pos];
-      phirv(0, 7) = riv[pos];
-
-      it = std::find(layerids.begin(),
-          layerids.end(),9);
-      pos = (int) std::distance(layerids.begin(), it);
-      zrv(0, 8) = ziv[pos];
-      phirv(0, 8) = piv[pos];
-      zrv(0, 9) = riv[pos];
-      phirv(0, 9) = riv[pos];
-
-      it = std::find(layerids.begin(),
-          layerids.end(),10);
-      pos = (int) std::distance(layerids.begin(), it);
-      zrv(0, 10) = ziv[pos];
-      phirv(0, 10) = piv[pos];
-      zrv(0, 11) = riv[pos];
-      phirv(0, 11) = riv[pos];
-
+      hits_to_zrpmatrix (ci, si, hits, zrv, phirv);
 
       int charge;
       double pt_est, eta_est, z0_est, phi_est;
