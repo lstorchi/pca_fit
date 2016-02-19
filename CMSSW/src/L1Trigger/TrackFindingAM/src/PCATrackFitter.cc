@@ -34,8 +34,8 @@ namespace
       double xi =  hits[idx]->getX()*ci+ hits[idx]->getY()*si;
       double yi = -hits[idx]->getX()*si+ hits[idx]->getY()*ci;
 
-      //xi = hits[idx]->getX();
-      //yi = hits[idx]->getY();
+      xi = hits[idx]->getX();
+      yi = hits[idx]->getY();
 
       double zi = hits[idx]->getZ();
       double ri = sqrt(xi*xi+yi*yi);
