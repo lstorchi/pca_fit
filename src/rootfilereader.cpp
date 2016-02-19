@@ -781,7 +781,9 @@ bool rootfilereader::convertorphiz (std::vector<track_rphiz_str> &
     {
       double ri = sqrt(pow(track->x[j], 2.0) + 
           pow (track->y[j], 2.0));
-      double phii = acos(track->x[j]/ri);
+      // TODO double chek the equivalence 
+      //double phii = acos(track->x[j]/ri);
+      double phii = atan2(track->y[j],track->x[j]);
 
       single_track.z.push_back(track->z[j]);
       single_track.r.push_back(ri);

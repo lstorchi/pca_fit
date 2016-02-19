@@ -239,41 +239,76 @@ void PCATrackFitter::fit(vector<Hit*> hits)
     if (hits.size() == 6)
     {
       pca::matrixpcaconst<double> zrv(1, 12), phirv(1, 12);
-      unsigned int coordidx = 0;
+      std::vector<int> layerids;
+      std::vector<double> riv, piv, ziv;
 
       for(unsigned int idx = 0; idx < hits.size(); ++idx)
       {
+        // TODO double check this
         double xi =  hits[idx]->getX()*ci+ hits[idx]->getY()*si;
         double yi = -hits[idx]->getX()*si+ hits[idx]->getY()*ci;
+
+        xi = hits[idx]->getX();
+        yi = hits[idx]->getY();
 
         double zi = hits[idx]->getZ();
         double ri = sqrt(xi*xi+yi*yi);
         double pi = atan2(yi,xi);
 
-        std::cout << "PCAxyz " << xi << " " << yi << " " << zi << " " << 
-          (int) hits[idx]->getLayer() << std::endl;
-
-        std::cout << "PCArpz " << ri << " " << pi << " " << zi << " " << 
-          (int) hits[idx]->getLayer() << std::endl;
-
-        /*
-        xyzfile << xi << " " << yi << " " << zi << " " << 
-          (int) hits[idx]->getLayer() << std::endl;
-
-        rpzfile << ri << " " << pi << zi << " " << 
-          (int) hits[idx]->getLayer() << std::endl;
-        */
-
-        zrv(0, coordidx) = zi;
-        phirv(0, coordidx) = pi;
-
-        ++coordidx;
-
-        zrv(0, coordidx) = ri;
-        phirv(0, coordidx) = ri;
-
-        ++coordidx;
+        riv.push_back(ri);
+        piv.push_back(pi);
+        ziv.push_back(zi);
       }
+
+      // readoder hits quick test
+      std::vector<int>::iterator it = std::find(layerids.begin(),
+          layerids.end(),0);
+      int pos = (int) std::distance(layerids.begin(), it);
+      zrv(0, 0) = ziv[pos];
+      phirv(0, 0) = piv[pos];
+      zrv(0, 1) = riv[pos];
+      phirv(0, 1) = riv[pos];
+
+      it = std::find(layerids.begin(),
+          layerids.end(),1);
+      pos = (int) std::distance(layerids.begin(), it);
+      zrv(0, 2) = ziv[pos];
+      phirv(0, 2) = piv[pos];
+      zrv(0, 3) = riv[pos];
+      phirv(0, 3) = riv[pos];
+
+      it = std::find(layerids.begin(),
+          layerids.end(),2);
+      pos = (int) std::distance(layerids.begin(), it);
+      zrv(0, 4) = ziv[pos];
+      phirv(0, 4) = piv[pos];
+      zrv(0, 5) = riv[pos];
+      phirv(0, 5) = riv[pos];
+
+      it = std::find(layerids.begin(),
+          layerids.end(),8);
+      pos = (int) std::distance(layerids.begin(), it);
+      zrv(0, 6) = ziv[pos];
+      phirv(0, 6) = piv[pos];
+      zrv(0, 7) = riv[pos];
+      phirv(0, 7) = riv[pos];
+
+      it = std::find(layerids.begin(),
+          layerids.end(),9);
+      pos = (int) std::distance(layerids.begin(), it);
+      zrv(0, 8) = ziv[pos];
+      phirv(0, 8) = piv[pos];
+      zrv(0, 9) = riv[pos];
+      phirv(0, 9) = riv[pos];
+
+      it = std::find(layerids.begin(),
+          layerids.end(),10);
+      pos = (int) std::distance(layerids.begin(), it);
+      zrv(0, 10) = ziv[pos];
+      phirv(0, 10) = piv[pos];
+      zrv(0, 11) = riv[pos];
+      phirv(0, 11) = riv[pos];
+
 
       int charge;
       double pt_est, eta_est, z0_est, phi_est;
