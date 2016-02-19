@@ -1,9 +1,8 @@
-/*
-C++ implementation of the TC builder
+/**
+   C++ implementation of the TC builder
 
-S.Viret, G.Galbit : 09/12/15
-*/
-
+   S.Viret, G.Galbit : 09/12/15
+**/
 
 #include "../interface/TCBuilder.h"
 
@@ -13,131 +12,9 @@ TCBuilder::TCBuilder():TrackFitter(0){
 
 TCBuilder::TCBuilder(int nb):TrackFitter(nb)
 {
-
-  //Layer infos
-  m_nLayer = 6;
-
-  //
-  // Initialisation of the matching windows
-  //
-
-  for (int i=0;i<3;++i)
-  {
-    for (int j=0;j<6;++j)
-    {
-      fenetre_b_z[i][j]=-1;
-      fenetre_b_phi[i][j]=-1;
-    }    
-
-    for (int j=0;j<15;++j)
-    {
-      fenetre_e_r[i][j]=-1;
-      fenetre_e_phi[i][j]=-1;
-    } 
-  }
-
-  // Windows for the barrel towers
-  // 1 z window per layer (in cm)
-  // 1 phi window per layer (in rad)
-
-  fenetre_b_z[2][0]  = 0.28;  
-  fenetre_b_z[2][1]  = 0.14;  
-  fenetre_b_z[2][2]  = 0.34;  
-  fenetre_b_z[2][3]  = 2.8;  
-  fenetre_b_z[2][4]  = 3.0;  
-  fenetre_b_z[2][5]  = 3.2;  
-  fenetre_b_phi[2][0]= 0.0026;  
-  fenetre_b_phi[2][1]= 0.0013;  
-  fenetre_b_phi[2][2]= 0.003;  
-  fenetre_b_phi[2][3]= 0.0065;  
-  fenetre_b_phi[2][4]= 0.0115;  
-  fenetre_b_phi[2][5]= 0.016;  
-   
-  // Windows for the endcap towers
-  // For barrel layers
-  // 1 z window per layer (in cm)
-  // 1 phi window per layer (in rad)
-
-  fenetre_b_z[0][0]  = 1.6;  
-  fenetre_b_z[0][1]  = 0.9;  
-  fenetre_b_phi[0][0]= 0.0038;  
-  fenetre_b_phi[0][1]= 0.0016;  
- 
-  // For disks
-  // 1 r window per ring (in cm)
-  // 1 phi window per ring (in rad)
-  fenetre_e_r[0][0]  = 0.1;  
-  fenetre_e_r[0][1]  = 0.25;  
-  fenetre_e_r[0][2]  = 0.33;  
-  fenetre_e_r[0][3]  = 0.38;  
-  fenetre_e_r[0][4]  = 0.46;  
-  fenetre_e_r[0][5]  = 0.5;  
-  fenetre_e_r[0][6]  = 0.65;  
-  fenetre_e_r[0][7]  = 0.7;  
-  fenetre_e_r[0][8]  = 0.75;
-  fenetre_e_r[0][9]  = 2.9;
-  fenetre_e_r[0][10] = 2.8;
-  fenetre_e_r[0][11] = 3.0;
-  fenetre_e_r[0][12] = 3.0;
-  fenetre_e_r[0][13] = 3.1;
-  fenetre_e_r[0][14] = 3.2;
-  fenetre_e_phi[0][0]= 0.0006;  
-  fenetre_e_phi[0][1]= 0.0018;  
-  fenetre_e_phi[0][2]= 0.0025;  
-  fenetre_e_phi[0][3]= 0.0038;  
-  fenetre_e_phi[0][4]= 0.005;  
-  fenetre_e_phi[0][5]= 0.0055;  
-  fenetre_e_phi[0][6]= 0.007;  
-  fenetre_e_phi[0][7]= 0.008;  
-  fenetre_e_phi[0][8]= 0.008; 
-  fenetre_e_phi[0][9]= 0.010; 
-  fenetre_e_phi[0][10]= 0.010; 
-  fenetre_e_phi[0][11]= 0.012; 
-  fenetre_e_phi[0][12]= 0.012; 
-  fenetre_e_phi[0][13]= 0.015; 
-  fenetre_e_phi[0][14]= 0.017; 
-
- // Windows for the hybrid towers
-
-  fenetre_b_z[1][0]  = 0.28;  
-  fenetre_b_z[1][1]  = 0.14;  
-  fenetre_b_z[1][2]  = 0.34;  
-  fenetre_b_z[1][3]  = 2.8;  
-  fenetre_b_z[1][4]  = 3.0;  
-  fenetre_b_z[1][5]  = 3.2;  
-  fenetre_b_phi[1][0]= 0.0026;  
-  fenetre_b_phi[1][1]= 0.0013;  
-  fenetre_b_phi[1][2]= 0.003;  
-  fenetre_b_phi[1][3]= 0.0065;  
-  fenetre_b_phi[1][4]= 0.0115;  
-  fenetre_b_phi[1][5]= 0.016; 
-  
-  fenetre_e_r[1][3]  = 0.08;  
-  fenetre_e_r[1][4]  = 0.09;  
-  fenetre_e_r[1][5]  = 0.11;  
-  fenetre_e_r[1][6]  = 0.12;  
-  fenetre_e_r[1][7]  = 0.14;  
-  fenetre_e_r[1][8]  = 0.16;
-  fenetre_e_r[1][9]  = 2.45;
-  fenetre_e_r[1][10] = 2.6;
-  fenetre_e_r[1][11] = 2.65;
-  fenetre_e_r[1][12] = 2.7;
-  fenetre_e_r[1][13] = 2.8;
-  fenetre_e_r[1][14] = 3.0;
-  fenetre_e_phi[1][3]= 0.00065;  
-  fenetre_e_phi[1][4]= 0.00095;  
-  fenetre_e_phi[1][5]= 0.0018;  
-  fenetre_e_phi[1][6]= 0.0022;  
-  fenetre_e_phi[1][7]= 0.0033;  
-  fenetre_e_phi[1][8]= 0.0036; 
-  fenetre_e_phi[1][9]= 0.007; 
-  fenetre_e_phi[1][10]= 0.0095; 
-  fenetre_e_phi[1][11]= 0.012; 
-  fenetre_e_phi[1][12]= 0.012; 
-  fenetre_e_phi[1][13]= 0.014; 
-  fenetre_e_phi[1][14]= 0.016; 
-
-  // cout<<"TC builder init done"<<endl;
+  m_nMissingHits = 1;                 //Maximum number of missing layers in a TC (from the number of layers in the pattern)
+  m_bHardwareSimulation = false;      //Define if the Hardware binning and overflows are emulated
+  updateThresholds();
 }
 
 TCBuilder::~TCBuilder()
@@ -148,6 +25,184 @@ void TCBuilder::initialize(){
 
 }
 
+void TCBuilder::setHardwareEmulation(bool hardwareEmulation)
+{
+  m_bHardwareSimulation = hardwareEmulation;
+  updateThresholds();
+}
+
+void TCBuilder::updateThresholds(){
+
+  if (m_bHardwareSimulation){
+    //// Hardware format LUT constants ////
+  
+    //Barrel
+    addThresholds( 0,  1,  2, SEC_BARREL, 0.002117, 0.298828);
+    addThresholds( 0,  1,  8, SEC_BARREL, 0.005257, 2.695801);
+    addThresholds( 0,  1,  9, SEC_BARREL, 0.010082, 2.861084);
+    addThresholds( 0,  1, 10, SEC_BARREL, 0.012878, 3.115967);
+    addThresholds( 0,  2,  8, SEC_BARREL, 0.002262, 2.535645);
+    addThresholds( 0,  2,  9, SEC_BARREL, 0.005077, 2.578613);
+    addThresholds( 0,  2, 10, SEC_BARREL, 0.007915, 2.765625);
+    addThresholds( 1,  2,  8, SEC_BARREL, 0.001514, 2.562988);
+    addThresholds( 1,  2,  9, SEC_BARREL, 0.004452, 2.700928);
+    addThresholds( 1,  2, 10, SEC_BARREL, 0.007317, 2.892578);
+
+    //Hybrid
+    addThresholds( 0,  1,  2, SEC_HYBRID, 0.002125, 0.331055);
+    addThresholds( 0,  1,  8, SEC_HYBRID, 0.004444, 2.867432);
+    addThresholds( 0,  1,  9, SEC_HYBRID, 0.008244, 2.764160);
+    addThresholds( 0,  1, 10, SEC_HYBRID, 0.009171, 3.031006);
+    addThresholds( 0,  1, 11, SEC_HYBRID, 0.009350, 4.846436);
+    addThresholds( 0,  1, 12, SEC_HYBRID, 0.009167, 5.155273);
+    addThresholds( 0,  1, 13, SEC_HYBRID, 0.013248, 5.164795);
+    addThresholds( 0,  2,  8, SEC_HYBRID, 0.002472, 2.536133);
+    addThresholds( 0,  2,  9, SEC_HYBRID, 0.004913, 2.634033);
+    addThresholds( 0,  2, 10, SEC_HYBRID, 0.004910, 2.887451);
+    addThresholds( 0,  2, 11, SEC_HYBRID, 0.006683, 4.866699);
+    addThresholds( 0,  2, 12, SEC_HYBRID, 0.006672, 5.009277);
+    addThresholds( 0,  2, 13, SEC_HYBRID, 0.008404, 5.110840);
+    addThresholds( 1,  2,  8, SEC_HYBRID, 0.002354, 2.580078);
+    addThresholds( 1,  2,  9, SEC_HYBRID, 0.007805, 2.699951);
+    addThresholds( 1,  2, 10, SEC_HYBRID, 0.003143, 2.849121);
+    addThresholds( 1,  2, 11, SEC_HYBRID, 0.006020, 4.935059);
+    addThresholds( 1,  2, 12, SEC_HYBRID, 0.006187, 5.085938);
+    addThresholds( 1,  2, 13, SEC_HYBRID, 0.005692, 5.270752);
+
+    //Endcap
+    addThresholds( 0,  1,  3, SEC_ENDCAP, 0.003838, 0.457275);
+    addThresholds( 0,  1,  4, SEC_ENDCAP, 0.007999, 0.611084);
+    addThresholds( 0,  1,  5, SEC_ENDCAP, 0.002743, 0.502197);
+    addThresholds( 0,  1, 11, SEC_ENDCAP, 0.006119, 5.451172);
+    addThresholds( 0,  1, 12, SEC_ENDCAP, 0.007030, 6.014893);
+    addThresholds( 0,  1, 13, SEC_ENDCAP, 0.012161, 7.055176);
+    addThresholds( 0,  1, 14, SEC_ENDCAP, 0.017605, 7.991699);
+    addThresholds( 0,  1, 15, SEC_ENDCAP, 0.027527, 7.594482);
+    addThresholds( 0,  3,  4, SEC_ENDCAP, 0.002586, 0.788574);
+    addThresholds( 0,  3,  5, SEC_ENDCAP, 0.003773, 1.233887);
+    addThresholds( 0,  3,  6, SEC_ENDCAP, 0.004192, 1.924805);
+    addThresholds( 0,  3,  7, SEC_ENDCAP, 0.006290, 2.382568);
+    addThresholds( 0,  3, 11, SEC_ENDCAP, 0.004772, 5.415283);
+    addThresholds( 0,  3, 12, SEC_ENDCAP, 0.005955, 6.401367);
+    addThresholds( 0,  3, 13, SEC_ENDCAP, 0.006142, 6.928223);
+    addThresholds( 0,  3, 14, SEC_ENDCAP, 0.009441, 8.484619);
+    addThresholds( 0,  3, 15, SEC_ENDCAP, 0.015686, 10.022217);
+    addThresholds( 0,  4,  5, SEC_ENDCAP, 0.001667, 0.804443);
+    addThresholds( 0,  4,  6, SEC_ENDCAP, 0.003101, 0.898438);
+    addThresholds( 0,  4,  7, SEC_ENDCAP, 0.004223, 1.154297);
+    addThresholds( 0,  4, 12, SEC_ENDCAP, 0.005821, 6.302246);
+    addThresholds( 0,  4, 13, SEC_ENDCAP, 0.004322, 7.031738);
+    addThresholds( 0,  4, 14, SEC_ENDCAP, 0.006763, 8.208984);
+    addThresholds( 0,  4, 15, SEC_ENDCAP, 0.010582, 10.083984);
+    addThresholds( 1,  3,  4, SEC_ENDCAP, 0.001503, 0.739502);
+    addThresholds( 1,  3,  5, SEC_ENDCAP, 0.001484, 0.997070);
+    addThresholds( 1,  3, 11, SEC_ENDCAP, 0.004833, 5.438965);
+    addThresholds( 1,  3, 12, SEC_ENDCAP, 0.005066, 6.509766);
+    addThresholds( 1,  3, 13, SEC_ENDCAP, 0.005581, 6.774414);
+    addThresholds( 1,  3, 14, SEC_ENDCAP, 0.006779, 8.566895);
+    addThresholds( 1,  3, 15, SEC_ENDCAP, 0.008495, 6.973633);
+    addThresholds( 1,  4,  5, SEC_ENDCAP, 0.000893, 0.485352);
+    addThresholds( 1,  4, 12, SEC_ENDCAP, 0.004780, 6.164062);
+    addThresholds( 1,  4, 13, SEC_ENDCAP, 0.004242, 7.127197);
+    addThresholds( 1,  4, 14, SEC_ENDCAP, 0.006092, 7.571777);
+    addThresholds( 1,  4, 15, SEC_ENDCAP, 0.006893, 6.656494);
+    addThresholds( 3,  4,  5, SEC_ENDCAP, 0.001774, 1.175781);
+    addThresholds( 3,  4,  6, SEC_ENDCAP, 0.002792, 2.051514);
+    addThresholds( 3,  4,  7, SEC_ENDCAP, 0.004890, 3.117188);
+    addThresholds( 3,  4, 12, SEC_ENDCAP, 0.006310, 6.310059);
+    addThresholds( 3,  4, 13, SEC_ENDCAP, 0.004448, 7.303711);
+    addThresholds( 3,  4, 14, SEC_ENDCAP, 0.005508, 8.145264);
+    addThresholds( 3,  4, 15, SEC_ENDCAP, 0.006287, 11.077881);
+
+
+    //// Hardware format LUT constants ////
+
+  }
+  else{
+    ///// Floating point Thresholds ////
+
+    //Barrel
+    addThresholds( 0,  1,  2, SEC_BARREL, 0.002031, 0.295711);
+    addThresholds( 0,  1,  8, SEC_BARREL, 0.005259, 2.692444);
+    addThresholds( 0,  1,  9, SEC_BARREL, 0.010119, 2.865237);
+    addThresholds( 0,  1, 10, SEC_BARREL, 0.012580, 3.116440);
+    addThresholds( 0,  2,  8, SEC_BARREL, 0.002157, 2.534317);
+    addThresholds( 0,  2,  9, SEC_BARREL, 0.004695, 2.579884);
+    addThresholds( 0,  2, 10, SEC_BARREL, 0.007653, 2.771254);
+    addThresholds( 1,  2,  8, SEC_BARREL, 0.001197, 2.562876);
+    addThresholds( 1,  2,  9, SEC_BARREL, 0.004099, 2.697098);
+    addThresholds( 1,  2, 10, SEC_BARREL, 0.007030, 2.893524);
+
+    //Hybrid
+    addThresholds( 0,  1,  2, SEC_HYBRID, 0.002266, 0.332948);
+    addThresholds( 0,  1,  8, SEC_HYBRID, 0.004518, 2.861103);
+    addThresholds( 0,  1,  9, SEC_HYBRID, 0.008576, 2.765429);
+    addThresholds( 0,  1, 10, SEC_HYBRID, 0.009470, 3.028944);
+    addThresholds( 0,  1, 11, SEC_HYBRID, 0.008760, 4.842227);
+    addThresholds( 0,  1, 12, SEC_HYBRID, 0.009025, 5.150895);
+    addThresholds( 0,  1, 13, SEC_HYBRID, 0.013822, 5.157996);
+    addThresholds( 0,  2,  8, SEC_HYBRID, 0.002430, 2.535672);
+    addThresholds( 0,  2,  9, SEC_HYBRID, 0.004603, 2.630091);
+    addThresholds( 0,  2, 10, SEC_HYBRID, 0.004610, 2.887653);
+    addThresholds( 0,  2, 11, SEC_HYBRID, 0.006391, 4.865986);
+    addThresholds( 0,  2, 12, SEC_HYBRID, 0.006385, 5.008283);
+    addThresholds( 0,  2, 13, SEC_HYBRID, 0.008599, 5.106528);
+    addThresholds( 1,  2,  8, SEC_HYBRID, 0.002456, 2.574467);
+    addThresholds( 1,  2,  9, SEC_HYBRID, 0.007859, 2.700417);
+    addThresholds( 1,  2, 10, SEC_HYBRID, 0.003278, 2.848935);
+    addThresholds( 1,  2, 11, SEC_HYBRID, 0.005641, 4.930833);
+    addThresholds( 1,  2, 12, SEC_HYBRID, 0.005814, 5.077612);
+    addThresholds( 1,  2, 13, SEC_HYBRID, 0.005388, 5.262541);
+
+    //Endcap
+    addThresholds( 0,  1,  3, SEC_ENDCAP, 0.003871, 0.455573);
+    addThresholds( 0,  1,  4, SEC_ENDCAP, 0.008008, 0.610674);
+    addThresholds( 0,  1,  5, SEC_ENDCAP, 0.001982, 0.502591);
+    addThresholds( 0,  1, 11, SEC_ENDCAP, 0.006242, 5.456658);
+    addThresholds( 0,  1, 12, SEC_ENDCAP, 0.006971, 6.008507);
+    addThresholds( 0,  1, 13, SEC_ENDCAP, 0.012287, 7.060206);
+    addThresholds( 0,  1, 14, SEC_ENDCAP, 0.017514, 7.984267);
+    addThresholds( 0,  1, 15, SEC_ENDCAP, 0.027412, 7.601592);
+    addThresholds( 0,  3,  4, SEC_ENDCAP, 0.002333, 0.790936);
+    addThresholds( 0,  3,  5, SEC_ENDCAP, 0.003576, 1.233592);
+    addThresholds( 0,  3,  6, SEC_ENDCAP, 0.004491, 1.925231);
+    addThresholds( 0,  3,  7, SEC_ENDCAP, 0.006731, 2.384964);
+    addThresholds( 0,  3, 11, SEC_ENDCAP, 0.004525, 5.417496);
+    addThresholds( 0,  3, 12, SEC_ENDCAP, 0.005669, 6.401115);
+    addThresholds( 0,  3, 13, SEC_ENDCAP, 0.005966, 6.933886);
+    addThresholds( 0,  3, 14, SEC_ENDCAP, 0.009222, 8.496601);
+    addThresholds( 0,  3, 15, SEC_ENDCAP, 0.015258, 10.029259);
+    addThresholds( 0,  4,  5, SEC_ENDCAP, 0.001593, 0.806697);
+    addThresholds( 0,  4,  6, SEC_ENDCAP, 0.002348, 0.894645);
+    addThresholds( 0,  4,  7, SEC_ENDCAP, 0.004056, 1.173814);
+    addThresholds( 0,  4, 12, SEC_ENDCAP, 0.005605, 6.305890);
+    addThresholds( 0,  4, 13, SEC_ENDCAP, 0.004358, 7.032155);
+    addThresholds( 0,  4, 14, SEC_ENDCAP, 0.006293, 8.210576);
+    addThresholds( 0,  4, 15, SEC_ENDCAP, 0.010423, 10.089836);
+    addThresholds( 1,  3,  4, SEC_ENDCAP, 0.001003, 0.734577);
+    addThresholds( 1,  3,  5, SEC_ENDCAP, 0.001096, 1.003146);
+    addThresholds( 1,  3, 11, SEC_ENDCAP, 0.004626, 5.441451);
+    addThresholds( 1,  3, 12, SEC_ENDCAP, 0.004657, 6.512224);
+    addThresholds( 1,  3, 13, SEC_ENDCAP, 0.005205, 6.785536);
+    addThresholds( 1,  3, 14, SEC_ENDCAP, 0.006592, 8.608834);
+    addThresholds( 1,  3, 15, SEC_ENDCAP, 0.007877, 6.975325);
+    addThresholds( 1,  4,  5, SEC_ENDCAP, 0.000597, 0.484591);
+    addThresholds( 1,  4, 12, SEC_ENDCAP, 0.004410, 6.162822);
+    addThresholds( 1,  4, 13, SEC_ENDCAP, 0.004339, 7.126968);
+    addThresholds( 1,  4, 14, SEC_ENDCAP, 0.006339, 7.569645);
+    addThresholds( 1,  4, 15, SEC_ENDCAP, 0.007153, 6.650499);
+    addThresholds( 3,  4,  5, SEC_ENDCAP, 0.000990, 1.185052);
+    addThresholds( 3,  4,  6, SEC_ENDCAP, 0.001868, 2.053982);
+    addThresholds( 3,  4,  7, SEC_ENDCAP, 0.003892, 3.117370);
+    addThresholds( 3,  4, 12, SEC_ENDCAP, 0.005585, 6.314577);
+    addThresholds( 3,  4, 13, SEC_ENDCAP, 0.004198, 7.300415);
+    addThresholds( 3,  4, 14, SEC_ENDCAP, 0.005310, 8.142437);
+    addThresholds( 3,  4, 15, SEC_ENDCAP, 0.006489, 11.085539);
+
+    //// End of Floating point Thresholds ////
+  }
+}
+
 void TCBuilder::mergePatterns(){
   //cout<<"Merging of patterns not implemented"<<endl;
 }
@@ -156,391 +211,48 @@ void TCBuilder::mergePatterns(){
 // Not used for the moment
 
 void TCBuilder::mergeTracks(){
-  unsigned int index = 0;
-  vector<Track*>::iterator it = tracks.begin();
-  while(it!=tracks.end()){
-    Track* newTrack = *it;
-    bool found = false;
-    for(unsigned int i=0;i<index;i++){
-      Track* ref = tracks[i];
-      float dpt,dphi,dz,deta;
-      dpt = fabs(newTrack->getCurve()-ref->getCurve());
-      dphi = fabs(newTrack->getPhi0()-ref->getPhi0());
-      dz = fabs(newTrack->getZ0()-ref->getZ0());
-      deta = fabs(newTrack->getEta0()-ref->getEta0());
-      found = (deta<0.02) &&
-	(dphi<0.005) &&
-	(dpt<0.1) &&
-	(dz<0.3);
-      if(found)
-	break;
-    }
-    if(found)
-      tracks.erase(it);
-    else{
-      index++;
-      it++;
-    }
-  }
 }
 
-// TC builder module
-//
-// Take as input the list of stubs contained in a matched road
-
-void TCBuilder::fit(vector<Hit*> hits)
+/* From the hits of the best TC, process the track parameters, create and fill a Track object and return its pointer */
+Track* TCBuilder::createFittedTrack(vector <Hit*> &bestTC)
 {
-  //  cout << "Into the TC builder " << endl;
-
-  int tow = sector_id; // The tower ID, necessary to get the phi shift
-
-  //  cout << "Into the TC builder " << tow << endl;
-
-  float sec_phi = 0;
-  if (tow%8==0) sec_phi = 0.4; 
-  if (tow%8==1) sec_phi = 1.2; 
-  if (tow%8==2) sec_phi = 2.0; 
-  if (tow%8==3) sec_phi = 2.7; 
-  if (tow%8==4) sec_phi = 3.6; 
-  if (tow%8==5) sec_phi = -2.0; 
-  if (tow%8==6) sec_phi = -1.2; 
-  if (tow%8==7) sec_phi = -0.4; 
-
-  float ci = cos(sec_phi);
-  float si = sin(sec_phi);
-
-
-  int type=1; // Hybrid per default
-
-  if (tow>15 && tow<32) type = 2; // Barrel
-  if (tow<8 || tow>39)  type = 0; // Endcap
-
-  idxs_lay.clear();
-  list_cand6.clear();
-  list_scores6.clear();
-  list_cand5.clear();   
-  list_scores5.clear();
-
-  std::vector<int> slist, cand;
-    
-  int s_k,s_l;
-  int lad_ref,lad_klm;  
-  int idx_j,idx_i,idx_kl;
-
-  float a_rp,b_rp,a_rz,b_rz;  
-
-  float ri,zi,pi,xi,yi;
-  float rj,zj,pj,xj,yj;
-  float rkl,zkl,pkl,xkl,ykl;
-
-  float dist_p,dist_z,dist_r;
-  float dist_pm,dist_rm,dist_zm,idx_klm;
-
-  float score;  
-  int nseeds=0;
-
-  for (int k=0;k<16;++k)
-  {
-    slist.clear();
-    slist.push_back(-1);
-    idxs_lay.push_back(slist);
-  }
-   
-  // First of all we 
-  // order the stubs per layers
-  // and count the number of layers touched    
-
-  // Layers are numbered as follows
-  // Barrel      : 0,1,2,8,9,10
-  // Disk z+/- PS: 3,4,5,6,7
-  // Disk z+/- 2S: 11,12,13,14,15
-
   int lay;
-  int patt_size=0;
   bool barrelmod;
 
-  for (unsigned int k=0;k<hits.size();++k) // Loop over stubs in the pattern
-  {
-    lay  = hits[k]->getLayer();
-    
-    if (idxs_lay.at(lay).size()==1) ++patt_size;
-    
-    idxs_lay.at(lay).push_back(k);
-  }
-    
-
-  if (patt_size>6) patt_size=6; // Max TC_size.
-
-  // Now test the seeds
-  // Not all the layers are used of the seeds
-
-  // For barrel and hybrid, layers 0,1,2
-
-  // For endcaps, layers 0/1/3/4    
-  // In disk, only PS modules are used
-
-  for (int k=0;k<5;++k) // Seed layer 1
-  {
-    if (idxs_lay.at(k).size()==1) continue; // No stub in this layer
-    if (type>0  && k>2)           continue; // Not a good barrel/hybrid seed
-    if (type==0 && k==2)          continue; // Not a good endcap seed
-    
-    for (int l=k+1;l<5;++l) // Seed layer 2
-    {
-      if (idxs_lay.at(l).size()==1) continue; // No stub in this layer
-      if (type>0  && l>2)           continue; // Not a good barrel/hybrid seed
-      if (type==0 && l==2)          continue; // Not a good endcap seed
-
-      //      std::cout << "Seeds for tow type " << type << ": " << k << "/" << l << endl;
-            
-      s_k = idxs_lay.at(k).size(); // Number of stubs on seed layer 1
-      s_l = idxs_lay.at(l).size(); // Number of stubs on seed layer 2
-
-      // Now test all possible seeds            
-      for (int i=1;i<s_k;++i)
-      {
-	for (int j=1;j<s_l;++j)
-	{
-	  ++nseeds; // We have a seed!
-
-	  idx_i = idxs_lay.at(k).at(i); // Index of stub 1
-	  idx_j = idxs_lay.at(l).at(j); // Index of stub 2
-                 
-	  xi = hits[idx_i]->getX()*ci+ hits[idx_i]->getY()*si;
-	  yi = -hits[idx_i]->getX()*si+ hits[idx_i]->getY()*ci;
-	  zi = hits[idx_i]->getZ();
-	  ri = sqrt(xi*xi+yi*yi);
-	  pi = atan2(yi,xi);
-
-	  xj = hits[idx_j]->getX()*ci+ hits[idx_j]->getY()*si;
-	  yj = -hits[idx_j]->getX()*si+ hits[idx_j]->getY()*ci;
-	  zj = hits[idx_j]->getZ();
-	  rj = sqrt(xj*xj+yj*yj);
-	  pj = atan2(yj,xj);
-	
-	  // We now have seed coordinates
-						   						   
-	  if (pi==pj || zi==zj) continue; // Not done for the moment
-                    
-	  a_rp = (ri-rj)/(pi-pj);
-	  b_rp = (ri*pj-rj*pi)/(pj-pi);
-	  a_rz = (ri-rj)/(zi-zj);
-	  b_rz = (ri*zj-rj*zi)/(zj-zi);
-                    
-	  // And tracklet direction in r/phi/z space                    
-	  // Try to extend the seed
-                
-	  cand.clear();
-	  score=0;
-                    
-	  // The 2 seeding stubs are pushed into the pre-TC
-	  cand.push_back(idx_i);
-	  cand.push_back(idx_j);
-                    
-	  for (int kk=0;kk<16;++kk) // Loop over all the layers
-	  {
-	    if (kk==k || kk==l) continue; // Seeding layers are excluded
-	    if (idxs_lay.at(kk).size()==1) continue; // No stubs on layer
-                        
-	    // Select the best candidate in the given layer, and increment
-	    
-	    dist_pm = 10000;
-	    dist_zm = 10000;
-	    dist_rm = 10000;
-	    idx_klm = -1;
-	    lad_klm = -1;
-                    
-	    barrelmod=0;
-	    if (kk<=2 || (kk>=8 && kk<=10)) barrelmod=1;
-    
-	    // Loop over all stubs contained in the test layer
-	    for (unsigned int kl=1;kl<idxs_lay.at(kk).size();++kl)
-	    {
-
-	      idx_kl = idxs_lay.at(kk).at(kl);
-	      lad_ref = hits[idx_kl]->getLadder();
-
-	      // Get stub coordinates
-
-	      xkl = hits[idx_kl]->getX()*ci+ hits[idx_kl]->getY()*si;
-	      ykl = -hits[idx_kl]->getX()*si+ hits[idx_kl]->getY()*ci;
-	      zkl = hits[idx_kl]->getZ();
-	      rkl = sqrt(xkl*xkl+ykl*ykl);
-	      pkl = atan2(ykl,xkl);
-    
-	      // Get residuals w.r.t. the seed projection
-
-	      dist_p = fabs((rkl - b_rp)/a_rp - pkl);
-
-	      if (dist_p>dist_pm) continue;	      
-
-	      dist_z = fabs((rkl - b_rz)/a_rz - zkl);
-	      dist_r = fabs(b_rz+a_rz*zkl - rkl);
-
-	      // Check that the stub is in the extrapolation windows
-	      // And that it is closer to the tracklet projection 
-	      // if there is another stub already within the windows
-
-	      if (barrelmod) // Barrel
-	      {
-		lay=kk;
-		if(kk>=8) lay=kk-5;
-
-		if (dist_p>fenetre_b_phi[type][lay]) continue;
-		if (dist_z>fenetre_b_z[type][lay]) continue;
-	      }
-	      else
-	      {
-		if (dist_p>fenetre_e_phi[type][lad_ref]) continue;
-		if (dist_r>fenetre_e_r[type][lad_ref]) continue;
-	      }
-
-	      // This stub is a good candidate, keep it for the moment
-                            
-	      dist_pm = dist_p;
-	      dist_zm = dist_z;
-	      dist_rm = dist_r;
-	      
-	      idx_klm = idx_kl;
-	      lad_klm = lad_ref;
-	    }
-                        
-	    if (idx_klm==-1) continue; // No stub in the window, skip;
-                        
-	    // Add the best candidate to the pre-TC
-
-	    cand.push_back(idx_klm);
-			
-	    // Increment the TC score (will be used to select among different TCs)
-
-	    if (barrelmod) // Barrel
-	    {
-	      lay=kk;
-	      if(kk>=8) lay=kk-5;
-	      
-	      score += dist_pm/fenetre_b_phi[type][lay]+dist_zm/fenetre_b_z[type][lay];
-	    }
-	    else
-	    {
-	      score += dist_pm/fenetre_e_phi[type][lad_klm]+dist_rm/fenetre_e_r[type][lad_klm];
-	    }
-	  }
-                    
-	  // End of the loop, do we have a respectable TC or not?
-                    
-	  if (patt_size-cand.size()>1) continue; // For a road of size N, TC must have a size of at least N-1 
-	  if(type==0 && cand.size()<5) continue;
-	  if(type==1 && cand.size()<4) continue;
-	  if(type==2 && cand.size()<5) continue;
-          
-	  // OK, pass it
-          
-	  if (patt_size-cand.size()==1) // One missed layer
-	  {
-	    list_cand5.push_back(cand);
-	    list_scores5.push_back(score/cand.size());
-	  }
-	  else // No missed layer
-	  {
-	    list_cand6.push_back(cand);
-	    list_scores6.push_back(score/cand.size());
-	  }
-	}
-      }
-    }
-  }
-
-  // End of the loop over all seeds
-    
-  //cout <<  list_cand5.size() << "///" <<  list_cand6.size() << endl; 
-
-  // OK, end of the loop select the best TC among all the TCs built.
-
-  if (list_cand6.size()==0 && list_cand5.size()==0) return;
-
-  std::vector<Hit*> bestTC;
-
-  bestTC.clear();
-
-  // First look at 6 stubs candidates
-    
-  float score_min = 10000000000000;
-  int idx_cand    = -1;
-  int ids;
-
-  if (list_cand6.size()!=0)
-  {
-    for (unsigned int i=0;i<list_scores6.size();++i)
-    {
-      if (list_scores6.at(i)<score_min)
-      {
-	score_min = list_scores6.at(i);
-	idx_cand  = i;
-      }
-    } 
-        
-    for (unsigned int i=0;i<list_cand6.at(idx_cand).size();++i)
-    {
-      ids = list_cand6.at(idx_cand).at(i);
-      bestTC.push_back(hits[ids]);
-    }
-  }
-  else
-  {
-    for (unsigned int i=0;i<list_scores5.size();++i)
-    {
-      if (list_scores5.at(i)<score_min)
-      {
-	score_min = list_scores5.at(i);
-	idx_cand  = i;
-      }
-    }
-        
-    for (unsigned int i=0;i<list_cand5.at(idx_cand).size();++i)
-    {
-      ids = list_cand5.at(idx_cand).at(i);
-      bestTC.push_back(hits[ids]);
-    }
-  }
-        
-  //
-  // Now loop again on the stubs in order to estimate the track parameters
-  //
-        
   int size = bestTC.size();
-    
+
   float r;
   float rmin,rmax;
-  
+
   float phi_est,z_est,eta_est,pt_est;
-  
+
   double parZX[2][2];
   double resZX[2];
   double invZX[2][2];
   double detZX = 0;
-     
+
   double x,y,z;
-  
+
   int npt=0;
-  
+
   float x1,x2,y1,y2;
   float x0,y0;
-  
+
   for (int i=0;i<2;++i)
-  {
-    resZX[i] = 0.;
-    for (int jj=0;jj<2;++jj) parZX[i][jj] = 0.;
-    for (int jj=0;jj<2;++jj) invZX[i][jj] = 0.;
-  }
-    
+    {
+      resZX[i] = 0.;
+      for (int j=0;j<2;++j) parZX[i][j] = 0.;
+      for (int j=0;j<2;++j) invZX[i][j] = 0.;
+    }
+
   rmin = 1000;
   rmax = 0;
   int imax=-1;
   int imin=-1;
-  
+
   x0=0;
   y0=0;
-  
+
   x2=0;
   y2=0;
 
@@ -557,138 +269,143 @@ void TCBuilder::fit(vector<Hit*> hits)
   // the conformal space
 
 
-  for (int kk=0;kk<size;++kk) 
-  {
-    lay  = bestTC.at(kk)->getLayer();
-    
-    if (lay<=7)
+  for (int i=0;i<size;++i) 
     {
-      (lay<=2)
-	? nPSb++
-	: nPSe++;
+      lay  = bestTC.at(i)->getLayer();
+
+      if (lay<=7) //If PS
+        {
+          (lay<=2) ? nPSb++ : nPSe++;
+        }
+      else  //else 2S
+        {
+          (lay<11) ? n2Sb++ : n2Se++;
+        }
+
+      if (lay>10) continue; // 2S disks stubs not used
+      ++npt;
+
+      x = bestTC.at(i)->getX();
+      y = bestTC.at(i)->getY();
+      r = sqrt(x*x+y*y);
+
+      if (r<rmin)
+        {
+          rmin = r;
+          imin = i;
+          x2   = x;
+          y2   = y;
+        }
+
+      if (r>rmax)
+        {
+          rmax = r;
+          imax = i;
+          x0   = x;
+          y0   = y;
+        }
     }
-    else
-    {
-      (lay<11)
-	? n2Sb++
-	: n2Se++;
-    }
-            
-    if (lay>10) continue; // 2S disks stubs not used
-    ++npt;
-        
-    x = bestTC.at(kk)->getX()*ci+bestTC.at(kk)->getY()*si;
-    y = -bestTC.at(kk)->getX()*si+bestTC.at(kk)->getY()*ci;
-    r = sqrt(x*x+y*y);
-    
-    if (r<rmin)
-    {
-      rmin = r;
-      imin = kk;
-      x2   = x;
-      y2   = y;
-    }
-        
-    if (r>rmax)
-    {
-      rmax = r;
-      imax = kk;
-      x0   = x;
-      y0   = y;
-    }
-  }
 
   float rmax2 = 0;
-    
+
   x1 = 0;
   y1 = 0;
-  
+
   int nc=0;
-    
-  float xtemp1,ytemp1;
-  float xtemp2,ytemp2;
-  
-  xtemp1=0.;
-  ytemp1=0.;
 
   // Loop 2 over stubs in the TC
   // In order to determine the point with the second largest radius 
 
-  for (int kk=0;kk<size;++kk) // Loop over stubs in the TC
-  {
-    if (kk==imax || kk==imin) continue; // Already used
-
-    lay  = bestTC.at(kk)->getLayer();
-
-    barrelmod=0;
-    if (lay<=2 || (lay>=8 && lay<=10)) barrelmod=1;
-    if (!barrelmod && (nPSb+n2Sb)>=3) continue; // Barrel modules have a priority
-    if (lay>10 && (nPSb+nPSe)>=3) continue;     // Don't use 2S modules in the disks if possible
-    
-    x = bestTC.at(kk)->getX()*ci+bestTC.at(kk)->getY()*si;
-    y = -bestTC.at(kk)->getX()*si+bestTC.at(kk)->getY()*ci;
-    r = sqrt(x*x+y*y);
-    
-    if (r>rmax2)
+  for (int i=0;i<size;++i) // Loop over stubs in the TC
     {
-      rmax2  = r;
-      x1     = x;
-      y1     = y;
-      nc++;
+      if (i==imax || i==imin) continue; // Already used
+
+      lay  = bestTC.at(i)->getLayer();
+
+      barrelmod=0;
+      if (lay<=2 || (lay>=8 && lay<=10)) barrelmod=1;
+      if (!barrelmod && (nPSb+n2Sb)>=3) continue; // Barrel modules have a priority
+      if (lay>10 && (nPSb+nPSe)>=3) continue;     // Don't use 2S modules in the disks if possible
+
+      x = bestTC.at(i)->getX();
+      y = bestTC.at(i)->getY();
+      r = sqrt(x*x+y*y);
+
+      if (r>rmax2)
+        {
+          rmax2  = r;
+          x1     = x;
+          y1     = y;
+          nc++;
+        }
     }
-  }
 
   // Now get the coordinates in the conformal space.
 
-  xtemp1 = (x1-x0)/((x1-x0)*(x1-x0)+(y1-y0)*(y1-y0));
-  ytemp1 = (y1-y0)/((x1-x0)*(x1-x0)+(y1-y0)*(y1-y0));
-  
-  xtemp2 = (x2-x0)/((x2-x0)*(x2-x0)+(y2-y0)*(y2-y0));
-  ytemp2 = (y2-y0)/((x2-x0)*(x2-x0)+(y2-y0)*(y2-y0));
-  
-  x1=xtemp1;
-  y1=ytemp1;
-  x2=xtemp2;
-  y2=ytemp2;
-  
+  double sqR1  = binning((x1-x0)*(x1-x0)+(y1-y0)*(y1-y0), 13, 18, UNSIGNED);
+  double sqR2  = binning((x2-x0)*(x2-x0)+(y2-y0)*(y2-y0), 13, 18, UNSIGNED);
+
+  x1 = binning((x1-x0)/sqR1, -3, 18, SIGNED);
+  y1 = binning((y1-y0)/sqR1, -3, 18, SIGNED);
+
+  x2 = binning((x2-x0)/sqR2, -3, 18, SIGNED);
+  y2 = binning((y2-y0)/sqR2, -3, 18, SIGNED);
+
+
+  double mult_x1_y2 = binning(x1*y2, -8, 18, SIGNED);
+  double mult_x2_y1 = binning(x2*y1, -8, 18, SIGNED);
 
   // Now we got everything for the r/phi plane   
 
-  double a = x0-0.5*(y1-y2)/(y2*x1-y1*x2);
-  double b = y0-0.5*(x1-x2)/(y1*x2-y2*x1);
-    
+  double sub_of_mult = binning(mult_x1_y2 - mult_x2_y1, -11, 18, SIGNED);
+
+  double divA = binning((y1-y2)/sub_of_mult, 17, 18, SIGNED);
+  double divB = binning((x2-x1)/sub_of_mult, 17, 18, SIGNED);
+
+  double a = binning(x0-0.5*divA, 17, 18, SIGNED);
+  double b = binning(y0-0.5*divB, 17, 18, SIGNED);
+
+  double a2_b2 = binning(a*a + b*b, 29, 18, UNSIGNED);
+
+  pt_est  = 0.003*3.833*sqrt(a2_b2);
+
   int charge =-b/fabs(b);
-   
-  phi_est = atan2(charge*a,-charge*b)+sec_phi;
-  pt_est  = 0.003*3.833*sqrt(a*a+b*b);
+
+  phi_est = atan2(charge*a,-charge*b);
+
+  //Apply the rotation
+  phi_est += sec_phi;
+
+  //Set the value betweend -Pi and Pi
+  phi_est = fmod(phi_est + M_PI, 2 * M_PI) - M_PI;
 
   // Then we do the RZ fit (LS)
 
   float wght;
   int cnt=0;
-  for (int kk=0;kk<size;++kk) // Loop over stubs in the TC
-  {
-    lay  = bestTC.at(kk)->getLayer();
+  for (int i=0;i<size;++i) // Loop over stubs in the TC
+    {
+      lay  = bestTC.at(i)->getLayer();
 
-    if (lay>7) continue; // Don't use 2S modules
-    if (lay>2 && nPSb>=2) continue; // Don't use PS modules of the disks if number of good point in the barrel is sufficient        
+      if (lay>7) continue; // Don't use 2S modules
+      if (lay>2 && nPSb>=2) continue; // Don't use PS modules of the disks if number of good point in the barrel is sufficient        
 
-    ++cnt;
-    x = bestTC.at(kk)->getX()*ci+bestTC.at(kk)->getY()*si;
-    y = -bestTC.at(kk)->getX()*si+bestTC.at(kk)->getY()*ci;    
-    z = bestTC.at(kk)->getZ();        
-    r = sqrt(x*x+y*y);
-            
-    wght=1;
-    if (lay>2) wght=1/7.;
+      ++cnt;
+      x = bestTC.at(i)->getX();
+      y = bestTC.at(i)->getY();
+      z = bestTC.at(i)->getZ();        
+      r = sqrt(x*x+y*y);
 
-    parZX[0][0] += wght*r*r;
-    parZX[1][1] += wght*1;
-    parZX[1][0] += wght*r;
-    
-    resZX[0] += wght*r*z;
-    resZX[1] += wght*z;       
-  } // End of stub loop
+      wght=1;
+      if (lay>2) wght=1/7.;
+
+      parZX[0][0] += wght*r*r;
+      parZX[1][1] += wght*1;
+      parZX[1][0] += wght*r;
+
+      resZX[0] += wght*r*z;
+      resZX[1] += wght*z;       
+    } // End of stub loop
     
 
   detZX = parZX[0][0]*parZX[1][1]-parZX[1][0]*parZX[1][0];
@@ -707,33 +424,452 @@ void TCBuilder::fit(vector<Hit*> hits)
   fit_track->setPhi0(phi_est);
   fit_track->setEta0(eta_est);
   fit_track->setZ0(z_est);
-  fit_track->setCharge(charge);
-  //std::cout << "Fit Track charge set to=" << fit_track->getCharge() << std::endl;      
+      
   for(unsigned int hitIndex=0;hitIndex < bestTC.size();hitIndex++)
-  {
-    fit_track->addStubIndex(bestTC[hitIndex]->getID());
-  }
+    {
+      fit_track->addStubIndex(bestTC[hitIndex]->getID());
+    }
+
+  return fit_track;
+}
+
+/* Function which simulate the HardWare representation of the values : manage UNSIGNED and SIGNED (2's complement) overflows and accuracy according to the available dynamic of the binary word */
+double TCBuilder::binning(double fNumber, int nMSBpowOfTwo, int nBits, HW_SIGN_TYPE signType)
+{
+  if (!m_bHardwareSimulation)
+    //If the Hardware binning simulation is not asked, return directly the original number
+    return fNumber;
+
+  if (signType == UNSIGNED && fNumber < 0)
+    {
+		  //Bad interpretation, a negative number is stored in an UNSIGNED format (sign lost)
+		  fNumber = -fNumber;
+    }
   
-  tracks.push_back(fit_track);
+  int nLSBpowOfTwo;
+	
+	//Process the power of two of the LSB for the binary representation
+	if (signType == UNSIGNED)
+    {
+      //If UNSIGNED
+		  nLSBpowOfTwo = nMSBpowOfTwo - (nBits-1);
+    }	
+  else
+    {
+      //If SIGNED, 1 bit is used for the sign
+      nLSBpowOfTwo = nMSBpowOfTwo - (nBits-2);
+		}
+
+  /* Accuracy Simulation */
+
+  //Divide the number by the power of two of the LSB => the integer part of the new number is the value we are looking for
+	fNumber = fNumber / pow(2, nLSBpowOfTwo);
+	
+  //Remove the fractionnal part by rounding down (for both positive and negative values), this simulate the HW truncature
+	fNumber = floor(fNumber);
+	
+	//Multiply the number by the power of two of the LSB to get the correct float value
+	fNumber = fNumber * pow(2, nLSBpowOfTwo);
+
+
+  double fBinnedNumber = fNumber;
+
+	/* Overflow Simulation */
+
+	if (signType == UNSIGNED)
+		{
+		  //If the number is in UNSIGNED representation
+			fNumber = fmod(fNumber, pow(2, nMSBpowOfTwo+1));
+    }
+	else
+    {
+		  //If the number is in SIGNED representation (2's complement)
+      
+      double fTempResult = fNumber - pow(2, nMSBpowOfTwo+1); //substract the possible range to the number
+
+      if (fTempResult >= 0)
+        {
+          //If there is an overflow, it's a positive one
+          fNumber = fmod(fTempResult, pow(2, nMSBpowOfTwo+2)) - pow(2, nMSBpowOfTwo+1);
+        }
+      else
+        {
+          //If there is an overflow, it's a negative one (2's complement format has an asymetric range for positive and negative values)
+          fNumber = fmod(fTempResult + pow(2, nLSBpowOfTwo), pow(2, nMSBpowOfTwo+2)) - pow(2, nLSBpowOfTwo) + pow(2, nMSBpowOfTwo+1);
+        }
+		}
+
+  //If the new number is different from the previous one, an HW overflow occured
+  if (fNumber != fBinnedNumber)
+    {
+      cout<<"WARNING HW overflow for the value : "<<fBinnedNumber<<" resulting value : "<<fNumber<<" (diff= "<<fBinnedNumber-fNumber<<")"<<endl;
+    }
+	
+	return fNumber;
+}
+
+/* Process the alignment scores (on RPHI and on RZ plan) between the 2 seeds and an other stub */
+void TCBuilder::alignScore(Hit& hSeed1, Hit& hSeed2, Hit& hTestStub, double tScores[])
+{
+  double fRPHI_Score , fRZ_Score;
+
+  double X1, Y1, Z1, R1, PHI1;
+  double X2, Y2, Z2, R2, PHI2;
+  double X3, Y3, Z3, R3, PHI3;
+
+  double RPHI_S1, RPHI_S2, RZ_S1, RZ_S2;
+
+  //Coordinates X, Y, Z are already binned
+  X1 = hSeed1.getX();
+  Y1 = hSeed1.getY();
+  Z1 = hSeed1.getZ();
+	
+  X2 = hSeed2.getX();
+  Y2 = hSeed2.getY();
+  Z2 = hSeed2.getZ();
+
+  X3 = hTestStub.getX();
+  Y3 = hTestStub.getY();
+  Z3 = hTestStub.getZ();
+	
+  R1 = binning(sqrt(X1*X1 + Y1*Y1), 6, 18, SIGNED);
+  R2 = binning(sqrt(X2*X2 + Y2*Y2), 6, 18, SIGNED);
+  R3 = binning(sqrt(X3*X3 + Y3*Y3), 6, 18, SIGNED);
+
+  //RPHI plan
+  PHI1 = binning(atan(Y1/X1), 4, 18, SIGNED);
+  PHI2 = binning(atan(Y2/X2), 4, 18, SIGNED);
+  PHI3 = binning(atan(Y3/X3), 4, 18, SIGNED);
+
+  RPHI_S1 = binning((PHI2 - PHI1) * (R3 - R2), 8, 20, SIGNED);
+  RPHI_S2 = binning((PHI2 - PHI3) * (R2 - R1), 8, 20, SIGNED);
+
+  fRPHI_Score = binning(fabs(RPHI_S1 + RPHI_S2), 7, 18, UNSIGNED);
+
+  //RZ plan
+  RZ_S1 = binning((Z2 - Z1) * (R3 - R2), 12, 20, SIGNED);
+  RZ_S2 = binning((Z2 - Z3) * (R2 - R1), 12, 20, SIGNED);
+
+  fRZ_Score = binning(fabs(RZ_S1 + RZ_S2), 10, 18, UNSIGNED);
+
+  tScores[0] = fRPHI_Score;
+  tScores[1] = fRZ_Score;
+}
+
+
+/* Fill thresholds data with new thresholds */
+void TCBuilder::addThresholds(int nLaySeed1, int nLaySeed2, int nLayTestStub, SEC_TYPE secType, double fRPHI_Thresh, double fRZ_Thresh)
+{
+
+  //Fill the tab corresponding to the sector type with the pair of thresholds
+  switch (secType)
+    {
+    case SEC_BARREL : m_tabBarrelThresholds[nLaySeed1][nLaySeed2][nLayTestStub][0] = fRPHI_Thresh;
+      m_tabBarrelThresholds[nLaySeed1][nLaySeed2][nLayTestStub][1] = fRZ_Thresh;
+      break;
+    case SEC_HYBRID : m_tabHybridThresholds[nLaySeed1][nLaySeed2][nLayTestStub][0] = fRPHI_Thresh;
+      m_tabHybridThresholds[nLaySeed1][nLaySeed2][nLayTestStub][1] = fRZ_Thresh;
+      break;
+    case SEC_ENDCAP : m_tabEndcapThresholds[nLaySeed1][nLaySeed2][nLayTestStub][0] = fRPHI_Thresh;
+      m_tabEndcapThresholds[nLaySeed1][nLaySeed2][nLayTestStub][1] = fRZ_Thresh;
+    }
+}
+
+/* Get the thresholds corresponding to the 3 layerID for a given sector type */
+void TCBuilder::getThresholds(int nLaySeed1, int nLaySeed2, int nLayTestStub, SEC_TYPE secType, double tabThresh[])
+{
+  switch (secType)
+    {
+    case SEC_BARREL : tabThresh[0] = m_tabBarrelThresholds[nLaySeed1][nLaySeed2][nLayTestStub][0];
+      tabThresh[1] = m_tabBarrelThresholds[nLaySeed1][nLaySeed2][nLayTestStub][1];
+      break;
+    case SEC_HYBRID : tabThresh[0] = m_tabHybridThresholds[nLaySeed1][nLaySeed2][nLayTestStub][0];
+      tabThresh[1] = m_tabHybridThresholds[nLaySeed1][nLaySeed2][nLayTestStub][1];
+      break;
+    case SEC_ENDCAP : tabThresh[0] = m_tabEndcapThresholds[nLaySeed1][nLaySeed2][nLayTestStub][0];
+      tabThresh[1] = m_tabEndcapThresholds[nLaySeed1][nLaySeed2][nLayTestStub][1];
+    }
+}
+
+
+/* Operate the layerID transcoding (to get the layerID 4bits Hardawre representation) */
+char TCBuilder::transcodeLayer(Hit * pHit)
+{
+  int nOrigLayer = pHit->getLayer();
+
+  //layer transcoding of the disks is based on the radius, it can be optimized by using the ladder_ID
+  double X = pHit->getX();
+  double Y = pHit->getY();
+
+  int nTransLayer;
+		
+  if (nOrigLayer <= 10)
+    {
+      //If the stub is in the barrel
+
+      if (nOrigLayer <= 7)
+	{    
+	  //If layer 5, 6, 7
+	  nTransLayer = nOrigLayer - 5;     //5->0, 6->1, ...
+	}    
+      else
+	{
+	  //If layer 8, 9, 10
+	  nTransLayer = nOrigLayer;         //no change
+	}
+    }
+  else if (sqrt(X*X + Y*Y) >= 62)
+    {
+      //If the stub is on an outer ring of a disk !!! (2S modules)
+
+      if (nOrigLayer <= 15)
+	{
+	  //If layer 11, 12, 13, 14, 15
+	  nTransLayer = nOrigLayer;         //no change
+	}
+      else
+	{
+	  //If layer 18, 19, 20, 21, 22
+	  nTransLayer = nOrigLayer - 7;     //18->11, 19->12, ...
+	}
+    }
+  else
+    {
+      //If the stub is on an inner ring of a disk !!! (PS modules)
+
+      if (nOrigLayer <= 15)
+	{
+	  //If layer 11, 12, 13, 14, 15
+	  nTransLayer = nOrigLayer - 8;     //11->3, 12->4, ...
+	}
+      else
+	{
+	  //If layer 18, 19, 20, 21, 22
+	  nTransLayer = nOrigLayer - 15;    //18->3, 19->4, ...
+	}
+    }
+
+  return nTransLayer;	
+}
+
+// TC builder module
+/* Take as input the list of stubs contained in a matched road */
+
+void TCBuilder::fit(vector<Hit*> originalHits)
+{
+
+  //cout<<"trying to fit "<<originalHits.size()<<" points"<<endl;
+
+  int tow = sector_id; // The tower ID, necessary to get the phi shift
+
+  SEC_TYPE currentSec;
+
+  //Get the sec_type from the sector_id
+  if (tow >= 16 && tow <= 31)
+    currentSec = SEC_BARREL; 
+  else if (tow >=8 && tow <=39)
+    currentSec = SEC_HYBRID;
+  else
+    currentSec = SEC_ENDCAP;
+
+  //Process the starting phi of the tower
+  sec_phi = (tow%8) * M_PI / 4.0 - 0.4;
+
+  //cos and sin values for a rotation of an angle -sec_phi
+  double ci = cos(-sec_phi);
+  double si = sin(-sec_phi);
+
+  double rotatedX, rotatedY;
+
+  //Create a new vector to store the custom hits parameters
+  vector <Hit> hits;
+  
+  Hit* pOrigHit;
+  
+  //For each hit of the lists
+  for (unsigned int origHitIndex = 0; origHitIndex<originalHits.size(); origHitIndex++)
+    {
+      pOrigHit = originalHits[origHitIndex];
+
+      //Process the rotated coordinnates
+      rotatedX = pOrigHit->getX() * ci - pOrigHit->getY() * si;
+      rotatedY = pOrigHit->getX() * si + pOrigHit->getY() * ci;
+
+      //Add the modified hit to the hits vector
+      hits.push_back( Hit(transcodeLayer(pOrigHit),
+			  pOrigHit->getLadder(),
+			  pOrigHit->getModule(),
+			  pOrigHit->getSegment(),
+			  pOrigHit->getStripNumber(),
+			  pOrigHit->getID(),
+			  pOrigHit->getParticuleID(),
+			  pOrigHit->getParticulePT(),
+			  pOrigHit->getParticuleIP(),
+			  pOrigHit->getParticuleETA(),
+			  pOrigHit->getParticulePHI0(),
+			  binning(rotatedX, 6, 18, SIGNED),
+			  binning(rotatedY, 6, 18, SIGNED),
+			  binning(pOrigHit->getZ(), 8, 18, SIGNED),
+			  pOrigHit->getX0(),
+			  pOrigHit->getY0(),
+			  pOrigHit->getZ0(),
+			  pOrigHit->getBend())
+		      );
+
+    }
+
+  //Sort the hits by ascending order of layerID
+  //(using a lambda definition of the sorting criteria which return a boolean)
+  sort(hits.begin(), hits.end(), [ ]( const Hit& lhs, const Hit& rhs ) { return lhs.getLayer() < rhs.getLayer(); });
+
+
+  int nLayersCurrentPattern = 0;
+  int lastAddedLayer = -1;
+  //Count the number of layers present in the pattern
+  for (unsigned int hitIndex=0; hitIndex < hits.size(); hitIndex++)
+    {
+      if (lastAddedLayer != hits[hitIndex].getLayer())
+	{
+	  nLayersCurrentPattern++;
+	  lastAddedLayer = hits[hitIndex].getLayer();
+	}
+    }
+
+
+  vector <Hit*> vecCurrentCandidateHits;
+  vector <double> vecCurrentCandidateScore;
+
+  vector <Hit*> vecBestCandidateHits;
+  double fBestCandidateScore = 0.0;
+
+  for (unsigned int seed1Index=0; seed1Index<hits.size(); seed1Index++)
+    {
+      Hit& hSeed1   = hits[seed1Index];
+      int nLaySeed1 = hSeed1.getLayer();
+
+      if (nLaySeed1 == 2) continue; //layer 2 can't be the innermost seed stub
+      if (nLaySeed1 > 3) break;     //no more possible combinations for this pattern
+
+      //We have a correct Seed1
+
+      //Get the radius of the seed1
+      double fRseed1 = binning(sqrt(hSeed1.getX()*hSeed1.getX() + hSeed1.getY()*hSeed1.getY()), 6, 18, SIGNED);
+
+      for (unsigned int seed2Index = seed1Index+1; seed2Index<hits.size(); seed2Index++)
+	{
+	  Hit& hSeed2   = hits[seed2Index];
+	  int nLaySeed2 = hSeed2.getLayer();
+
+	  if (nLaySeed1 == nLaySeed2) continue; //The seed layers have to be differents
+	  if (nLaySeed2 > 4) break;             //no more possible combinations for the current seed1
+
+
+	  //We have a correct Seed1/Seed2 combination !!!
+
+    //Get the radius of the seed2
+    double fRseed2 = binning(sqrt(hSeed2.getX()*hSeed2.getX() + hSeed2.getY()*hSeed2.getY()), 6, 18, SIGNED);
+
+	  //Current candidate initialization (the 2 seeds)
+	  vecCurrentCandidateHits.clear();
+	  vecCurrentCandidateHits.push_back(&hSeed1);
+	  vecCurrentCandidateHits.push_back(&hSeed2);
+
+	  vecCurrentCandidateScore.clear();
+
+
+	  for (unsigned int testStubIndex = seed2Index+1; testStubIndex<hits.size(); testStubIndex++)
+	    {
+
+	      Hit& hTestStub    = hits[testStubIndex];
+	      int nLayTestStub  = hTestStub.getLayer();
+
+	      if (nLayTestStub == nLaySeed2) continue; //The layers have to be differents
+
+        
+	      //Score processing of the Seed1/Seed2/testStub combination
+	      double tabScore[2];
+	      alignScore(hSeed1, hSeed2, hTestStub, tabScore);
+        
+
+	      //Get the thresholds corresponding to the current layer combination
+	      double tabNormThresh[2];
+	      getThresholds(nLaySeed1, nLaySeed2, nLayTestStub, currentSec, tabNormThresh);
+
+
+        //Process the real thresholds from the normalized one stored in the LUT
+        double fThreshRPHI = binning(fabs(tabNormThresh[0] * (fRseed2 - fRseed1)), 4, 18, SIGNED);
+        double fThreshRZ = binning(fabs(tabNormThresh[1] * (fRseed2 - fRseed1)), 8, 18, SIGNED);
+
+	      if (tabScore[0] <= fThreshRPHI && tabScore[1] <= fThreshRZ)
+		{
+		  //The stub is in the window defined by the seed projection (correct stub candidate !)
+          
+		  if (nLayTestStub != vecCurrentCandidateHits.back()->getLayer())
+		    {
+		      //The current testStub layer is not yet in the TC
+		      vecCurrentCandidateHits.push_back(&hTestStub);
+		      vecCurrentCandidateScore.push_back(tabScore[0]);
+		    }
+		  else if (tabScore[0] < vecCurrentCandidateScore.back())
+		    {
+		      //The layer is already in the TC but the Phi score of the current stub is better than the previous one
+		      vecCurrentCandidateHits.back()   = &hTestStub;            
+		      vecCurrentCandidateScore.back()  = tabScore[0];
+		    }
+		}
+	    }
+
+	  //If the current candidate own more than 6 stubs, the lasts (outtermost) are removed
+	  while (vecCurrentCandidateHits.size() > 6)
+	    {
+	      vecCurrentCandidateHits.pop_back();
+	      vecCurrentCandidateScore.pop_back();
+	    }
+
+	  //All the stubs have been tested for the current Seeds combination
+
+	  if (int(vecCurrentCandidateHits.size()) >= nLayersCurrentPattern - m_nMissingHits)
+	    {
+	      //The current candidate has enough stubs to be a candidate
+ 
+	      //Process the score of the track candidate
+	      double fCurrentCandidateScore = 0.0;
+	      while (vecCurrentCandidateScore.empty() == false)
+		{
+		  fCurrentCandidateScore += vecCurrentCandidateScore.back();
+		  vecCurrentCandidateScore.pop_back();
+		}
+
+	      if (vecCurrentCandidateHits.size() > vecBestCandidateHits.size() || (vecCurrentCandidateHits.size() == vecBestCandidateHits.size() && fCurrentCandidateScore < fBestCandidateScore))
+		{
+		  //The current candidate is better than the previous best one
+		  vecBestCandidateHits = vecCurrentCandidateHits;
+		  fBestCandidateScore = fCurrentCandidateScore;
+		}
+	    }
+	}
+    }
+
+  //All the Seeds combinations have been tested
+
+  if ( (currentSec == SEC_HYBRID && vecBestCandidateHits.size() >= 4) || vecBestCandidateHits.size() >= 5 )
+    {
+      //If there is a recorded best candidate
+
+      //Fit the parameters and create the corresponding track object
+      Track * fit_track;
+      fit_track = createFittedTrack(vecBestCandidateHits);
+    
+      //cout<<"adding one track..."<<endl;
+      tracks.push_back(fit_track);
+    }
 }
 
 void TCBuilder::fit(){
-
-  vector<Hit*> activatedHits;
-
-  //////// Get the list of unique stubs from all the patterns ///////////
-  set<int> ids;
-  int total=0;
   for(unsigned int i=0;i<patterns.size();i++){
     vector<Hit*> allHits = patterns[i]->getHits();
-    total+=allHits.size();
-    for(unsigned int j=0;j<allHits.size();j++){
-      pair<set<int>::iterator,bool> result = ids.insert(allHits[j]->getID());
-      if(result.second==true)
-	activatedHits.push_back(allHits[j]);
-    }
+    fit(allHits);
   }
-  fit(activatedHits);
 }
 
 TrackFitter* TCBuilder::clone(){
