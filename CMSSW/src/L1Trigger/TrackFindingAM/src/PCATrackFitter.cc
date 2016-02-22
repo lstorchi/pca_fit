@@ -1,13 +1,16 @@
 /*
 C++ implementation of the PCA fitter
 
-L.Storchi, A.Modak, S.R.Chowdhury : 2016
+L.Storchi: 2016
 */
 #include "../interface/PCATrackFitter.h"
 #include "../interface/pcaconst.hpp"
 
 namespace 
 {
+  #define LAYIDDIM 6
+  int stdlayersid[LAYIDDIM] = {5, 6, 7, 8, 9, 10};
+
   /* quick and very dirty */
   void dump_element (const pca::matrixpcaconst<double> & in, std::ostream & out)
   {
@@ -20,7 +23,7 @@ namespace
     }
   }
 
-  void hits_to_zrpmatrix (double ci, double si, 
+  bool hits_to_zrpmatrix (double ci, double si, 
       const vector<Hit*> & hits, 
       pca::matrixpcaconst<double> & zrv, 
       pca::matrixpcaconst<double> & phirv)
@@ -54,86 +57,43 @@ namespace
       ziv.push_back(zi);
     }
 
-    double z1, z3, r1, r3;
+    double z1 = 0.0, z3 = 0.0, r1 = 0.0, r3 = 0.0;
 
-    // readoder hits quick test
-    std::vector<int>::iterator it = std::find(layerids.begin(),
-        layerids.end(),0);
-    int pos = (int) std::distance(layerids.begin(), it);
-    zrv(0, 0) = ziv[pos];
-    phirv(0, 0) = piv[pos];
-    zrv(0, 1) = riv[pos];
-    phirv(0, 1) = riv[pos];
+    for (int i=0; i<LAYIDDIM; ++i)
+    {
+      // readoder hits quick test
+      std::vector<int>::iterator it = std::find(layerids.begin(),
+          layerids.end(),stdlayersid[i]);
+      if (it == layerids.end())
+        return false;
+    
+      int pos = (int) std::distance(layerids.begin(), it);
+      zrv(0, 0) = ziv[pos];
+      phirv(0, 0) = piv[pos];
+      zrv(0, 1) = riv[pos];
+      phirv(0, 1) = riv[pos];
 
-    z1 = ziv[pos];
-    r1 = riv[pos];
-
-    std::cout << "Layer  " << layerids[pos] << std::endl;
-    std::cout << "PCArpz " << riv[pos] << " " << piv[pos] << " " << ziv[pos] << std::endl;
-
-    it = std::find(layerids.begin(),
-        layerids.end(),1);
-    pos = (int) std::distance(layerids.begin(), it);
-    zrv(0, 2) = ziv[pos];
-    phirv(0, 2) = piv[pos];
-    zrv(0, 3) = riv[pos];
-    phirv(0, 3) = riv[pos];
-
-    std::cout << "Layer  " << layerids[pos] << std::endl;
-    std::cout << "PCArpz " << riv[pos] << " " << piv[pos] << " " << ziv[pos] << std::endl;
-
-    it = std::find(layerids.begin(),
-        layerids.end(),2);
-    pos = (int) std::distance(layerids.begin(), it);
-    zrv(0, 4) = ziv[pos];
-    phirv(0, 4) = piv[pos];
-    zrv(0, 5) = riv[pos];
-    phirv(0, 5) = riv[pos];
-
-    z3 = ziv[pos];
-    r3 = riv[pos];
- 
-    std::cout << "Layer  " << layerids[pos] << std::endl;
-    std::cout << "PCArpz " << riv[pos] << " " << piv[pos] << " " << ziv[pos] << std::endl;
-
-    it = std::find(layerids.begin(),
-        layerids.end(),8);
-    pos = (int) std::distance(layerids.begin(), it);
-    zrv(0, 6) = ziv[pos];
-    phirv(0, 6) = piv[pos];
-    zrv(0, 7) = riv[pos];
-    phirv(0, 7) = riv[pos];
-
-    std::cout << "Layer  " << layerids[pos] << std::endl;
-    std::cout << "PCArpz " << riv[pos] << " " << piv[pos] << " " << ziv[pos] << std::endl;
-
-    it = std::find(layerids.begin(),
-        layerids.end(),9);
-    pos = (int) std::distance(layerids.begin(), it);
-    zrv(0, 8) = ziv[pos];
-    phirv(0, 8) = piv[pos];
-    zrv(0, 9) = riv[pos];
-    phirv(0, 9) = riv[pos];
-
-    std::cout << "Layer  " << layerids[pos] << std::endl;
-    std::cout << "PCArpz " << riv[pos] << " " << piv[pos] << " " << ziv[pos] << std::endl;
-
-    it = std::find(layerids.begin(),
-        layerids.end(),10);
-    pos = (int) std::distance(layerids.begin(), it);
-    zrv(0, 10) = ziv[pos];
-    phirv(0, 10) = piv[pos];
-    zrv(0, 11) = riv[pos];
-    phirv(0, 11) = riv[pos];
-
-    std::cout << "Layer  " << layerids[pos] << std::endl;
-    std::cout << "PCArpz " << riv[pos] << " " << piv[pos] << " " << ziv[pos] << std::endl;
+      if (stdlayersid[i] == 5)
+      { 
+        z1 = ziv[pos];
+        r1 = riv[pos];
+      }
+      else if (stdlayersid[i] == 7)
+      {
+        z3 = ziv[pos];
+        r3 = riv[pos];
+      }
+    
+      std::cout << "Layer  " << layerids[pos] << std::endl;
+      std::cout << "PCArpz " << riv[pos] << " " << piv[pos] << " " << ziv[pos] << std::endl;
+    }
 
     double slope = (z3-z1)/(r3-r1);
     double intercept = z1 - slope*r1;
 
     std::cout << "Intercept est z0: " << intercept << std::endl;
  
+    return true;
   }
 
   bool import_pca_const (const std::string & cfname, 
@@ -356,126 +316,132 @@ void PCATrackFitter::fit(vector<Hit*> hits)
     {
       pca::matrixpcaconst<double> zrv(1, 12), phirv(1, 12);
 
-      hits_to_zrpmatrix (ci, si, hits, zrv, phirv);
-
-      int charge;
-      double pt_est, eta_est, z0_est, phi_est;
-      charge = tracks_[tt]->getCharge(); 
-      pt_est = tracks_[tt]->getCurve();
-      eta_est = tracks_[tt]->getEta0();
-      z0_est = tracks_[tt]->getZ0();
-      phi_est = tracks_[tt]->getPhi0();
-
-      /* TEST 
-      zrv(0, 0) = -16.1314; zrv(0, 1) = 23.3135;
-      zrv(0, 2) = -22.7054; zrv(0, 3) = 34.8367;
-      zrv(0, 4) = -32.6362; zrv(0, 5) = 51.9131;
-      eta_est = -0.580448;
-      z0_est = -2.65203;
-
-      phirv(0, 0) = 2.74588; phirv(0, 1) = 23.2105;
-      phirv(0, 2) = 2.76857; phirv(0, 3) = 37.0286;
-      phirv(0, 4) = 2.79267; phirv(0, 5) = 51.2692;
-      phirv(0, 6) = 2.82109; phirv(0, 7) = 67.7289;
-      phirv(0, 8) = 2.85643; phirv(0, 9) = 87.8179;
-      phirv(0, 10) = 2.89452; phirv(0, 11) = 109.012;
-      pt_est = 1.0/0.315806;
-      phi_est = 2.70006;
-      charge = +1;
-      */
-
-      std::string cfname = "./barrel_tow18_pca_const.txt";
-
-      pca::matrixpcaconst<double> cmtx_rz(0, 0);
-      pca::matrixpcaconst<double> qvec_rz(0, 0); 
-      pca::matrixpcaconst<double> amtx_rz(0, 0); 
-      pca::matrixpcaconst<double> kvec_rz(0, 0); 
-      pca::matrixpcaconst<double> cmtx_rphi(0, 0); 
-      pca::matrixpcaconst<double> qvec_rphi(0, 0); 
-      pca::matrixpcaconst<double> amtx_rphi(0, 0); 
-      pca::matrixpcaconst<double> kvec_rphi(0, 0); 
-
-      if (import_pca_const (cfname, 
-                            cmtx_rz, 
-                            qvec_rz, 
-                            amtx_rz, 
-                            kvec_rz, 
-                            cmtx_rphi, 
-                            qvec_rphi, 
-                            amtx_rphi, 
-                            kvec_rphi, 
-                            eta_est, 
-                            pt_est, 
-                            charge))
+      if (hits_to_zrpmatrix (ci, si, hits, zrv, phirv))
       {
-        /*
-        std::cout << "CMTX RZ: " << std::endl;
-        dump_element(cmtx_rz, std::cout);
-
-        std::cout << "QVEC RZ: " << std::endl;
-        dump_element(qvec_rz, std::cout);
-
-        std::cout << "CMTX RPHI: " << std::endl;
-        dump_element(cmtx_rphi, std::cout);
-
-        std::cout << "QVEC RPHI: " << std::endl;
-        dump_element(qvec_rphi, std::cout);
+        int charge;
+        double pt_est, eta_est, z0_est, phi_est;
+        charge = tracks_[tt]->getCharge(); 
+        pt_est = tracks_[tt]->getCurve();
+        eta_est = tracks_[tt]->getEta0();
+        z0_est = tracks_[tt]->getZ0();
+        phi_est = tracks_[tt]->getPhi0();
+        
+        /* TEST 
+        zrv(0, 0) = -16.1314; zrv(0, 1) = 23.3135;
+        zrv(0, 2) = -22.7054; zrv(0, 3) = 34.8367;
+        zrv(0, 4) = -32.6362; zrv(0, 5) = 51.9131;
+        eta_est = -0.580448;
+        z0_est = -2.65203;
+        
+        phirv(0, 0) = 2.74588; phirv(0, 1) = 23.2105;
+        phirv(0, 2) = 2.76857; phirv(0, 3) = 37.0286;
+        phirv(0, 4) = 2.79267; phirv(0, 5) = 51.2692;
+        phirv(0, 6) = 2.82109; phirv(0, 7) = 67.7289;
+        phirv(0, 8) = 2.85643; phirv(0, 9) = 87.8179;
+        phirv(0, 10) = 2.89452; phirv(0, 11) = 109.012;
+        pt_est = 1.0/0.315806;
+        phi_est = 2.70006;
+        charge = +1;
         */
-
-        double cottheta = 0.0; // eta
-        double z0 = 0.0;
         
-        cottheta = qvec_rz(0,0);
-        z0 = qvec_rz(0,1);
-        for (int i=0; i<(int)cmtx_rz.n_cols(); ++i)
+        std::string cfname = "./barrel_tow18_pca_const.txt";
+        
+        pca::matrixpcaconst<double> cmtx_rz(0, 0);
+        pca::matrixpcaconst<double> qvec_rz(0, 0); 
+        pca::matrixpcaconst<double> amtx_rz(0, 0); 
+        pca::matrixpcaconst<double> kvec_rz(0, 0); 
+        pca::matrixpcaconst<double> cmtx_rphi(0, 0); 
+        pca::matrixpcaconst<double> qvec_rphi(0, 0); 
+        pca::matrixpcaconst<double> amtx_rphi(0, 0); 
+        pca::matrixpcaconst<double> kvec_rphi(0, 0); 
+        
+        if (import_pca_const (cfname, 
+                              cmtx_rz, 
+                              qvec_rz, 
+                              amtx_rz, 
+                              kvec_rz, 
+                              cmtx_rphi, 
+                              qvec_rphi, 
+                              amtx_rphi, 
+                              kvec_rphi, 
+                              eta_est, 
+                              pt_est, 
+                              charge))
         {
-          cottheta += cmtx_rz(0, i) * zrv(0, i);
-          z0 += cmtx_rz(1, i) * zrv(0, i);
+          /*
+          std::cout << "CMTX RZ: " << std::endl;
+          dump_element(cmtx_rz, std::cout);
+        
+          std::cout << "QVEC RZ: " << std::endl;
+          dump_element(qvec_rz, std::cout);
+        
+          std::cout << "CMTX RPHI: " << std::endl;
+          dump_element(cmtx_rphi, std::cout);
+        
+          std::cout << "QVEC RPHI: " << std::endl;
+          dump_element(qvec_rphi, std::cout);
+          */
+        
+          double cottheta = 0.0; // eta
+          double z0 = 0.0;
+          
+          cottheta = qvec_rz(0,0);
+          z0 = qvec_rz(0,1);
+          for (int i=0; i<(int)cmtx_rz.n_cols(); ++i)
+          {
+            cottheta += cmtx_rz(0, i) * zrv(0, i);
+            z0 += cmtx_rz(1, i) * zrv(0, i);
+          }
+          
+          double coverpt = 0.0; // pt
+          double phi = 0.0;
+          
+          coverpt = qvec_rphi(0,0);
+          phi = qvec_rphi(0,1);
+          for (int i=0; i<(int)cmtx_rphi.n_cols(); ++i)
+          {
+            coverpt += cmtx_rphi(0, i) * phirv(0, i);
+            phi += cmtx_rphi(1, i) * phirv(0, i);
+          }
+          
+          double pt = (double)(charge)/coverpt;
+          
+          // TODO: checkit theta to eta 
+          double eta = 0.0e0;
+          double theta = atan(1.0e0 / cottheta); 
+          double tantheta2 = tan (theta/2.0e0); 
+          if (tantheta2 < 0.0)
+            eta = 1.0e0 * log (-1.0e0 * tantheta2);
+          else
+            eta = -1.0e0 * log (tantheta2);
+          
+          Track* fit_track = new Track();
+        
+          std::cout << " pt : " << pt << " ==> " << pt_est << std::endl;
+          std::cout << " phi: " << phi << " ==> " << phi_est << std::endl; 
+          std::cout << " eta: " << eta << " ==> " << eta_est << std::endl;
+          std::cout << " z0 : " << z0 << " ==> " << z0_est << std::endl;
+          
+          fit_track->setCurve(pt);
+          fit_track->setPhi0(phi);
+          fit_track->setEta0(eta);
+          fit_track->setZ0(z0);
+                          
+          for(unsigned int idx = 0; idx < hits.size(); ++idx)
+            fit_track->addStubIndex(idx);
+          
+          tracks.push_back(fit_track);
         }
-        
-        double coverpt = 0.0; // pt
-        double phi = 0.0;
-        
-        coverpt = qvec_rphi(0,0);
-        phi = qvec_rphi(0,1);
-        for (int i=0; i<(int)cmtx_rphi.n_cols(); ++i)
+        else 
         {
-          coverpt += cmtx_rphi(0, i) * phirv(0, i);
-          phi += cmtx_rphi(1, i) * phirv(0, i);
+          std::cerr << "error while reading PCA const" << std::endl;
+          std::cout << "error while reading PCA const" << std::endl;
         }
-        
-        double pt = (double)(charge)/coverpt;
-        
-        // TODO: checkit theta to eta 
-        double eta = 0.0e0;
-        double theta = atan(1.0e0 / cottheta); 
-        double tantheta2 = tan (theta/2.0e0); 
-        if (tantheta2 < 0.0)
-          eta = 1.0e0 * log (-1.0e0 * tantheta2);
-        else
-          eta = -1.0e0 * log (tantheta2);
-        
-        Track* fit_track = new Track();
-
-        std::cout << " pt : " << pt << " ==> " << pt_est << std::endl;
-        std::cout << " phi: " << phi << " ==> " << phi_est << std::endl; 
-        std::cout << " eta: " << eta << " ==> " << eta_est << std::endl;
-        std::cout << " z0 : " << z0 << " ==> " << z0_est << std::endl;
-        
-        fit_track->setCurve(pt);
-        fit_track->setPhi0(phi);
-        fit_track->setEta0(eta);
-        fit_track->setZ0(z0);
-                        
-        for(unsigned int idx = 0; idx < hits.size(); ++idx)
-          fit_track->addStubIndex(idx);
-        
-        tracks.push_back(fit_track);
-      }
-      else 
+      } 
+      else
       {
-        std::cerr << "error while reading PCA const" << std::endl;
-        std::cout << "error while reading PCA const" << std::endl;
+        std::cerr << "error in coord conv" << std::endl;
+        std::cout << "error in coord conv" << std::endl;
       }
 
     }

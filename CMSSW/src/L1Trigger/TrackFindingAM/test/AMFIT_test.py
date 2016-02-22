@@ -50,7 +50,7 @@ process.maxEvents = cms.untracked.PSet(
 #
 
 process.source = cms.Source("PoolSource",
-                            fileNames = cms.untracked.vstring('file:AM_output.root'),
+                            fileNames = cms.untracked.vstring('file:AMPR_output_1.root'),
                             duplicateCheckMode = cms.untracked.string( 'noDuplicateCheck' )
 )
 

@@ -261,7 +261,7 @@ void TrackFitTCProducer::produce( edm::Event& iEvent, const edm::EventSetup& iSe
 	  module = detIdStub.iPhi()-1;
 	}
 
-	//	cout << layer << " / " << ladder << " / " << module << " / " << std::endl;
+	//cout << layer << " / " << ladder << " / " << module << " / " << std::endl;
 
 	int strip  =  mp0.x();
 	int tp     = -1;
@@ -275,6 +275,8 @@ void TrackFitTCProducer::produce( edm::Event& iEvent, const edm::EventSetup& iSe
 	float y0   = 0.;
 	float z0   = 0.;
 	float ip   = sqrt(x0*x0+y0*y0);
+
+        //cout << x << " / " << y << " / " << z << " / " << std::endl;
 	
 	Hit* h = new Hit(layer,ladder, module, segment, strip, 
 			 j, tp, spt, ip, eta, phi0, x, y, z, x0, y0, z0, tempStubRef->getTriggerDisplacement()-tempStubRef->getTriggerOffset());
@@ -298,7 +300,7 @@ void TrackFitTCProducer::produce( edm::Event& iEvent, const edm::EventSetup& iSe
       PCAFIT->setSectorID(tempTrackPtr->getSector()); 
       PCAFIT->setTracks(tracks);
       PCAFIT->fit(m_hits); 
-      tracks = PCAFIT->getTracks();
+      //tracks = PCAFIT->getTracks();
       //
 
       tracksb = TCBb->getTracks();

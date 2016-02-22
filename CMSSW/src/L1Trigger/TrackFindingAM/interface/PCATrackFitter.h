@@ -26,7 +26,7 @@
 #include <boost/serialization/export.hpp>
 
 /**
-   \brief Implementation of PCA fitter
+   \brief PCA fitter
 **/
 class PCATrackFitter:public TrackFitter{
 
