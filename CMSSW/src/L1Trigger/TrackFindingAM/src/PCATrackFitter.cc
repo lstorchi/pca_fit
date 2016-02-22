@@ -265,8 +265,9 @@ void PCATrackFitter::fit(vector<Hit*> hits)
 {
   int tow = sector_id; // The tower ID, necessary to get the phi shift
 
-  std::cout << "In PCA::fit tow: " << tow << std::endl;
-
+  std::cout << "In PCA::fit tow: " << tow << " hits size: " << 
+    hits.size() << std::endl;
+  
   double sec_phi = 0;
   switch (tow%8)
   {
@@ -306,13 +307,17 @@ void PCATrackFitter::fit(vector<Hit*> hits)
   rpzfile.open ("PCArphizfile.txt");
   */
 
+  std::cout << "Track size: " << tracks_.size() << std::endl;
+
   for(unsigned int tt=0; tt<tracks_.size(); ++tt)
   {
-    //vector<int> stubids = tracks_[tt]->getStubs(); // TODO are they the hits idx ? 
+    vector<int> stubs = tracks_[tt]->getStubs(); // TODO are they the hits idx ? 
+    for (unsigned int sti=0; sti<stubs.size(); sti++) 
+      std::cout << stubs[sti] << std::endl;
 
     //std::cout << "hits.size() : " << hits.size() << std::endl;
 
-    if (hits.size() == 6)
+    if (stubs.size() == 6)
     {
       pca::matrixpcaconst<double> zrv(1, 12), phirv(1, 12);
 
@@ -368,7 +373,6 @@ void PCATrackFitter::fit(vector<Hit*> hits)
                               pt_est, 
                               charge))
         {
-          /*
           std::cout << "CMTX RZ: " << std::endl;
           dump_element(cmtx_rz, std::cout);
         
@@ -380,7 +384,6 @@ void PCATrackFitter::fit(vector<Hit*> hits)
         
           std::cout << "QVEC RPHI: " << std::endl;
           dump_element(qvec_rphi, std::cout);
-          */
         
           double cottheta = 0.0; // eta
           double z0 = 0.0;

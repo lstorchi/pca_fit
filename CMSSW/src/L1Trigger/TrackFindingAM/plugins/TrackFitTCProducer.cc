@@ -301,7 +301,6 @@ void TrackFitTCProducer::produce( edm::Event& iEvent, const edm::EventSetup& iSe
       PCAFIT->setTracks(tracks);
       PCAFIT->fit(m_hits); 
       //tracks = PCAFIT->getTracks();
-      //
 
       tracksb = TCBb->getTracks();
       TCBb->clean();
