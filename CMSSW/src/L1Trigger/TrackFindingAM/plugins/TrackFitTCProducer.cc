@@ -37,6 +37,8 @@
 #include "L1Trigger/TrackFindingAM/interface/SectorTree.h"
 #include "L1Trigger/TrackFindingAM/interface/Hit.h"
 
+#include "L1Trigger/TrackFindingAM/interface/PCATrackFitter.h"
+
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/shared_ptr.hpp>
@@ -152,6 +154,9 @@ void TrackFitTCProducer::produce( edm::Event& iEvent, const edm::EventSetup& iSe
 
   std::map< unsigned int , edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > > stubMap;
   
+
+  // PLACEHOLDER
+  PCATrackFitter* PCAFIT = new PCATrackFitter(nbLayers); 
 
   TCBuilder* TCB  = new TCBuilder(nbLayers); // Floating point
   TCBuilder* TCBb = new TCBuilder(nbLayers); // Bit-wise
@@ -288,6 +293,14 @@ void TrackFitTCProducer::produce( edm::Event& iEvent, const edm::EventSetup& iSe
 
       tracks = TCB->getTracks();
       TCB->clean();
+
+      // Perform the PCA fit PLACEHOLDER
+      PCAFIT->setSectorID(tempTrackPtr->getSector()); 
+      PCAFIT->setTracks(tracks);
+      PCAFIT->fit(m_hits); 
+      tracks = PCAFIT->getTracks();
+      //
+
       tracksb = TCBb->getTracks();
       TCBb->clean();
 
@@ -362,6 +375,9 @@ void TrackFitTCProducer::produce( edm::Event& iEvent, const edm::EventSetup& iSe
 
     delete(TCB);    
     delete(TCBb);  
+
+    //PLACEHOLDER
+    delete(PCAFIT);
 
   }
 
