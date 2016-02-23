@@ -300,7 +300,10 @@ void TrackFitTCProducer::produce( edm::Event& iEvent, const edm::EventSetup& iSe
       PCAFIT->setSectorID(tempTrackPtr->getSector()); 
       PCAFIT->setTracks(tracks);
       PCAFIT->fit(m_hits); 
-      //tracks = PCAFIT->getTracks();
+      /*
+      if (PCAFIT->getTracks().size() != 0)
+        tracks = PCAFIT->getTracks();
+      */
 
       tracksb = TCBb->getTracks();
       TCBb->clean();

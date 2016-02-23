@@ -28,10 +28,10 @@
 /**
    \brief PCA fitter
 **/
-class PCATrackFitter:public TrackFitter{
+class PCATrackFitter:public TrackFitter
+{
 
  private:
-
   friend class boost::serialization::access;
   
   template<class Archive> void save(Archive & ar, const unsigned int version) const
@@ -49,6 +49,7 @@ class PCATrackFitter:public TrackFitter{
   BOOST_SERIALIZATION_SPLIT_MEMBER()
 
   std::vector<Track*> tracks_;
+  bool paramscmpt_;
 
  public:
 

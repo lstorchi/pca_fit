@@ -40,11 +40,11 @@ namespace
     {
       unsigned int idx = stubs[sti] - 1;
       // TODO double check this
-      double xi =  hits[idx]->getX()*ci+ hits[idx]->getY()*si;
-      double yi = -hits[idx]->getX()*si+ hits[idx]->getY()*ci;
+      //double xi =  hits[idx]->getX()*ci+ hits[idx]->getY()*si;
+      //double yi = -hits[idx]->getX()*si+ hits[idx]->getY()*ci;
 
-      xi = hits[idx]->getX();
-      yi = hits[idx]->getY();
+      double xi = hits[idx]->getX();
+      double yi = hits[idx]->getY();
 
       double zi = hits[idx]->getZ();
       double ri = sqrt(xi*xi+yi*yi);
@@ -63,7 +63,7 @@ namespace
       ziv.push_back(zi);
     }
 
-    double z1 = 0.0, z3 = 0.0, r1 = 0.0, r3 = 0.0;
+    //double z1 = 0.0, z3 = 0.0, r1 = 0.0, r3 = 0.0;
 
     int counter = 0;
     for (int i=0; i<LAYIDDIM; ++i)
@@ -82,6 +82,7 @@ namespace
       phirv(0, counter) = riv[pos];
       ++counter;
 
+      /*
       if (stdlayersid[i] == 5)
       { 
         z1 = ziv[pos];
@@ -92,15 +93,17 @@ namespace
         z3 = ziv[pos];
         r3 = riv[pos];
       }
+      */
     
-      std::cout << "Layer  " << layerids[pos] << std::endl;
-      std::cout << "PCArpz " << riv[pos] << " " << piv[pos] << " " << ziv[pos] << std::endl;
+      //std::cout << "Layer  " << layerids[pos] << std::endl;
+      //std::cout << "PCArpz " << riv[pos] << " " << piv[pos] << " " << ziv[pos] << std::endl;
     }
 
-    double slope = (z3-z1)/(r3-r1);
-    double intercept = z1 - slope*r1;
+    //double slope = (z3-z1)/(r3-r1);
+    //double intercept;
+    //intercept = z1 - slope*r1;
 
-    std::cout << "Intercept est z0: " << intercept << std::endl;
+    //std::cout << "Intercept est z0: " << intercept << std::endl;
  
     return true;
   }
@@ -220,6 +223,7 @@ PCATrackFitter::~PCATrackFitter()
 
 void PCATrackFitter::initialize()
 {
+  tracks_.clear();
 }
 
 void PCATrackFitter::mergePatterns()
@@ -274,8 +278,8 @@ void PCATrackFitter::fit(vector<Hit*> hits)
 {
   int tow = sector_id; // The tower ID, necessary to get the phi shift
 
-  std::cout << "In PCA::fit tow: " << tow << " hits size: " << 
-    hits.size() << std::endl;
+  //std::cout << "PCA::fit tow: " << tow << " hits size: " << 
+  //  hits.size() << std::endl;
   
   double sec_phi = 0;
   switch (tow%8)
@@ -316,7 +320,7 @@ void PCATrackFitter::fit(vector<Hit*> hits)
   rpzfile.open ("PCArphizfile.txt");
   */
 
-  std::cout << "Track size: " << tracks_.size() << std::endl;
+  //std::cout << "Track size: " << tracks_.size() << std::endl;
 
   for(unsigned int tt=0; tt<tracks_.size(); ++tt)
   {
@@ -333,6 +337,10 @@ void PCATrackFitter::fit(vector<Hit*> hits)
         double pt_est, eta_est, z0_est, phi_est;
         if (tracks_[tt]->getCharge() < 0.0)
          charge = -1;
+
+        // Check the charge TODO
+        charge = -1 * charge;
+
         pt_est = tracks_[tt]->getCurve();
         eta_est = tracks_[tt]->getEta0();
         z0_est = tracks_[tt]->getZ0();
@@ -439,8 +447,8 @@ void PCATrackFitter::fit(vector<Hit*> hits)
           fit_track->setEta0(eta);
           fit_track->setZ0(z0);
                           
-          for(unsigned int idx = 0; idx < hits.size(); ++idx)
-            fit_track->addStubIndex(idx);
+          for(unsigned int idx = 0; idx < stubs.size(); ++idx)
+            fit_track->addStubIndex(stubs[idx]);
           
           tracks.push_back(fit_track);
         }
