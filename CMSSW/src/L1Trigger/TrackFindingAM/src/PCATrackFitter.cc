@@ -24,15 +24,21 @@ namespace
   }
 
   bool hits_to_zrpmatrix (double ci, double si, 
-      const vector<Hit*> & hits, 
+      const std::vector<Hit*> & hits, 
+      const std::vector<int> & stubs,
       pca::matrixpcaconst<double> & zrv, 
       pca::matrixpcaconst<double> & phirv)
   {
     std::vector<int> layerids;
     std::vector<double> riv, piv, ziv;
 
+    /*
     for(unsigned int idx = 0; idx < hits.size(); ++idx)
     {
+    */
+    for (unsigned int sti=0; sti<stubs.size(); sti++) 
+    {
+      unsigned int idx = stubs[sti] - 1;
       // TODO double check this
       double xi =  hits[idx]->getX()*ci+ hits[idx]->getY()*si;
       double yi = -hits[idx]->getX()*si+ hits[idx]->getY()*ci;
@@ -59,6 +65,7 @@ namespace
 
     double z1 = 0.0, z3 = 0.0, r1 = 0.0, r3 = 0.0;
 
+    int counter = 0;
     for (int i=0; i<LAYIDDIM; ++i)
     {
       // readoder hits quick test
@@ -68,10 +75,12 @@ namespace
         return false;
     
       int pos = (int) std::distance(layerids.begin(), it);
-      zrv(0, 0) = ziv[pos];
-      phirv(0, 0) = piv[pos];
-      zrv(0, 1) = riv[pos];
-      phirv(0, 1) = riv[pos];
+      zrv(0, counter) = ziv[pos];
+      phirv(0, counter) = piv[pos];
+      ++counter;
+      zrv(0, counter) = riv[pos];
+      phirv(0, counter) = riv[pos];
+      ++counter;
 
       if (stdlayersid[i] == 5)
       { 
@@ -311,17 +320,14 @@ void PCATrackFitter::fit(vector<Hit*> hits)
 
   for(unsigned int tt=0; tt<tracks_.size(); ++tt)
   {
-    vector<int> stubs = tracks_[tt]->getStubs(); // TODO are they the hits idx ? 
-    for (unsigned int sti=0; sti<stubs.size(); sti++) 
-      std::cout << stubs[sti] << std::endl;
-
     //std::cout << "hits.size() : " << hits.size() << std::endl;
+    std::vector<int> stubs = tracks_[tt]->getStubs(); // TODO are they the hits idx ? 
 
     if (stubs.size() == 6)
     {
       pca::matrixpcaconst<double> zrv(1, 12), phirv(1, 12);
 
-      if (hits_to_zrpmatrix (ci, si, hits, zrv, phirv))
+      if (hits_to_zrpmatrix (ci, si, hits, stubs, zrv, phirv))
       {
         int charge;
         double pt_est, eta_est, z0_est, phi_est;
@@ -373,6 +379,7 @@ void PCATrackFitter::fit(vector<Hit*> hits)
                               pt_est, 
                               charge))
         {
+          /*
           std::cout << "CMTX RZ: " << std::endl;
           dump_element(cmtx_rz, std::cout);
         
@@ -384,7 +391,8 @@ void PCATrackFitter::fit(vector<Hit*> hits)
         
           std::cout << "QVEC RPHI: " << std::endl;
           dump_element(qvec_rphi, std::cout);
-        
+          */
+
           double cottheta = 0.0; // eta
           double z0 = 0.0;
           
