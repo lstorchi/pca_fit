@@ -37,7 +37,7 @@ class Track{
      \param Wxy The weight of the XY-retina maximum
      \param Wrz The weight of the RZ-retina maximum
   **/
-  Track(double c, double d, double p, double p_a, double p_b, int cg=0, double Wxy=-1., double Wrz=-1.);
+  Track(double c, double d, double p, double p_a, double p_b, double cg=0.0, double Wxy=-1., double Wrz=-1.);
   /**
      \brief Copy Constructor
   **/

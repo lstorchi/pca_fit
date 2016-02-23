@@ -6,12 +6,12 @@ Track::Track(){
   phi0  = 0.;
   eta0  = 0.;
   z0    = 0.;
-  charge = 0;
+  charge = 0.0;
   w_xy  = 0.;
   w_rz  = 0.;
 }
 
-Track::Track(double c, double d, double p, double p_a, double p_b, int cg, double Wxy, double Wrz){
+Track::Track(double c, double d, double p, double p_a, double p_b, double cg, double Wxy, double Wrz){
   curve = c;
   d0    = d;
   phi0  = p;
