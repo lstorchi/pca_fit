@@ -329,9 +329,10 @@ void PCATrackFitter::fit(vector<Hit*> hits)
 
       if (hits_to_zrpmatrix (ci, si, hits, stubs, zrv, phirv))
       {
-        int charge;
+        int charge + 1;
         double pt_est, eta_est, z0_est, phi_est;
-        charge = tracks_[tt]->getCharge(); 
+        if (tracks_[tt]->getCharge() < 0.0)
+         charge = -1' 
         pt_est = tracks_[tt]->getCurve();
         eta_est = tracks_[tt]->getEta0();
         z0_est = tracks_[tt]->getZ0();
