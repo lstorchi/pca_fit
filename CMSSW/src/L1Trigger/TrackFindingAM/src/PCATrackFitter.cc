@@ -8,8 +8,10 @@ L.Storchi: 2016
 
 namespace 
 {
+  /*
   #define LAYIDDIM 6
   int stdlayersid[LAYIDDIM] = {5, 6, 7, 8, 9, 10};
+  */
 
   /* quick and very dirty */
   void dump_element (const pca::matrixpcaconst<double> & in, std::ostream & out)
@@ -29,13 +31,10 @@ namespace
       pca::matrixpcaconst<double> & zrv, 
       pca::matrixpcaconst<double> & phirv)
   {
-    std::vector<int> layerids;
-    std::vector<double> riv, piv, ziv;
+    //std::vector<int> layerids;
+    //std::vector<double> riv, piv, ziv;
 
-    /*
-    for(unsigned int idx = 0; idx < hits.size(); ++idx)
-    {
-    */
+    int counter = 0;
     for (unsigned int sti=0; sti<stubs.size(); sti++) 
     {
       unsigned int idx = stubs[sti] - 1;
@@ -54,21 +53,28 @@ namespace
       std::cout << "Layer  " << (int) hits[idx]->getLayer() << std::endl;
       std::cout << "PCAxyz " << xi << " " << yi << " " << zi << std::endl;
       std::cout << "PCArpz " << ri << " " << pi << " " << zi << std::endl;
-      */
 
       layerids.push_back((int)hits[idx]->getLayer());
-
       riv.push_back(ri);
       piv.push_back(pi);
       ziv.push_back(zi);
+      */
+
+      zrv(0, counter) = zi;
+      phirv(0, counter) = pi;
+      ++counter;
+      zrv(0, counter) = ri;
+      phirv(0, counter) = ri;
+      ++counter;
     }
 
     //double z1 = 0.0, z3 = 0.0, r1 = 0.0, r3 = 0.0;
+    //readoder hits quick test
 
-    int counter = 0;
+    /*
+    counter = 0;
     for (int i=0; i<LAYIDDIM; ++i)
     {
-      // readoder hits quick test
       std::vector<int>::iterator it = std::find(layerids.begin(),
           layerids.end(),stdlayersid[i]);
       if (it == layerids.end())
@@ -82,7 +88,6 @@ namespace
       phirv(0, counter) = riv[pos];
       ++counter;
 
-      /*
       if (stdlayersid[i] == 5)
       { 
         z1 = ziv[pos];
@@ -93,17 +98,17 @@ namespace
         z3 = ziv[pos];
         r3 = riv[pos];
       }
-      */
     
-      //std::cout << "Layer  " << layerids[pos] << std::endl;
-      //std::cout << "PCArpz " << riv[pos] << " " << piv[pos] << " " << ziv[pos] << std::endl;
+      std::cout << "Layer  " << layerids[pos] << std::endl;
+      std::cout << "PCArpz " << riv[pos] << " " << piv[pos] << " " << ziv[pos] << std::endl;
     }
 
-    //double slope = (z3-z1)/(r3-r1);
-    //double intercept;
-    //intercept = z1 - slope*r1;
+    double slope = (z3-z1)/(r3-r1);
+    double intercept;
+    intercept = z1 - slope*r1;
 
-    //std::cout << "Intercept est z0: " << intercept << std::endl;
+    std::cout << "Intercept est z0: " << intercept << std::endl;
+    */
  
     return true;
   }
@@ -437,10 +442,10 @@ void PCATrackFitter::fit(vector<Hit*> hits)
           
           Track* fit_track = new Track();
         
-          std::cout << " pt : " << pt << " ==> " << pt_est << std::endl;
-          std::cout << " phi: " << phi << " ==> " << phi_est << std::endl; 
-          std::cout << " eta: " << eta << " ==> " << eta_est << std::endl;
-          std::cout << " z0 : " << z0 << " ==> " << z0_est << std::endl;
+          std::cout << " pt:  " << pt << " " << pt_est << std::endl;
+          std::cout << " phi: " << phi << " " << phi_est << std::endl; 
+          std::cout << " eta: " << eta << " " << eta_est << std::endl;
+          std::cout << " z0:  " << z0 << " " << z0_est << std::endl;
           
           fit_track->setCurve(pt);
           fit_track->setPhi0(phi);
@@ -455,13 +460,11 @@ void PCATrackFitter::fit(vector<Hit*> hits)
         else 
         {
           std::cerr << "error while reading PCA const" << std::endl;
-          std::cout << "error while reading PCA const" << std::endl;
         }
       } 
       else
       {
         std::cerr << "error in coord conv" << std::endl;
-        std::cout << "error in coord conv" << std::endl;
       }
 
     }
