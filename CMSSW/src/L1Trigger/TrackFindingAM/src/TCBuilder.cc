@@ -425,8 +425,7 @@ Track* TCBuilder::createFittedTrack(vector <Hit*> &bestTC)
   fit_track->setEta0(eta_est);
   fit_track->setZ0(z_est);
   // add charge PLACEHOLDER
-  int chargesign = (charge <= 0.0) ? -1 : +1;
-  fit_track->setCharge(chargesign);
+  fit_track->setCharge(charge);
       
   for(unsigned int hitIndex=0;hitIndex < bestTC.size();hitIndex++)
     {

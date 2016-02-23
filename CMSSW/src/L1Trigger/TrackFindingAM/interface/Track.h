@@ -18,7 +18,7 @@ class Track{
   double z0;
   double w_xy;
   double w_rz;
-  int charge;
+  double charge;
   vector<int> stub_ids;
 
  public:
