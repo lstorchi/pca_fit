@@ -440,12 +440,12 @@ void PCATrackFitter::fit(vector<Hit*> hits)
           else
             eta = -1.0e0 * log (tantheta2);
           
-          Track* fit_track = new Track();
-        
           std::cout << " pt:  " << pt << " " << pt_est << std::endl;
           std::cout << " phi: " << phi << " " << phi_est << std::endl; 
           std::cout << " eta: " << eta << " " << eta_est << std::endl;
           std::cout << " z0:  " << z0 << " " << z0_est << std::endl;
+
+          Track* fit_track = new Track();
           
           fit_track->setCurve(pt);
           fit_track->setPhi0(phi);
