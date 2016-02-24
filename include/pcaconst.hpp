@@ -57,6 +57,7 @@ namespace pca
         int towerid_;
         double ptmin_, ptmax_, etamin_, etamax_;
         int chargesign_;
+        std::string layersids_;
 
         void range_check (unsigned i, unsigned j) const;
 
@@ -87,6 +88,9 @@ namespace pca
 
         void set_chargesign (int in) {chargesign_ = in;};
         int get_chargesign () const {return chargesign_;};
+
+        void set_layersids (const char * in) {layersids_ = in;};
+        std::string get_layersids () const {return layersids_;};
 
         void set_ptrange (double min, double max) 
         {
@@ -290,6 +294,7 @@ namespace pca
     etamin_ = 0.0;
     etamax_ = 0.0;
     chargesign_ = 0;
+    layersids_ = "";
   
     /*
     if( rows_ == 0 || cols_ == 0 )
@@ -322,6 +327,8 @@ namespace pca
     etamax_ = cp.etamax_;
     towerid_ = cp.towerid_;
     chargesign_ = cp.chargesign_;
+
+    layersids_ = cp.layersids_;
   }
 
   template<typename T>
@@ -346,7 +353,8 @@ namespace pca
         (towerid_ == cp.towerid_ ) && 
         (chargesign_ == cp.chargesign_ ) && 
         (cols_ == cp.cols_ ) && 
-        (rows_ == cp.rows_ ));
+        (rows_ == cp.rows_ ) &&  
+        (layersids_ == cp.layersids_ ));
   }
   
   template<typename T>
@@ -367,6 +375,7 @@ namespace pca
     ptmax_ = 0.0;
     etamin_ = 0.0;
     etamax_ = 0.0;
+    layersids_ = "";
   }
   
   template<typename T>
@@ -406,6 +415,8 @@ namespace pca
     this->etamax_ = cp.etamax_;
     this->towerid_ = cp.towerid_;
     this->chargesign_ = cp.chargesign_;
+
+    this->layersids_ = cp.layersids_;
   
     return *this;
   }
@@ -442,6 +453,8 @@ namespace pca
         matt.set_const_type(matrixpcaconst<T>::string_to_const_type (instr));
         infile >> instr;
         matt.set_towerid(atoi(instr.c_str()));
+        infile >> instr;
+        matt.set_layersids(instr.c_str());
         infile >> instr;
         matt.set_sector_type(matrixpcaconst<T>::string_to_sector_type(instr));
         infile >> instr;
@@ -504,6 +517,7 @@ namespace pca
           outf << matrixpcaconst<T>::const_type_to_string(vct[i].get_const_type()) 
             << std::endl;
           outf << vct[i].get_towerid() << std::endl;
+          outf << vct[i].get_layersids() << std::endl;
           outf << matrixpcaconst<T>::sector_type_to_string(vct[i].get_sector_type()) 
             << std::endl;
           outf << matrixpcaconst<T>::plane_type_to_string(vct[i].get_plane_type()) 
@@ -541,6 +555,7 @@ namespace pca
       outf << matrixpcaconst<T>::const_type_to_string(in.get_const_type()) 
         << std::endl;
       outf << in.get_towerid() << std::endl;
+      outf << in.get_layersids() << std::endl;
       outf << matrixpcaconst<T>::sector_type_to_string(in.get_sector_type()) 
         << std::endl;
       outf << matrixpcaconst<T>::plane_type_to_string(in.get_plane_type()) 

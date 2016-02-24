@@ -439,11 +439,42 @@ void PCATrackFitter::fit(vector<Hit*> hits)
             eta = 1.0e0 * log (-1.0e0 * tantheta2);
           else
             eta = -1.0e0 * log (tantheta2);
+
+          int coordim = 6, paramdim = 2;
+          double chi2rz = 0.0;
+          for (int i=0; i<coordim-paramdim; ++i)
+          {
+            double val = 0.0;
+                                        
+            for (int j=0; j<coordim; ++j)
+              val += amtx_rz(i,j) * zrv(0, j);
+
+            val -= kvec_rz(0, i);
+            
+            chi2rz += val*val;
+          }
+
+          coordim = 12, paramdim = 2;
+          double chi2rphi = 0.0;
+          for (int i=0; i<coordim-paramdim; ++i)
+          {
+            double val = 0.0;
+                                        
+            for (int j=0; j<coordim; ++j)
+              val += amtx_rphi(i,j) * phirv(0, j);
+
+            val -= kvec_rphi(0, i);
+            
+            chi2rphi += val*val;
+          }
+ 
           
-          std::cout << " pt:  " << pt << " " << pt_est << std::endl;
-          std::cout << " phi: " << phi << " " << phi_est << std::endl; 
-          std::cout << " eta: " << eta << " " << eta_est << std::endl;
-          std::cout << " z0:  " << z0 << " " << z0_est << std::endl;
+          std::cout << " pt:      " << pt << " " << pt_est << std::endl;
+          std::cout << " phi:     " << phi << " " << phi_est << std::endl; 
+          std::cout << " eta:     " << eta << " " << eta_est << std::endl;
+          std::cout << " z0:      " << z0 << " " << z0_est << std::endl;
+          std::cout << " chirz:   " << chi2rz << std::endl;
+          std::cout << " chirphi: " << chi2rphi << std::endl;
 
           Track* fit_track = new Track();
           

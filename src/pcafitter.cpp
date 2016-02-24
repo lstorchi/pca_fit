@@ -202,7 +202,7 @@ bool pcafitter::compute_parameters (
       for (int j=0; j<coordim_; ++j)
         val += amtx(i,j) * coord(b,j);
 
-      /* wrronmg sign */
+      /* wrong sign */
       val -= kvct(i);
 
       //std::cout << "  val:" << val << std::endl;
