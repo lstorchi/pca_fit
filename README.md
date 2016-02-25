@@ -62,7 +62,7 @@ done
 R-Z using txt file:
 
 ./fitpca_split_pcaconst --pca-const-file=../files/barrel_tow18_pca_const.txt \
-    --rz-plane -x -k --eta-range="-0.6;-0.55"./MUBANK_pt2To200_phi11To29_etaM06To04.root
+    --rz-plane -x -k --eta-range="-0.6;-0.55" ./MUBANK_pt2To200_phi11To29_etaM06To04.root
 
 R-Phi using txt file:
 
