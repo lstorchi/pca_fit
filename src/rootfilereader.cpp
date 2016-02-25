@@ -125,6 +125,8 @@ void rootfilereader::reset()
   performlinearinterpolation_ = false;
   layeridtorm_ = -1;
 
+  layersid_ = "";
+
   reset_error();
   filename_ = "";
 }
@@ -337,6 +339,11 @@ void rootfilereader::set_specificseq (const char * in)
 const std::string & rootfilereader::get_specificseq () const
 {
   return specificseq_;
+}
+
+const std::string & rootfilereader::get_actualseq () const
+{
+  return layersid_;
 }
 
 void rootfilereader::set_performlinearinterpolation (bool in)
@@ -904,6 +911,8 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
   std::vector<track_rphiz_str>::const_iterator track = rphiz_tracks.begin();
   for (; track != rphiz_tracks.end(); ++track)
   {
+    std::ostringstream osss;
+    std::string actuallayersids = "";
     for (int j = 0; j < track->dim; ++j)
     {
       if (excludesmodule_)
@@ -919,6 +928,28 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
       {
         coordin(counter, j*2) = track->phii[j];
         coordin(counter, j*2+1) = track->r[j];
+      }
+
+      osss << track->layer[j] << ":";
+    }
+
+    actuallayersids = osss.str();
+    actuallayersids.erase(actuallayersids.end()-1);
+
+    if (checklayersids_)
+    {
+      if (layersid_ == "")
+      {
+        layersid_ = actuallayersids;
+      }
+      else
+      {
+        if (actuallayersids != layersid_)
+        {
+          set_errmsg(-1, "different layers id sequence " + 
+              actuallayersids + " vs " + layersid_);
+          return false;
+        }
       }
     }
 

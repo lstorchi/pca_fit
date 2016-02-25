@@ -133,6 +133,7 @@ void perform_main_computation (const arma::mat & coord,
 
   pca::armamat_to_pcamat (cmtx, pcmtx);
   pcmtx.set_const_type (pca::matrixpcaconst<double>::CMTX);
+  pcmtx.set_layersids (rootrdr.get_actualseq().c_str());
   /* TODO should be given as input */
   pcmtx.set_sector_type (pca::matrixpcaconst<double>::BARREL);
   pcmtx.set_towerid (18);
@@ -150,6 +151,7 @@ void perform_main_computation (const arma::mat & coord,
 
   pca::armamat_to_pcamat (q, pqvct);
   pqvct.set_const_type (pca::matrixpcaconst<double>::QVEC);
+  pqvct.set_layersids (rootrdr.get_actualseq().c_str());
   /* TODO should be given as input */
   pqvct.set_sector_type (pca::matrixpcaconst<double>::BARREL);
   pqvct.set_towerid (18);
@@ -167,6 +169,7 @@ void perform_main_computation (const arma::mat & coord,
 
   pca::armamat_to_pcamat (amtx, pamtx);
   pamtx.set_const_type (pca::matrixpcaconst<double>::AMTX);
+  pamtx.set_layersids (rootrdr.get_actualseq().c_str());
   /* TODO should be given as input */
   pamtx.set_sector_type (pca::matrixpcaconst<double>::BARREL);
   pamtx.set_towerid (18);
@@ -184,6 +187,7 @@ void perform_main_computation (const arma::mat & coord,
 
   pca::armamat_to_pcamat (kivec, pkvct);
   pkvct.set_const_type (pca::matrixpcaconst<double>::KVEC);
+  pkvct.set_layersids (rootrdr.get_actualseq().c_str());
   /* TODO should be given as input */
   pkvct.set_sector_type (pca::matrixpcaconst<double>::BARREL);
   pkvct.set_towerid (18);
@@ -532,6 +536,8 @@ int main (int argc, char ** argv)
     return EXIT_FAILURE;
   }
 
+  std::cout << "Extracted layers seq: " << rootrdr.get_actualseq() << std::endl;
+
   if (userelativecoord)
     pca::global_to_relative(coordin, coord1min, coord2min);
 
@@ -553,7 +559,7 @@ int main (int argc, char ** argv)
     for (int i=0; i<(int)paramin.n_cols; ++i)
     {
       double avgval = 0.0;
-      std::cout << "Corralation param " << i << " coord ";
+      std::cout << "Correlation param " << i << " coord ";
       for (int j=0; j<(int)coordin.n_cols; ++j)
       {
         arma::vec x, y;

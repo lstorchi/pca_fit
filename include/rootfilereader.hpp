@@ -84,6 +84,8 @@ namespace pca
       void set_specificseq (const char *);
       const std::string & get_specificseq () const;
 
+      const std::string & get_actualseq () const;
+
       void set_etalimits (double & min, double & max);
       void set_philimits (double & min, double & max);
       void set_ptlimits (double & min, double & max);
@@ -112,6 +114,8 @@ namespace pca
 
       int errnum_;
       std::string errmsg_, filename_;
+
+      std::string layersid_;
 
       bool rzplane_, rphiplane_, chargeoverpt_, 
           excludesmodule_, verbose_, checklayersids_, 
