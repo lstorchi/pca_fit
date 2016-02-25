@@ -294,7 +294,7 @@ namespace pca
     etamin_ = 0.0;
     etamax_ = 0.0;
     chargesign_ = 0;
-    layersids_ = "";
+    layersids_ = "unspecified";
   
     /*
     if( rows_ == 0 || cols_ == 0 )
@@ -375,7 +375,7 @@ namespace pca
     ptmax_ = 0.0;
     etamin_ = 0.0;
     etamax_ = 0.0;
-    layersids_ = "";
+    layersids_ = "unspecified";
   }
   
   template<typename T>
@@ -517,7 +517,10 @@ namespace pca
           outf << matrixpcaconst<T>::const_type_to_string(vct[i].get_const_type()) 
             << std::endl;
           outf << vct[i].get_towerid() << std::endl;
-          outf << vct[i].get_layersids() << std::endl;
+          if (vct[i].get_layersids() == "")
+            outf << "unspecified" << std::endl;
+          else
+            outf << vct[i].get_layersids() << std::endl;
           outf << matrixpcaconst<T>::sector_type_to_string(vct[i].get_sector_type()) 
             << std::endl;
           outf << matrixpcaconst<T>::plane_type_to_string(vct[i].get_plane_type()) 
@@ -555,7 +558,10 @@ namespace pca
       outf << matrixpcaconst<T>::const_type_to_string(in.get_const_type()) 
         << std::endl;
       outf << in.get_towerid() << std::endl;
-      outf << in.get_layersids() << std::endl;
+      if (in.get_layersids() == "")
+        outf << "unspecified" << std::endl;
+      else
+        outf << in.get_layersids() << std::endl;
       outf << matrixpcaconst<T>::sector_type_to_string(in.get_sector_type()) 
         << std::endl;
       outf << matrixpcaconst<T>::plane_type_to_string(in.get_plane_type()) 
