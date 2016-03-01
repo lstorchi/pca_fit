@@ -154,9 +154,9 @@ namespace
 
         //std::cout << actuallayids << " vs " << layersid << std::endl;
   
-        //if (actuallayids == layersid)
-        //{
-          if (it->get_plane_type() == pca::matrixpcaconst<double>::RZ)
+        if (it->get_plane_type() == pca::matrixpcaconst<double>::RZ)
+        {
+          if (actuallayidsi.compare(0, 5, layersid) == 0)
           {
             if ((eta >= etamin) && (eta <= etamax)) 
             {
@@ -183,7 +183,10 @@ namespace
               }
             } 
           }
-          else if (it->get_plane_type() == pca::matrixpcaconst<double>::RPHI)
+        }
+        else if (it->get_plane_type() == pca::matrixpcaconst<double>::RPHI)
+        {
+          if (actuallayids.compare(layersid) == 0)
           {
             if (chargesignin == chargesign)
             {
@@ -213,7 +216,7 @@ namespace
               }
             } 
           }
-        //}
+        }
       }
   
       if (hwmanygot == 8)
