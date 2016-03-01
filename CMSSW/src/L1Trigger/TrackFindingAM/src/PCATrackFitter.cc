@@ -152,9 +152,10 @@ namespace
         chargesign = it->get_chargesign();
         actuallayids = it->get_layersids();
 
+        //std::cout << actuallayids << " vs " << layersid << std::endl;
   
-        if (actuallayids == layersid)
-        {
+        //if (actuallayids == layersid)
+        //{
           if (it->get_plane_type() == pca::matrixpcaconst<double>::RZ)
           {
             if ((eta >= etamin) && (eta <= etamax)) 
@@ -212,7 +213,7 @@ namespace
               }
             } 
           }
-        }
+        //}
       }
   
       if (hwmanygot == 8)
