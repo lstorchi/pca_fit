@@ -240,7 +240,7 @@ namespace
         std::cerr << layersid << " and " << pslayersid << std::endl;
         std::cerr << "charge: " << chargesignin << " eta: " << eta << " pt: " << pt << std::endl;
         std::cerr << "Foundrz " << hwmanygotrz << std::endl;
-        std::cerr << "Foundrz " << hwmanygotrphi << std::endl;
+        std::cerr << "Foundrphi " << hwmanygotrphi << std::endl;
         return false;
       }
     }
