@@ -133,8 +133,14 @@ namespace
       pca::matrixpcaconst<double> & kvec_rphi, 
       double eta, double pt, 
       int chargesignin,
-      const std::string & layersid)
+      const std::string & layersid,
+      bool s5oof6 = false)
   {
+    size_t hwmanychartocmp = 5;
+
+    if (s5oof6) 
+      hwmanychartocmp = 3;
+
     std::vector<pca::matrixpcaconst<double> > vct;
     if (pca::read_pcacosnt_from_file (vct, cfname.c_str()))
     {
@@ -152,11 +158,10 @@ namespace
         chargesign = it->get_chargesign();
         actuallayids = it->get_layersids();
 
-        //std::cout << actuallayids << " vs " << layersid << std::endl;
-  
         if (it->get_plane_type() == pca::matrixpcaconst<double>::RZ)
         {
-          if (actuallayids.compare(0, 5, layersid) == 0)
+          if (actuallayids.compare(0, hwmanychartocmp, layersid, 
+                0, hwmanychartocmp) == 0)
           {
             if ((eta >= etamin) && (eta <= etamax)) 
             {
@@ -523,9 +528,144 @@ void PCATrackFitter::fit(vector<Hit*> hits)
       }
 
     }
-    else
+    else if (stubs.size() == 5)
     {
-      // TODO non 6 layers 
+      pca::matrixpcaconst<double> zrv(1, 10), phirv(1, 10);
+      std::string layersid;
+
+      if (hits_to_zrpmatrix (ci, si, hits, stubs, zrv, phirv, 
+            layersid))
+      {
+        int charge = +1;
+        double pt_est, eta_est, z0_est, phi_est;
+        if (tracks_[tt]->getCharge() < 0.0)
+         charge = -1;
+
+        // Check the charge TODO
+        charge = -1 * charge;
+
+        pt_est = tracks_[tt]->getCurve();
+        eta_est = tracks_[tt]->getEta0();
+        z0_est = tracks_[tt]->getZ0();
+        phi_est = tracks_[tt]->getPhi0();
+        
+        pca::matrixpcaconst<double> cmtx_rz(0, 0);
+        pca::matrixpcaconst<double> qvec_rz(0, 0); 
+        pca::matrixpcaconst<double> amtx_rz(0, 0); 
+        pca::matrixpcaconst<double> kvec_rz(0, 0); 
+        pca::matrixpcaconst<double> cmtx_rphi(0, 0); 
+        pca::matrixpcaconst<double> qvec_rphi(0, 0); 
+        pca::matrixpcaconst<double> amtx_rphi(0, 0); 
+        pca::matrixpcaconst<double> kvec_rphi(0, 0); 
+        
+        if (import_pca_const (cfname_, 
+                              cmtx_rz, 
+                              qvec_rz, 
+                              amtx_rz, 
+                              kvec_rz, 
+                              cmtx_rphi, 
+                              qvec_rphi, 
+                              amtx_rphi, 
+                              kvec_rphi, 
+                              eta_est, 
+                              pt_est, 
+                              charge,
+                              layersid, 
+                              true))
+        {
+          double cottheta = 0.0; // eta
+          double z0 = 0.0;
+          
+          cottheta = qvec_rz(0,0);
+          z0 = qvec_rz(0,1);
+          for (int i=0; i<(int)cmtx_rz.n_cols(); ++i)
+          {
+            cottheta += cmtx_rz(0, i) * zrv(0, i);
+            z0 += cmtx_rz(1, i) * zrv(0, i);
+          }
+          
+          double coverpt = 0.0; // pt
+          double phi = 0.0;
+          
+          coverpt = qvec_rphi(0,0);
+          phi = qvec_rphi(0,1);
+          for (int i=0; i<(int)cmtx_rphi.n_cols(); ++i)
+          {
+            coverpt += cmtx_rphi(0, i) * phirv(0, i);
+            phi += cmtx_rphi(1, i) * phirv(0, i);
+          }
+          
+          double pt = (double)(charge)/coverpt;
+          
+          // TODO: checkit theta to eta 
+          double eta = 0.0e0;
+          double theta = atan(1.0e0 / cottheta); 
+          double tantheta2 = tan (theta/2.0e0); 
+          if (tantheta2 < 0.0)
+            eta = 1.0e0 * log (-1.0e0 * tantheta2);
+          else
+            eta = -1.0e0 * log (tantheta2);
+
+          int coordim = 6, paramdim = 2;
+          double chi2rz = 0.0;
+          for (int i=0; i<coordim-paramdim; ++i)
+          {
+            double val = 0.0;
+                                        
+            for (int j=0; j<coordim; ++j)
+              val += amtx_rz(i,j) * zrv(0, j);
+
+            val -= kvec_rz(0, i);
+            
+            chi2rz += val*val;
+          }
+
+          coordim = 12, paramdim = 2;
+          double chi2rphi = 0.0;
+          for (int i=0; i<coordim-paramdim; ++i)
+          {
+            double val = 0.0;
+                                        
+            for (int j=0; j<coordim; ++j)
+              val += amtx_rphi(i,j) * phirv(0, j);
+
+            val -= kvec_rphi(0, i);
+            
+            chi2rphi += val*val;
+          }
+          
+          std::cout << " pt:      " << pt << " " << pt_est << std::endl;
+          std::cout << " phi:     " << phi << " " << phi_est << std::endl; 
+          std::cout << " eta:     " << eta << " " << eta_est << std::endl;
+          std::cout << " z0:      " << z0 << " " << z0_est << std::endl;
+          std::cout << " chirz:   " << chi2rz << std::endl;
+          std::cout << " chirphi: " << chi2rphi << std::endl;
+
+          Track* fit_track = new Track();
+          
+          fit_track->setCurve(pt);
+          fit_track->setPhi0(phi);
+          fit_track->setEta0(eta);
+          fit_track->setZ0(z0);
+                          
+          for(unsigned int idx = 0; idx < stubs.size(); ++idx)
+            fit_track->addStubIndex(stubs[idx]);
+          
+          tracks.push_back(fit_track);
+        }
+        else 
+        {
+          std::cerr << "error while reading PCA const" << std::endl;
+        }
+      } 
+      else
+      {
+        std::cerr << "error in coord conv" << std::endl;
+      }
+    }
+    else 
+    {
+      std::cerr << "Stub size ne 5 o 6" << std::endl;
     }
   }
 
