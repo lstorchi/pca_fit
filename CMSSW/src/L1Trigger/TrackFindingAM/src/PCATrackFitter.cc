@@ -70,8 +70,10 @@ namespace
       phirv(0, counter) = ri;
       ++counter;
 
-      osss << (int) hits[idx]->getLayer() << ":";
-      if ((int) hits[idx]->getLayer() <= 7)
+      int lid = (int) hits[idx]->getLayer();
+
+      osss << lid << ":";
+      if (lid <= 7)
         psosss << (int) hits[idx]->getLayer() << ":";
     }
 
@@ -143,7 +145,7 @@ namespace
     std::vector<pca::matrixpcaconst<double> > vct;
     if (pca::read_pcacosnt_from_file (vct, cfname.c_str()))
     {
-      int hwmanygot = 0;
+      int hwmanygot = 0, hwmanygotrphi = 0, hwmanygotrz = 0;;
       std::vector<pca::matrixpcaconst<double> >::const_iterator it = 
         vct.begin();
       for (; it != vct.end(); ++it)
@@ -168,18 +170,22 @@ namespace
                 case pca::matrixpcaconst<double>::QVEC :
                   qvec_rz = *it;
                   hwmanygot++;
+                  hwmanygotrz++;
                   break;
                 case pca::matrixpcaconst<double>::KVEC :
                   kvec_rz = *it;
                   hwmanygot++;
+                  hwmanygotrz++;
                   break;
                 case pca::matrixpcaconst<double>::CMTX :
                   cmtx_rz = *it;
                   hwmanygot++;
+                  hwmanygotrz++;
                   break;
                 case pca::matrixpcaconst<double>::AMTX :
                   amtx_rz = *it;
                   hwmanygot++;
+                  hwmanygotrz++;
                   break;
                 default:
                   break;
@@ -200,18 +206,22 @@ namespace
                   case pca::matrixpcaconst<double>::QVEC : 
                     qvec_rphi = *it;
                     hwmanygot++;
+                    hwmanygotrphi++;
                     break;
                   case pca::matrixpcaconst<double>::KVEC :
                     kvec_rphi = *it;
                     hwmanygot++;
+                    hwmanygotrphi++;
                     break;
                   case pca::matrixpcaconst<double>::CMTX :
                     cmtx_rphi = *it;
                     hwmanygot++;
+                    hwmanygotrphi++;
                     break;
                   case pca::matrixpcaconst<double>::AMTX :
                     amtx_rphi = *it;
                     hwmanygot++;
+                    hwmanygotrphi++;
                     break;
                   default:
                     break;
@@ -227,6 +237,10 @@ namespace
       else
       {
         std::cerr << "Found " << hwmanygot << " const instead of 8" << std::endl;
+        std::cerr << layersid << " and " << pslayersid << std::endl;
+        std::cerr << "charge: " << chargesignin << " eta: " << eta << " pt: " << pt << std::endl;
+        std::cerr << "Foundrz " << hwmanygotrz << std::endl;
+        std::cerr << "Foundrz " << hwmanygotrphi << std::endl;
         return false;
       }
     }
