@@ -156,7 +156,7 @@ namespace
   
         if (it->get_plane_type() == pca::matrixpcaconst<double>::RZ)
         {
-          if (actuallayidsi.compare(0, 5, layersid) == 0)
+          if (actuallayids.compare(0, 5, layersid) == 0)
           {
             if ((eta >= etamin) && (eta <= etamax)) 
             {
