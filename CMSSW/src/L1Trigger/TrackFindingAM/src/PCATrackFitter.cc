@@ -30,13 +30,16 @@ namespace
       const std::vector<int> & stubs,
       pca::matrixpcaconst<double> & zrv, 
       pca::matrixpcaconst<double> & phirv, 
-      std::string & layersid)
+      std::string & layersid, 
+      bool & missingoneoffirstthree)
   {
     //std::vector<int> layerids;
     //std::vector<double> riv, piv, ziv;
     
+    missingoneoffirstthree = true;
 
     std::ostringstream osss;
+    std::set<int> layerset;
     int counter = 0;
     for (unsigned int sti=0; sti<stubs.size(); sti++) 
     {
@@ -71,11 +74,16 @@ namespace
       ++counter;
 
       osss << (int) hits[idx]->getLayer() << ":";
+      layerset.insert((int) hits[idx]->getLayer());
     }
+
+    if ((layerset.find(5) != layerset.end()) &&
+        (layerset.find(6) != layerset.end()) &&
+        (layerset.find(7) != layerset.end()))
+      missingoneoffirstthree = false;
 
     layersid = osss.str();
     layersid.erase(layersid.end()-1);
-
 
     //double z1 = 0.0, z3 = 0.0, r1 = 0.0, r3 = 0.0;
     //readoder hits quick test
@@ -134,11 +142,11 @@ namespace
       double eta, double pt, 
       int chargesignin,
       const std::string & layersid,
-      bool s5oof6 = false)
+      bool comparethree = false)
   {
     size_t hwmanychartocmp = 5;
 
-    if (s5oof6) 
+    if (comparethree) 
       hwmanychartocmp = 3;
 
     std::vector<pca::matrixpcaconst<double> > vct;
@@ -160,33 +168,37 @@ namespace
 
         if (it->get_plane_type() == pca::matrixpcaconst<double>::RZ)
         {
-          if (actuallayids.compare(0, hwmanychartocmp, layersid, 
-                0, hwmanychartocmp) == 0)
+          if ((actuallayids.size() >= hwmanychartocmp) && 
+              (layersid.size() >= hwmanychartocmp))
           {
-            if ((eta >= etamin) && (eta <= etamax)) 
+            if (actuallayids.compare(0, hwmanychartocmp, layersid, 
+                  0, hwmanychartocmp) == 0)
             {
-              switch(it->get_const_type())
+              if ((eta >= etamin) && (eta <= etamax)) 
               {
-                case pca::matrixpcaconst<double>::QVEC :
-                  qvec_rz = *it;
-                  hwmanygot++;
-                  break;
-                case pca::matrixpcaconst<double>::KVEC :
-                  kvec_rz = *it;
-                  hwmanygot++;
-                  break;
-                case pca::matrixpcaconst<double>::CMTX :
-                  cmtx_rz = *it;
-                  hwmanygot++;
-                  break;
-                case pca::matrixpcaconst<double>::AMTX :
-                  amtx_rz = *it;
-                  hwmanygot++;
-                  break;
-                default:
-                  break;
-              }
-            } 
+                switch(it->get_const_type())
+                {
+                  case pca::matrixpcaconst<double>::QVEC :
+                    qvec_rz = *it;
+                    hwmanygot++;
+                    break;
+                  case pca::matrixpcaconst<double>::KVEC :
+                    kvec_rz = *it;
+                    hwmanygot++;
+                    break;
+                  case pca::matrixpcaconst<double>::CMTX :
+                    cmtx_rz = *it;
+                    hwmanygot++;
+                    break;
+                  case pca::matrixpcaconst<double>::AMTX :
+                    amtx_rz = *it;
+                    hwmanygot++;
+                    break;
+                  default:
+                    break;
+                }
+              } 
+            }
           }
         }
         else if (it->get_plane_type() == pca::matrixpcaconst<double>::RPHI)
@@ -359,6 +371,7 @@ void PCATrackFitter::fit(vector<Hit*> hits)
   {
     //std::cout << "hits.size() : " << hits.size() << std::endl;
     std::vector<int> stubs = tracks_[tt]->getStubs(); // TODO are they the hits idx ? 
+    bool missingoneoffirstthree = true;
 
     if (stubs.size() == 6)
     {
@@ -366,7 +379,7 @@ void PCATrackFitter::fit(vector<Hit*> hits)
       std::string layersid;
 
       if (hits_to_zrpmatrix (ci, si, hits, stubs, zrv, phirv, 
-            layersid))
+            layersid, missingoneoffirstthree))
       {
         int charge = +1;
         double pt_est, eta_est, z0_est, phi_est;
@@ -469,7 +482,7 @@ void PCATrackFitter::fit(vector<Hit*> hits)
           else
             eta = -1.0e0 * log (tantheta2);
 
-          int coordim = 6, paramdim = 2;
+          int coordim = 4, paramdim = 2;
           double chi2rz = 0.0;
           for (int i=0; i<coordim-paramdim; ++i)
           {
@@ -483,7 +496,7 @@ void PCATrackFitter::fit(vector<Hit*> hits)
             chi2rz += val*val;
           }
 
-          coordim = 12, paramdim = 2;
+          coordim = 10, paramdim = 2;
           double chi2rphi = 0.0;
           for (int i=0; i<coordim-paramdim; ++i)
           {
@@ -496,7 +509,6 @@ void PCATrackFitter::fit(vector<Hit*> hits)
             
             chi2rphi += val*val;
           }
- 
           
           std::cout << " pt:      " << pt << " " << pt_est << std::endl;
           std::cout << " phi:     " << phi << " " << phi_est << std::endl; 
@@ -534,8 +546,9 @@ void PCATrackFitter::fit(vector<Hit*> hits)
       std::string layersid;
 
       if (hits_to_zrpmatrix (ci, si, hits, stubs, zrv, phirv, 
-            layersid))
+            layersid, missingoneoffirstthree))
       {
+        std::cout << layersid << std::endl;
         int charge = +1;
         double pt_est, eta_est, z0_est, phi_est;
         if (tracks_[tt]->getCharge() < 0.0)
@@ -571,7 +584,7 @@ void PCATrackFitter::fit(vector<Hit*> hits)
                               pt_est, 
                               charge,
                               layersid, 
-                              true))
+                              missingoneoffirstthree))
         {
           double cottheta = 0.0; // eta
           double z0 = 0.0;
