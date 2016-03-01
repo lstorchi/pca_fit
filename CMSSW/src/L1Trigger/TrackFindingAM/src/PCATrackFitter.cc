@@ -29,11 +29,14 @@ namespace
       const std::vector<Hit*> & hits, 
       const std::vector<int> & stubs,
       pca::matrixpcaconst<double> & zrv, 
-      pca::matrixpcaconst<double> & phirv)
+      pca::matrixpcaconst<double> & phirv, 
+      std::string & layersid)
   {
     //std::vector<int> layerids;
     //std::vector<double> riv, piv, ziv;
+    
 
+    std::ostringstream osss;
     int counter = 0;
     for (unsigned int sti=0; sti<stubs.size(); sti++) 
     {
@@ -66,7 +69,13 @@ namespace
       zrv(0, counter) = ri;
       phirv(0, counter) = ri;
       ++counter;
+
+      osss << (int) hits[idx]->getLayer() << ":";
     }
+
+    layersid = osss.str();
+    layersid.erase(layersid.end()-1);
+
 
     //double z1 = 0.0, z3 = 0.0, r1 = 0.0, r3 = 0.0;
     //readoder hits quick test
@@ -123,7 +132,8 @@ namespace
       pca::matrixpcaconst<double> & amtx_rphi, 
       pca::matrixpcaconst<double> & kvec_rphi, 
       double eta, double pt, 
-      int chargesignin)
+      int chargesignin,
+      const std::string & layersid)
   {
     std::vector<pca::matrixpcaconst<double> > vct;
     if (pca::read_pcacosnt_from_file (vct, cfname.c_str()))
@@ -134,68 +144,74 @@ namespace
       for (; it != vct.end(); ++it)
       {
         double ptmin, ptmax, etamin, etamax;
+        std::string actuallayids;
         int chargesign;
   
         it->get_ptrange(ptmin, ptmax);
         it->get_etarange(etamin, etamax);
         chargesign = it->get_chargesign();
+        actuallayids = it->get_layersids();
+
   
-        if (it->get_plane_type() == pca::matrixpcaconst<double>::RZ)
+        if (actuallayids == layersid)
         {
-          if ((eta >= etamin) && (eta <= etamax)) 
+          if (it->get_plane_type() == pca::matrixpcaconst<double>::RZ)
           {
-            switch(it->get_const_type())
-            {
-              case pca::matrixpcaconst<double>::QVEC :
-                qvec_rz = *it;
-                hwmanygot++;
-                break;
-              case pca::matrixpcaconst<double>::KVEC :
-                kvec_rz = *it;
-                hwmanygot++;
-                break;
-              case pca::matrixpcaconst<double>::CMTX :
-                cmtx_rz = *it;
-                hwmanygot++;
-                break;
-              case pca::matrixpcaconst<double>::AMTX :
-                amtx_rz = *it;
-                hwmanygot++;
-                break;
-              default:
-                break;
-            }
-          } 
-        }
-        else if (it->get_plane_type() == pca::matrixpcaconst<double>::RPHI)
-        {
-          if (chargesignin == chargesign)
-          {
-            if ((pt >= ptmin) && (pt <= ptmax))
+            if ((eta >= etamin) && (eta <= etamax)) 
             {
               switch(it->get_const_type())
               {
-                case pca::matrixpcaconst<double>::QVEC : 
-                  qvec_rphi = *it;
+                case pca::matrixpcaconst<double>::QVEC :
+                  qvec_rz = *it;
                   hwmanygot++;
                   break;
                 case pca::matrixpcaconst<double>::KVEC :
-                  kvec_rphi = *it;
+                  kvec_rz = *it;
                   hwmanygot++;
                   break;
                 case pca::matrixpcaconst<double>::CMTX :
-                  cmtx_rphi = *it;
+                  cmtx_rz = *it;
                   hwmanygot++;
                   break;
                 case pca::matrixpcaconst<double>::AMTX :
-                  amtx_rphi = *it;
+                  amtx_rz = *it;
                   hwmanygot++;
                   break;
                 default:
                   break;
               }
-            }
-          } 
+            } 
+          }
+          else if (it->get_plane_type() == pca::matrixpcaconst<double>::RPHI)
+          {
+            if (chargesignin == chargesign)
+            {
+              if ((pt >= ptmin) && (pt <= ptmax))
+              {
+                switch(it->get_const_type())
+                {
+                  case pca::matrixpcaconst<double>::QVEC : 
+                    qvec_rphi = *it;
+                    hwmanygot++;
+                    break;
+                  case pca::matrixpcaconst<double>::KVEC :
+                    kvec_rphi = *it;
+                    hwmanygot++;
+                    break;
+                  case pca::matrixpcaconst<double>::CMTX :
+                    cmtx_rphi = *it;
+                    hwmanygot++;
+                    break;
+                  case pca::matrixpcaconst<double>::AMTX :
+                    amtx_rphi = *it;
+                    hwmanygot++;
+                    break;
+                  default:
+                    break;
+                }
+              }
+            } 
+          }
         }
       }
   
@@ -216,10 +232,12 @@ namespace
 
 PCATrackFitter::PCATrackFitter():TrackFitter(0)
 {
+  initialize();
 }
 
 PCATrackFitter::PCATrackFitter(int nb):TrackFitter(nb)
 {
+  initialize();
 }
 
 PCATrackFitter::~PCATrackFitter()
@@ -228,6 +246,7 @@ PCATrackFitter::~PCATrackFitter()
 
 void PCATrackFitter::initialize()
 {
+  cfname_ = "./barrel_tow18_pca_const.txt";
   tracks_.clear();
 }
 
@@ -335,8 +354,10 @@ void PCATrackFitter::fit(vector<Hit*> hits)
     if (stubs.size() == 6)
     {
       pca::matrixpcaconst<double> zrv(1, 12), phirv(1, 12);
+      std::string layersid;
 
-      if (hits_to_zrpmatrix (ci, si, hits, stubs, zrv, phirv))
+      if (hits_to_zrpmatrix (ci, si, hits, stubs, zrv, phirv, 
+            layersid))
       {
         int charge = +1;
         double pt_est, eta_est, z0_est, phi_est;
@@ -369,8 +390,6 @@ void PCATrackFitter::fit(vector<Hit*> hits)
         charge = +1;
         */
         
-        std::string cfname = "./barrel_tow18_pca_const.txt";
-        
         pca::matrixpcaconst<double> cmtx_rz(0, 0);
         pca::matrixpcaconst<double> qvec_rz(0, 0); 
         pca::matrixpcaconst<double> amtx_rz(0, 0); 
@@ -380,7 +399,7 @@ void PCATrackFitter::fit(vector<Hit*> hits)
         pca::matrixpcaconst<double> amtx_rphi(0, 0); 
         pca::matrixpcaconst<double> kvec_rphi(0, 0); 
         
-        if (import_pca_const (cfname, 
+        if (import_pca_const (cfname_, 
                               cmtx_rz, 
                               qvec_rz, 
                               amtx_rz, 
@@ -391,7 +410,8 @@ void PCATrackFitter::fit(vector<Hit*> hits)
                               kvec_rphi, 
                               eta_est, 
                               pt_est, 
-                              charge))
+                              charge,
+                              layersid))
         {
           /*
           std::cout << "CMTX RZ: " << std::endl;

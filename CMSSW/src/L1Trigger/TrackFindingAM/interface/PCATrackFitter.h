@@ -50,6 +50,7 @@ class PCATrackFitter:public TrackFitter
 
   std::vector<Track*> tracks_;
   bool paramscmpt_;
+  std::string cfname_;
 
  public:
 
@@ -71,6 +72,18 @@ class PCATrackFitter:public TrackFitter
 
   void mergePatterns();
   void mergeTracks();
+
+  void set_const_filename(const std::string & in)
+  {
+    cfname_ = in;
+  }
+
+  const std::string & get_const_filename () const
+  {
+    return cfname_;
+  }
+
+
 
   TrackFitter* clone();
 };
