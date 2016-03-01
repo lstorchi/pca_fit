@@ -482,7 +482,7 @@ void PCATrackFitter::fit(vector<Hit*> hits)
           else
             eta = -1.0e0 * log (tantheta2);
 
-          int coordim = 4, paramdim = 2;
+          int coordim = 6, paramdim = 2;
           double chi2rz = 0.0;
           for (int i=0; i<coordim-paramdim; ++i)
           {
@@ -496,7 +496,7 @@ void PCATrackFitter::fit(vector<Hit*> hits)
             chi2rz += val*val;
           }
 
-          coordim = 10, paramdim = 2;
+          coordim = 12, paramdim = 2;
           double chi2rphi = 0.0;
           for (int i=0; i<coordim-paramdim; ++i)
           {
@@ -619,7 +619,7 @@ void PCATrackFitter::fit(vector<Hit*> hits)
           else
             eta = -1.0e0 * log (tantheta2);
 
-          int coordim = 6, paramdim = 2;
+          int coordim = 4, paramdim = 2;
           double chi2rz = 0.0;
           for (int i=0; i<coordim-paramdim; ++i)
           {
@@ -633,7 +633,7 @@ void PCATrackFitter::fit(vector<Hit*> hits)
             chi2rz += val*val;
           }
 
-          coordim = 12, paramdim = 2;
+          coordim = 10, paramdim = 2;
           double chi2rphi = 0.0;
           for (int i=0; i<coordim-paramdim; ++i)
           {
