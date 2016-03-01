@@ -23,10 +23,10 @@ for l in file:
   line = line.rstrip()
   linelist = line.split(" ")
 
-  #firstval = float(linelist[0])
+  firstval = float(linelist[0])
 
   #if (firstval >= -0.2 and firstval <= 0.0):
-  values.append(float(linelist[0]))
+  values.append(float(linelist[1]))
 
 y, x = numpy.histogram(values, bins=bintouse)
 
