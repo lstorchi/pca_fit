@@ -510,12 +510,12 @@ void PCATrackFitter::fit(vector<Hit*> hits)
             chi2rphi += val*val;
           }
           
-          std::cout << " pt:      " << pt << " " << pt_est << std::endl;
-          std::cout << " phi:     " << phi << " " << phi_est << std::endl; 
-          std::cout << " eta:     " << eta << " " << eta_est << std::endl;
-          std::cout << " z0:      " << z0 << " " << z0_est << std::endl;
-          std::cout << " chirz:   " << chi2rz << std::endl;
-          std::cout << " chirphi: " << chi2rphi << std::endl;
+          std::cout << " 6oof6 pt:      " << pt << " " << pt_est << std::endl;
+          std::cout << " 6oof6 phi:     " << phi << " " << phi_est << std::endl; 
+          std::cout << " 6oof6 eta:     " << eta << " " << eta_est << std::endl;
+          std::cout << " 6oof6 z0:      " << z0 << " " << z0_est << std::endl;
+          std::cout << " 6oof6 chirz:   " << chi2rz << std::endl;
+          std::cout << " 6oof6 chirphi: " << chi2rphi << std::endl;
 
           Track* fit_track = new Track();
           
@@ -646,12 +646,12 @@ void PCATrackFitter::fit(vector<Hit*> hits)
             chi2rphi += val*val;
           }
           
-          std::cout << " pt:      " << pt << " " << pt_est << std::endl;
-          std::cout << " phi:     " << phi << " " << phi_est << std::endl; 
-          std::cout << " eta:     " << eta << " " << eta_est << std::endl;
-          std::cout << " z0:      " << z0 << " " << z0_est << std::endl;
-          std::cout << " chirz:   " << chi2rz << std::endl;
-          std::cout << " chirphi: " << chi2rphi << std::endl;
+          std::cout << " 5oof6 pt:      " << pt << " " << pt_est << std::endl;
+          std::cout << " 5oof6 phi:     " << phi << " " << phi_est << std::endl; 
+          std::cout << " 5oof6 eta:     " << eta << " " << eta_est << std::endl;
+          std::cout << " 5oof6 z0:      " << z0 << " " << z0_est << std::endl;
+          std::cout << " 5oof6 chirz:   " << chi2rz << std::endl;
+          std::cout << " 5oof6 chirphi: " << chi2rphi << std::endl;
 
           Track* fit_track = new Track();
           
