@@ -40,7 +40,11 @@ namespace pca
           const arma::mat & amtx,
           const arma::rowvec & kvct, 
           const arma::mat & coord, 
+#ifdef INTBITEWISEFIT
+          int32_t ** paraptr,
+#else
           double ** paraptr,
+#endif
           int paramdim,
           arma::rowvec & chi2values, 
           arma::rowvec & chi2values1,

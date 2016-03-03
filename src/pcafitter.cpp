@@ -124,7 +124,11 @@ bool pcafitter::compute_parameters (
 
   for (int j=0; j<paramdim; ++j)
   {
+#ifdef INTBITEWISEFIT
+    int32_t *ptr = paraptr[j];
+#else
     double *ptr = paraptr[j];
+#endif
     for (int i=0; i<(int)coord.n_rows; ++i)
     {
       ptr[i] = q(j);
@@ -132,6 +136,7 @@ bool pcafitter::compute_parameters (
         ptr[i] += cmtx(j,k)*coord(i,k);
     }
   }
+
   for (int j=0; j<paramdim; ++j){
     #ifdef INTBITEWISEFIT
     int32_t *ptr = paraptr[j];
