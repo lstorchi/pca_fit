@@ -49,8 +49,12 @@ class PCATrackFitter:public TrackFitter
   BOOST_SERIALIZATION_SPLIT_MEMBER()
 
   std::vector<Track*> tracks_;
-  bool paramscmpt_;
   std::string cfname_;
+  bool useinteger_ ;
+
+  /* we will merge these using TypeIs... structs */
+  void fit_double(vector<Hit*> hits);
+  void fit_integer(vector<Hit*> hits);
 
  public:
 
@@ -77,13 +81,19 @@ class PCATrackFitter:public TrackFitter
   {
     cfname_ = in;
   }
-
   const std::string & get_const_filename () const
   {
     return cfname_;
   }
 
-
+  void set_useinteger (const bool & in)
+  {
+    useinteger_ = in;
+  }
+  bool get_useinteger () const
+  {
+    return useinteger_;
+  }
 
   TrackFitter* clone();
 };

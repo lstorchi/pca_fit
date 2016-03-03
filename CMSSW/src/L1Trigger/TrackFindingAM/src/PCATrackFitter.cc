@@ -25,6 +25,52 @@ namespace
     }
   }
 
+  bool hits_to_zrpmatrix_integer (
+      const std::vector<Hit*> & hits, 
+      const std::vector<int> & stubs,
+      pca::matrixpcaconst<int32_t> & zrv, 
+      pca::matrixpcaconst<int32_t> & phirv, 
+      std::string & layersid, 
+      std::string & pslayersid)
+  {
+    std::ostringstream osss, psosss;
+    int counter = 0;
+    for (unsigned int sti=0; sti<stubs.size(); sti++) 
+    {
+      unsigned int idx = stubs[sti] - 1;
+
+      double xi = hits[idx]->getX();
+      double yi = hits[idx]->getY();
+
+      double zi = hits[idx]->getZ();
+      double ri = sqrt(xi*xi+yi*yi);
+      double pi = atan2(yi,xi);
+
+      // TODO
+      zrv(0, counter) = (int32_t) zi* 1000;
+      phirv(0, counter) = (int32_t) pi* 1000;
+      ++counter;
+      zrv(0, counter) = (int32_t) ri* 1000;
+      phirv(0, counter) = (int32_t) ri* 1000;
+      ++counter;
+
+      int lid = (int) hits[idx]->getLayer();
+
+      osss << lid << ":";
+      if (lid <= 7)
+        psosss << (int) hits[idx]->getLayer() << ":";
+    }
+
+    layersid = osss.str();
+    layersid.erase(layersid.end()-1);
+
+    pslayersid = psosss.str();
+    pslayersid.erase(pslayersid.end()-1);
+
+    return true;
+  }
+
+
   bool hits_to_zrpmatrix (double ci, double si, 
       const std::vector<Hit*> & hits, 
       const std::vector<int> & stubs,
@@ -268,6 +314,7 @@ PCATrackFitter::~PCATrackFitter()
 void PCATrackFitter::initialize()
 {
   cfname_ = "./barrel_tow18_pca_const.txt";
+  useinteger_ = false;
   tracks_.clear();
 }
 
@@ -320,6 +367,146 @@ void PCATrackFitter::setTracks(const std::vector<Track*> & intc)
 }
 
 void PCATrackFitter::fit(vector<Hit*> hits)
+{
+  if (useinteger_)
+    this->fit_integer (hits);
+  else
+    this->fit_double (hits);
+}
+
+void PCATrackFitter::fit()
+{
+
+  vector<Hit*> activatedHits;
+
+  //////// Get the list of unique stubs from the tracks ///////////
+
+  // TODO not sure will work as it is now need to deal with given 
+  //      tracks
+  
+  set<int> ids;
+  int total=0;
+  for (unsigned int i=0; i<patterns.size(); ++i)
+  {
+    vector<Hit*> allHits = patterns[i]->getHits();
+    total+=allHits.size();
+    for(unsigned int j=0; j<allHits.size(); ++j)
+    {
+      pair<set<int>::iterator,bool> result = ids.insert(allHits[j]->getID());
+      if (result.second == true )
+        activatedHits.push_back(allHits[j]);                                
+    }
+  }
+  
+  fit(activatedHits);
+}
+
+TrackFitter* PCATrackFitter::clone()
+{
+  PCATrackFitter* fit = new PCATrackFitter(nb_layers);
+
+  // TODO
+
+  return fit;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//                                PRIVATE                                    //
+///////////////////////////////////////////////////////////////////////////////
+
+void PCATrackFitter::fit_integer(vector<Hit*> hits)
+{
+  //int tow = sector_id; 
+
+  for(unsigned int tt=0; tt<tracks_.size(); ++tt)
+  {
+    std::vector<int> stubs = tracks_[tt]->getStubs(); // TODO are they the hits idx ? 
+
+    if (stubs.size() == 6)
+    {
+      pca::matrixpcaconst<int32_t> zrv(1, 12), phirv(1, 12);
+      std::string layersid, pslayersid;
+
+      if (hits_to_zrpmatrix_integer (hits, stubs, zrv, phirv, 
+            layersid, pslayersid))
+      {
+
+        /*
+        int charge = +1;
+        double pt_est, eta_est, z0_est, phi_est;
+        if (tracks_[tt]->getCharge() < 0.0)
+         charge = -1;
+
+        // Check the charge TODO
+        charge = -1 * charge;
+
+        pt_est = tracks_[tt]->getCurve();
+        eta_est = tracks_[tt]->getEta0();
+        z0_est = tracks_[tt]->getZ0();
+        phi_est = tracks_[tt]->getPhi0();
+        
+        pca::matrixpcaconst<int32_t> cmtx_rz(0, 0);
+        pca::matrixpcaconst<int32_t> qvec_rz(0, 0); 
+        pca::matrixpcaconst<int32_t> amtx_rz(0, 0); 
+        pca::matrixpcaconst<int32_t> kvec_rz(0, 0); 
+        pca::matrixpcaconst<int32_t> cmtx_rphi(0, 0); 
+        pca::matrixpcaconst<int32_t> qvec_rphi(0, 0); 
+        pca::matrixpcaconst<int32_t> amtx_rphi(0, 0); 
+        pca::matrixpcaconst<int32_t> kvec_rphi(0, 0); 
+        
+        if (import_pca_const (cfname_, 
+                              cmtx_rz, 
+                              qvec_rz, 
+                              amtx_rz, 
+                              kvec_rz, 
+                              cmtx_rphi, 
+                              qvec_rphi, 
+                              amtx_rphi, 
+                              kvec_rphi, 
+                              eta_est, 
+                              pt_est, 
+                              charge,
+                              layersid, 
+                              pslayersid))
+        {
+          std::cout << "CMTX RZ: " << std::endl;
+          dump_element(cmtx_rz, std::cout);
+        
+          std::cout << "QVEC RZ: " << std::endl;
+          dump_element(qvec_rz, std::cout);
+        
+          std::cout << "CMTX RPHI: " << std::endl;
+          dump_element(cmtx_rphi, std::cout);
+        
+          std::cout << "QVEC RPHI: " << std::endl;
+          dump_element(qvec_rphi, std::cout);
+        }
+        else 
+        {
+          std::cerr << "error while reading PCA const" << std::endl;
+        }
+        */
+      } 
+      else
+      {
+        std::cerr << "error in coord conv" << std::endl;
+      }
+
+    }
+    else if (stubs.size() == 5)
+    {
+
+    }
+    else 
+    {
+      std::cerr << "Stub size ne 5 o 6" << std::endl;
+    }
+  }
+
+}
+ 
+
+void PCATrackFitter::fit_double(vector<Hit*> hits)
 {
   int tow = sector_id; // The tower ID, necessary to get the phi shift
 
@@ -687,41 +874,5 @@ void PCATrackFitter::fit(vector<Hit*> hits)
 
   std::cout << "Close files" << std::endl;
   */
-}
-
-void PCATrackFitter::fit()
-{
-
-  vector<Hit*> activatedHits;
-
-  //////// Get the list of unique stubs from the tracks ///////////
-
-  // TODO not sure will work as it is now need to deal with given 
-  //      tracks
-  
-  set<int> ids;
-  int total=0;
-  for (unsigned int i=0; i<patterns.size(); ++i)
-  {
-    vector<Hit*> allHits = patterns[i]->getHits();
-    total+=allHits.size();
-    for(unsigned int j=0; j<allHits.size(); ++j)
-    {
-      pair<set<int>::iterator,bool> result = ids.insert(allHits[j]->getID());
-      if (result.second == true )
-        activatedHits.push_back(allHits[j]);                                
-    }
-  }
-  
-  fit(activatedHits);
-}
-
-TrackFitter* PCATrackFitter::clone()
-{
-  PCATrackFitter* fit = new PCATrackFitter(nb_layers);
-
-  // TODO
-
-  return fit;
 }
 
