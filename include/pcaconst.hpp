@@ -8,6 +8,30 @@
 
 /* L. Storchi: quick and dirty PCA const store class */
 
+template< class T >
+struct TypeIsInt32_t
+{
+  static const bool value = false;
+};
+
+template< class T >
+struct TypeIsDouble
+{
+  static const bool value = false;
+};
+
+template<>
+struct TypeIsInt32_t< int32_t >
+{
+  static const bool value = true;
+};
+
+template<>
+struct TypeIsDouble< double >
+{
+  static const bool value = true;
+};
+
 namespace pca
 {
   template<typename T> 
