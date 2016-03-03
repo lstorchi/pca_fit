@@ -17,10 +17,6 @@
 #include <pcafitter.hpp>
 #include <pcaffunctype.hpp>
 
-#ifdef INTBITEWISEFIT
-#endif
-#ifdef INTBITEWISEGEN
-#endif
 // lstorchi: here all the basic routines, in principles can be used 
 //           to start building a proper class.
 
