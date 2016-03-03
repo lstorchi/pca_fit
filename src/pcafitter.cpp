@@ -480,28 +480,40 @@ bool pcafitter::compute_pca_constants (
   //cmtx and q constants are still in float point. Multiply them to bring in integer range.
   //They are casted as int32_t while reading from pca::read_armmat and pca::read_armvct in fit pca step.
 
-  for (int i=0; i<paramdim_; ++i){
-    for (int l=0; l<coordim_; ++l){
+  for (int i=0; i<paramdim_; ++i)
+  {
+    for (int l=0; l<coordim_; ++l)
+    {
       //R-Z Factors
       //if (i == 0) cmtx(i,l) *= 15000000;
       //else if (i == 1) cmtx(i,l) *= 1000000;
       //if (i == 0) cmtx(i,l) *= 30000;
       //else if (i == 1) cmtx(i,l) *= 2000;
       //R-Phi Fcators
-      if (i == 0) cmtx(i,l) *= 60000;  //if (i == 0) cmtx(i,l) *= 60000;
-      else if (i == 1) cmtx(i,l) *= 8000; //else if (i == 1) cmtx(i,l) *= 8000;
-      if (l%2 == 1) cmtx(i, l) *= 50; //Further scale up the r corresponding constants
+      if (i == 0) 
+        cmtx(i,l) *= 60000;  //if (i == 0) cmtx(i,l) *= 60000;
+      else if (i == 1) 
+        cmtx(i,l) *= 8000; //else if (i == 1) cmtx(i,l) *= 8000;
+      
+      if (l%2 == 1) 
+        cmtx(i, l) *= 50; //Further scale up the r corresponding constants
     }
   }
 
-  for (int i=0; i<paramdim_; ++i){
+  for (int i=0; i<paramdim_; ++i)
+  {
     //R-Z Factors
     //if (i == 0) q(i) *=15000000;
     //else if (i == 1) q(i) *= 1000000;
     //R-Phi Factors
-    if (i == 0)      q(i) = (q(i)*60000000 - 14000000);  //if (i == 0)      q(i) = (q(i)*60000000 - 14000000);//- for Pt+ & + for Pt-
-    else if (i == 1) q(i) = (q(i)*8000000 - 16000000);
+    if (i == 0)      
+      q(i) = (q(i)*60000000 - 14000000);  //if (i == 0)      q(i) = (q(i)*60000000 - 14000000);//- for Pt+ & + for Pt-
+    else if (i == 1) 
+      q(i) = (q(i)*8000000 - 16000000);
   }
+
+  // TODO the same for the chi2 related matrix and kvec
+
 #endif
 
   std::cout << "C matrix: " << std::endl;
