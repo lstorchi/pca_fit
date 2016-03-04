@@ -98,7 +98,7 @@ bool pcafitter::compute_parameters (
     const arma::rowvec & kvct, 
     const arma::mat & coord, 
 
-#ifdef INTBITEWISEFIT
+#ifdef INTBITEWISE
     int32_t ** paraptr,
 #else
     double ** paraptr,
@@ -120,7 +120,7 @@ bool pcafitter::compute_parameters (
 
   for (int j=0; j<paramdim; ++j)
   {
-#ifdef INTBITEWISEFIT
+#ifdef INTBITEWISE
     int32_t *ptr = paraptr[j];
 #else
     double *ptr = paraptr[j];
@@ -134,7 +134,7 @@ bool pcafitter::compute_parameters (
   }
 
   for (int j=0; j<paramdim; ++j){
-    #ifdef INTBITEWISEFIT
+    #ifdef INTBITEWISE
     int32_t *ptr = paraptr[j];
     #else
     double *ptr = paraptr[j];
@@ -142,7 +142,7 @@ bool pcafitter::compute_parameters (
     for (int i=0; i<(int)coord.n_rows; ++i){
       ptr[i] = q(j);
       for (int k=0; k<coordim_; ++k){
-	#ifdef INTBITEWISEFIT
+	#ifdef INTBITEWISE
 	ptr[i] += (int32_t) (double (cmtx(j,k)*coord(i,k)) /50.0);  //Probably no need to convert to double and then to int32
 	//ptr[i] += ((cmtx(j,k)*coord(i,k))/1000.0);
 	#else
@@ -185,7 +185,7 @@ bool pcafitter::compute_parameters (
   for (int b=0; b<(int)coord.n_rows; ++b) // loop over tracks 
   {
 
-#ifdef INTBITEWISEFIT
+#ifdef INTBITEWISE
     int32_t chi2 = 0.0;
 #else
     double chi2 = 0.0;
@@ -193,8 +193,8 @@ bool pcafitter::compute_parameters (
 
     for (int i=0; i<coordim_-paramdim_; ++i)
     {
-#ifdef INTBITEWISEFIT
-      int32_t val = 0.0;
+#ifdef INTBITEWISE
+      int32_t val = 0;
 #else
       double val = 0.0;
 #endif
@@ -476,7 +476,7 @@ bool pcafitter::compute_pca_constants (
       q(i) -= cmtx(i,l)*coordm(l);
   }
 
-#ifdef INTBITEWISEGEN
+#ifdef INTBITEWISE
   //cmtx and q constants are still in float point. Multiply them to bring in integer range.
   //They are casted as int32_t while reading from pca::read_armmat and pca::read_armvct in fit pca step.
 

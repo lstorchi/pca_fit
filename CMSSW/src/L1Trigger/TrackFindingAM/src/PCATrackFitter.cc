@@ -46,7 +46,8 @@ namespace
       double ri = sqrt(xi*xi+yi*yi);
       double pi = atan2(yi,xi);
 
-      // TODO
+      TODO stabilire qui
+
       zrv(0, counter) = (int32_t) zi* 1000;
       phirv(0, counter) = (int32_t) pi* 1000;
       ++counter;

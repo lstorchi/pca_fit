@@ -8,11 +8,6 @@
 
 #include "stdint.h"
 
-#ifdef INTBITEWISEFIT
-#endif
-#ifdef INTBITEWISEGEN
-#endif
-
 // Loriano: let's try Armadillo quick code 
 #include <armadillo>
 #include <cassert>
@@ -179,7 +174,7 @@ void pca::read_armmat (const char * fname, arma::mat & cmtx)
       double v;
       myfilec.read((char *)&v, sizeof(v));
 
-#ifdef INTBITEWISEFIT
+#ifdef INTBITEWISE
       cmtx(i, j) = (int32_t) v;
 #else
       cmtx(i, j) = v;
@@ -201,7 +196,7 @@ void pca::read_armvct (const char * fname, arma::rowvec & q)
     double v;
     myfileq.read((char*)&v, sizeof(v));
 
-#ifdef INTBITEWISEFIT
+#ifdef INTBITEWISE
     q(i) = (int32_t) v;
 #else
     q(i) = v;
@@ -488,7 +483,7 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
         {
           if (check_to_read (useonlyeven,useonlyodd,i))
           {
-#ifdef INTBITEWISEFIT
+#ifdef INTBITEWISE
 	    int32_t ri = sqrt(pow(x, 2.0) + pow (y, 2.0));
 	    z  = (int32_t) z;
 #else
@@ -514,7 +509,7 @@ bool pca::reading_from_file_split (const pca::pcafitter & fitter,
             else if (rphiplane)
             {
 
-#ifdef INTBITEWISEFIT
+#ifdef INTBITEWISE
 	      int32_t phii = 50000*acos((double) x/(double) ri);
 #else
 	      double phii = acos(x/ri);

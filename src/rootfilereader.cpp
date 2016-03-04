@@ -16,10 +16,8 @@
 #include "TBranch.h" 
 #include "TBasket.h"
 
-// can be included in nay case if -std=c++11
-#ifdef INTBITEWISE
+// can be included in any case if -std=c++11
 #include "stdint.h"
-#endif 
 
 // Loriano: let's try Armadillo quick code 
 #include <armadillo>
@@ -1041,6 +1039,9 @@ bool rootfilereader::remove_layer()
 bool rootfilereader::linearinterpolationrphiz (
     std::vector<track_rphiz_str> & rphiz_tracks)
 {
+
+#ifndef INTBITEWISE
+
   if (maxnumoflayers_ == 5)
   {
     std::vector<track_rphiz_str>::iterator track = rphiz_tracks.begin();
@@ -1169,6 +1170,12 @@ bool rootfilereader::linearinterpolationrphiz (
   }
 
   return true;
+#else 
+  
+  set_errmsg (1, "INTDITEWISE not yet implemented");
+  return false;
+
+#endif
 }
 
 

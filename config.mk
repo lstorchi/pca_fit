@@ -21,10 +21,9 @@ DEBUG=no
 CERN = no
 
 # BITEWISE 
-# yes to use integer, either generation or fit 
+# yes to use integer, either generation and fit 
 # no
-USEINTBITEWISEGEN = yes
-USEINTBITEWISEFIT = yes
+USEINTBITEWISE = yes
 
 # if needed you sould specify here armadillo library path 
 CFLAGS += -I/home/atanu/Downloads/armadillo-5.200.2/include
@@ -49,12 +48,8 @@ else
 	CFLAGS = -Wall -W -O0 -g -DDEBUG
 endif
 
-ifeq ($(USEINTBITEWISEGEN),yes)
-  CFLAGS += -DINTBITEWISEGEN 
-endif
-
-ifeq ($(USEINTBITEWISEFIT),yes)
-  CFLAGS += -DINTBITEWISEFIT 
+ifeq ($(USEINTBITEWISE),yes)
+  CFLAGS += -DINTBITEWISE
 endif
 
 CXXFLAGS = $(CFLAGS)
