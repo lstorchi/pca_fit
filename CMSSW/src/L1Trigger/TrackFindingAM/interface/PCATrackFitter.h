@@ -2,20 +2,6 @@
 #define _PCAFITTER_H_
 
 #include "TrackFitter.h"
-
-#include "FWCore/Framework/interface/EDProducer.h"
-
-#include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
-#include "DataFormats/L1TrackTrigger/interface/TTCluster.h"
-#include "DataFormats/L1TrackTrigger/interface/TTStub.h"
-#include "DataFormats/L1TrackTrigger/interface/TTTrack.h"
-
-#include "L1Trigger/TrackFindingAM/interface/CMSPatternLayer.h"
-#include "L1Trigger/TrackFindingAM/interface/PatternFinder.h"
-#include "L1Trigger/TrackFindingAM/interface/SectorTree.h"
-#include "L1Trigger/TrackFindingAM/interface/Hit.h"
-
-
 #include <math.h>
 
 #include <iomanip>
