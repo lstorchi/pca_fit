@@ -4,6 +4,9 @@
 #include <stdexcept>
 #include <vector>
 
+#include <iostream>
+#include <fstream>
+
 #define RANGE_CHECK
 
 /* L. Storchi: quick and dirty PCA const store class */
