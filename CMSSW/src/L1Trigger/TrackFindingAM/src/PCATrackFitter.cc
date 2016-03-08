@@ -316,7 +316,7 @@ PCATrackFitter::~PCATrackFitter()
 
 void PCATrackFitter::initialize()
 {
-  cfname_ = "./barrel_tow18_pca_const.txt";
+  cfname_ = "../data/barrel_tow18_pca_const.txt";
   useinteger_ = false;
   track_ = NULL;
 }
