@@ -1,13 +1,13 @@
-/*! \class   TrackFitTCProducer
+/*! \class   TrackFitPCAProducer
  *
- *  \author S Viret / G Baulieu / G Galbit
- *  \date   2015, Mar 10
+ *  \author S Viret / L Storchi
+ *  \date   2016, Mar 4
  *
  */
 
 
-#ifndef TRACK_FITTER_AM_H
-#define TRACK_FITTER_AM_H
+#ifndef TRACK_FITTER_PCA_H
+#define TRACK_FITTER_PCA_H
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -36,6 +36,7 @@
 #include "L1Trigger/TrackFindingAM/interface/PatternFinder.h"
 #include "L1Trigger/TrackFindingAM/interface/SectorTree.h"
 #include "L1Trigger/TrackFindingAM/interface/Hit.h"
+#include "L1Trigger/TrackFindingAM/interface/PCATrackFitter.h"
 
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
@@ -52,14 +53,14 @@
 //BOOST_CLASS_EXPORT_IMPLEMENT(CMSPatternLayer)
 //#endif
 
-class TrackFitTCProducer : public edm::EDProducer
+class TrackFitPCAProducer : public edm::EDProducer
 {
   public:
     /// Constructor
-    explicit TrackFitTCProducer( const edm::ParameterSet& iConfig );
+    explicit TrackFitPCAProducer( const edm::ParameterSet& iConfig );
 
     /// Destructor;
-    ~TrackFitTCProducer();
+    ~TrackFitPCAProducer();
 
   private:
   
@@ -86,22 +87,20 @@ class TrackFitTCProducer : public edm::EDProducer
  */
 
 /// Constructors
-TrackFitTCProducer::TrackFitTCProducer( const edm::ParameterSet& iConfig )
+TrackFitPCAProducer::TrackFitPCAProducer( const edm::ParameterSet& iConfig )
 {
   TTStubsInputTag          = iConfig.getParameter< edm::InputTag >( "TTInputStubs" );
   TTPatternsInputTag       = iConfig.getParameter< edm::InputTag >( "TTInputPatterns" );
   TTTrackOutputTag         = iConfig.getParameter< std::string >( "TTTrackName" );
-  TTTrackBinaryOutputTag   = iConfig.getParameter< std::string >( "TTTrackBinaryName" );
 
   produces< std::vector< TTTrack< Ref_PixelDigi_ > > >( TTTrackOutputTag );
-  produces< std::vector< TTTrack< Ref_PixelDigi_ > > >( TTTrackBinaryOutputTag );
 }
 
 /// Destructor
-TrackFitTCProducer::~TrackFitTCProducer() {}
+TrackFitPCAProducer::~TrackFitPCAProducer() {}
 
 /// Begin run
-void TrackFitTCProducer::beginRun( const edm::Run& run, const edm::EventSetup& iSetup )
+void TrackFitPCAProducer::beginRun( const edm::Run& run, const edm::EventSetup& iSetup )
 {
   /// Get the geometry references
   edm::ESHandle< StackedTrackerGeometry > StackedTrackerGeomHandle;
@@ -117,16 +116,15 @@ void TrackFitTCProducer::beginRun( const edm::Run& run, const edm::EventSetup& i
 }
 
 /// End run
-void TrackFitTCProducer::endRun( const edm::Run& run, const edm::EventSetup& iSetup ) {}
+void TrackFitPCAProducer::endRun( const edm::Run& run, const edm::EventSetup& iSetup ) {}
 
 /// Implement the producer
-void TrackFitTCProducer::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
+void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
   /// Prepare output
   /// The temporary collection is used to store tracks
   /// before removal of duplicates
   std::auto_ptr< std::vector< TTTrack< Ref_PixelDigi_ > > > TTTracksForOutput( new std::vector< TTTrack< Ref_PixelDigi_ > > );
-  std::auto_ptr< std::vector< TTTrack< Ref_PixelDigi_ > > > TTTracksBinForOutput( new std::vector< TTTrack< Ref_PixelDigi_ > > );
 
   /// Get the Stubs already stored away
   edm::Handle< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > > > TTStubHandle;
@@ -138,7 +136,6 @@ void TrackFitTCProducer::produce( edm::Event& iEvent, const edm::EventSetup& iSe
   /// STEP 0
   /// Prepare output
   TTTracksForOutput->clear();
-  TTTracksBinForOutput->clear();
 
   int layer  = 0;
   int ladder = 0;
@@ -146,19 +143,17 @@ void TrackFitTCProducer::produce( edm::Event& iEvent, const edm::EventSetup& iSe
 
   int nbLayers = 0;
 
-  /// Loop over Patterns
+  /// Loop over TCs
   unsigned int tkCnt = 0;
   unsigned int j     = 0;
 
   std::map< unsigned int , edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > > stubMap;
   
 
-  TCBuilder* TCB  = new TCBuilder(nbLayers); // Floating point
-  TCBuilder* TCBb = new TCBuilder(nbLayers); // Bit-wise
-  TCBb->setHardwareEmulation(true);
+  PCATrackFitter* PCA  = new PCATrackFitter(nbLayers); // Floating point
 
   /// STEP 1
-  /// Loop over patterns
+  /// Loop over track candidates
 
   //  std::cout << "Start the loop over " << TTPatternHandle->size() << " pattern(s) in order to recover the stubs" << std::endl;
 
@@ -170,16 +165,12 @@ void TrackFitTCProducer::produce( edm::Event& iEvent, const edm::EventSetup& iSe
   for(unsigned int i=0;i<tracks.size();i++) delete tracks[i];
   tracks.clear();
 
-  std::vector<Track*> tracksb;
-  for(unsigned int i=0;i<tracksb.size();i++) delete tracksb[i];
-  tracksb.clear();
-
   edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >::const_iterator inputIter;
   edmNew::DetSet< TTStub< Ref_PixelDigi_ > >::const_iterator stubIter;
 
   std::vector< TTTrack< Ref_PixelDigi_ > >::const_iterator iterTTTrack;
   
-  /// Go on only if there are Patterns from PixelDigis
+  /// Go on only if there are TCs from PixelDigis
   if ( TTPatternHandle->size() > 0 )
   {
     for ( iterTTTrack = TTPatternHandle->begin();
@@ -187,9 +178,6 @@ void TrackFitTCProducer::produce( edm::Event& iEvent, const edm::EventSetup& iSe
 	  ++iterTTTrack )
     {
       edm::Ptr< TTTrack< Ref_PixelDigi_ > > tempTrackPtr( TTPatternHandle, tkCnt++ );
-
-      //      std::cout << tkCnt << std::endl;
-
 
       j = 0;
 
@@ -199,21 +187,24 @@ void TrackFitTCProducer::produce( edm::Event& iEvent, const edm::EventSetup& iSe
 
       /// Get everything relevant
       unsigned int seedSector = tempTrackPtr->getSector();
-      nbLayers = tempTrackPtr->getWedge();
 
-      // Get the stubs in the road
+      Track* TC = new Track();
+      TC->setCharge(tempTrackPtr->getWedge());
+      TC->setCurve(tempTrackPtr->getMomentum(5).perp());
+      TC->setEta0(tempTrackPtr->getMomentum(5).eta());
+      TC->setPhi0(tempTrackPtr->getMomentum(5).phi());
+      TC->setZ0(tempTrackPtr->getPOCA(5).z());
+
+
+      // Get the stubs in the TC
 
       std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_  > >, TTStub< Ref_PixelDigi_  > > > trackStubs = tempTrackPtr->getStubRefs();
-
-      //      std::cout << "PT1" << std::endl;
 
       // Loop over stubs contained in the pattern to recover the info
 
       for(unsigned int i=0;i<trackStubs.size();i++)
       {
 	++j;
-
-	//	std::cout << "PT2" << std::endl;
 
 	edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > tempStubRef = trackStubs.at(i);
 
@@ -256,8 +247,6 @@ void TrackFitTCProducer::produce( edm::Event& iEvent, const edm::EventSetup& iSe
 	  module = detIdStub.iPhi()-1;
 	}
 
-	//	cout << layer << " / " << ladder << " / " << module << " / " << std::endl;
-
 	int strip  =  mp0.x();
 	int tp     = -1;
 	float eta  = 0;
@@ -277,25 +266,18 @@ void TrackFitTCProducer::produce( edm::Event& iEvent, const edm::EventSetup& iSe
 
       } /// End of loop over track stubs
 
-      TCB->setSectorID(tempTrackPtr->getSector());
-      TCB->fit(m_hits);
-      TCBb->setSectorID(tempTrackPtr->getSector());
-      TCBb->fit(m_hits);
+      if (tempTrackPtr->getSector()!=18) continue; // For the moment don't need to bother with the rest
 
-      tracks = TCB->getTracks();
-      TCB->clean();
-      tracksb = TCBb->getTracks();
-      TCBb->clean();
+      PCA->setSectorID(tempTrackPtr->getSector());
+      PCA->setTrack(TC);
+      PCA->fit(m_hits);
+      tracks = PCA->getTracks();
+      PCA->clean();
 
 
-      if (tracks.size()>1 || tracksb.size()>1) 
-      {
-	// Not a normal behaviour, TC builder should produce only 1 TC max per road
-	continue;
-      }
-      
+      delete TC;      
       // Store the tracks (no duplicate cleaning yet)
-      //cout<<"Found "<<tracks.size()<<" track"<<endl;
+      //      cout<<"Found "<<tracks.size()<<" track"<<endl;
 
       std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > > tempVec;
 
@@ -314,65 +296,27 @@ void TrackFitTCProducer::produce( edm::Event& iEvent, const edm::EventSetup& iSe
 			 tracks[tt]->getCurve()*sin(tracks[tt]->getPhi0()),
 			 pz);
 	
-	//std::cout << tracks[tt]->getCurve()<<" / "<<tracks[tt]->getZ0() << " / " <<tracks[tt]->getEta0()<<" / "<<tracks[tt]->getPhi0()<< std::endl;
-	
 	tempTrack.setSector( seedSector );
 	tempTrack.setWedge( tracks[tt]->getCharge() );
 	tempTrack.setMomentum( mom , 5);
 	tempTrack.setPOCA( POCA , 5);
-	//std::cout << tracks[tt]->getZ0() << " / " << POCA.z() << " / " << tempTrack.getPOCA().z() << std::endl;
+
 	TTTracksForOutput->push_back( tempTrack );
 	
 	delete tracks[tt];
       }
-
-      //      std::cout << "PT6" << std::endl;
-
-      for(unsigned int tt=0;tt<tracksb.size();tt++)
-      {	
-	tempVec.clear();
-
-	vector<int> stubs = tracksb[tt]->getStubs();
-	for(unsigned int sti=0;sti<stubs.size();sti++) tempVec.push_back( stubMap[ stubs[sti] ]);
-
-	double pz = tracksb[tt]->getCurve()/(tan(2*atan(exp(-tracksb[tt]->getEta0()))));
-	
-	TTTrack< Ref_PixelDigi_ > tempTrack( tempVec );
-	GlobalPoint POCA(0.,0.,tracksb[tt]->getZ0());
-	GlobalVector mom(tracksb[tt]->getCurve()*cos(tracksb[tt]->getPhi0()),
-			 tracksb[tt]->getCurve()*sin(tracksb[tt]->getPhi0()),
-			 pz);
-	
-	//std::cout << tracks[tt]->getCurve()<<" / "<<tracks[tt]->getZ0() << " / " <<tracks[tt]->getEta0()<<" / "<<tracks[tt]->getPhi0()<< std::endl;
-	
-	tempTrack.setSector( seedSector );
-	tempTrack.setWedge( -1 );
-	tempTrack.setMomentum( mom , 5);
-	tempTrack.setPOCA( POCA , 5);
-	//std::cout << tracks[tt]->getZ0() << " / " << POCA.z() << " / " << tempTrack.getPOCA().z() << std::endl;
-	TTTracksBinForOutput->push_back( tempTrack );
-	
-	delete tracksb[tt];
-      }
-
-      //      std::cout << "PT7" << std::endl;
-
     } // End of loop over patterns
-      
-    //    std::cout << "PT8" << std::endl;
 
-    delete(TCB);    
-    delete(TCBb);  
+    delete(PCA);    
 
   }
 
   /// Put in the event content
   iEvent.put( TTTracksForOutput, TTTrackOutputTag);
-  iEvent.put( TTTracksBinForOutput, TTTrackBinaryOutputTag);
 }
 
 // DEFINE THIS AS A PLUG-IN
-DEFINE_FWK_MODULE(TrackFitTCProducer);
+DEFINE_FWK_MODULE(TrackFitPCAProducer);
 
 #endif
 

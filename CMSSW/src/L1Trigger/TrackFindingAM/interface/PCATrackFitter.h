@@ -48,7 +48,8 @@ class PCATrackFitter:public TrackFitter
   
   BOOST_SERIALIZATION_SPLIT_MEMBER()
 
-  std::vector<Track*> tracks_;
+  Track *track_;
+
   std::string cfname_;
   bool useinteger_ ;
 
@@ -72,7 +73,7 @@ class PCATrackFitter:public TrackFitter
   void initialize();
   void fit(vector<Hit*> hits);
   void fit();
-  void setTracks(const std::vector<Track*> &); 
+  void setTrack(Track* intc); 
 
   void mergePatterns();
   void mergeTracks();

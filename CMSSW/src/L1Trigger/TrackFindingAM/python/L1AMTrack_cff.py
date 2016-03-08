@@ -29,26 +29,43 @@ TTPatternsFromStubs   = cms.Sequence(TTPatternsFromStub)
 TTPatternsFromStubswStubs   = cms.Sequence(TTPatternsFromStub*MergePROutput*TTStubAssociatorFromPixelDigis)
 
 ############################################
-# STEP 2: Hough transform fit
+# STEP 2: TC builder 
 ############################################
 
 # The simple sequence, creates only a track container
 # used in principle only for debugging purposes
 #
 
-TTTrackAssociatorFromPixelDigis.TTTracks = cms.VInputTag( cms.InputTag("MergeFITOutput", "AML1Tracks"),cms.InputTag("MergeFITOutputb", "AML1BinTracks"))
 
-TTTracksFromPatterns  = cms.Sequence(TTTracksFromPattern)
+
+TTTCsFromPatterns  = cms.Sequence(TTTCsFromPattern)
 
 
 # The sequence. Note that we call the Merge plugins because the filtered containers are created
 # here. We just merge one branch...
 
-TTTracksFromPatternswStubs   = cms.Sequence(TTTracksFromPattern*MergeFITOutput*MergeFITOutputb*TTStubAssociatorFromPixelDigis*TTTrackAssociatorFromPixelDigis)
-
+TTTCsFromPatternswStubs   = cms.Sequence(TTTCsFromPattern*MergeTCOutput*MergeTCOutputb*TTStubAssociatorFromPixelDigis*TTTrackAssociatorFromPixelDigis)
 
 ############################################
-# STEP 3: MERGE PR outputs
+# STEP 3: PCA fit 
+############################################
+
+# The simple sequence, creates only a track container
+# used in principle only for debugging purposes
+#
+
+#TTTrackAssociatorFromPixelDigis.TTTracks = cms.VInputTag( cms.InputTag("MergeFITOutput", "AML1Tracks"))
+
+TTTracksFromTCs  = cms.Sequence(TTTracksFromTC)
+
+
+# The sequence. Note that we call the Merge plugins because the filtered containers are created
+# here. We just merge one branch...
+
+TTTracksFromTCswStubs   = cms.Sequence(TTTracksFromTC*MergeFITOutput*TTStubAssociatorFromPixelDigis*TTTrackAssociatorFromPixelDigis)
+
+############################################
+# STEP 4: MERGE PR outputs
 ############################################
 
 # This sequence is used mainly the multi-bank merging process, please note that the filtered cluster container is

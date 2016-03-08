@@ -1,24 +1,19 @@
 #########################
 #
-# Configuration file for L1 hough fit
-# using a file with AMPR content 
+# Configuration file for L1 PCA fit
+# using a file with AMTC output 
 #
 # This script works on any official production sample
 # (assuming that this sample contains a container of TTStubs,
 # a container of TTClusters, and a container of TrackingParticles)
 #
-# And of course, a container of patterns.... (TTTracks) 
+# And of course, a container of TCs.... (TTTracks) 
 #
-# Instruction to run this script are provided on this page:
-#
-# http://sviret.web.cern.ch/sviret/Welcome.php?n=CMS.HLLHCTuto
-#
-# Look at STEP VI
 #
 # Author: S.Viret (viret@in2p3.fr)
-# Date        : 20/02/2014
+# Date        : 04/03/2016
 #
-# Script tested with release CMSSW_6_2_0_SLHC14
+# Script tested with release CMSSW_6_2_0_SLHC27
 #
 #########################
 
@@ -39,7 +34,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('L1Trigger.TrackTrigger.TrackTrigger_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(5)
 )
 
 # Input source
@@ -50,7 +45,8 @@ process.maxEvents = cms.untracked.PSet(
 #
 
 process.source = cms.Source("PoolSource",
-                            fileNames = cms.untracked.vstring('file:AMPR_output_1.root'),
+                            fileNames = cms.untracked.vstring('file:AMTC_output.root'),
+#                            fileNames = cms.untracked.vstring('file:/data/viret/test.root'),
                             duplicateCheckMode = cms.untracked.string( 'noDuplicateCheck' )
 )
 
@@ -59,6 +55,7 @@ process.source = cms.Source("PoolSource",
 
 process.TTStubAssociatorFromPixelDigis.TTStubs        = cms.VInputTag( cms.InputTag("MergeFITOutput", "StubInTrack"))
 process.TTStubAssociatorFromPixelDigis.TTClusterTruth = cms.VInputTag( cms.InputTag("TTClusterAssociatorFromPixelDigis","ClusterAccepted"))
+process.TTTrackAssociatorFromPixelDigis.TTTracks      = cms.VInputTag( cms.InputTag("MergeFITOutput", "AML1Tracks"))
 
 # Additional output definition
 from Configuration.AlCa.GlobalTag import GlobalTag
@@ -79,15 +76,15 @@ process.RAWSIMoutput = cms.OutputModule("PoolOutputModule",
 # (not yet in the customizing scripts)
 
 # Keep the PR output
-process.RAWSIMoutput.outputCommands.append('keep  *_*_*_AMPR')
+process.RAWSIMoutput.outputCommands.append('keep  *_*_*_AMTC')
 
 # Keep the FIT output
 process.RAWSIMoutput.outputCommands.append('keep  *_*_*_AMFIT')
-process.RAWSIMoutput.outputCommands.append('drop *_TTTracksFromPattern_*_*')
+process.RAWSIMoutput.outputCommands.append('drop *_TTTracksFromTC_*_*')
 process.RAWSIMoutput.outputCommands.append('keep  *_*_MergedTrackTruth_*')
 
 # Path and EndPath definitions
-process.L1AMFIT_step         = cms.Path(process.TTTracksFromPatternswStubs)
+process.L1AMFIT_step         = cms.Path(process.TTTracksFromTCswStubs)
 process.endjob_step          = cms.EndPath(process.endOfProcess)
 process.RAWSIMoutput_step    = cms.EndPath(process.RAWSIMoutput)
 
