@@ -30,9 +30,115 @@
 // lstorchi: basi code to fit tracks, using the PCA constants generated 
 //           by the related generatepca
 
+bool import_pca_const (const std::string & cfname, 
+    arma::mat & cmtx, arma::rowvec & qvec, 
+    arma::mat & amtx, arma::rowvec & kvec, 
+    bool rzplane, bool rphiplane, double etaminin, 
+    double etamaxin, double ptminin, double ptmaxin, 
+    int chargesignin)
+{
+  assert(rzplane != rphiplane); 
+
+  std::vector<pca::matrixpcaconst<double> > vct;
+  if (read_pcacosnt_from_file (vct, cfname.c_str()))
+  {
+    int hwmanygot = 0;
+    std::vector<pca::matrixpcaconst<double> >::const_iterator it = 
+      vct.begin();
+    for (; it != vct.end(); ++it)
+    {
+      double ptmin, ptmax, etamin, etamax;
+      int chargesign;
+
+      it->get_ptrange(ptmin, ptmax);
+      it->get_etarange(etamin, etamax);
+      chargesign = it->get_chargesign();
+
+      if (rzplane)
+      {
+        if (it->get_plane_type() == pca::matrixpcaconst<double>::RZ)
+        {
+          if ((etaminin >= etamin) && (etaminin <= etamax) &&
+              (etamaxin >= etamin) && (etamaxin <= etamax))
+          {
+            switch(it->get_const_type())
+            {
+              case pca::matrixpcaconst<double>::QVEC :
+                pcamat_to_armarowvec ((*it), qvec);
+                hwmanygot++;
+                break;
+              case pca::matrixpcaconst<double>::KVEC :
+                pcamat_to_armarowvec ((*it), kvec);
+                hwmanygot++;
+                break;
+              case pca::matrixpcaconst<double>::CMTX :
+                pcamat_to_armamat ((*it), cmtx);
+                hwmanygot++;
+                break;
+              case pca::matrixpcaconst<double>::AMTX :
+                pcamat_to_armamat ((*it), amtx);
+                hwmanygot++;
+                break;
+              default:
+                break;
+            }
+          } 
+        }
+      }
+      else if (rphiplane)
+      {
+        if (it->get_plane_type() == pca::matrixpcaconst<double>::RPHI)
+        {
+          if (chargesignin == chargesign)
+          {
+            if ((ptminin >= ptmin) && (ptminin <= ptmax) &&
+                (ptmaxin >= ptmin) && (ptmaxin <= ptmax))
+            {
+              switch(it->get_const_type())
+              {
+                case pca::matrixpcaconst<double>::QVEC : 
+                  pcamat_to_armarowvec ((*it), qvec);
+                  hwmanygot++;
+                  break;
+                case pca::matrixpcaconst<double>::KVEC :
+                  pcamat_to_armarowvec ((*it), kvec);
+                  hwmanygot++;
+                  break;
+                case pca::matrixpcaconst<double>::CMTX :
+                  pcamat_to_armamat ((*it), cmtx);
+                  hwmanygot++;
+                  break;
+                case pca::matrixpcaconst<double>::AMTX :
+                  pcamat_to_armamat ((*it), amtx);
+                  hwmanygot++;
+                  break;
+                default:
+                  break;
+              }
+            }
+          } 
+        }
+      }
+    }
+
+    if (hwmanygot == 4)
+      return true;
+    else
+    {
+      std::cerr << "Found " << hwmanygot << " const instead of 4" << std::endl;
+      return false;
+    }
+  }
+
+  // TODO add consistency check for dims
+
+  return false;
+}
+ 
+
 bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt, 
-     arma::mat & cmtx, arma::rowvec & q, arma::mat & amtx, arma::mat & vmtx, 
-     arma::rowvec & k, arma::rowvec & cm, bool verbose, pca::pcafitter & fitter, 
+     arma::mat & cmtx, arma::rowvec & q, arma::mat & amtx, 
+     arma::rowvec & k, bool verbose, pca::pcafitter & fitter, 
      bool rzplane, bool rphiplane, arma::vec & ptvals)
 {
   int nbins = 100;
@@ -76,23 +182,17 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
     ptrs[PCA_PHIIDX] = phicmp;
   }
 
-  arma::rowvec chi2values, chi2values1;
+  arma::rowvec chi2values, chi2values_fake;
   chi2values.resize(coordslt.n_rows);
-  chi2values1.resize(coordslt.n_rows);
+  chi2values_fake.resize(0);
 
-  if (!fitter.compute_parameters (cmtx, q, amtx, k,
+  if (!fitter.compute_parameters (cmtx, q, amtx, k, 
         coordslt, ptrs, fitter.get_paramdim(), 
-        chi2values, chi2values1, vmtx, cm))
+        chi2values, chi2values_fake))
   {
     std::cerr << fitter.get_errmsg() << std::endl;
     return false;
   }
-
-  //std::ofstream myfilechi2("chi2results.txt");
-  //myfilechi2 << "chi2_value" << std::endl;
-  //for (int i=0; i<(int) chi2values.n_cols; ++i)
-  //  myfilechi2 << chi2values(i) << std::endl;
-  //myfilechi2.close();
 
   delete [] ptrs; 
 
@@ -101,11 +201,10 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
 
   arma::running_stat<double> pcrelative[fitter.get_paramdim()];
   arma::running_stat<double> pcabsolute[fitter.get_paramdim()];
-  arma::running_stat<double> chi2stat, chi2stat1;
+  arma::running_stat<double> chi2stat;
   std::ofstream myfile(fname.str().c_str());
 
   assert(chi2values.n_cols == coordslt.n_rows);
-  assert(chi2values1.n_cols == coordslt.n_rows);
 
   if (rzplane)
   {
@@ -151,22 +250,19 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
       pcabsolute[PCA_Z0IDX](z0diff);
 
       chi2stat(chi2values(i));
-      chi2stat1(chi2values1(i));
         
 #ifdef INTBITEWISEFIT
       myfile << ptvals(i) << "   " <<
 	paramslt(i, PCA_COTTHETAIDX) << "   " << cothetacmp[i] << "   " <<
 	(cothetacmp[i] - paramslt(i, PCA_COTTHETAIDX)) << " " <<
 	z0orig << " " << z0cmps << " " <<
-	(z0cmps - z0orig) << " " << chi2values(i) << " " 
-        << chi2values1(i) << std::endl;
+	(z0cmps - z0orig) << " " << chi2values(i) << std::endl;
 #else
       myfile << ptvals(i) << "   " <<
 	paramslt(i, PCA_COTTHETAIDX) << "   " << cothetacmp[i] << "   " <<
 	(cothetacmp[i] - paramslt(i, PCA_COTTHETAIDX)) << " " <<
 	z0orig << " " << z0cmps << " " <<
-	(z0cmps - z0orig) << " " << chi2values(i) << " "
-        << chi2values1(i) << std::endl;
+	(z0cmps - z0orig) << " " << chi2values(i) << std::endl;
 #endif
       
       if (verbose)
@@ -182,8 +278,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
         std::cout << " eta          orig " << etaorig << std::endl;
         std::cout << " z0           fitt " << z0cmps << std::endl;
         std::cout << " z0           orig " << z0orig << std::endl;
-        std::cout << " chi2  11          " << chi2values(i) << std::endl;
-        std::cout << " chi2  10          " << chi2values1(i) << std::endl;
+        std::cout << " chi2              " << chi2values(i) << std::endl;
       }
     }
 
@@ -251,7 +346,6 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
       pcabsolute[PCA_ONEOVERPTIDX](diffqoverpt);
 
       chi2stat(chi2values(i));
-      chi2stat1(chi2values1(i));
 
       qoverptdiffvct(i) = diffqoverpt/qoverptorig;
       phidiffvct(i) = diffphi;
@@ -259,7 +353,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
       myfile << ptvals(i) << " " <<
         qoverptorig << " " << qoverptcmps << " " << diffqoverpt << " " <<
         phiorig     << " " << phicmps     << " " << diffphi     << " " << 
-        chi2values(i) << " " << chi2values1(i) << std::endl;
+        chi2values(i) << std::endl;
     
       if (verbose)
       {
@@ -268,8 +362,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
         std::cout << " q/pt         orig " << qoverptorig << std::endl;
         std::cout << " phi          fitt " << phicmps << std::endl;
         std::cout << " phi          orig " << phiorig << std::endl;
-        std::cout << " chi2 11           " << chi2values(i) << std::endl;
-        std::cout << " chi2 10           " << chi2values1(i) << std::endl;
+        std::cout << " chi2              " << chi2values(i) << std::endl;
       }
     }
 
@@ -318,10 +411,8 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
   }
 
   std::cout << " " << std::endl;
-  std::cout << "Chivalue mean 10 " << chi2stat.mean() << " stdev " << 
+  std::cout << "Chivalue mean " << chi2stat.mean() << " stdev " << 
     chi2stat.stddev() << std::endl;
-  std::cout << "Chivalue mean 11 " << chi2stat1.mean() << " stdev " << 
-    chi2stat1.stddev() << std::endl;
 
 
   if (rzplane)
@@ -346,12 +437,7 @@ void usage (char * name)
   std::cerr << " -V, --verbose                    : verbose option on" << std::endl;
   std::cerr << " -v, --version                    : print version and exit" << std::endl;
   std::cerr << " -p, --dump-allcoords             : dump all stub coordinates to a file" << std::endl;
-  std::cerr << " -c, --cmtx=[fillename]           : CMTX filename [default is c.[rz/rphi].bin]" << std::endl;
-  std::cerr << " -q, --qvct=[fillename]           : QVCT filename [default is q.[rz/rphi].bin]" << std::endl;
-  std::cerr << " -A, --amtx=[fillename]           : AMTX filename [default is a.[rz/rphi].bin]" << std::endl;
-  std::cerr << " -y, --kvct=[fillename]           : KVCT filename [default is k.[rz/rphi].bin]" << std::endl;
-  std::cerr << " -d, --cvct=[fillename]           : CVCT filename [default is cm.[rz/rphi].bin]" << std::endl;
-  std::cerr << " -B, --vmtx=[fillename]           : VMTX filename [default is v.[rz/rphi].bin]" << std::endl;
+  std::cerr << " -c, --pca-const-file=[fillename] : PCA const txt filename [default is pca_const.txt]" << std::endl;
   std::cerr << std::endl;                         
   std::cerr << " -z, --rz-plane                   : use rz plane view (fit eta and z0)" << std::endl;
   std::cerr << " -r, --rphi-plane                 : use r-phi plane view (fit ot and phi)" << std::endl;
@@ -391,12 +477,7 @@ int main (int argc, char ** argv)
 
   pca::pcafitter fitter;
 
-  std::string qfname = "";
-  std::string cfname = "";
-  std::string afname = "";
-  std::string vfname = "";
-  std::string kfname = "";
-  std::string cmfname = "";
+  std::string cfname = "pca_const.txt";
   bool verbose = false;
   bool rzplane = false;
   bool rphiplane = false;
@@ -431,12 +512,7 @@ int main (int argc, char ** argv)
     int c, option_index;
     static struct option long_options[] = {
       {"help", 0, NULL, 'h'},
-      {"cmtx", 1, NULL, 'c'},
-      {"amtx", 1, NULL, 'A'},
-      {"vmtx", 1, NULL, 'B'},
-      {"qvct", 1, NULL, 'q'},
-      {"kvct", 1, NULL, 'y'},
-      {"cvct", 1, NULL, 'd'},
+      {"pca-const-file", 1, NULL, 'c'},
       {"verbose", 0, NULL, 'V'},
       {"version", 0, NULL, 'v'},
       {"jump-tracks", 0, NULL, 'j'},
@@ -459,7 +535,7 @@ int main (int argc, char ** argv)
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "pkxzrhaVw:l:f:d:y:b:A:B:t:g:c:q:n:s:m:o:u", 
+    c = getopt_long (argc, argv, "pkxzrhaVw:l:f:b:t:g:c:n:s:m:o:u", 
         long_options, &option_index);
 
     if (c == -1)
@@ -584,21 +660,6 @@ int main (int argc, char ** argv)
       case'c':
         cfname = optarg;
         break;
-      case'd':
-        cmfname = optarg;
-        break;
-      case 'q':
-        qfname = optarg;
-        break;
-      case'A':
-        afname = optarg;
-        break;
-      case 'B':
-        vfname = optarg;
-        break;
-      case 'y':
-        kfname = optarg;
-        break;
       default:
         usage (argv[0]);
         break;
@@ -707,8 +768,8 @@ int main (int argc, char ** argv)
   // N righe di 9 double sono le coordinate
   // matrice C e vettore q sono le costanti
   
-  arma::mat cmtx, amtx, vmtx;
-  arma::rowvec q, k, cm;
+  arma::mat cmtx, amtx;
+  arma::rowvec qvec, kvec;
 
   // leggere file coordinate tracce simulate plus parametri
   if (!pca::file_exists(filename))
@@ -717,110 +778,43 @@ int main (int argc, char ** argv)
     return EXIT_FAILURE;
   }
 
-  if (rzplane)
-  {
-    if (cfname == "")
-      cfname = "c.rz.bin";
-
-    if (qfname == "")
-      qfname = "q.rz.bin";
-
-    if (afname == "")
-      afname = "a.rz.bin";
-
-    if (vfname == "")
-      vfname = "v.rz.bin";
-
-    if (kfname == "")
-      kfname = "k.rz.bin";
-
-    if (cmfname == "")
-      cmfname = "cm.rz.bin";
-  }
-  else if (rphiplane)
-  {
-    if (cfname == "")
-      cfname = "c.rphi.bin";
-
-    if (qfname == "")
-      qfname = "q.rphi.bin";
-
-    if (afname == "")
-      afname = "a.rphi.bin";
-
-    if (vfname == "")
-      vfname = "v.rphi.bin";
-
-    if (kfname == "")
-      kfname = "k.rphi.bin";
-
-    if (cmfname == "")
-      cmfname = "cm.rphi.bin";
-  }
-
-  if (pca::file_exists(cmfname.c_str()))
-  {
-    std::cout << "Reading " << cmfname << std::endl;
-    pca::read_armvct(cmfname.c_str(), cm);
-  }
-  else
-  {
-    std::cerr << cmfname << " does not exist" << std::endl;
-    return 1;
-  }
-
-  if (pca::file_exists(afname.c_str()))
-  {
-    std::cout << "Reading " << afname << std::endl;
-    pca::read_armmat(afname.c_str(), amtx);
-  }
-  else
-  {
-    std::cerr << afname << " does not exist" << std::endl;
-    return 1;
-  }
-
   if (pca::file_exists(cfname.c_str()))
   {
     std::cout << "Reading " << cfname << std::endl;
-    pca::read_armmat(cfname.c_str(), cmtx);
+
+    if (!import_pca_const (cfname, cmtx, qvec, amtx, kvec, 
+          rzplane, rphiplane, etamin, etamax, ptmin, 
+          ptmax, chargesign))
+    {
+      std::cerr << "Error in reading constants from file" << std::endl;
+      return EXIT_FAILURE;
+    }
+
+    unsigned int coorddim = (unsigned int) fitter.get_coordim();
+    unsigned int paramdim = (unsigned int) fitter.get_paramdim();
+
+    std::cout << "using " << coorddim << " coordinates and " << paramdim <<
+      " parameters " << std::endl;
+
+    if (coorddim != cmtx.n_cols)
+    {
+      std::cerr << "Incompatible dimensions CMTX (2S-modules ?)" << std::endl;
+      return EXIT_FAILURE;
+    }
+    if (paramdim != cmtx.n_rows)
+    {
+      std::cerr << "Incompatible dimensions CMTX (2S-modules ?)" << std::endl;
+      return EXIT_FAILURE;
+    }
+    if (paramdim != qvec.n_elem)
+    {
+      std::cerr << "Incompatible dimensions QVEC (2S-modules ?)" << std::endl;
+      return EXIT_FAILURE;
+    }
   }
   else
   {
     std::cerr << cfname << " does not exist" << std::endl;
-    return 1;
-  }
-
-  if (pca::file_exists(vfname.c_str()))
-  {
-    std::cout << "Reading " << vfname << std::endl;
-    pca::read_armmat(vfname.c_str(), vmtx);
-  }
-  else
-  {
-    std::cerr << vfname << " does not exist" << std::endl;
-    return 1;
-  }
-
-  if (pca::file_exists(kfname.c_str()))
-  {
-    std::cout << "Reading " << kfname << std::endl;
-    pca::read_armvct(kfname.c_str(), k);
-  }
-  else
-  {
-    std::cerr << kfname << " does not exist" << std::endl;
-    return 1;
-  }
-
-  if (pca::file_exists(qfname.c_str()))
-  {
-    std::cout << "Reading " << qfname << std::endl;
-    pca::read_armvct(qfname.c_str(), q);
-  }
-  else
-  {
-    std::cerr << qfname << " does not exist" << std::endl;
     return 1;
   }
 
@@ -900,14 +894,14 @@ int main (int argc, char ** argv)
     }
   }
 
-  if (!build_and_compare (param, coord, cmtx, q, amtx, vmtx, k, cm,
+  if (!build_and_compare (param, coord, cmtx, qvec, amtx, kvec, 
         verbose, fitter, rzplane, rphiplane, ptvals))
     return EXIT_FAILURE;
 
   std::cout << "Constants Used: C matrix: " << std::endl;
   std::cout << cmtx;
   std::cout << "Constants Used: q matrix: " << std::endl;
-  std::cout << q;
+  std::cout << qvec;
 
 #ifdef INTBITEWISEFIT
   std::cout << "Constants Used with precision:" << std::endl;
@@ -918,7 +912,7 @@ int main (int argc, char ** argv)
 
   std::cout << "Constants Used: q matrix: " << std::endl;
   for (int i=0; i<2; ++i)
-    std::cout << std::setprecision(9) << (double) q(i) << std::endl;
+    std::cout << std::setprecision(9) << (double) qvec(i) << std::endl;
 #endif
   
   return EXIT_SUCCESS;
