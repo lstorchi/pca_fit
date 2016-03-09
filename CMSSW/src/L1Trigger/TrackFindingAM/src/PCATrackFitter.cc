@@ -30,7 +30,6 @@ namespace
 
   bool hits_to_zrpmatrix_integer (
       const std::vector<Hit*> & hits, 
-      const std::vector<int> & stubs,
       pca::matrixpcaconst<int32_t> & zrv, 
       pca::matrixpcaconst<int32_t> & phirv, 
       std::string & layersid, 
@@ -38,10 +37,8 @@ namespace
   {
     std::ostringstream osss, psosss;
     int counter = 0;
-    for (unsigned int sti=0; sti<stubs.size(); sti++) 
+    for (unsigned int idx=0; idx<hits.size(); idx++) 
     {
-      unsigned int idx = stubs[sti] - 1;
-
       double xi = hits[idx]->getX();
       double yi = hits[idx]->getY();
 
@@ -74,7 +71,6 @@ namespace
 
   bool hits_to_zrpmatrix (double ci, double si, 
       const std::vector<Hit*> & hits, 
-      const std::vector<int> & stubs,
       pca::matrixpcaconst<double> & zrv, 
       pca::matrixpcaconst<double> & phirv, 
       std::string & layersid, 
@@ -85,9 +81,8 @@ namespace
     
     std::ostringstream osss, psosss;
     int counter = 0;
-    for (unsigned int sti=0; sti<stubs.size(); sti++) 
+    for (unsigned int idx=0; idx<hits.size(); ++idx) 
     {
-      unsigned int idx = stubs[sti] - 1;
       // TODO double check this
       //double xi =  hits[idx]->getX()*ci+ hits[idx]->getY()*si;
       //double yi = -hits[idx]->getX()*si+ hits[idx]->getY()*ci;
@@ -421,14 +416,13 @@ TrackFitter* PCATrackFitter::clone()
 void PCATrackFitter::fit_integer(vector<Hit*> hits)
 {
   //int tow = sector_id; 
-  std::vector<int> stubs = track_->getStubs(); // TODO are they the hits idx ? 
 
-  if (stubs.size() == 6)
+  if (hitss.size() == 6)
   {
     pca::matrixpcaconst<int32_t> zrv(1, 12), phirv(1, 12);
     std::string layersid, pslayersid;
 
-    if (hits_to_zrpmatrix_integer (hits, stubs, zrv, phirv, 
+    if (hits_to_zrpmatrix_integer (hits, zrv, phirv, 
           layersid, pslayersid))
     {
       /*
@@ -493,7 +487,7 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
     }
 
   }
-  else if (stubs.size() == 5)
+  else if (hits.size() == 5)
   {
 
   }
@@ -551,17 +545,12 @@ void PCATrackFitter::fit_double(vector<Hit*> hits)
   rpzfile.open ("PCArphizfile.txt");
   */
 
-  //std::cout << "Track size: " << tracks_.size() << std::endl;
-
-    //std::cout << "hits.size() : " << hits.size() << std::endl;
-    std::vector<int> stubs = track_->getStubs(); // TODO are they the hits idx ? 
-
-  if (stubs.size() == 6)
+  if (hits.size() == 6)
   {
     pca::matrixpcaconst<double> zrv(1, 12), phirv(1, 12);
     std::string layersid, pslayersid;
 
-    if (hits_to_zrpmatrix (ci, si, hits, stubs, zrv, phirv, 
+    if (hits_to_zrpmatrix (ci, si, hits, zrv, phirv, 
           layersid, pslayersid))
     {
       int charge = +1;
@@ -708,8 +697,8 @@ void PCATrackFitter::fit_double(vector<Hit*> hits)
         fit_track->setEta0(eta);
         fit_track->setZ0(z0);
                         
-        for(unsigned int idx = 0; idx < stubs.size(); ++idx)
-          fit_track->addStubIndex(stubs[idx]);
+        for(unsigned int idx = 0; idx < tubs.size(); ++idx)
+          fit_track->addStubIndex(hits[idx]->getID());
         
         tracks.push_back(fit_track);
       }
@@ -724,12 +713,12 @@ void PCATrackFitter::fit_double(vector<Hit*> hits)
     }
 
   }
-  else if (stubs.size() == 5)
+  else if (hits.size() == 5)
   {
     pca::matrixpcaconst<double> zrv(1, 10), phirv(1, 10);
     std::string layersid, pslayersid;
 
-    if (hits_to_zrpmatrix (ci, si, hits, stubs, zrv, phirv, 
+    if (hits_to_zrpmatrix (ci, si, hits, zrv, phirv, 
           layersid, pslayersid))
     {
       int charge = +1;
@@ -844,8 +833,8 @@ void PCATrackFitter::fit_double(vector<Hit*> hits)
         fit_track->setEta0(eta);
         fit_track->setZ0(z0);
                         
-        for(unsigned int idx = 0; idx < stubs.size(); ++idx)
-          fit_track->addStubIndex(stubs[idx]);
+        for(unsigned int idx = 0; idx < hits.size(); ++idx)
+          fit_track->addStubIndex(hits[idx]->getID());
         
         tracks.push_back(fit_track);
       }
