@@ -6,9 +6,8 @@ cd CMSSW_6_2_0_SLHC27/src
 cmsenv
 git-cms-addpkg L1Trigger/TrackFindingAM
 git-pull https://github.com/sviret/cmssw L1Tracking_PCA_sviret_040316
-scramv1 b -j4
 
-now clone the cpsa_fit repo to use the last CMSSW code version
+now clone the pca_fit repo to use the last CMSSW PCAFitter version:
 
 cd  ../../
 git clone https://github.com/lstorchi/pca_fit
