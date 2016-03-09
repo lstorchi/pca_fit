@@ -417,7 +417,7 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
 {
   //int tow = sector_id; 
 
-  if (hitss.size() == 6)
+  if (hits.size() == 6)
   {
     pca::matrixpcaconst<int32_t> zrv(1, 12), phirv(1, 12);
     std::string layersid, pslayersid;
@@ -697,7 +697,7 @@ void PCATrackFitter::fit_double(vector<Hit*> hits)
         fit_track->setEta0(eta);
         fit_track->setZ0(z0);
                         
-        for(unsigned int idx = 0; idx < tubs.size(); ++idx)
+        for(unsigned int idx = 0; idx < hits.size(); ++idx)
           fit_track->addStubIndex(hits[idx]->getID());
         
         tracks.push_back(fit_track);
