@@ -1,4 +1,4 @@
-README (Loriano Storchi) loriano@storchi.org
+README (Loriano Storchi) loriano /at/ storchi.org
 ---------------------------------------------------------------------
 
 - basic pca fitting methods. Here  you  find  the  rootfile  reader 
