@@ -209,7 +209,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
   if (rzplane)
   {
 #ifdef INTBITEWISEFIT
-    myfile << "pt cot0_orig cot0_fitt diff z0_orig z0_fitt diff chi2 chi2" << std::endl;
+    myfile << "pt eta_orig eta_fitt diff z0_orig z0_fitt diff chi2 chi2" << std::endl;
 #else
     myfile << "pt eta_orig eta_fitt diff z0_orig z0_fitt diff chi2 chi2" << std::endl;
 #endif
@@ -253,14 +253,14 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
         
 #ifdef INTBITEWISEFIT
       myfile << ptvals(i) << "   " <<
-	paramslt(i, PCA_COTTHETAIDX) << "   " << cothetacmp[i] << "   " <<
-	(cothetacmp[i] - paramslt(i, PCA_COTTHETAIDX)) << " " <<
+	etaorig << "   " << etacmp << "   " <<
+	(etacmp - etaorig) << " " <<
 	z0orig << " " << z0cmps << " " <<
 	(z0cmps - z0orig) << " " << chi2values(i) << std::endl;
 #else
       myfile << ptvals(i) << "   " <<
-	paramslt(i, PCA_COTTHETAIDX) << "   " << cothetacmp[i] << "   " <<
-	(cothetacmp[i] - paramslt(i, PCA_COTTHETAIDX)) << " " <<
+	etaorig << "   " << etacmp << "   " <<
+	(etacmp - etaorig) << " " <<
 	z0orig << " " << z0cmps << " " <<
 	(z0cmps - z0orig) << " " << chi2values(i) << std::endl;
 #endif
@@ -405,9 +405,10 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
     std::cout << "For " << fitter.paramidx_to_string(i) << " error " << 
       pcabsolute[i].mean() << " " << pcabsolute[i].stddev() << std::endl;
 
-    std::cout << "For " << fitter.paramidx_to_string(i) << " error " << 
-      100.0 * pcrelative[i].mean() << " % " << 100.0 * pcrelative[i].stddev() << 
-      " % " << std::endl;
+    if (fitter.paramidx_to_string(i) == "q/pt")
+      std::cout << "For " << fitter.paramidx_to_string(i) << " error " << 
+        100.0 * pcrelative[i].mean() << " % " << 100.0 * pcrelative[i].stddev() << 
+        " % " << std::endl;
   }
 
   std::cout << " " << std::endl;
@@ -734,7 +735,8 @@ int main (int argc, char ** argv)
 
   if (rzplane)
   {
-    if (!fitter.set_paramidx(PCA_COTTHETAIDX, "cot(theta)"))
+    // I am using cot(theta) internally
+    if (!fitter.set_paramidx(PCA_COTTHETAIDX, "eta"))
     {
       std::cerr << fitter.get_errmsg() << std::endl;
       return EXIT_FAILURE;

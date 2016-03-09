@@ -73,6 +73,7 @@ void usage (char * name)
   std::cerr << std::endl;
   std::cerr << " -x, --exclude-s-module          : exclude S-module (last three layer) so 6 coordinates " << 
     "instead of 12 (rz)" << std::endl;                                  
+  std::cerr << " -B, --write-binfiles            : will wite the PCA contants also as bin files " << std::endl;
 
   exit(1);
 }
@@ -87,7 +88,7 @@ void perform_main_computation (const arma::mat & coord,
     const std::string & cmfname ,
     pca::pcafitter & fitter, 
     pca::rootfilereader & rootrdr,
-    bool verbose)
+    bool verbose, bool writebinfiles)
 {
   std::cout << fitter.get_paramdim() << " X " << fitter.get_coordim() << std::endl;
 
@@ -115,12 +116,16 @@ void perform_main_computation (const arma::mat & coord,
   }
 
   std::cout << "Write constant to file" << std::endl;
-  pca::write_armmat(cfname.c_str(), cmtx);
-  pca::write_armvct(qfname.c_str(), q);
-  pca::write_armmat(afname.c_str(), amtx);
-  pca::write_armvct(kfname.c_str(), kivec);
-  pca::write_armmat(vfname.c_str(), vmtx);
-  pca::write_armvct(cmfname.c_str(), coordmvec);
+
+  if (writebinfiles)
+  {
+    pca::write_armmat(cfname.c_str(), cmtx);
+    pca::write_armvct(qfname.c_str(), q);
+    pca::write_armmat(afname.c_str(), amtx);
+    pca::write_armvct(kfname.c_str(), kivec);
+    pca::write_armmat(vfname.c_str(), vmtx);
+    pca::write_armvct(cmfname.c_str(), coordmvec);
+  }
 
 #ifdef INTBITEWISEGEN
 
@@ -296,6 +301,7 @@ int main (int argc, char ** argv)
   bool rzplane = false;
   bool rphiplane = false;
   bool correlation = false;
+  bool writebinfiles = false;
   bool savecheckfiles = false;
   bool checklayersids = false;
   bool printallcoords = false;
@@ -347,10 +353,11 @@ int main (int argc, char ** argv)
       {"dump-bankfiles", 0, NULL, 'd'},
       {"fk-five-hits", 1, NULL, 'y'},
       {"max-num-oftracks", 1, NULL, 'X'},
+      {"write-binfiles", 1, NULL, 'B'},
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "aVlkxhvdpzrX:b:g:t:n:m:o:u:f:y:", 
+    c = getopt_long (argc, argv, "BaVlkxhvdpzrX:b:g:t:n:m:o:u:f:y:", 
         long_options, &option_index);
 
     if (c == -1)
@@ -358,6 +365,9 @@ int main (int argc, char ** argv)
 
     switch (c)
     {
+      case 'B':
+        writebinfiles = true;
+        break;
       case 'X':
         maxnumoftracks = atoi(optarg);
         break;
@@ -742,7 +752,7 @@ int main (int argc, char ** argv)
   perform_main_computation (coordin, paramin,
       cfname.str(), qfname.str(), afname.str() ,
       vfname.str(), kfname.str(), coordmfname.str(),
-      fitter, rootrdr, verbose);
+      fitter, rootrdr, verbose, writebinfiles);
 
   return EXIT_SUCCESS;
 }
