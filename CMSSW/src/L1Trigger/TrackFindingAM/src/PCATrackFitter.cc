@@ -419,8 +419,8 @@ void PCATrackFitter::read_float_const_filename (const std::string & in)
   }
 
   std::vector<pca::matrixpcaconst<double> >::const_iterator it = 
-      vct.begin();
-  for (; it != vct.end(); ++it)
+      pcacontvct_float.begin();
+  for (; it != pcacontvct_float.end(); ++it)
   {
     if (it->get_ttype() != pca::matrixpcaconst<double>::FLOATPT)
     {
@@ -440,8 +440,8 @@ void PCATrackFitter::read_integegr_const_filename (const std::string & in)
   }
 
   std::vector<pca::matrixpcaconst<double> >::const_iterator it = 
-      vct.begin();
-  for (; it != vct.end(); ++it)
+      pcacontvct_integer.begin();
+  for (; it != pcacontvct_integer.end(); ++it)
   {
     if (it->get_ttype() != pca::matrixpcaconst<double>::INTEGPT)
     {
