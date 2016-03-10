@@ -424,7 +424,7 @@ void PCATrackFitter::read_float_const_filename (const std::string & in)
   {
     if (it->get_ttype() != pca::matrixpcaconst<double>::FLOATPT)
     {
-      std::cerr << "Wrong PCAconst type " <<s dte::ednl;
+      std::cerr << "Wrong PCAconst type " << std::ednl;
       return;
     }
   }
@@ -445,7 +445,7 @@ void PCATrackFitter::read_integegr_const_filename (const std::string & in)
   {
     if (it->get_ttype() != pca::matrixpcaconst<double>::INTEGPT)
     {
-      std::cerr << "Wrong PCAconst type " <<s dte::ednl;
+      std::cerr << "Wrong PCAconst type " << std::ednl;
       return;
     }
   }
