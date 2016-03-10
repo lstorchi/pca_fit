@@ -439,13 +439,13 @@ void PCATrackFitter::read_integegr_const_filename (const std::string & in)
     return;
   }
 
-  std::vector<pca::matrixpcaconst<double> >::const_iterator it = 
+  std::vector<pca::matrixpcaconst<int32_t> >::const_iterator it = 
       pcacontvct_integer.begin();
   for (; it != pcacontvct_integer.end(); ++it)
   {
     if (it->get_ttype() != pca::matrixpcaconst<double>::INTEGPT)
     {
-      std::cerr << "Wrong PCAconst type " << std::ednl;
+      std::cerr << "Wrong PCAconst type " << std::endl;
       return;
     }
   }
