@@ -11,8 +11,11 @@
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
 
+
+#include "../interface/pcaconst.hpp"
+
 /**
-   \brief PCA fitter
+   \brief PCA fitter hfile : L. Storchi 2016
 **/
 class PCATrackFitter:public TrackFitter
 {

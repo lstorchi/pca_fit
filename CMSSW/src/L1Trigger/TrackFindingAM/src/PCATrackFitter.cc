@@ -5,7 +5,6 @@ L.Storchi: 2016
 */
 
 #include "../interface/PCATrackFitter.h"
-#include "../interface/pcaconst.hpp"
 
 namespace 
 {
