@@ -152,6 +152,10 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
 
   PCATrackFitter* PCA  = new PCATrackFitter(nbLayers); // Floating point
 
+  /// STEP 0
+  /// Read PCAConst file
+  PCA->read_float_const_filename ("../data/barrel_tow18_pca_const.txt");
+
   /// STEP 1
   /// Loop over track candidates
 

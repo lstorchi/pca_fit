@@ -170,7 +170,8 @@ namespace
     return true;
   }
 
-  bool import_pca_const (const std::string & cfname, 
+  bool import_pca_const (
+      std::vector<pca::matrixpcaconst<double> > & vct,
       pca::matrixpcaconst<double> & cmtx_rz, 
       pca::matrixpcaconst<double> & qvec_rz, 
       pca::matrixpcaconst<double> & amtx_rz, 
@@ -184,110 +185,106 @@ namespace
       const std::string & layersid,
       const std::string & pslayersid)
   {
-    std::vector<pca::matrixpcaconst<double> > vct;
-    if (pca::read_pcacosnt_from_file (vct, cfname.c_str()))
+    int hwmanygot = 0, hwmanygotrphi = 0, hwmanygotrz = 0;;
+    std::vector<pca::matrixpcaconst<double> >::const_iterator it = 
+      vct.begin();
+    for (; it != vct.end(); ++it)
     {
-      int hwmanygot = 0, hwmanygotrphi = 0, hwmanygotrz = 0;;
-      std::vector<pca::matrixpcaconst<double> >::const_iterator it = 
-        vct.begin();
-      for (; it != vct.end(); ++it)
-      {
-        double ptmin, ptmax, etamin, etamax;
-        std::string actuallayids;
-        int chargesign;
+      double ptmin, ptmax, etamin, etamax;
+      std::string actuallayids;
+      int chargesign;
   
-        it->get_ptrange(ptmin, ptmax);
-        it->get_etarange(etamin, etamax);
-        chargesign = it->get_chargesign();
-        actuallayids = it->get_layersids();
+      it->get_ptrange(ptmin, ptmax);
+      it->get_etarange(etamin, etamax);
+      chargesign = it->get_chargesign();
+      actuallayids = it->get_layersids();
 
-        if (it->get_ttype() == pca::matrixpcaconst<double>::FLOATPT)
+      if (it->get_ttype() == pca::matrixpcaconst<double>::FLOATPT)
+      {
+        if (it->get_plane_type() == pca::matrixpcaconst<double>::RZ)
         {
-          if (it->get_plane_type() == pca::matrixpcaconst<double>::RZ)
+          if (actuallayids == pslayersid)
           {
-            if (actuallayids == pslayersid)
+            if ((eta >= etamin) && (eta <= etamax)) 
             {
-              if ((eta >= etamin) && (eta <= etamax)) 
+              switch(it->get_const_type())
+              {
+                case pca::matrixpcaconst<double>::QVEC :
+                  qvec_rz = *it;
+                  hwmanygot++;
+                  hwmanygotrz++;
+                  break;
+                case pca::matrixpcaconst<double>::KVEC :
+                  kvec_rz = *it;
+                  hwmanygot++;
+                  hwmanygotrz++;
+                  break;
+                case pca::matrixpcaconst<double>::CMTX :
+                  cmtx_rz = *it;
+                  hwmanygot++;
+                  hwmanygotrz++;
+                  break;
+                case pca::matrixpcaconst<double>::AMTX :
+                  amtx_rz = *it;
+                  hwmanygot++;
+                  hwmanygotrz++;
+                  break;
+                default:
+                  break;
+              }
+            } 
+          }
+        }
+        else if (it->get_plane_type() == pca::matrixpcaconst<double>::RPHI)
+        {
+          if (actuallayids == layersid)
+          {
+            if (chargesignin == chargesign)
+            {
+              if ((pt >= ptmin) && (pt <= ptmax))
               {
                 switch(it->get_const_type())
                 {
-                  case pca::matrixpcaconst<double>::QVEC :
-                    qvec_rz = *it;
+                  case pca::matrixpcaconst<double>::QVEC : 
+                    qvec_rphi = *it;
                     hwmanygot++;
-                    hwmanygotrz++;
+                    hwmanygotrphi++;
                     break;
                   case pca::matrixpcaconst<double>::KVEC :
-                    kvec_rz = *it;
+                    kvec_rphi = *it;
                     hwmanygot++;
-                    hwmanygotrz++;
+                    hwmanygotrphi++;
                     break;
                   case pca::matrixpcaconst<double>::CMTX :
-                    cmtx_rz = *it;
+                    cmtx_rphi = *it;
                     hwmanygot++;
-                    hwmanygotrz++;
+                    hwmanygotrphi++;
                     break;
                   case pca::matrixpcaconst<double>::AMTX :
-                    amtx_rz = *it;
+                    amtx_rphi = *it;
                     hwmanygot++;
-                    hwmanygotrz++;
+                    hwmanygotrphi++;
                     break;
                   default:
                     break;
                 }
-              } 
-            }
-          }
-          else if (it->get_plane_type() == pca::matrixpcaconst<double>::RPHI)
-          {
-            if (actuallayids == layersid)
-            {
-              if (chargesignin == chargesign)
-              {
-                if ((pt >= ptmin) && (pt <= ptmax))
-                {
-                  switch(it->get_const_type())
-                  {
-                    case pca::matrixpcaconst<double>::QVEC : 
-                      qvec_rphi = *it;
-                      hwmanygot++;
-                      hwmanygotrphi++;
-                      break;
-                    case pca::matrixpcaconst<double>::KVEC :
-                      kvec_rphi = *it;
-                      hwmanygot++;
-                      hwmanygotrphi++;
-                      break;
-                    case pca::matrixpcaconst<double>::CMTX :
-                      cmtx_rphi = *it;
-                      hwmanygot++;
-                      hwmanygotrphi++;
-                      break;
-                    case pca::matrixpcaconst<double>::AMTX :
-                      amtx_rphi = *it;
-                      hwmanygot++;
-                      hwmanygotrphi++;
-                      break;
-                    default:
-                      break;
-                  }
-                }
-              } 
-            }
+              }
+            } 
           }
         }
       }
+    }
   
-      if (hwmanygot == 8)
-        return true;
-      else
-      {
-        std::cerr << "Found " << hwmanygot << " const instead of 8" << std::endl;
-        std::cerr << layersid << " and " << pslayersid << std::endl;
-        std::cerr << "charge: " << chargesignin << " eta: " << eta << " pt: " << pt << std::endl;
-        std::cerr << "Foundrz " << hwmanygotrz << std::endl;
-        std::cerr << "Foundrphi " << hwmanygotrphi << std::endl;
-        return false;
-      }
+    if (hwmanygot == 8)
+      return true;
+    else
+    {
+      std::cerr << "Found " << hwmanygot << " const instead of 8" << std::endl;
+      std::cerr << layersid << " and " << pslayersid << std::endl;
+      std::cerr << "charge: " << chargesignin << " eta: " << eta << " pt: " << pt << std::endl;
+      std::cerr << "Foundrz " << hwmanygotrz << std::endl;
+      std::cerr << "Foundrphi " << hwmanygotrphi << std::endl;
+      return false;
     }
   
     // TODO add consistency check for dims
@@ -312,7 +309,8 @@ PCATrackFitter::~PCATrackFitter()
 
 void PCATrackFitter::initialize()
 {
-  cfname_ = "../data/barrel_tow18_pca_const.txt";
+  pcacontvct_float.clear();
+  pcacontvct_integer.clear();
   useinteger_ = false;
   track_ = NULL;
 }
@@ -370,7 +368,7 @@ void PCATrackFitter::fit(vector<Hit*> hits)
   if (useinteger_)
     this->fit_integer (hits);
   else
-    this->fit_double (hits);
+    this->fit_float (hits);
 }
 
 void PCATrackFitter::fit()
@@ -413,8 +411,56 @@ TrackFitter* PCATrackFitter::clone()
 //                                PRIVATE                                    //
 ///////////////////////////////////////////////////////////////////////////////
 
+void PCATrackFitter::read_float_const_filename (const std::string & in)
+{
+  if (pca::read_pcacosnt_from_file (pcacontvct_float, in.c_str()))
+  {
+    std::cerr << "Error while reading constant from " << in << std::endl;
+    return;
+  }
+
+  std::vector<pca::matrixpcaconst<double> >::const_iterator it = 
+      vct.begin();
+  for (; it != vct.end(); ++it)
+  {
+    if (it->get_ttype() != pca::matrixpcaconst<double>::FLOATPT)
+    {
+      std::cerr << "Wrong PCAconst type " <<s dte::ednl;
+      return;
+    }
+  }
+ 
+}
+
+void PCATrackFitter::read_integegr_const_filename (const std::string & in)
+{
+  if (pca::read_pcacosnt_from_file (pcacontvct_integer, in.c_str()))
+  {
+    std::cerr << "Error while reading constant from " << in << std::endl;
+    return;
+  }
+
+  std::vector<pca::matrixpcaconst<double> >::const_iterator it = 
+      vct.begin();
+  for (; it != vct.end(); ++it)
+  {
+    if (it->get_ttype() != pca::matrixpcaconst<double>::INTEGPT)
+    {
+      std::cerr << "Wrong PCAconst type " <<s dte::ednl;
+      return;
+    }
+  }
+
+}
+
 void PCATrackFitter::fit_integer(vector<Hit*> hits)
 {
+  if (pcacontvct_integer.size() == 0)
+  {
+    std::cerr << "error PCA const is empty" << std::endl;
+    return;
+  }
+
   //int tow = sector_id; 
 
   if (hits.size() == 6)
@@ -448,7 +494,7 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
       pca::matrixpcaconst<int32_t> amtx_rphi(0, 0); 
       pca::matrixpcaconst<int32_t> kvec_rphi(0, 0); 
       
-      if (import_pca_const<double> (cfname_, 
+      if (import_pca_const (pcacontvct_integer, 
                             cmtx_rz, 
                             qvec_rz, 
                             amtx_rz, 
@@ -499,8 +545,14 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
 }
  
 
-void PCATrackFitter::fit_double(vector<Hit*> hits)
+void PCATrackFitter::fit_float(vector<Hit*> hits)
 {
+  if (pcacontvct_float.size() == 0)
+  {
+    std::cerr << "error PCA const is empty" << std::endl;
+    return;
+  }
+
   int tow = sector_id; // The tower ID, necessary to get the phi shift
 
   //std::cout << "PCA::fit tow: " << tow << " hits size: " << 
@@ -593,7 +645,7 @@ void PCATrackFitter::fit_double(vector<Hit*> hits)
       pca::matrixpcaconst<double> amtx_rphi(0, 0); 
       pca::matrixpcaconst<double> kvec_rphi(0, 0); 
       
-      if (import_pca_const (cfname_, 
+      if (import_pca_const (pcacontvct_float, 
                             cmtx_rz, 
                             qvec_rz, 
                             amtx_rz, 
@@ -743,7 +795,7 @@ void PCATrackFitter::fit_double(vector<Hit*> hits)
       pca::matrixpcaconst<double> amtx_rphi(0, 0); 
       pca::matrixpcaconst<double> kvec_rphi(0, 0); 
       
-      if (import_pca_const (cfname_, 
+      if (import_pca_const (pcacontvct_float, 
                             cmtx_rz, 
                             qvec_rz, 
                             amtx_rz, 
