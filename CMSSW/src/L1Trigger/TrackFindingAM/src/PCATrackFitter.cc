@@ -16,7 +16,8 @@ namespace
   /* TODO to be merged using the  TypeIs... struct */
 
   /* quick and very dirty */
-  void dump_element (const pca::matrixpcaconst<double> & in, std::ostream & out)
+  template <typename T>
+  void dump_element (const pca::matrixpcaconst<T> & in, std::ostream & out)
   {
     out.precision(6);
     for (unsigned int i = 0; i<in.n_rows(); ++i)
@@ -583,7 +584,7 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
     return;
   }
 
-  int tow = sector_id; 
+  //int tow = sector_id; 
 
   if (hits.size() == 6)
   {
@@ -594,17 +595,16 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
           layersid, pslayersid))
     {
       int charge = +1;
-      double pt_est, eta_est, z0_est, phi_est;
       if (track_->getCurve() < 0.0)
        charge = -1;
 
       // Check the charge TODO
       charge = -1 * charge;
 
-      pt_est = track_->getCurve();
-      eta_est = track_->getEta0();
-      z0_est = track_->getZ0();
-      phi_est = track_->getPhi0();
+      double pt_est = track_->getCurve();
+      double eta_est = track_->getEta0();
+      //double z0_est = track_->getZ0();
+      //double phi_est = track_->getPhi0();
       
       pca::matrixpcaconst<int32_t> cmtx_rz(0, 0);
       pca::matrixpcaconst<int32_t> qvec_rz(0, 0); 
