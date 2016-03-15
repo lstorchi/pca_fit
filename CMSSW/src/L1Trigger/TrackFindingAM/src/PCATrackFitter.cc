@@ -170,6 +170,129 @@ namespace
   }
 
   bool import_pca_const (
+      std::vector<pca::matrixpcaconst<int32_t> > & vct,
+      pca::matrixpcaconst<int32_t> & cmtx_rz, 
+      pca::matrixpcaconst<int32_t> & qvec_rz, 
+      pca::matrixpcaconst<int32_t> & amtx_rz, 
+      pca::matrixpcaconst<int32_t> & kvec_rz, 
+      pca::matrixpcaconst<int32_t> & cmtx_rphi, 
+      pca::matrixpcaconst<int32_t> & qvec_rphi, 
+      pca::matrixpcaconst<int32_t> & amtx_rphi, 
+      pca::matrixpcaconst<int32_t> & kvec_rphi, 
+      double eta, double pt, 
+      int chargesignin,
+      const std::string & layersid,
+      const std::string & pslayersid)
+  {
+    int hwmanygot = 0, hwmanygotrphi = 0, hwmanygotrz = 0;;
+    std::vector<pca::matrixpcaconst<double> >::const_iterator it = 
+      vct.begin();
+    for (; it != vct.end(); ++it)
+    {
+      double ptmin, ptmax, etamin, etamax;
+      std::string actuallayids;
+      int chargesign;
+  
+      it->get_ptrange(ptmin, ptmax);
+      it->get_etarange(etamin, etamax);
+      chargesign = it->get_chargesign();
+      actuallayids = it->get_layersids();
+
+      if (it->get_ttype() == pca::matrixpcaconst<double>::INTEGPT)
+      {
+        if (it->get_plane_type() == pca::matrixpcaconst<double>::RZ)
+        {
+          if (actuallayids == pslayersid)
+          {
+            if ((eta >= etamin) && (eta <= etamax)) 
+            {
+              switch(it->get_const_type())
+              {
+                case pca::matrixpcaconst<double>::QVEC :
+                  qvec_rz = *it;
+                  hwmanygot++;
+                  hwmanygotrz++;
+                  break;
+                case pca::matrixpcaconst<double>::KVEC :
+                  kvec_rz = *it;
+                  hwmanygot++;
+                  hwmanygotrz++;
+                  break;
+                case pca::matrixpcaconst<double>::CMTX :
+                  cmtx_rz = *it;
+                  hwmanygot++;
+                  hwmanygotrz++;
+                  break;
+                case pca::matrixpcaconst<double>::AMTX :
+                  amtx_rz = *it;
+                  hwmanygot++;
+                  hwmanygotrz++;
+                  break;
+                default:
+                  break;
+              }
+            } 
+          }
+        }
+        else if (it->get_plane_type() == pca::matrixpcaconst<double>::RPHI)
+        {
+          if (actuallayids == layersid)
+          {
+            if (chargesignin == chargesign)
+            {
+              if ((pt >= ptmin) && (pt <= ptmax))
+              {
+                switch(it->get_const_type())
+                {
+                  case pca::matrixpcaconst<double>::QVEC : 
+                    qvec_rphi = *it;
+                    hwmanygot++;
+                    hwmanygotrphi++;
+                    break;
+                  case pca::matrixpcaconst<double>::KVEC :
+                    kvec_rphi = *it;
+                    hwmanygot++;
+                    hwmanygotrphi++;
+                    break;
+                  case pca::matrixpcaconst<double>::CMTX :
+                    cmtx_rphi = *it;
+                    hwmanygot++;
+                    hwmanygotrphi++;
+                    break;
+                  case pca::matrixpcaconst<double>::AMTX :
+                    amtx_rphi = *it;
+                    hwmanygot++;
+                    hwmanygotrphi++;
+                    break;
+                  default:
+                    break;
+                }
+              }
+            } 
+          }
+        }
+      }
+    }
+  
+    if (hwmanygot == 8)
+      return true;
+    else
+    {
+      std::cerr << "Found " << hwmanygot << " const instead of 8" << std::endl;
+      std::cerr << layersid << " and " << pslayersid << std::endl;
+      std::cerr << "charge: " << chargesignin << " eta: " << eta << " pt: " << pt << std::endl;
+      std::cerr << "Foundrz " << hwmanygotrz << std::endl;
+      std::cerr << "Foundrphi " << hwmanygotrphi << std::endl;
+      return false;
+    }
+  
+    // TODO add consistency check for dims
+  
+    return false;
+  }
+
+
+  bool import_pca_const (
       std::vector<pca::matrixpcaconst<double> > & vct,
       pca::matrixpcaconst<double> & cmtx_rz, 
       pca::matrixpcaconst<double> & qvec_rz, 
@@ -460,7 +583,7 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
     return;
   }
 
-  //int tow = sector_id; 
+  int tow = sector_id; 
 
   if (hits.size() == 6)
   {
@@ -470,7 +593,6 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
     if (hits_to_zrpmatrix_integer (hits, zrv, phirv, 
           layersid, pslayersid))
     {
-      /*
       int charge = +1;
       double pt_est, eta_est, z0_est, phi_est;
       if (track_->getCurve() < 0.0)
@@ -524,17 +646,15 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
       {
         std::cerr << "error while reading PCA const" << std::endl;
       }
-      */
     } 
     else
     {
       std::cerr << "error in coord conv" << std::endl;
     }
-
   }
   else if (hits.size() == 5)
   {
-
+    // TODO 
   }
   else 
   {
