@@ -185,7 +185,7 @@ namespace
       const std::string & pslayersid)
   {
     int hwmanygot = 0, hwmanygotrphi = 0, hwmanygotrz = 0;;
-    std::vector<pca::matrixpcaconst<double> >::const_iterator it = 
+    std::vector<pca::matrixpcaconst<int32_t> >::const_iterator it = 
       vct.begin();
     for (; it != vct.end(); ++it)
     {
@@ -198,9 +198,9 @@ namespace
       chargesign = it->get_chargesign();
       actuallayids = it->get_layersids();
 
-      if (it->get_ttype() == pca::matrixpcaconst<double>::INTEGPT)
+      if (it->get_ttype() == pca::matrixpcaconst<int32_t>::INTEGPT)
       {
-        if (it->get_plane_type() == pca::matrixpcaconst<double>::RZ)
+        if (it->get_plane_type() == pca::matrixpcaconst<int32_t>::RZ)
         {
           if (actuallayids == pslayersid)
           {
@@ -208,22 +208,22 @@ namespace
             {
               switch(it->get_const_type())
               {
-                case pca::matrixpcaconst<double>::QVEC :
+                case pca::matrixpcaconst<int32_t>::QVEC :
                   qvec_rz = *it;
                   hwmanygot++;
                   hwmanygotrz++;
                   break;
-                case pca::matrixpcaconst<double>::KVEC :
+                case pca::matrixpcaconst<int32_t>::KVEC :
                   kvec_rz = *it;
                   hwmanygot++;
                   hwmanygotrz++;
                   break;
-                case pca::matrixpcaconst<double>::CMTX :
+                case pca::matrixpcaconst<int32_t>::CMTX :
                   cmtx_rz = *it;
                   hwmanygot++;
                   hwmanygotrz++;
                   break;
-                case pca::matrixpcaconst<double>::AMTX :
+                case pca::matrixpcaconst<int32_t>::AMTX :
                   amtx_rz = *it;
                   hwmanygot++;
                   hwmanygotrz++;
@@ -234,7 +234,7 @@ namespace
             } 
           }
         }
-        else if (it->get_plane_type() == pca::matrixpcaconst<double>::RPHI)
+        else if (it->get_plane_type() == pca::matrixpcaconst<int32_t>::RPHI)
         {
           if (actuallayids == layersid)
           {
@@ -244,22 +244,22 @@ namespace
               {
                 switch(it->get_const_type())
                 {
-                  case pca::matrixpcaconst<double>::QVEC : 
+                  case pca::matrixpcaconst<int32_t>::QVEC : 
                     qvec_rphi = *it;
                     hwmanygot++;
                     hwmanygotrphi++;
                     break;
-                  case pca::matrixpcaconst<double>::KVEC :
+                  case pca::matrixpcaconst<int32_t>::KVEC :
                     kvec_rphi = *it;
                     hwmanygot++;
                     hwmanygotrphi++;
                     break;
-                  case pca::matrixpcaconst<double>::CMTX :
+                  case pca::matrixpcaconst<int32_t>::CMTX :
                     cmtx_rphi = *it;
                     hwmanygot++;
                     hwmanygotrphi++;
                     break;
-                  case pca::matrixpcaconst<double>::AMTX :
+                  case pca::matrixpcaconst<int32_t>::AMTX :
                     amtx_rphi = *it;
                     hwmanygot++;
                     hwmanygotrphi++;
