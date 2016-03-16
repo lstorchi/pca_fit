@@ -12,8 +12,8 @@ include ../../config.mk
 #CFLAGS += -DUSEALLVALUES 
 #CFLAGS += -DDEBUG
 
-CFLAGS += -I$(ARMAINCPATH)
-LIBS += -L$(ARMALIBPATH)
+CFLAGS += $(ARMAINCPATH)
+LIBS += $(ARMALIBPATH)
 
 CFLAGS +=-I./ -I../../include 
 CFLAGS += $(shell root-config --cflags) 

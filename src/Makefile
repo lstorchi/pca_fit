@@ -9,7 +9,7 @@
 
 include ../config.mk
 
-CFLAGS += -I$(ARMAINCPATH)
+CFLAGS += $(ARMAINCPATH)
 
 CFLAGS +=-I./ -I../include 
 

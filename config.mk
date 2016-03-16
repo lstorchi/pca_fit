@@ -25,8 +25,10 @@ USEINTBITEWISE = no
 #LIBS += -L/afs/cern.ch/user/l/$(USER)/armadillo-3.930.4 
 #CFLAGS =
 #LIBS =
-ARMALIBPATH = /afs/cern.ch/user/l/lstorchi/armadillo-6.600.4
-ARMAINCPATH = /afs/cern.ch/user/l/lstorchi/armadillo-6.600.4/include
+ARMALIBPATH = -L/afs/cern.ch/user/l/lstorchi/armadillo-6.600.4
+ARMAINCPATH = -I/afs/cern.ch/user/l/lstorchi/armadillo-6.600.4/include
+ARMALIBPATH =
+ARMAINCPATH = 
 
 CC = gcc
 CXX = g++
