@@ -12,10 +12,8 @@ include ../../config.mk
 #CFLAGS += -DUSEALLVALUES 
 #CFLAGS += -DDEBUG
 
-ifeq ($(CERN),yes)
-  CFLAGS += -I$(ARMAINCPATH)
-  LIBS += -L$(ARMALIBPATH)
-endif
+CFLAGS += -I$(ARMAINCPATH)
+LIBS += -L$(ARMALIBPATH)
 
 CFLAGS +=-I./ -I../../include 
 CFLAGS += $(shell root-config --cflags) 
