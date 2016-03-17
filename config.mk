@@ -15,28 +15,20 @@ PLATFORM = $(shell uname -s)
 # no
 DEBUG=no
 
-# CERN 
-# yes if in lxplus
-# no
-CERN = no
-
 # BITEWISE 
 # yes to use integer, either generation and fit 
 # no
 USEINTBITEWISE = no
 
 # if needed you sould specify here armadillo library path 
-CFLAGS += -I/home/atanu/Downloads/armadillo-5.200.2/include
-LIBS += -L/home/atanu/Downloads/armadillo-5.200.2 
 #CFLAGS += -I/afs/cern.ch/user/l/$(USER)/armadillo-3.930.4/include
 #LIBS += -L/afs/cern.ch/user/l/$(USER)/armadillo-3.930.4 
 #CFLAGS =
 #LIBS =
-#ARMALIBPATH = /afs/cern.ch/user/l/lstorchi/armadillo-3.930.4
-#ARMAINCPATH = /afs/cern.ch/user/l/lstorchi/armadillo-3.930.4/include
-ARMALIBPATH = /home/atanu/Downloads/armadillo-5.200.2
-ARMAINCPATH = /home/atanu/Downloads/armadillo-5.200.2/include
-
+ARMALIBPATH = -L/afs/cern.ch/user/l/lstorchi/armadillo-6.600.4
+ARMAINCPATH = -I/afs/cern.ch/user/l/lstorchi/armadillo-6.600.4/include
+ARMALIBPATH =
+ARMAINCPATH = 
 
 CC = gcc
 CXX = g++

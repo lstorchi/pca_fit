@@ -9,9 +9,7 @@
 
 include ../config.mk
 
-ifeq ($(CERN),yes)
-  CFLAGS += -I$(ARMAINCPATH)
-endif
+CFLAGS += $(ARMAINCPATH)
 
 CFLAGS +=-I./ -I../include 
 
