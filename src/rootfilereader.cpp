@@ -106,6 +106,8 @@ void rootfilereader::reset()
   printoutstdinfo_ = true;
   fkfiveoutofsix_ = false;
 
+  useintbitewise_ = false;
+
   etamin_ = -INFINITY; 
   etamax_ = INFINITY; 
   phimin_ = -INFINITY;
@@ -127,6 +129,16 @@ void rootfilereader::reset()
 
   reset_error();
   filename_ = "";
+}
+
+void rootfilereader::set_useintbitewise (bool in)
+{
+  useintbitewise_ = in;
+}
+
+bool rootfilereader::get_useintbitewise () const
+{
+  return useintbitewise_;
 }
 
 void rootfilereader::set_printoutstdinfo (bool in)
@@ -782,17 +794,30 @@ bool rootfilereader::convertorphiz (std::vector<track_rphiz_str> &
     single_track.pdg = track->pdg;
     single_track.layersids = track->layersids;
 
-    for (int j = 0; j < track->dim; ++j)
+    if (useintbitewise_)
     {
-      double ri = sqrt(pow(track->x[j], 2.0) + 
-          pow (track->y[j], 2.0));
-      // TODO double chek the equivalence 
-      //double phii = acos(track->x[j]/ri);
-      double phii = atan2(track->y[j],track->x[j]);
 
-      single_track.z.push_back(track->z[j]);
-      single_track.r.push_back(ri);
-      single_track.phii.push_back(phii);
+      for (int j = 0; j < track->dim; ++j)
+      {
+
+      }
+
+
+    }
+    else
+    {
+      for (int j = 0; j < track->dim; ++j)
+      {
+        double ri = sqrt(pow(track->x[j], 2.0) + 
+            pow (track->y[j], 2.0));
+        // TODO double chek the equivalence 
+        //double phii = acos(track->x[j]/ri);
+        double phii = atan2(track->y[j],track->x[j]);
+        
+        single_track.z.push_back(track->z[j]);
+        single_track.r.push_back(ri);
+        single_track.phii.push_back(phii);
+      }
     }
 
     rphiz_tracks.push_back(single_track);
@@ -999,6 +1024,11 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
   if (fkfiveoutofsix_)
     maxnumoflayers_ = 6;
 
+  if (useintbitewise_)
+  {
+    return convert_intbitewise(paramin);
+  }
+
   return true;
 }
 
@@ -1040,142 +1070,142 @@ bool rootfilereader::linearinterpolationrphiz (
     std::vector<track_rphiz_str> & rphiz_tracks)
 {
 
-#ifndef INTBITEWISE
-
-  if (maxnumoflayers_ == 5)
+  if (!useintbitewise_)
   {
-    std::vector<track_rphiz_str>::iterator track = rphiz_tracks.begin();
-    for (; track != rphiz_tracks.end(); ++track)
+    if (maxnumoflayers_ == 5)
     {
-      if (rphiplane_)
+      std::vector<track_rphiz_str>::iterator track = rphiz_tracks.begin();
+      for (; track != rphiz_tracks.end(); ++track)
       {
-        if (track->layersids == "678910")
+        if (rphiplane_)
         {
-          set_errmsg (1, "TODO not yet implemented");
-          return false;
+          if (track->layersids == "678910")
+          {
+            set_errmsg (1, "TODO not yet implemented");
+            return false;
+          }
+          else if (track->layersids == "578910")
+          {
+            // simplest approach we will need to store a single scalar 
+            // and maybe a second one to remove the bias 
+            double doverv = 0.4596;
+            
+            double v1 = track->r[1] - track->r[0]; 
+            double v2 = track->phii[1] - track->phii[0]; 
+            
+            double pd1 = track->r[0] + doverv * v1;
+            double pd2 = track->phii[0] + doverv * v2;
+            
+            std::vector<double>::iterator it = track->r.begin();
+            ++it;
+            track->r.insert(it, pd1);
+            
+            it = track->phii.begin();
+            ++it;
+            track->phii.insert(it, pd2);
+            
+            std::vector<int>::iterator iit = track->layer.begin();
+            ++iit;
+            track->layer.insert(iit, 6);
+            
+            track->layersids == "5678910";
+            track->dim = 6;
+    
+            return true;
+          }
+          else if (track->layersids == "568910")
+          {
+            set_errmsg (1, "TODO not yet implemented");
+            return false;
+          }
+          else if (track->layersids == "567910")
+          {
+            set_errmsg (1, "TODO not yet implemented");
+            return false;
+          }
+          else if (track->layersids ==  "567810")
+          {
+            set_errmsg (1, "TODO not yet implemented");
+            return false;
+          }
+          else if (track->layersids == "56789")
+          {
+            set_errmsg (1, "TODO not yet implemented");
+            return false;
+          }
         }
-        else if (track->layersids == "578910")
+        else if (rzplane_)
         {
-          // simplest approach we will need to store a single scalar 
-          // and maybe a second one to remove the bias 
-          double doverv = 0.4596;
-          
-          double v1 = track->r[1] - track->r[0]; 
-          double v2 = track->phii[1] - track->phii[0]; 
-          
-          double pd1 = track->r[0] + doverv * v1;
-          double pd2 = track->phii[0] + doverv * v2;
-          
-          std::vector<double>::iterator it = track->r.begin();
-          ++it;
-          track->r.insert(it, pd1);
-          
-          it = track->phii.begin();
-          ++it;
-          track->phii.insert(it, pd2);
-          
-          std::vector<int>::iterator iit = track->layer.begin();
-          ++iit;
-          track->layer.insert(iit, 6);
-          
-          track->layersids == "5678910";
-          track->dim = 6;
-
-          return true;
-        }
-        else if (track->layersids == "568910")
-        {
-          set_errmsg (1, "TODO not yet implemented");
-          return false;
-        }
-        else if (track->layersids == "567910")
-        {
-          set_errmsg (1, "TODO not yet implemented");
-          return false;
-        }
-        else if (track->layersids ==  "567810")
-        {
-          set_errmsg (1, "TODO not yet implemented");
-          return false;
-        }
-        else if (track->layersids == "56789")
-        {
-          set_errmsg (1, "TODO not yet implemented");
-          return false;
-        }
-      }
-      else if (rzplane_)
-      {
-        if (track->layersids == "678910")
-        {
-          set_errmsg (1, "TODO not yet implemented");
-          return false;
-        }
-        else if (track->layersids == "578910")
-        {
-          // simplest approach we will need to store a single scalar 
-          // and maybe a second one to remove the bias 
-          double doverv = 0.4596;
-          
-          double v1 = track->r[1] - track->r[0]; 
-          double v2 = track->z[1] - track->z[0]; 
-          
-          double pd1 = track->r[0] + doverv * v1;
-          double pd2 = track->z[0] + doverv * v2;
-          
-          std::vector<double>::iterator it = track->r.begin();
-          ++it;
-          track->r.insert(it, pd1);
-          
-          it = track->z.begin();
-          ++it;
-          track->z.insert(it, pd2);
-          
-          std::vector<int>::iterator iit = track->layer.begin();
-          ++iit;
-          track->layer.insert(iit, 6);
-          
-          track->layersids == "5678910";
-          track->dim = 6;
-
-          return true;
-        }
-        else if (track->layersids == "568910")
-        {
-          set_errmsg (1, "TODO not yet implemented");
-          return false;
-        }
-        else if (track->layersids == "567910")
-        {
-          set_errmsg (1, "TODO not yet implemented");
-          return false;
-        }
-        else if (track->layersids ==  "567810")
-        {
-          set_errmsg (1, "TODO not yet implemented");
-          return false;
-        }
-        else if (track->layersids == "56789")
-        {
-          set_errmsg (1, "TODO not yet implemented");
-          return false;
+          if (track->layersids == "678910")
+          {
+            set_errmsg (1, "TODO not yet implemented");
+            return false;
+          }
+          else if (track->layersids == "578910")
+          {
+            // simplest approach we will need to store a single scalar 
+            // and maybe a second one to remove the bias 
+            double doverv = 0.4596;
+            
+            double v1 = track->r[1] - track->r[0]; 
+            double v2 = track->z[1] - track->z[0]; 
+            
+            double pd1 = track->r[0] + doverv * v1;
+            double pd2 = track->z[0] + doverv * v2;
+            
+            std::vector<double>::iterator it = track->r.begin();
+            ++it;
+            track->r.insert(it, pd1);
+            
+            it = track->z.begin();
+            ++it;
+            track->z.insert(it, pd2);
+            
+            std::vector<int>::iterator iit = track->layer.begin();
+            ++iit;
+            track->layer.insert(iit, 6);
+            
+            track->layersids == "5678910";
+            track->dim = 6;
+    
+            return true;
+          }
+          else if (track->layersids == "568910")
+          {
+            set_errmsg (1, "TODO not yet implemented");
+            return false;
+          }
+          else if (track->layersids == "567910")
+          {
+            set_errmsg (1, "TODO not yet implemented");
+            return false;
+          }
+          else if (track->layersids ==  "567810")
+          {
+            set_errmsg (1, "TODO not yet implemented");
+            return false;
+          }
+          else if (track->layersids == "56789")
+          {
+            set_errmsg (1, "TODO not yet implemented");
+            return false;
+          }
         }
       }
     }
+    else 
+    {
+      set_errmsg (1, "Can work only using 5 layers out of six");
+      return false;
+    }
+    
+    return true;
   }
-  else 
+  else
   {
-    set_errmsg (1, "Can work only using 5 layers out of six");
+    set_errmsg (1, "INTDITEWISE not yet implemented");
     return false;
   }
-
-  return true;
-#else 
-  
-  set_errmsg (1, "INTDITEWISE not yet implemented");
-  return false;
-
-#endif
 }
 
 
@@ -1265,4 +1295,28 @@ bool rootfilereader::linearinterpolation ()
   }
 
   return true;
+}
+
+bool rootfilereader::oonvert_intbitewise(
+    arma::mat & paramin)
+{
+
+  paramin.resize(tracks_vct_.size(), fitter.get_paramdim());
+ 
+  if (rzplane_)
+  {
+    for (int i=0; i<paramin.r_rows; ++i)
+    {
+      paramin(i, PCA_Z0IDX) = paramin(i, PCA_Z0IDX);
+      paramin(i, PCA_COTTHETAIDX) = paramin(i, PCA_COTTHETAIDX);
+    }
+  }
+  else if (rphiplane_)
+  {
+    for (int i=0; i<paramin.r_rows; ++i)
+    {
+      paramin(i, PCA_PHIIDX) = paramin(i, PCA_PHIIDX);
+      paramin(i, PCA_ONEOVERPTIDX) = paramin(i, PCA_ONEOVERPTIDX);
+    }
+  }
 }

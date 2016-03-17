@@ -40,6 +40,8 @@ namespace pca
         std::string layersids;
       } track_rphiz_str;
 
+      bool useintbitewise_;
+
     public:
       rootfilereader();
       ~rootfilereader();
@@ -80,6 +82,9 @@ namespace pca
 
       void set_verbose (bool);
       bool get_verbose () const;
+
+      void set_useintbitewise (bool);
+      bool get_useintbitewise () const;
 
       void set_specificseq (const char *);
       const std::string & get_specificseq () const;
@@ -145,6 +150,8 @@ namespace pca
       bool linearinterpolationrphiz (std::vector<track_rphiz_str> &);
 
       bool convertorphiz (std::vector<track_rphiz_str> &);
+
+      bool convert_intbitewise(arma::mat & paramin);
 
       void set_errmsg (int , const std::string &);
       void reset_error ();
