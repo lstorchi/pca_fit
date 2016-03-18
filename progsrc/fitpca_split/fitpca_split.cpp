@@ -30,6 +30,115 @@
 // lstorchi: basi code to fit tracks, using the PCA constants generated 
 //           by the related generatepca
 
+bool import_pca_const_int (const std::string & cfname, 
+    arma::mat & cmtx, arma::rowvec & qvec, 
+    arma::mat & amtx, arma::rowvec & kvec, 
+    bool rzplane, bool rphiplane, double etaminin, 
+    double etamaxin, double ptminin, double ptmaxin, 
+    int chargesignin)
+{
+  assert(rzplane != rphiplane); 
+
+  std::vector<pca::matrixpcaconst<int32_t> > vct;
+  if (read_pcacosnt_from_file (vct, cfname.c_str()))
+  {
+    int hwmanygot = 0;
+    std::vector<pca::matrixpcaconst<int32_t> >::const_iterator it = 
+      vct.begin();
+    for (; it != vct.end(); ++it)
+    {
+      double ptmin, ptmax, etamin, etamax;
+      int chargesign;
+
+      it->get_ptrange(ptmin, ptmax);
+      it->get_etarange(etamin, etamax);
+      chargesign = it->get_chargesign();
+
+      if (it->get_ttype() == pca::matrixpcaconst<int32_t>::INTEGPT)
+      {
+        if (rzplane)
+        {
+          if (it->get_plane_type() == pca::matrixpcaconst<int32_t>::RZ)
+          {
+            if ((etaminin >= etamin) && (etaminin <= etamax) &&
+                (etamaxin >= etamin) && (etamaxin <= etamax))
+            {
+              switch(it->get_const_type())
+              {
+                case pca::matrixpcaconst<int32_t>::QVEC :
+                  pcamat_to_armarowvec ((*it), qvec);
+                  hwmanygot++;
+                  break;
+                case pca::matrixpcaconst<int32_t>::KVEC :
+                  pcamat_to_armarowvec ((*it), kvec);
+                  hwmanygot++;
+                  break;
+                case pca::matrixpcaconst<int32_t>::CMTX :
+                  pcamat_to_armamat ((*it), cmtx);
+                  hwmanygot++;
+                  break;
+                case pca::matrixpcaconst<int32_t>::AMTX :
+                  pcamat_to_armamat ((*it), amtx);
+                  hwmanygot++;
+                  break;
+                default:
+                  break;
+              }
+            } 
+          }
+        }
+        else if (rphiplane)
+        {
+          if (it->get_plane_type() == pca::matrixpcaconst<int32_t>::RPHI)
+          {
+            if (chargesignin == chargesign)
+            {
+              if ((ptminin >= ptmin) && (ptminin <= ptmax) &&
+                  (ptmaxin >= ptmin) && (ptmaxin <= ptmax))
+              {
+                switch(it->get_const_type())
+                {
+                  case pca::matrixpcaconst<int32_t>::QVEC : 
+                    pcamat_to_armarowvec ((*it), qvec);
+                    hwmanygot++;
+                    break;
+                  case pca::matrixpcaconst<int32_t>::KVEC :
+                    pcamat_to_armarowvec ((*it), kvec);
+                    hwmanygot++;
+                    break;
+                  case pca::matrixpcaconst<int32_t>::CMTX :
+                    pcamat_to_armamat ((*it), cmtx);
+                    hwmanygot++;
+                    break;
+                  case pca::matrixpcaconst<int32_t>::AMTX :
+                    pcamat_to_armamat ((*it), amtx);
+                    hwmanygot++;
+                    break;
+                  default:
+                    break;
+                }
+              }
+            } 
+          }
+        }
+      }
+    }
+
+    if (hwmanygot == 4)
+      return true;
+    else
+    {
+      std::cerr << "Found " << hwmanygot << " const instead of 4" << std::endl;
+      return false;
+    }
+  }
+
+  // TODO add consistency check for dims
+
+  return false;
+}
+
+
 bool import_pca_const (const std::string & cfname, 
     arma::mat & cmtx, arma::rowvec & qvec, 
     arma::mat & amtx, arma::rowvec & kvec, 
@@ -54,49 +163,18 @@ bool import_pca_const (const std::string & cfname,
       it->get_etarange(etamin, etamax);
       chargesign = it->get_chargesign();
 
-      if (rzplane)
+      if (it->get_ttype() == pca::matrixpcaconst<double>::FLOATPT)
       {
-        if (it->get_plane_type() == pca::matrixpcaconst<double>::RZ)
+        if (rzplane)
         {
-          if ((etaminin >= etamin) && (etaminin <= etamax) &&
-              (etamaxin >= etamin) && (etamaxin <= etamax))
+          if (it->get_plane_type() == pca::matrixpcaconst<double>::RZ)
           {
-            switch(it->get_const_type())
-            {
-              case pca::matrixpcaconst<double>::QVEC :
-                pcamat_to_armarowvec ((*it), qvec);
-                hwmanygot++;
-                break;
-              case pca::matrixpcaconst<double>::KVEC :
-                pcamat_to_armarowvec ((*it), kvec);
-                hwmanygot++;
-                break;
-              case pca::matrixpcaconst<double>::CMTX :
-                pcamat_to_armamat ((*it), cmtx);
-                hwmanygot++;
-                break;
-              case pca::matrixpcaconst<double>::AMTX :
-                pcamat_to_armamat ((*it), amtx);
-                hwmanygot++;
-                break;
-              default:
-                break;
-            }
-          } 
-        }
-      }
-      else if (rphiplane)
-      {
-        if (it->get_plane_type() == pca::matrixpcaconst<double>::RPHI)
-        {
-          if (chargesignin == chargesign)
-          {
-            if ((ptminin >= ptmin) && (ptminin <= ptmax) &&
-                (ptmaxin >= ptmin) && (ptmaxin <= ptmax))
+            if ((etaminin >= etamin) && (etaminin <= etamax) &&
+                (etamaxin >= etamin) && (etamaxin <= etamax))
             {
               switch(it->get_const_type())
               {
-                case pca::matrixpcaconst<double>::QVEC : 
+                case pca::matrixpcaconst<double>::QVEC :
                   pcamat_to_armarowvec ((*it), qvec);
                   hwmanygot++;
                   break;
@@ -115,8 +193,42 @@ bool import_pca_const (const std::string & cfname,
                 default:
                   break;
               }
-            }
-          } 
+            } 
+          }
+        }
+        else if (rphiplane)
+        {
+          if (it->get_plane_type() == pca::matrixpcaconst<double>::RPHI)
+          {
+            if (chargesignin == chargesign)
+            {
+              if ((ptminin >= ptmin) && (ptminin <= ptmax) &&
+                  (ptmaxin >= ptmin) && (ptmaxin <= ptmax))
+              {
+                switch(it->get_const_type())
+                {
+                  case pca::matrixpcaconst<double>::QVEC : 
+                    pcamat_to_armarowvec ((*it), qvec);
+                    hwmanygot++;
+                    break;
+                  case pca::matrixpcaconst<double>::KVEC :
+                    pcamat_to_armarowvec ((*it), kvec);
+                    hwmanygot++;
+                    break;
+                  case pca::matrixpcaconst<double>::CMTX :
+                    pcamat_to_armamat ((*it), cmtx);
+                    hwmanygot++;
+                    break;
+                  case pca::matrixpcaconst<double>::AMTX :
+                    pcamat_to_armamat ((*it), amtx);
+                    hwmanygot++;
+                    break;
+                  default:
+                    break;
+                }
+              }
+            } 
+          }
         }
       }
     }
@@ -139,62 +251,85 @@ bool import_pca_const (const std::string & cfname,
 bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt, 
      arma::mat & cmtx, arma::rowvec & q, arma::mat & amtx, 
      arma::rowvec & k, bool verbose, pca::pcafitter & fitter, 
-     bool rzplane, bool rphiplane, arma::vec & ptvals)
+     bool rzplane, bool rphiplane, arma::vec & ptvals, 
+     bool intbitewise)
 {
   int nbins = 100;
 
-#ifdef INTBITEWISEFIT
-  int32_t ** ptrs;
-  ptrs = new int32_t* [fitter.get_paramdim()];
+  int32_t ** i_ptrs = NULL;
+  double ** ptrs = NULL;
 
-  int32_t * cothetacmp = NULL, * z0cmp = NULL, * qoverptcmp = NULL,
-    * phicmp = NULL;
-#else
-  double ** ptrs;
-  ptrs = new double* [fitter.get_paramdim()];
+  if (intbitewise)
+    i_ptrs = new int32_t* [fitter.get_paramdim()];
+  else
+    ptrs = new double* [fitter.get_paramdim()];
 
+  int32_t * i_cothetacmp = NULL, * i_z0cmp = NULL, * i_qoverptcmp = NULL,
+    * i_phicmp = NULL;
   double * cothetacmp = NULL, * z0cmp = NULL, * qoverptcmp = NULL,
     * phicmp = NULL;
-#endif
   
   if (rzplane)
   {
-#ifdef INTBITEWISEFIT
-    cothetacmp = new int32_t [(int)coordslt.n_rows];
-    z0cmp = new int32_t [(int)coordslt.n_rows];
-#else
-    cothetacmp = new double [(int)coordslt.n_rows];
-    z0cmp = new double [(int)coordslt.n_rows];
-#endif
-    ptrs[PCA_COTTHETAIDX] = cothetacmp;
-    ptrs[PCA_Z0IDX] = z0cmp;
+    if (intbitewise)
+    {
+      i_cothetacmp = new int32_t [(int)coordslt.n_rows];
+      i_z0cmp = new int32_t [(int)coordslt.n_rows];
+      i_ptrs[PCA_COTTHETAIDX] = i_cothetacmp;
+      i_ptrs[PCA_Z0IDX] = i_z0cmp;
+    }
+    else
+    {
+      cothetacmp = new double [(int)coordslt.n_rows];
+      z0cmp = new double [(int)coordslt.n_rows];
+      ptrs[PCA_COTTHETAIDX] = cothetacmp;
+      ptrs[PCA_Z0IDX] = z0cmp;
+    }  
   }
   else if (rphiplane)
   {
-#ifdef INTBITEWISEFIT
-    qoverptcmp = new int32_t [(int)coordslt.n_rows];
-    phicmp = new int32_t [(int)coordslt.n_rows];
-#else
-    qoverptcmp = new double [(int)coordslt.n_rows];
-    phicmp = new double [(int)coordslt.n_rows];
-#endif
-    ptrs[PCA_ONEOVERPTIDX] = qoverptcmp;
-    ptrs[PCA_PHIIDX] = phicmp;
+    if (intbitewise)
+    {
+      i_qoverptcmp = new int32_t [(int)coordslt.n_rows];
+      i_phicmp = new int32_t [(int)coordslt.n_rows];
+      i_ptrs[PCA_ONEOVERPTIDX] = i_qoverptcmp;
+      i_ptrs[PCA_PHIIDX] = i_phicmp;
+    }
+    else
+    {
+      qoverptcmp = new double [(int)coordslt.n_rows];
+      phicmp = new double [(int)coordslt.n_rows];
+      ptrs[PCA_ONEOVERPTIDX] = qoverptcmp;
+      ptrs[PCA_PHIIDX] = phicmp;
+    }
   }
 
   arma::rowvec chi2values, chi2values_fake;
   chi2values.resize(coordslt.n_rows);
   chi2values_fake.resize(0);
 
-  if (!fitter.compute_parameters (cmtx, q, amtx, k, 
-        coordslt, ptrs, fitter.get_paramdim(), 
-        chi2values, chi2values_fake))
+  if (intbitewise)
   {
-    std::cerr << fitter.get_errmsg() << std::endl;
-    return false;
+    if (!fitter.compute_parameters (cmtx, q, amtx, k, 
+          coordslt, i_ptrs, fitter.get_paramdim(), 
+          chi2values))
+    {
+      std::cerr << fitter.get_errmsg() << std::endl;
+      return false;
+    }
+    delete [] i_ptrs;
   }
-
-  delete [] ptrs; 
+  else
+  {
+    if (!fitter.compute_parameters (cmtx, q, amtx, k, 
+          coordslt, ptrs, fitter.get_paramdim(), 
+          chi2values, chi2values_fake))
+    {
+      std::cerr << fitter.get_errmsg() << std::endl;
+      return false;
+    }
+    delete [] ptrs; 
+  }
 
   std::ostringstream fname;
   fname << "results.txt";
@@ -206,196 +341,265 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
 
   assert(chi2values.n_cols == coordslt.n_rows);
 
-  if (rzplane)
+  if (intbitewise)
   {
-#ifdef INTBITEWISEFIT
-    myfile << "pt eta_orig eta_fitt diff z0_orig z0_fitt diff chi2 chi2" << std::endl;
-#else
-    myfile << "pt eta_orig eta_fitt diff z0_orig z0_fitt diff chi2 chi2" << std::endl;
-#endif
-    
-    arma::rowvec etadiffvct(coordslt.n_rows), 
-      z0diffvct(coordslt.n_rows);
-   
-    for (int i=0; i<(int)coordslt.n_rows; ++i)
+    if (rzplane)
     {
-      double thetacmp = atan(1.0e0 / cothetacmp[i]) ; 
-      double etacmp = 0.0e0, tantheta2;
-      tantheta2 = tan (thetacmp/2.0e0); 
-      if (tantheta2 < 0.0)
-        etacmp = 1.0e0 * log (-1.0e0 * tantheta2);
-      else
-        etacmp = -1.0e0 * log (tantheta2);
-
-      double theta = atan(1.0e0 / paramslt(i, PCA_COTTHETAIDX));
-      double etaorig = 0.0e0;
-      tantheta2 = tan (theta/2.0e0);
-      if (tantheta2 < 0.0)
-        etaorig = 1.0e0 * log (-1.0e0 * tantheta2);
-      else
-        etaorig = -1.0e0 * log (tantheta2);
-
-      double etadiff =  (etacmp - etaorig);
-      etadiffvct(i) = etadiff;
-
-      double z0cmps = z0cmp[i];
-      double z0orig = paramslt(i, PCA_Z0IDX);
-      double z0diff = z0cmp[i] - paramslt(i, PCA_Z0IDX);
-      z0diffvct(i) = z0diff;
-
-      pcrelative[PCA_COTTHETAIDX](etadiff/etaorig);
-      pcrelative[PCA_Z0IDX](z0diff/z0orig);
-      
-      pcabsolute[PCA_COTTHETAIDX](etadiff);
-      pcabsolute[PCA_Z0IDX](z0diff);
-
-      chi2stat(chi2values(i));
-        
-#ifdef INTBITEWISEFIT
-      myfile << ptvals(i) << "   " <<
-	etaorig << "   " << etacmp << "   " <<
-	(etacmp - etaorig) << " " <<
-	z0orig << " " << z0cmps << " " <<
-	(z0cmps - z0orig) << " " << chi2values(i) << std::endl;
-#else
-      myfile << ptvals(i) << "   " <<
-	etaorig << "   " << etacmp << "   " <<
-	(etacmp - etaorig) << " " <<
-	z0orig << " " << z0cmps << " " <<
-	(z0cmps - z0orig) << " " << chi2values(i) << std::endl;
-#endif
-      
-      if (verbose)
+      myfile << "pt eta_orig eta_fitt diff z0_orig z0_fitt diff chi2 chi2" << std::endl;
+    
+      arma::rowvec etadiffvct(coordslt.n_rows), 
+        z0diffvct(coordslt.n_rows);
+     
+      for (int i=0; i<(int)coordslt.n_rows; ++i)
       {
-        std::cout << "For track : " << i+1 << std::endl;
-        std::cout << " cotheta      fitt " << cothetacmp[i] << std::endl;
-        std::cout << " cotheta      orig " << paramslt(i, PCA_COTTHETAIDX) << std::endl;
-        std::cout << " theta rad    fitt " << thetacmp << std::endl;
-        std::cout << " theta rad    orig " << theta << std::endl;
-        std::cout << " theta deg    fitt " << thetacmp*(180.0e0/M_PI) << std::endl;
-        std::cout << " theta deg    orig " << theta*(180.0e0/M_PI) << std::endl;
-        std::cout << " eta          fitt " << etacmp << std::endl;
-        std::cout << " eta          orig " << etaorig << std::endl;
-        std::cout << " z0           fitt " << z0cmps << std::endl;
-        std::cout << " z0           orig " << z0orig << std::endl;
-        std::cout << " chi2              " << chi2values(i) << std::endl;
+        double thetacmp = atan(1.0e0 / i_cothetacmp[i]) ; 
+        double etacmp = 0.0e0, tantheta2;
+        tantheta2 = tan (thetacmp/2.0e0); 
+        if (tantheta2 < 0.0)
+          etacmp = 1.0e0 * log (-1.0e0 * tantheta2);
+        else
+          etacmp = -1.0e0 * log (tantheta2);
+     
+        double theta = atan(1.0e0 / paramslt(i, PCA_COTTHETAIDX));
+        double etaorig = 0.0e0;
+        tantheta2 = tan (theta/2.0e0);
+        if (tantheta2 < 0.0)
+          etaorig = 1.0e0 * log (-1.0e0 * tantheta2);
+        else
+          etaorig = -1.0e0 * log (tantheta2);
+     
+        double etadiff = (etacmp - etaorig);
+        etadiffvct(i) = etadiff;
+     
+        int32_t z0cmps = i_z0cmp[i];
+        int32_t z0orig = paramslt(i, PCA_Z0IDX);
+        int32_t z0diff = z0cmps - paramslt(i, PCA_Z0IDX);
+        z0diffvct(i) = z0diff;
+     
+        pcrelative[PCA_COTTHETAIDX](etadiff/etaorig);
+        pcrelative[PCA_Z0IDX](z0diff/z0orig);
+        
+        pcabsolute[PCA_COTTHETAIDX](etadiff);
+        pcabsolute[PCA_Z0IDX](z0diff);
+     
+        chi2stat(chi2values(i));
+        
+        myfile << ptvals(i) << "   " <<
+          etaorig << "   " << etacmp << "   " <<
+          (etacmp - etaorig) << " " <<
+          z0orig << " " << z0cmps << " " <<
+          (z0cmps - z0orig) << " " << chi2values(i) << std::endl;
       }
     }
-
-    TH1D *hist_z0 = new TH1D("hist_diff_z0","z0 diff histogram",nbins, 
-        z0diffvct.min(), z0diffvct.max());
-    TH1D *hist_eta = new TH1D("hist_diff_eta","eta diff histogram",nbins, 
-        etadiffvct.min(), etadiffvct.max());
-
-    for (int i=0; i<(int)coordslt.n_rows; ++i)
+    else if (rphiplane)
     {
-      hist_z0->Fill((Double_t) z0diffvct(i));
-      hist_eta->Fill((double_t) etadiffvct(i));
+      std::ofstream myfile(fname.str().c_str());
+        myfile << "pt q/pt_orig q/pt_fitt diff phi_orig phi_fitt diff chi2 chi2" << std::endl; 
+    
+      arma::rowvec qoverptdiffvct(coordslt.n_rows), 
+        phidiffvct(coordslt.n_rows);
+          
+      for (int i=0; i<(int)coordslt.n_rows; ++i)
+      {
+        int32_t qoverptorig = paramslt(i, PCA_ONEOVERPTIDX);
+        int32_t qoverptcmps = i_qoverptcmp[i];
+        
+        int32_t diffqoverpt = qoverptcmps - qoverptorig;
+    
+        double phiorig = paramslt(i, PCA_PHIIDX);
+        int32_t phicmps = i_phicmp[i];
+        int32_t diffphi = phicmps - phiorig;
+    
+        pcrelative[PCA_PHIIDX](diffphi/phiorig);
+        pcrelative[PCA_ONEOVERPTIDX](diffqoverpt/qoverptorig);
+      
+        pcabsolute[PCA_PHIIDX](diffphi);
+        pcabsolute[PCA_ONEOVERPTIDX](diffqoverpt);
+    
+        chi2stat(chi2values(i));
+    
+        qoverptdiffvct(i) = diffqoverpt/qoverptorig;
+        phidiffvct(i) = diffphi;
+      
+        myfile << ptvals(i) << " " <<
+          qoverptorig << " " << qoverptcmps << " " << diffqoverpt << " " <<
+          phiorig     << " " << phicmps     << " " << diffphi     << " " << 
+          chi2values(i) << std::endl;
+      }
     }
-
-    hist_z0->Fit("gaus","","",z0diffvct.min(),z0diffvct.max());
-    hist_eta->Fit("gaus","","",etadiffvct.min(),etadiffvct.max());
-
-    TF1 *func_eta = (TF1*)hist_eta->GetFunction("gaus");
-    TF1 *func_z0 = (TF1*)hist_z0->GetFunction("gaus");
-
-    std::cout << 
-      "Eta fitted mean: " << func_eta->GetParameter("Mean") << " +/- " << 
-      func_eta->GetParError(1) << std::endl << 
-      "Eta fitted sigma: " << func_eta->GetParameter("Sigma") << " +/- " <<
-      func_eta->GetParError(2) << std::endl;
-
-    std::cout << 
-      "z0 fitted mean: " << func_z0->GetParameter("Mean") << " +/- " << 
-      func_z0->GetParError(1) << std::endl << 
-      "z0 fitted sigma: " << func_z0->GetParameter("Sigma") << " +/- " <<
-      func_z0->GetParError(2) << std::endl;
-
   }
-  else if (rphiplane)
+  else
   {
-    std::ofstream myfile(fname.str().c_str());
-      myfile << "pt q/pt_orig q/pt_fitt diff phi_orig phi_fitt diff chi2 chi2" << std::endl; 
-
-    arma::rowvec qoverptdiffvct(coordslt.n_rows), 
-      phidiffvct(coordslt.n_rows);
-        
-    for (int i=0; i<(int)coordslt.n_rows; ++i)
+    if (rzplane)
     {
-      double qoverptorig = paramslt(i, PCA_ONEOVERPTIDX);
-#ifdef INTBITEWISEFIT
-      int32_t qoverptcmps = qoverptcmp[i];
-#else
-      double qoverptcmps = qoverptcmp[i];
-#endif
-      
-      double diffqoverpt = qoverptcmps - qoverptorig;
-
-      double phiorig = paramslt(i, PCA_PHIIDX);
-#ifdef INTBITEWISEFIT
-      int32_t phicmps = phicmp[i];
-#else
-      double phicmps = phicmp[i];      
-#endif      
-      double diffphi = phicmps - phiorig;
-
-      pcrelative[PCA_PHIIDX](diffphi/phiorig);
-      pcrelative[PCA_ONEOVERPTIDX](diffqoverpt/qoverptorig);
+      myfile << "pt eta_orig eta_fitt diff z0_orig z0_fitt diff chi2 chi2" << std::endl;
     
-      pcabsolute[PCA_PHIIDX](diffphi);
-      pcabsolute[PCA_ONEOVERPTIDX](diffqoverpt);
-
-      chi2stat(chi2values(i));
-
-      qoverptdiffvct(i) = diffqoverpt/qoverptorig;
-      phidiffvct(i) = diffphi;
-    
-      myfile << ptvals(i) << " " <<
-        qoverptorig << " " << qoverptcmps << " " << diffqoverpt << " " <<
-        phiorig     << " " << phicmps     << " " << diffphi     << " " << 
-        chi2values(i) << std::endl;
-    
-      if (verbose)
+      arma::rowvec etadiffvct(coordslt.n_rows), 
+        z0diffvct(coordslt.n_rows);
+     
+      for (int i=0; i<(int)coordslt.n_rows; ++i)
       {
-        std::cout << "For track : " << i+1 << std::endl;
-        std::cout << " q/pt         fitt " << qoverptcmps << std::endl;
-        std::cout << " q/pt         orig " << qoverptorig << std::endl;
-        std::cout << " phi          fitt " << phicmps << std::endl;
-        std::cout << " phi          orig " << phiorig << std::endl;
-        std::cout << " chi2              " << chi2values(i) << std::endl;
+        double thetacmp = atan(1.0e0 / cothetacmp[i]) ; 
+        double etacmp = 0.0e0, tantheta2;
+        tantheta2 = tan (thetacmp/2.0e0); 
+        if (tantheta2 < 0.0)
+          etacmp = 1.0e0 * log (-1.0e0 * tantheta2);
+        else
+          etacmp = -1.0e0 * log (tantheta2);
+     
+        double theta = atan(1.0e0 / paramslt(i, PCA_COTTHETAIDX));
+        double etaorig = 0.0e0;
+        tantheta2 = tan (theta/2.0e0);
+        if (tantheta2 < 0.0)
+          etaorig = 1.0e0 * log (-1.0e0 * tantheta2);
+        else
+          etaorig = -1.0e0 * log (tantheta2);
+     
+        double etadiff =  (etacmp - etaorig);
+        etadiffvct(i) = etadiff;
+     
+        double z0cmps = z0cmp[i];
+        double z0orig = paramslt(i, PCA_Z0IDX);
+        double z0diff = z0cmp[i] - paramslt(i, PCA_Z0IDX);
+        z0diffvct(i) = z0diff;
+     
+        pcrelative[PCA_COTTHETAIDX](etadiff/etaorig);
+        pcrelative[PCA_Z0IDX](z0diff/z0orig);
+        
+        pcabsolute[PCA_COTTHETAIDX](etadiff);
+        pcabsolute[PCA_Z0IDX](z0diff);
+     
+        chi2stat(chi2values(i));
+        
+        myfile << ptvals(i) << "   " <<
+          etaorig << "   " << etacmp << "   " <<
+          (etacmp - etaorig) << " " <<
+          z0orig << " " << z0cmps << " " <<
+          (z0cmps - z0orig) << " " << chi2values(i) << std::endl;
+      
+        if (verbose)
+        {
+          std::cout << "For track : " << i+1 << std::endl;
+          std::cout << " cotheta      fitt " << cothetacmp[i] << std::endl;
+          std::cout << " cotheta      orig " << paramslt(i, PCA_COTTHETAIDX) << std::endl;
+          std::cout << " theta rad    fitt " << thetacmp << std::endl;
+          std::cout << " theta rad    orig " << theta << std::endl;
+          std::cout << " theta deg    fitt " << thetacmp*(180.0e0/M_PI) << std::endl;
+          std::cout << " theta deg    orig " << theta*(180.0e0/M_PI) << std::endl;
+          std::cout << " eta          fitt " << etacmp << std::endl;
+          std::cout << " eta          orig " << etaorig << std::endl;
+          std::cout << " z0           fitt " << z0cmps << std::endl;
+          std::cout << " z0           orig " << z0orig << std::endl;
+          std::cout << " chi2              " << chi2values(i) << std::endl;
+        }
       }
+
+      TH1D *hist_z0 = new TH1D("hist_diff_z0","z0 diff histogram",nbins, 
+          z0diffvct.min(), z0diffvct.max());
+      TH1D *hist_eta = new TH1D("hist_diff_eta","eta diff histogram",nbins, 
+          etadiffvct.min(), etadiffvct.max());
+      
+      for (int i=0; i<(int)coordslt.n_rows; ++i)
+      {
+        hist_z0->Fill((Double_t) z0diffvct(i));
+        hist_eta->Fill((double_t) etadiffvct(i));
+      }
+      
+      hist_z0->Fit("gaus","","",z0diffvct.min(),z0diffvct.max());
+      hist_eta->Fit("gaus","","",etadiffvct.min(),etadiffvct.max());
+      
+      TF1 *func_eta = (TF1*)hist_eta->GetFunction("gaus");
+      TF1 *func_z0 = (TF1*)hist_z0->GetFunction("gaus");
+      
+      std::cout << 
+        "Eta fitted mean: " << func_eta->GetParameter("Mean") << " +/- " << 
+        func_eta->GetParError(1) << std::endl << 
+        "Eta fitted sigma: " << func_eta->GetParameter("Sigma") << " +/- " <<
+        func_eta->GetParError(2) << std::endl;
+      
+      std::cout << 
+        "z0 fitted mean: " << func_z0->GetParameter("Mean") << " +/- " << 
+        func_z0->GetParError(1) << std::endl << 
+        "z0 fitted sigma: " << func_z0->GetParameter("Sigma") << " +/- " <<
+        func_z0->GetParError(2) << std::endl;
     }
-
-    TH1D *hist_qoverpt = new TH1D("hist_diff_qoverpt","q/pt diff histogram",nbins, 
-        qoverptdiffvct.min(), qoverptdiffvct.max());
-    TH1D *hist_phi = new TH1D("hist_diff_phi","phi diff histogram",nbins, 
-        phidiffvct.min(), phidiffvct.max());
-
-    for (int i=0; i<(int)coordslt.n_rows; ++i)
+    else if (rphiplane)
     {
-      hist_qoverpt->Fill((Double_t) qoverptdiffvct(i));
-      hist_phi->Fill((double_t) phidiffvct(i));
+      std::ofstream myfile(fname.str().c_str());
+        myfile << "pt q/pt_orig q/pt_fitt diff phi_orig phi_fitt diff chi2 chi2" << std::endl; 
+    
+      arma::rowvec qoverptdiffvct(coordslt.n_rows), 
+        phidiffvct(coordslt.n_rows);
+          
+      for (int i=0; i<(int)coordslt.n_rows; ++i)
+      {
+        double qoverptorig = paramslt(i, PCA_ONEOVERPTIDX);
+        double qoverptcmps = qoverptcmp[i];
+        
+        double diffqoverpt = qoverptcmps - qoverptorig;
+    
+        double phiorig = paramslt(i, PCA_PHIIDX);
+        double phicmps = phicmp[i];      
+        double diffphi = phicmps - phiorig;
+    
+        pcrelative[PCA_PHIIDX](diffphi/phiorig);
+        pcrelative[PCA_ONEOVERPTIDX](diffqoverpt/qoverptorig);
+      
+        pcabsolute[PCA_PHIIDX](diffphi);
+        pcabsolute[PCA_ONEOVERPTIDX](diffqoverpt);
+    
+        chi2stat(chi2values(i));
+    
+        qoverptdiffvct(i) = diffqoverpt/qoverptorig;
+        phidiffvct(i) = diffphi;
+      
+        myfile << ptvals(i) << " " <<
+          qoverptorig << " " << qoverptcmps << " " << diffqoverpt << " " <<
+          phiorig     << " " << phicmps     << " " << diffphi     << " " << 
+          chi2values(i) << std::endl;
+      
+        if (verbose)
+        {
+          std::cout << "For track : " << i+1 << std::endl;
+          std::cout << " q/pt         fitt " << qoverptcmps << std::endl;
+          std::cout << " q/pt         orig " << qoverptorig << std::endl;
+          std::cout << " phi          fitt " << phicmps << std::endl;
+          std::cout << " phi          orig " << phiorig << std::endl;
+          std::cout << " chi2              " << chi2values(i) << std::endl;
+        }
+      }
+    
+      TH1D *hist_qoverpt = new TH1D("hist_diff_qoverpt","q/pt diff histogram",nbins, 
+          qoverptdiffvct.min(), qoverptdiffvct.max());
+      TH1D *hist_phi = new TH1D("hist_diff_phi","phi diff histogram",nbins, 
+          phidiffvct.min(), phidiffvct.max());
+    
+      for (int i=0; i<(int)coordslt.n_rows; ++i)
+      {
+        hist_qoverpt->Fill((Double_t) qoverptdiffvct(i));
+        hist_phi->Fill((double_t) phidiffvct(i));
+      }
+    
+      hist_qoverpt->Fit("gaus","","",qoverptdiffvct.min(),
+          qoverptdiffvct.max());
+      hist_phi->Fit("gaus","","",phidiffvct.min(),
+          phidiffvct.max());
+    
+      TF1 *func_qoverpt = (TF1*)hist_qoverpt->GetFunction("gaus");
+      TF1 *func_phi = (TF1*)hist_phi->GetFunction("gaus");
+    
+      std::cout << 
+        "q/pt fitted mean: " << func_qoverpt->GetParameter("Mean")*100.0 << " +/- " << 
+        func_qoverpt->GetParError(1)*100.0 << std::endl << 
+        "p/pt fitted sigma: " << func_phi->GetParameter("Sigma")*100.0 << " +/- " <<
+        func_phi->GetParError(2)*100.0 << std::endl;
+    
+      std::cout << 
+        "Phi fitted mean: " << func_phi->GetParameter("Mean") << " +/- " << 
+        func_phi->GetParError(1) << std::endl << 
+        "Phi fitted sigma: " << func_phi->GetParameter("Sigma") << " +/- " <<
+        func_phi->GetParError(2) << std::endl;
     }
-
-    hist_qoverpt->Fit("gaus","","",qoverptdiffvct.min(),
-        qoverptdiffvct.max());
-    hist_phi->Fit("gaus","","",phidiffvct.min(),
-        phidiffvct.max());
-
-    TF1 *func_qoverpt = (TF1*)hist_qoverpt->GetFunction("gaus");
-    TF1 *func_phi = (TF1*)hist_phi->GetFunction("gaus");
-
-    std::cout << 
-      "q/pt fitted mean: " << func_qoverpt->GetParameter("Mean")*100.0 << " +/- " << 
-      func_qoverpt->GetParError(1)*100.0 << std::endl << 
-      "p/pt fitted sigma: " << func_phi->GetParameter("Sigma")*100.0 << " +/- " <<
-      func_phi->GetParError(2)*100.0 << std::endl;
-
-    std::cout << 
-      "Phi fitted mean: " << func_phi->GetParameter("Mean") << " +/- " << 
-      func_phi->GetParError(1) << std::endl << 
-      "Phi fitted sigma: " << func_phi->GetParameter("Sigma") << " +/- " <<
-      func_phi->GetParError(2) << std::endl;
   }
 
   myfile.close();
@@ -416,15 +620,31 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
     chi2stat.stddev() << std::endl;
 
 
-  if (rzplane)
+  if (intbitewise)
   {
-    delete [] cothetacmp;
-    delete [] z0cmp;
+    if (rzplane)
+    {
+      delete [] i_cothetacmp;
+      delete [] i_z0cmp;
+    }
+    else if (rphiplane)
+    {
+      delete [] i_qoverptcmp;
+      delete [] i_phicmp;
+    }
   }
-  else if (rphiplane)
+  else
   {
-    delete [] qoverptcmp;
-    delete [] phicmp;
+    if (rzplane)
+    {
+      delete [] cothetacmp;
+      delete [] z0cmp;
+    }
+    else if (rphiplane)
+    {
+      delete [] qoverptcmp;
+      delete [] phicmp;
+    }
   }
 
   return true;
@@ -437,6 +657,7 @@ void usage (char * name)
   std::cerr << " -h, --help                       : display this help and exit" << std::endl;
   std::cerr << " -V, --verbose                    : verbose option on" << std::endl;
   std::cerr << " -v, --version                    : print version and exit" << std::endl;
+  std::cerr << " -T, --int-bitewise              : Integer bitewise mode on" << std::endl;
   std::cerr << " -p, --dump-allcoords             : dump all stub coordinates to a file" << std::endl;
   std::cerr << " -c, --pca-const-file=[fillename] : PCA const txt filename [default is pca_const.txt]" << std::endl;
   std::cerr << std::endl;                         
@@ -489,6 +710,8 @@ int main (int argc, char ** argv)
   bool printallcoords = false;
   bool usefakefiveoutofsix = false;
 
+  bool intbitewise = true;
+
   int layeridtorm = -1;
 
   double etamin = -1.0e0 * INFINITY, etamax = +1.0e0 * INFINITY;
@@ -516,6 +739,7 @@ int main (int argc, char ** argv)
       {"pca-const-file", 1, NULL, 'c'},
       {"verbose", 0, NULL, 'V'},
       {"version", 0, NULL, 'v'},
+      {"int-bitewise", 0, NULL, 'T'}, 
       {"jump-tracks", 0, NULL, 'j'},
       {"rz-plane", 0, NULL, 'z'},
       {"rphi-plane", 0, NULL, 'r'},
@@ -536,7 +760,7 @@ int main (int argc, char ** argv)
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "pkxzrhaVw:l:f:b:t:g:c:n:s:m:o:u", 
+    c = getopt_long (argc, argv, "TpkxzrhaVw:l:f:b:t:g:c:n:s:m:o:u", 
         long_options, &option_index);
 
     if (c == -1)
@@ -544,6 +768,9 @@ int main (int argc, char ** argv)
 
     switch (c)
     {
+      case 'T':
+        intbitewise = true;
+        break;
       case 'w':
         usefakefiveoutofsix = true;
         layeridtorm = atoi(optarg);
@@ -670,6 +897,9 @@ int main (int argc, char ** argv)
   if (optind >= argc) 
     usage (argv[0]);
 
+  fitter.set_useintbitewise(intbitewise);
+ 
+
   if (numoflayers == 5)
   {
     if (usefakefiveoutofsix)
@@ -784,12 +1014,25 @@ int main (int argc, char ** argv)
   {
     std::cout << "Reading " << cfname << std::endl;
 
-    if (!import_pca_const (cfname, cmtx, qvec, amtx, kvec, 
-          rzplane, rphiplane, etamin, etamax, ptmin, 
-          ptmax, chargesign))
+    if (intbitewise)
     {
-      std::cerr << "Error in reading constants from file" << std::endl;
-      return EXIT_FAILURE;
+      if (!import_pca_const_int (cfname, cmtx, qvec, amtx, kvec, 
+            rzplane, rphiplane, etamin, etamax, ptmin, 
+            ptmax, chargesign))
+      {
+        std::cerr << "Error in reading constants from file" << std::endl;
+        return EXIT_FAILURE;
+      }
+    }
+    else
+    {
+      if (!import_pca_const (cfname, cmtx, qvec, amtx, kvec, 
+            rzplane, rphiplane, etamin, etamax, ptmin, 
+            ptmax, chargesign))
+      {
+        std::cerr << "Error in reading constants from file" << std::endl;
+        return EXIT_FAILURE;
+      }
     }
 
     unsigned int coorddim = (unsigned int) fitter.get_coordim();
@@ -827,6 +1070,7 @@ int main (int argc, char ** argv)
 
   pca::rootfilereader rootrdr;
 
+  rootrdr.set_useintbitewise(intbitewise);
   rootrdr.set_filename(filename);
 
   rootrdr.set_specificseq (sequence.c_str());
@@ -897,7 +1141,7 @@ int main (int argc, char ** argv)
   }
 
   if (!build_and_compare (param, coord, cmtx, qvec, amtx, kvec, 
-        verbose, fitter, rzplane, rphiplane, ptvals))
+        verbose, fitter, rzplane, rphiplane, ptvals, intbitewise))
     return EXIT_FAILURE;
 
   std::cout << "Constants Used: C matrix: " << std::endl;
@@ -905,17 +1149,18 @@ int main (int argc, char ** argv)
   std::cout << "Constants Used: q matrix: " << std::endl;
   std::cout << qvec;
 
-#ifdef INTBITEWISEFIT
-  std::cout << "Constants Used with precision:" << std::endl;
-  std::cout << "Constants Used: C matrix: " << std::endl;
-  for (int i=0; i<2; ++i)
-    for (int j=0; j<12; ++j)
-      std::cout << std::setprecision(9) << (double) cmtx(i, j) << std::endl;
-
-  std::cout << "Constants Used: q matrix: " << std::endl;
-  for (int i=0; i<2; ++i)
-    std::cout << std::setprecision(9) << (double) qvec(i) << std::endl;
-#endif
+  if (intbitewise)
+  {
+    std::cout << "Constants Used with precision:" << std::endl;
+    std::cout << "Constants Used: C matrix: " << std::endl;
+    for (int i=0; i<2; ++i)
+      for (int j=0; j<12; ++j)
+        std::cout << std::setprecision(9) << (double) cmtx(i, j) << std::endl;
+    
+    std::cout << "Constants Used: q matrix: " << std::endl;
+    for (int i=0; i<2; ++i)
+      std::cout << std::setprecision(9) << (double) qvec(i) << std::endl;
+  }
   
   return EXIT_SUCCESS;
 }

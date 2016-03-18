@@ -9,7 +9,7 @@
 
 #define RANGE_CHECK
 
-/* L. Storchi: quick and dirty PCA const store class */
+/* Loriano Storchi: quick and dirty PCA const store class */
 
 template< class T >
 struct TypeIsInt32_t

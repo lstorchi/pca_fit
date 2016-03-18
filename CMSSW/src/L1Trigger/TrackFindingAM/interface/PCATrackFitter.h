@@ -15,7 +15,7 @@
 #include "../interface/pcaconst.hpp"
 
 /**
-   \brief PCA fitter hfile : L. Storchi 2016
+   \brief PCA fitter hfile : Loriano Storchi 2016
 **/
 class PCATrackFitter:public TrackFitter
 {

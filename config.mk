@@ -18,7 +18,8 @@ DEBUG=no
 # BITEWISE 
 # yes to use integer, either generation and fit 
 # no
-USEINTBITEWISE = no
+# USEINTBITEWISE = no 
+# can be used at runtime 
 
 # if needed you sould specify here armadillo library path 
 #CFLAGS += -I/afs/cern.ch/user/l/$(USER)/armadillo-3.930.4/include
