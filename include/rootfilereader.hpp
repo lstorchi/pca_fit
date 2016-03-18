@@ -20,6 +20,7 @@ namespace pca
       {
         int dim;
         std::vector<double> x, y, z;
+        std::vector<int16_t> i_x, i_y, i_z;
         std::vector<int> layer, ladder, module, segid;
 
         double x0, y0, z0, d0, pt, phi, eta;
@@ -32,6 +33,7 @@ namespace pca
       {
         int dim;
         std::vector<double> r, phii, z;
+        std::vector<int32_t> i_r, i_phii, i_z;
         std::vector<int> layer;
 
         double x0, y0, z0, d0, pt, phi, eta;
@@ -150,8 +152,6 @@ namespace pca
       bool linearinterpolationrphiz (std::vector<track_rphiz_str> &);
 
       bool convertorphiz (std::vector<track_rphiz_str> &);
-
-      bool convert_intbitewise(arma::mat & paramin);
 
       void set_errmsg (int , const std::string &);
       void reset_error ();

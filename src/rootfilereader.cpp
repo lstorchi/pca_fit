@@ -127,6 +127,8 @@ void rootfilereader::reset()
 
   layersid_ = "";
 
+  tracks_vct_.clear();
+
   reset_error();
   filename_ = "";
 }
@@ -524,7 +526,11 @@ bool rootfilereader::reading_from_root_file (
          single_track.x.push_back(stubx[j]);
          single_track.y.push_back(stuby[j]);
          single_track.z.push_back(stubz[j]);
-         
+
+         single_track.i_x.push_back((int16_t) 10 * stubx[j]);
+         single_track.i_y.push_back((int16_t) 10 * stuby[j]);
+         single_track.i_z.push_back((int16_t) 10 * stubz[j]);
+ 
          int value = moduleid[j];
          int layer = value/1000000;
          value = value-layer*1000000;
@@ -589,7 +595,11 @@ bool rootfilereader::reading_from_root_file (
                      << single_track.ladder[i] << " " 
                      << single_track.module[i] << " "
                      << single_track.segid[i] << " "
-                     << single_track.pdg << std::endl; 
+                     << single_track.pdg << " " 
+                     << single_track.i_x[i] << " " 
+                     << single_track.i_y[i] << " " 
+                     << single_track.i_z[i] << " "
+                     << std::endl; 
            }
 
            sstrack << single_track.pt << " "  
@@ -794,30 +804,25 @@ bool rootfilereader::convertorphiz (std::vector<track_rphiz_str> &
     single_track.pdg = track->pdg;
     single_track.layersids = track->layersids;
 
-    if (useintbitewise_)
+    for (int j = 0; j < track->dim; ++j)
     {
+      double ri = sqrt(pow(track->x[j], 2.0) + 
+          pow (track->y[j], 2.0));
+      //double phii = acos(track->x[j]/ri);
+      double phii = atan2(track->y[j],track->x[j]);
 
-      for (int j = 0; j < track->dim; ++j)
-      {
+      int32_t i_ri = sqrt(pow(track->i_x[j], 2.0) + 
+          pow (track->i_y[j], 2.0));
+      int32_t i_phii = 50000*acos((double) track->i_x[j]/
+          (double) i_ri);
+      
+      single_track.z.push_back(track->z[j]);
+      single_track.r.push_back(ri);
+      single_track.phii.push_back(phii);
 
-      }
-
-
-    }
-    else
-    {
-      for (int j = 0; j < track->dim; ++j)
-      {
-        double ri = sqrt(pow(track->x[j], 2.0) + 
-            pow (track->y[j], 2.0));
-        // TODO double chek the equivalence 
-        //double phii = acos(track->x[j]/ri);
-        double phii = atan2(track->y[j],track->x[j]);
-        
-        single_track.z.push_back(track->z[j]);
-        single_track.r.push_back(ri);
-        single_track.phii.push_back(phii);
-      }
+      single_track.i_z.push_back(track->i_z[j]);
+      single_track.i_r.push_back(i_ri);
+      single_track.i_phii.push_back(i_phii);
     }
 
     rphiz_tracks.push_back(single_track);
@@ -941,16 +946,32 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
       if (excludesmodule_)
         if (j > excludesmodval)
           continue;
-      
-      if (rzplane_)
+
+      if (useintbitewise_)
       {
-        coordin(counter, j*2) = track->z[j];
-        coordin(counter, j*2+1) = track->r[j];
+        if (rzplane_)
+        {
+          coordin(counter, j*2) = track->i_z[j];
+          coordin(counter, j*2+1) = track->i_r[j];
+        }
+        else if (rphiplane_)
+        {
+          coordin(counter, j*2) = track->i_phii[j];
+          coordin(counter, j*2+1) = track->i_r[j];
+        }
       }
-      else if (rphiplane_)
-      {
-        coordin(counter, j*2) = track->phii[j];
-        coordin(counter, j*2+1) = track->r[j];
+      else
+      { 
+        if (rzplane_)
+        {
+          coordin(counter, j*2) = track->z[j];
+          coordin(counter, j*2+1) = track->r[j];
+        }
+        else if (rphiplane_)
+        {
+          coordin(counter, j*2) = track->phii[j];
+          coordin(counter, j*2+1) = track->r[j];
+        }
       }
 
       osss << track->layer[j] << ":";
@@ -978,36 +999,65 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
 
     ptvalsout(counter) = track->pt;
 
-    if (rzplane_)
+    if (useintbitewise_)
     {
-      paramin(counter, PCA_Z0IDX) = track->z0;
-      // lstorchi: I use this to diretcly convert input parameters into
-      //     better parameters for the fitting 
-      // eta = -ln[tan(theta / 2)]
-      // theta = 2 * arctan (e^(-eta))
-      // cotan (theta) = cotan (2 * arctan (e^(-eta)))
-      paramin(counter, PCA_COTTHETAIDX) =  
-        cot(2.0 * atan (exp (-1.0e0 * track->eta)));
-      //double theta = atan(1.0 /  paramread(counter, PCA_COTTHETAIDX));
-      //std::cout << etaread << " " << theta * (180/M_PI) << std::endl;
-      //just to visualize pseudorapidity 
-      counter++;
-    }
-    else if (rphiplane_)
-    {
-      paramin(counter, PCA_PHIIDX) = track->phi;
-      // use 1/pt
-      if (chargeoverpt_)
+      // TODO
+      if (rzplane_)
       {
-        if (chargesign_ < 0)
-          paramin(counter, PCA_ONEOVERPTIDX) = -1.0e0 / track->pt;
+        paramin(counter, PCA_Z0IDX) = track->z0;
+        paramin(counter, PCA_COTTHETAIDX) =  
+          cot(2.0 * atan (exp (-1.0e0 * track->eta)));
+        counter++;
+      }
+      else if (rphiplane_)
+      {
+        paramin(counter, PCA_PHIIDX) = track->phi;
+        if (chargeoverpt_)
+        {
+          if (chargesign_ < 0)
+            paramin(counter, PCA_ONEOVERPTIDX) = -1.0e0 / track->pt;
+          else
+            paramin(counter, PCA_ONEOVERPTIDX) = 1.0e0 / track->pt;
+        }
         else
           paramin(counter, PCA_ONEOVERPTIDX) = 1.0e0 / track->pt;
+     
+        ++counter;
       }
-      else
-        paramin(counter, PCA_ONEOVERPTIDX) = 1.0e0 / track->pt;
-
-      ++counter;
+    }
+    else
+    {
+      if (rzplane_)
+      {
+        paramin(counter, PCA_Z0IDX) = track->z0;
+        // lstorchi: I use this to diretcly convert input parameters into
+        //     better parameters for the fitting 
+        // eta = -ln[tan(theta / 2)]
+        // theta = 2 * arctan (e^(-eta))
+        // cotan (theta) = cotan (2 * arctan (e^(-eta)))
+        paramin(counter, PCA_COTTHETAIDX) =  
+          cot(2.0 * atan (exp (-1.0e0 * track->eta)));
+        //double theta = atan(1.0 /  paramread(counter, PCA_COTTHETAIDX));
+        //std::cout << etaread << " " << theta * (180/M_PI) << std::endl;
+        //just to visualize pseudorapidity 
+        counter++;
+      }
+      else if (rphiplane_)
+      {
+        paramin(counter, PCA_PHIIDX) = track->phi;
+        // use 1/pt
+        if (chargeoverpt_)
+        {
+          if (chargesign_ < 0)
+            paramin(counter, PCA_ONEOVERPTIDX) = -1.0e0 / track->pt;
+          else
+            paramin(counter, PCA_ONEOVERPTIDX) = 1.0e0 / track->pt;
+        }
+        else
+          paramin(counter, PCA_ONEOVERPTIDX) = 1.0e0 / track->pt;
+     
+        ++counter;
+      }
     }
 
     if (verbose_ && printoutstdinfo_)
@@ -1023,11 +1073,6 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
   // restore old value
   if (fkfiveoutofsix_)
     maxnumoflayers_ = 6;
-
-  if (useintbitewise_)
-  {
-    return convert_intbitewise(paramin);
-  }
 
   return true;
 }
@@ -1051,6 +1096,10 @@ bool rootfilereader::remove_layer()
         track->x.erase(track->x.begin()+j);
         track->y.erase(track->y.begin()+j);
         track->z.erase(track->z.begin()+j);
+
+        track->i_x.erase(track->i_x.begin()+j);
+        track->i_y.erase(track->i_y.begin()+j);
+        track->i_z.erase(track->i_z.begin()+j);
 
         track->layer.erase(track->layer.begin()+j);
         track->ladder.erase(track->ladder.begin()+j);
@@ -1295,28 +1344,4 @@ bool rootfilereader::linearinterpolation ()
   }
 
   return true;
-}
-
-bool rootfilereader::oonvert_intbitewise(
-    arma::mat & paramin)
-{
-
-  paramin.resize(tracks_vct_.size(), fitter.get_paramdim());
- 
-  if (rzplane_)
-  {
-    for (int i=0; i<paramin.r_rows; ++i)
-    {
-      paramin(i, PCA_Z0IDX) = paramin(i, PCA_Z0IDX);
-      paramin(i, PCA_COTTHETAIDX) = paramin(i, PCA_COTTHETAIDX);
-    }
-  }
-  else if (rphiplane_)
-  {
-    for (int i=0; i<paramin.r_rows; ++i)
-    {
-      paramin(i, PCA_PHIIDX) = paramin(i, PCA_PHIIDX);
-      paramin(i, PCA_ONEOVERPTIDX) = paramin(i, PCA_ONEOVERPTIDX);
-    }
-  }
 }
