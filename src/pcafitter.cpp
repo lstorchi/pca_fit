@@ -572,13 +572,27 @@ bool pcafitter::compute_pca_constants (
     // TODO the same for the chi2 related matrix and kvec
   }
 
-  std::cout << "C matrix: " << std::endl;
-  std::cout << cmtx;
-
-  std::cout << "Q vector: " << std::endl;
-  for (int i=0; i<paramdim_; ++i)
-    std::cout << q(i) << std::endl;
+  if (useintbitewise_)
+  {
+    arma::imat icmtx = arma::conv_to<arma::imat>::from(cmtx);
+    std::cout << "C matrix: " << std::endl;
+    std::cout << icmtx;
   
+    arma::ivec iq = arma::conv_to<arma::ivec>::from(q);
+    std::cout << "Q vector: " << std::endl;
+    for (int i=0; i<paramdim_; ++i)
+      std::cout << iq(i) << std::endl;
+  }
+  else
+  {
+    std::cout << "C matrix: " << std::endl;
+    std::cout << cmtx;
+  
+    std::cout << "Q vector: " << std::endl;
+    for (int i=0; i<paramdim_; ++i)
+      std::cout << q(i) << std::endl;
+  }
+
   return true;
 }
 

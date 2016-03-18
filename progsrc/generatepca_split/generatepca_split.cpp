@@ -500,6 +500,8 @@ int main (int argc, char ** argv)
     } 
   }
 
+  fitter.set_useintbitewise(intbitewise);
+
   if (numoflayers == 5)
   {
     if (usefakefiveoutofsix)
@@ -601,6 +603,8 @@ int main (int argc, char ** argv)
   std::cout << "Reading data from " << filename << " file " << std::endl;
 
   pca::rootfilereader rootrdr;
+
+  rootrdr.set_useintbitewise(intbitewise);
 
   rootrdr.set_specificseq (sequence.c_str());
   rootrdr.set_maxnumoflayers(numoflayers);

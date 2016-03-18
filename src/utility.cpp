@@ -159,6 +159,25 @@ double pca::delta_phi(double phi1, double phi2) // http://cmslxr.fnal.gov/source
   return result;
 }
 
+void pca::read_armmat_ibw (const char * fname, arma::mat & cmtx)
+{
+  int n, m;
+  std::ifstream myfilec(fname, std::ios::binary | std::ios::in);
+  myfilec.read((char *)&n, sizeof(int));
+  myfilec.read((char *)&m, sizeof(int));
+  cmtx.set_size(n, m);
+  for (int i=0; i<(int)cmtx.n_rows; i++)
+  {
+    for (int j=0; j<(int)cmtx.n_cols; j++)
+    {
+      double v;
+      myfilec.read((char *)&v, sizeof(v));
+      cmtx(i, j) = (int32_t) v;
+    }
+  }
+
+  myfilec.close();
+}
 
 void pca::read_armmat (const char * fname, arma::mat & cmtx)
 {
@@ -173,16 +192,27 @@ void pca::read_armmat (const char * fname, arma::mat & cmtx)
     {
       double v;
       myfilec.read((char *)&v, sizeof(v));
-
-#ifdef INTBITEWISE
-      cmtx(i, j) = (int32_t) v;
-#else
       cmtx(i, j) = v;
-#endif
     }
   }
 
   myfilec.close();
+}
+
+void pca::read_armvct_ibw (const char * fname, arma::rowvec & q)
+{
+  int n;
+  std::ifstream myfileq(fname, std::ios::binary);
+  myfileq.read((char*)&(n), sizeof(n));
+  q.set_size(n);
+  for (int i=0; i<(int)q.n_cols; i++)
+  {
+    double v;
+    myfileq.read((char*)&v, sizeof(v));
+    q(i) = (int32_t) v;
+  }
+
+  myfileq.close();
 }
 
 void pca::read_armvct (const char * fname, arma::rowvec & q)
@@ -195,12 +225,7 @@ void pca::read_armvct (const char * fname, arma::rowvec & q)
   {
     double v;
     myfileq.read((char*)&v, sizeof(v));
-
-#ifdef INTBITEWISE
-    q(i) = (int32_t) v;
-#else
     q(i) = v;
-#endif
   }
 
   myfileq.close();
