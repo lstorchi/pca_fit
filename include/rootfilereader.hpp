@@ -42,8 +42,6 @@ namespace pca
         std::string layersids;
       } track_rphiz_str;
 
-      bool useintbitewise_;
-
     public:
       rootfilereader();
       ~rootfilereader();
@@ -123,6 +121,8 @@ namespace pca
       std::string errmsg_, filename_;
 
       std::string layersid_;
+
+      bool useintbitewise_;
 
       bool rzplane_, rphiplane_, chargeoverpt_, 
           excludesmodule_, verbose_, checklayersids_, 

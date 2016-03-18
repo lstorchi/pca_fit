@@ -33,21 +33,27 @@ namespace pca
   
       int get_paramdim () const;
       void set_paramdim (int);
-         
+
       bool compute_parameters (
           const arma::mat & cmtx, 
           const arma::rowvec & q, 
           const arma::mat & amtx,
           const arma::rowvec & kvct, 
           const arma::mat & coord, 
-#ifdef INTBITEWISEFIT
           int32_t ** paraptr,
-#else
+          int paramdim,
+          arma::rowvec & chi2values); 
+ 
+      bool compute_parameters (
+          const arma::mat & cmtx, 
+          const arma::rowvec & q, 
+          const arma::mat & amtx,
+          const arma::rowvec & kvct, 
+          const arma::mat & coord, 
           double ** paraptr,
-#endif
           int paramdim,
           arma::rowvec & chi2values, 
-          arma::rowvec & chi2values1,
+          arma::rowvec & chi2values1, 
           const arma::mat & vmtx = NULLA,
           const arma::rowvec & coordm = NULLO);
            
@@ -61,7 +67,6 @@ namespace pca
           const arma::mat & coordin, 
           arma::mat & param,
           arma::mat & coord);
-
       
       bool compute_pca_constants (
           const arma::mat & param, 
@@ -76,9 +81,14 @@ namespace pca
 
       const std::string & get_errmsg () const;
       int get_errnum() const;
+
+      void set_useintbitewise (bool);
+      bool get_useintbitewise () const;
   
     private:
-  
+
+      bool useintbitewise_;
+
       int errnum_;
       int coordim_;
       int paramdim_;

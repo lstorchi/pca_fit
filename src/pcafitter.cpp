@@ -30,6 +30,7 @@ pcafitter::pcafitter()
 {
   coordim_ = 6*3;
   paramdim_ = 5;
+  useintbitewise_ = false;
 }
 
 pcafitter::~pcafitter()
@@ -97,20 +98,17 @@ bool pcafitter::compute_parameters (
     const arma::mat & amtx,
     const arma::rowvec & kvct, 
     const arma::mat & coord, 
-
-#ifdef INTBITEWISE
     int32_t ** paraptr,
-#else
-    double ** paraptr,
-#endif
-    
     int paramdim,
-    arma::rowvec & chi2values,
-    arma::rowvec & chi2values1,
-    const arma::mat & vinv,
-    const arma::rowvec & coordm)
+    arma::rowvec & chi2values)
 {
   reset_error();
+
+  if (!useintbitewise_)
+  {
+    set_errmsg (21, "this method can be used only with inbitewise");
+    return false;
+  }
 
   if (paramdim != paramdim_)
   {
@@ -120,11 +118,7 @@ bool pcafitter::compute_parameters (
 
   for (int j=0; j<paramdim; ++j)
   {
-#ifdef INTBITEWISE
     int32_t *ptr = paraptr[j];
-#else
-    double *ptr = paraptr[j];
-#endif
     for (int i=0; i<(int)coord.n_rows; ++i)
     {
       ptr[i] = q(j);
@@ -133,22 +127,94 @@ bool pcafitter::compute_parameters (
     }
   }
 
-  for (int j=0; j<paramdim; ++j){
-    #ifdef INTBITEWISE
+  for (int j=0; j<paramdim; ++j)
+  {
     int32_t *ptr = paraptr[j];
-    #else
-    double *ptr = paraptr[j];
-    #endif
-    for (int i=0; i<(int)coord.n_rows; ++i){
+    for (int i=0; i<(int)coord.n_rows; ++i)
+    {
       ptr[i] = q(j);
-      for (int k=0; k<coordim_; ++k){
-	#ifdef INTBITEWISE
-	ptr[i] += (int32_t) (double (cmtx(j,k)*coord(i,k)) /50.0);  //Probably no need to convert to double and then to int32
+      for (int k=0; k<coordim_; ++k)
+      {
+	ptr[i] += (int32_t) (double (cmtx(j,k)*coord(i,k)) /50.0);  
+        //Probably no need to convert to double and then to int32
 	//ptr[i] += ((cmtx(j,k)*coord(i,k))/1000.0);
-	#else
-	ptr[i] += (cmtx(j,k)*coord(i,k));
-	#endif
       }
+    }
+  }
+    
+  std::cout << "coord.n_rows : " << coord.n_rows << std::endl;
+  std::cout << "coord.n_cols : " << coord.n_cols << std::endl;
+
+  for (int b=0; b<(int)coord.n_rows; ++b) // loop over tracks 
+  {
+    int32_t chi2 = 0.0;
+
+    for (int i=0; i<coordim_-paramdim_; ++i)
+    {
+      int32_t val = 0;
+      
+      /* sum over j */
+      for (int j=0; j<coordim_; ++j)
+        val += amtx(i,j) * coord(b,j);
+
+      /* wrong sign */
+      val -= kvct(i);
+
+      chi2 += val*val;
+    }
+
+    chi2values(b) = chi2;
+  }
+
+  return true;
+}
+
+bool pcafitter::compute_parameters (
+    const arma::mat & cmtx, 
+    const arma::rowvec & q, 
+    const arma::mat & amtx,
+    const arma::rowvec & kvct, 
+    const arma::mat & coord, 
+    double ** paraptr,
+    int paramdim,
+    arma::rowvec & chi2values,
+    arma::rowvec & chi2values1,
+    const arma::mat & vinv,
+    const arma::rowvec & coordm)
+{
+  reset_error();
+
+  if (useintbitewise_)
+  {
+    set_errmsg (21, "invalid number of parameters");
+    return false;
+  }
+
+  if (paramdim != paramdim_)
+  {
+    set_errmsg (2, "use this method only with float");
+    return false;
+  }
+
+  for (int j=0; j<paramdim; ++j)
+  {
+    double *ptr = paraptr[j];
+    for (int i=0; i<(int)coord.n_rows; ++i)
+    {
+      ptr[i] = q(j);
+      for (int k=0; k<coordim_; ++k)
+        ptr[i] += cmtx(j,k)*coord(i,k);
+    }
+  }
+
+  for (int j=0; j<paramdim; ++j)
+  {
+    double *ptr = paraptr[j];
+    for (int i=0; i<(int)coord.n_rows; ++i)
+    {
+      ptr[i] = q(j);
+      for (int k=0; k<coordim_; ++k)
+	ptr[i] += (cmtx(j,k)*coord(i,k));
     }
   }
     
@@ -184,20 +250,11 @@ bool pcafitter::compute_parameters (
 
   for (int b=0; b<(int)coord.n_rows; ++b) // loop over tracks 
   {
-
-#ifdef INTBITEWISE
-    int32_t chi2 = 0.0;
-#else
     double chi2 = 0.0;
-#endif
 
     for (int i=0; i<coordim_-paramdim_; ++i)
     {
-#ifdef INTBITEWISE
-      int32_t val = 0;
-#else
       double val = 0.0;
-#endif
       
       /* sum over j */
       for (int j=0; j<coordim_; ++j)
@@ -210,7 +267,6 @@ bool pcafitter::compute_parameters (
 
       chi2 += val*val;
     }
-
 
     chi2values(b) = chi2;
 
@@ -476,45 +532,45 @@ bool pcafitter::compute_pca_constants (
       q(i) -= cmtx(i,l)*coordm(l);
   }
 
-#ifdef INTBITEWISE
-  //cmtx and q constants are still in float point. Multiply them to bring in integer range.
-  //They are casted as int32_t while reading from pca::read_armmat and pca::read_armvct in fit pca step.
-
-  for (int i=0; i<paramdim_; ++i)
+  if (useintbitewise_)
   {
-    for (int l=0; l<coordim_; ++l)
+    //cmtx and q constants are still in float point. Multiply them to bring in integer range.
+    //They are casted as int32_t while reading from pca::read_armmat and pca::read_armvct in fit pca step.
+    
+    for (int i=0; i<paramdim_; ++i)
+    {
+      for (int l=0; l<coordim_; ++l)
+      {
+        //R-Z Factors
+        //if (i == 0) cmtx(i,l) *= 15000000;
+        //else if (i == 1) cmtx(i,l) *= 1000000;
+        //if (i == 0) cmtx(i,l) *= 30000;
+        //else if (i == 1) cmtx(i,l) *= 2000;
+        //R-Phi Fcators
+        if (i == 0) 
+          cmtx(i,l) *= 60000;  //if (i == 0) cmtx(i,l) *= 60000;
+        else if (i == 1) 
+          cmtx(i,l) *= 8000; //else if (i == 1) cmtx(i,l) *= 8000;
+        
+        if (l%2 == 1) 
+          cmtx(i, l) *= 50; //Further scale up the r corresponding constants
+      }
+    }
+    
+    for (int i=0; i<paramdim_; ++i)
     {
       //R-Z Factors
-      //if (i == 0) cmtx(i,l) *= 15000000;
-      //else if (i == 1) cmtx(i,l) *= 1000000;
-      //if (i == 0) cmtx(i,l) *= 30000;
-      //else if (i == 1) cmtx(i,l) *= 2000;
-      //R-Phi Fcators
-      if (i == 0) 
-        cmtx(i,l) *= 60000;  //if (i == 0) cmtx(i,l) *= 60000;
+      //if (i == 0) q(i) *=15000000;
+      //else if (i == 1) q(i) *= 1000000;
+      //R-Phi Factors
+      if (i == 0)      
+        q(i) = (q(i)*60000000 - 14000000);  //if (i == 0)      q(i) = (q(i)*60000000 - 14000000);//- for Pt+ & + for Pt-
       else if (i == 1) 
-        cmtx(i,l) *= 8000; //else if (i == 1) cmtx(i,l) *= 8000;
-      
-      if (l%2 == 1) 
-        cmtx(i, l) *= 50; //Further scale up the r corresponding constants
+        q(i) = (q(i)*8000000 - 16000000);
     }
+    
+    // TODO the same for the chi2 related matrix and kvec
   }
-
-  for (int i=0; i<paramdim_; ++i)
-  {
-    //R-Z Factors
-    //if (i == 0) q(i) *=15000000;
-    //else if (i == 1) q(i) *= 1000000;
-    //R-Phi Factors
-    if (i == 0)      
-      q(i) = (q(i)*60000000 - 14000000);  //if (i == 0)      q(i) = (q(i)*60000000 - 14000000);//- for Pt+ & + for Pt-
-    else if (i == 1) 
-      q(i) = (q(i)*8000000 - 16000000);
-  }
-
-  // TODO the same for the chi2 related matrix and kvec
-
-#endif
 
   std::cout << "C matrix: " << std::endl;
   std::cout << cmtx;
@@ -535,6 +591,16 @@ int pcafitter::get_errnum() const
 {
   return errnum_;
 } 
+
+void pcafitter::set_useintbitewise (bool in)
+{
+  useintbitewise_ = in;
+}
+
+bool pcafitter::get_useintbitewise () const
+{
+  return useintbitewise_;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 //  PRIVATE
