@@ -813,9 +813,11 @@ bool rootfilereader::convertorphiz (std::vector<track_rphiz_str> &
 
       int32_t i_ri = sqrt(pow(track->i_x[j], 2.0) + 
           pow (track->i_y[j], 2.0));
-      int32_t i_phii = 50000*acos((double) track->i_x[j]/
-          (double) i_ri);
-      
+      //int32_t i_phii = 50000*acos((double) track->i_x[j]/
+      //    (double) i_ri);
+      int32_t i_phii = 50000*atan2((double)track->i_y[j],
+          (double)track->i_x[j]);
+
       single_track.z.push_back(track->z[j]);
       single_track.r.push_back(ri);
       single_track.phii.push_back(phii);
