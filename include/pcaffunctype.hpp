@@ -49,6 +49,10 @@ namespace pca
 
   int get_num_of_ent(const char *);
 
+  void read_armmat_ibw (const char * fname, arma::mat & cmtx);
+
+  void read_armvct_ibw (const char * fname, arma::rowvec & q);
+  
 #if 0
   bool reading_from_file_split (const pca::pcafitter &, const char * filename, 
           arma::mat & paramin, arma::mat & coordin,
