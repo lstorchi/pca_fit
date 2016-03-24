@@ -32,7 +32,7 @@ do
   mv results.txt $FILENAME
   echo ""
 
-  for j in seq 5 10
+  for j in `seq 5 10`
   do 
     echo $i " Gev mu+" >> $OUTFILENAME
     export FFILE="results_rphi_"$i"_p_fk"$j".txt"
