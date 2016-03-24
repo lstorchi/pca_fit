@@ -75,6 +75,7 @@ void usage (char * name)
   std::cerr << " -x, --exclude-s-module          : exclude S-module (last three layer) so 6 coordinates " << 
     "instead of 12 (rz)" << std::endl;                                  
   std::cerr << " -B, --write-binfiles            : will wite the PCA contants also as bin files " << std::endl;
+  std::cerr << " -D, --towerid=[num]             : specify towid to be wriiten in the file " << std::endl;
 
   exit(1);
 }
@@ -90,7 +91,7 @@ void perform_main_computation (const arma::mat & coord,
     pca::pcafitter & fitter, 
     pca::rootfilereader & rootrdr,
     bool verbose, bool writebinfiles,
-    bool intbitewise)
+    bool intbitewise, int towerid)
 {
   std::cout << fitter.get_paramdim() << " X " << fitter.get_coordim() << std::endl;
 
@@ -146,7 +147,7 @@ void perform_main_computation (const arma::mat & coord,
     pcmtx.set_const_type (pca::matrixpcaconst<int32_t>::CMTX);
     pcmtx.set_layersids (rootrdr.get_actualseq().c_str());
     pcmtx.set_sector_type (pca::matrixpcaconst<int32_t>::BARREL);
-    pcmtx.set_towerid (18);
+    pcmtx.set_towerid (towerid);
     pcmtx.set_ttype (pca::matrixpcaconst<int32_t>::INTEGPT);
     pcmtx.set_chargesign(rootrdr.get_chargesign());
     if (rootrdr.get_rphiplane())
@@ -162,7 +163,7 @@ void perform_main_computation (const arma::mat & coord,
     pqvct.set_const_type (pca::matrixpcaconst<int32_t>::QVEC);
     pqvct.set_layersids (rootrdr.get_actualseq().c_str());
     pqvct.set_sector_type (pca::matrixpcaconst<int32_t>::BARREL);
-    pqvct.set_towerid (18);
+    pqvct.set_towerid (towerid);
     pqvct.set_ttype (pca::matrixpcaconst<int32_t>::INTEGPT);
     pqvct.set_chargesign(rootrdr.get_chargesign());
     if (rootrdr.get_rphiplane())
@@ -178,7 +179,7 @@ void perform_main_computation (const arma::mat & coord,
     pamtx.set_const_type (pca::matrixpcaconst<int32_t>::AMTX);
     pamtx.set_layersids (rootrdr.get_actualseq().c_str());
     pamtx.set_sector_type (pca::matrixpcaconst<int32_t>::BARREL);
-    pamtx.set_towerid (18);
+    pamtx.set_towerid (towerid);
     pamtx.set_ttype (pca::matrixpcaconst<int32_t>::INTEGPT);
     pamtx.set_chargesign(rootrdr.get_chargesign());
     if (rootrdr.get_rphiplane())
@@ -194,7 +195,7 @@ void perform_main_computation (const arma::mat & coord,
     pkvct.set_const_type (pca::matrixpcaconst<int32_t>::KVEC);
     pkvct.set_layersids (rootrdr.get_actualseq().c_str());
     pkvct.set_sector_type (pca::matrixpcaconst<int32_t>::BARREL);
-    pkvct.set_towerid (18);
+    pkvct.set_towerid (towerid);
     pkvct.set_ttype (pca::matrixpcaconst<int32_t>::INTEGPT);
     pkvct.set_chargesign(rootrdr.get_chargesign());
     if (rootrdr.get_rphiplane())
@@ -224,9 +225,9 @@ void perform_main_computation (const arma::mat & coord,
     pcmtx.set_layersids (rootrdr.get_actualseq().c_str());
     /* TODO should be given as input */
     pcmtx.set_sector_type (pca::matrixpcaconst<double>::BARREL);
-    pcmtx.set_towerid (18);
-    pcmtx.set_ttype (pca::matrixpcaconst<double>::FLOATPT);
     /* */
+    pcmtx.set_towerid (towerid);
+    pcmtx.set_ttype (pca::matrixpcaconst<double>::FLOATPT);
     pcmtx.set_chargesign(rootrdr.get_chargesign());
     if (rootrdr.get_rphiplane())
       pcmtx.set_plane_type (pca::matrixpcaconst<double>::RPHI);
@@ -242,9 +243,9 @@ void perform_main_computation (const arma::mat & coord,
     pqvct.set_layersids (rootrdr.get_actualseq().c_str());
     /* TODO should be given as input */
     pqvct.set_sector_type (pca::matrixpcaconst<double>::BARREL);
-    pqvct.set_towerid (18);
-    pqvct.set_ttype (pca::matrixpcaconst<double>::FLOATPT);
     /* */
+    pqvct.set_towerid (towerid);
+    pqvct.set_ttype (pca::matrixpcaconst<double>::FLOATPT);
     pqvct.set_chargesign(rootrdr.get_chargesign());
     if (rootrdr.get_rphiplane())
       pqvct.set_plane_type (pca::matrixpcaconst<double>::RPHI);
@@ -260,9 +261,9 @@ void perform_main_computation (const arma::mat & coord,
     pamtx.set_layersids (rootrdr.get_actualseq().c_str());
     /* TODO should be given as input */
     pamtx.set_sector_type (pca::matrixpcaconst<double>::BARREL);
-    pamtx.set_towerid (18);
-    pamtx.set_ttype (pca::matrixpcaconst<double>::FLOATPT);
     /* */
+    pamtx.set_towerid (towerid);
+    pamtx.set_ttype (pca::matrixpcaconst<double>::FLOATPT);
     pamtx.set_chargesign(rootrdr.get_chargesign());
     if (rootrdr.get_rphiplane())
       pamtx.set_plane_type (pca::matrixpcaconst<double>::RPHI);
@@ -278,9 +279,9 @@ void perform_main_computation (const arma::mat & coord,
     pkvct.set_layersids (rootrdr.get_actualseq().c_str());
     /* TODO should be given as input */
     pkvct.set_sector_type (pca::matrixpcaconst<double>::BARREL);
-    pkvct.set_towerid (18);
-    pkvct.set_ttype (pca::matrixpcaconst<double>::FLOATPT);
     /* */
+    pkvct.set_towerid (towerid);
+    pkvct.set_ttype (pca::matrixpcaconst<double>::FLOATPT);
     pkvct.set_chargesign(rootrdr.get_chargesign());
     if (rootrdr.get_rphiplane())
       pkvct.set_plane_type (pca::matrixpcaconst<double>::RPHI);
@@ -332,6 +333,8 @@ int main (int argc, char ** argv)
 
   bool intbitewise = false;
 
+  int towerid = -99;
+
   while (1)
   {
     int c, option_index;
@@ -359,10 +362,11 @@ int main (int argc, char ** argv)
       {"fk-five-hits", 1, NULL, 'y'},
       {"max-num-oftracks", 1, NULL, 'X'},
       {"write-binfiles", 1, NULL, 'B'},
+      {"towerid", 1, NULL, 'D'},
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "TBaVlkxhvdpzrX:b:g:t:n:m:o:u:f:y:", 
+    c = getopt_long (argc, argv, "TBaVlkxhvdpzrX:D:b:g:t:n:m:o:u:f:y:", 
         long_options, &option_index);
 
     if (c == -1)
@@ -370,6 +374,9 @@ int main (int argc, char ** argv)
 
     switch (c)
     {
+      case 'D':
+        towerid = atoi(optarg);
+        break;
       case 'T':
         intbitewise = true;
         break;
@@ -765,7 +772,7 @@ int main (int argc, char ** argv)
       cfname.str(), qfname.str(), afname.str() ,
       vfname.str(), kfname.str(), coordmfname.str(),
       fitter, rootrdr, verbose, writebinfiles, 
-      intbitewise);
+      intbitewise, towerid);
 
   return EXIT_SUCCESS;
 }
