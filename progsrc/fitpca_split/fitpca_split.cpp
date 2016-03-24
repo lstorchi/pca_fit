@@ -710,7 +710,7 @@ int main (int argc, char ** argv)
   bool printallcoords = false;
   bool usefakefiveoutofsix = false;
 
-  bool intbitewise = true;
+  bool intbitewise = false;
 
   int layeridtorm = -1;
 
