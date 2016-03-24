@@ -39,7 +39,7 @@ do
     FILENAME=${FFILE//;/_}
     echo $FILENAME
     ./generatepca_split --fk-five-hits=$j -k --rphi-plane --charge-sign=+ --pt-range="$i" -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
-    ./fitpca_split --fk-five-hits=$j -k --rphi-plane --charge-sign=+ --pt-range="3.0;7.0" $ROTTFILENAME >> $OUTFILENAME
+    ./fitpca_split --fk-five-hits=$j -k --rphi-plane --charge-sign=+ --pt-range="$i" $ROTTFILENAME >> $OUTFILENAME
     mv results.txt $FILENAME
     echo ""
 
