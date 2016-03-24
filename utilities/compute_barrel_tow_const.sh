@@ -35,7 +35,7 @@ do
   for j in seq 5 10
   do 
     echo $i " Gev mu+" >> $OUTFILENAME
-    export FFILE="results_rphi_"$i"_p_fk"$j.txt"
+    export FFILE="results_rphi_"$i"_p_fk"$j".txt"
     FILENAME=${FFILE//;/_}
     echo $FILENAME
     ./generatepca_split --fk-five-hits=$j -k --rphi-plane --charge-sign=+ --pt-range="$i" -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
@@ -44,7 +44,7 @@ do
     echo ""
 
     echo $i " Gev mu-" >> $OUTFILENAME
-    export FFILE="results_rphi_"$i"_n_fk"$j.txt"
+    export FFILE="results_rphi_"$i"_n_fk"$j".txt"
     FILENAME=${FFILE//;/_}
     echo $FILENAME
     ./generatepca_split --fk-five-hits=$j -k --rphi-plane --charge-sign=- --pt-range="$i" -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
