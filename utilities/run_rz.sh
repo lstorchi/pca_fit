@@ -11,6 +11,8 @@ do
   ./fitpca_split -x --rz-plane --eta-range="$rage" -k --fk-five-hits=6  ./MUBANK_pt2To200_phi11To29_etaM06To04.root
   ./generatepca_split -x --rz-plane --eta-range="$rage" -k --fk-five-hits=7 ./MUBANK_pt2To200_phi11To29_etaM06To04.root
   ./fitpca_split -x --rz-plane --eta-range="$rage" -k --fk-five-hits=7  ./MUBANK_pt2To200_phi11To29_etaM06To04.root
+  ./generatepca_split -x --rz-plane --eta-range="$rage" -k ./MUBANK_pt2To200_phi11To29_etaM06To04.root
+  ./fitpca_split -x --rz-plane --eta-range="$rage" -k ./MUBANK_pt2To200_phi11To29_etaM06To04.root
   mv results.txt results_$i.txt
   echo ""
 done
