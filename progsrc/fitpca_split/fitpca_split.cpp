@@ -35,7 +35,9 @@ bool import_pca_const_int (const std::string & cfname,
     arma::mat & amtx, arma::rowvec & kvec, 
     bool rzplane, bool rphiplane, double etaminin, 
     double etamaxin, double ptminin, double ptmaxin, 
-    int chargesignin)
+    int chargesignin,
+    const std::string & layersid,
+    const std::string & pslayersid)
 {
   assert(rzplane != rphiplane); 
 
@@ -48,11 +50,13 @@ bool import_pca_const_int (const std::string & cfname,
     for (; it != vct.end(); ++it)
     {
       double ptmin, ptmax, etamin, etamax;
+      std::string actuallayids;
       int chargesign;
 
       it->get_ptrange(ptmin, ptmax);
       it->get_etarange(etamin, etamax);
       chargesign = it->get_chargesign();
+      actuallayids = it->get_layersids();
 
       if (it->get_ttype() == pca::matrixpcaconst<int32_t>::INTEGPT)
       {
@@ -60,45 +64,14 @@ bool import_pca_const_int (const std::string & cfname,
         {
           if (it->get_plane_type() == pca::matrixpcaconst<int32_t>::RZ)
           {
-            if ((etaminin >= etamin) && (etaminin <= etamax) &&
-                (etamaxin >= etamin) && (etamaxin <= etamax))
+            if (actuallayids == pslayersid)
             {
-              switch(it->get_const_type())
-              {
-                case pca::matrixpcaconst<int32_t>::QVEC :
-                  pcamat_to_armarowvec ((*it), qvec);
-                  hwmanygot++;
-                  break;
-                case pca::matrixpcaconst<int32_t>::KVEC :
-                  pcamat_to_armarowvec ((*it), kvec);
-                  hwmanygot++;
-                  break;
-                case pca::matrixpcaconst<int32_t>::CMTX :
-                  pcamat_to_armamat ((*it), cmtx);
-                  hwmanygot++;
-                  break;
-                case pca::matrixpcaconst<int32_t>::AMTX :
-                  pcamat_to_armamat ((*it), amtx);
-                  hwmanygot++;
-                  break;
-                default:
-                  break;
-              }
-            } 
-          }
-        }
-        else if (rphiplane)
-        {
-          if (it->get_plane_type() == pca::matrixpcaconst<int32_t>::RPHI)
-          {
-            if (chargesignin == chargesign)
-            {
-              if ((ptminin >= ptmin) && (ptminin <= ptmax) &&
-                  (ptmaxin >= ptmin) && (ptmaxin <= ptmax))
+              if ((etaminin >= etamin) && (etaminin <= etamax) &&
+                  (etamaxin >= etamin) && (etamaxin <= etamax))
               {
                 switch(it->get_const_type())
                 {
-                  case pca::matrixpcaconst<int32_t>::QVEC : 
+                  case pca::matrixpcaconst<int32_t>::QVEC :
                     pcamat_to_armarowvec ((*it), qvec);
                     hwmanygot++;
                     break;
@@ -117,8 +90,45 @@ bool import_pca_const_int (const std::string & cfname,
                   default:
                     break;
                 }
-              }
-            } 
+              } 
+            }
+          }
+        }
+        else if (rphiplane)
+        {
+          if (it->get_plane_type() == pca::matrixpcaconst<int32_t>::RPHI)
+          {
+            if (actuallayids == layersid)
+            {
+              if (chargesignin == chargesign)
+              {
+                if ((ptminin >= ptmin) && (ptminin <= ptmax) &&
+                    (ptmaxin >= ptmin) && (ptmaxin <= ptmax))
+                {
+                  switch(it->get_const_type())
+                  {
+                    case pca::matrixpcaconst<int32_t>::QVEC : 
+                      pcamat_to_armarowvec ((*it), qvec);
+                      hwmanygot++;
+                      break;
+                    case pca::matrixpcaconst<int32_t>::KVEC :
+                      pcamat_to_armarowvec ((*it), kvec);
+                      hwmanygot++;
+                      break;
+                    case pca::matrixpcaconst<int32_t>::CMTX :
+                      pcamat_to_armamat ((*it), cmtx);
+                      hwmanygot++;
+                      break;
+                    case pca::matrixpcaconst<int32_t>::AMTX :
+                      pcamat_to_armamat ((*it), amtx);
+                      hwmanygot++;
+                      break;
+                    default:
+                      break;
+                  }
+                }
+              } 
+            }
           }
         }
       }
@@ -144,7 +154,9 @@ bool import_pca_const (const std::string & cfname,
     arma::mat & amtx, arma::rowvec & kvec, 
     bool rzplane, bool rphiplane, double etaminin, 
     double etamaxin, double ptminin, double ptmaxin, 
-    int chargesignin)
+    int chargesignin,
+    const std::string & layersid,
+    const std::string & pslayersid)
 {
   assert(rzplane != rphiplane); 
 
@@ -157,11 +169,13 @@ bool import_pca_const (const std::string & cfname,
     for (; it != vct.end(); ++it)
     {
       double ptmin, ptmax, etamin, etamax;
+      std::string actuallayids;
       int chargesign;
 
       it->get_ptrange(ptmin, ptmax);
       it->get_etarange(etamin, etamax);
       chargesign = it->get_chargesign();
+      actuallayids = it->get_layersids();
 
       if (it->get_ttype() == pca::matrixpcaconst<double>::FLOATPT)
       {
@@ -169,45 +183,14 @@ bool import_pca_const (const std::string & cfname,
         {
           if (it->get_plane_type() == pca::matrixpcaconst<double>::RZ)
           {
-            if ((etaminin >= etamin) && (etaminin <= etamax) &&
-                (etamaxin >= etamin) && (etamaxin <= etamax))
+            if (actuallayids == pslayersid)
             {
-              switch(it->get_const_type())
-              {
-                case pca::matrixpcaconst<double>::QVEC :
-                  pcamat_to_armarowvec ((*it), qvec);
-                  hwmanygot++;
-                  break;
-                case pca::matrixpcaconst<double>::KVEC :
-                  pcamat_to_armarowvec ((*it), kvec);
-                  hwmanygot++;
-                  break;
-                case pca::matrixpcaconst<double>::CMTX :
-                  pcamat_to_armamat ((*it), cmtx);
-                  hwmanygot++;
-                  break;
-                case pca::matrixpcaconst<double>::AMTX :
-                  pcamat_to_armamat ((*it), amtx);
-                  hwmanygot++;
-                  break;
-                default:
-                  break;
-              }
-            } 
-          }
-        }
-        else if (rphiplane)
-        {
-          if (it->get_plane_type() == pca::matrixpcaconst<double>::RPHI)
-          {
-            if (chargesignin == chargesign)
-            {
-              if ((ptminin >= ptmin) && (ptminin <= ptmax) &&
-                  (ptmaxin >= ptmin) && (ptmaxin <= ptmax))
+              if ((etaminin >= etamin) && (etaminin <= etamax) &&
+                  (etamaxin >= etamin) && (etamaxin <= etamax))
               {
                 switch(it->get_const_type())
                 {
-                  case pca::matrixpcaconst<double>::QVEC : 
+                  case pca::matrixpcaconst<double>::QVEC :
                     pcamat_to_armarowvec ((*it), qvec);
                     hwmanygot++;
                     break;
@@ -226,8 +209,45 @@ bool import_pca_const (const std::string & cfname,
                   default:
                     break;
                 }
-              }
-            } 
+              } 
+            }
+          }
+        }
+        else if (rphiplane)
+        {
+          if (it->get_plane_type() == pca::matrixpcaconst<double>::RPHI)
+          {
+            if (actuallayids == layersid)
+            {
+              if (chargesignin == chargesign)
+              {
+                if ((ptminin >= ptmin) && (ptminin <= ptmax) &&
+                    (ptmaxin >= ptmin) && (ptmaxin <= ptmax))
+                {
+                  switch(it->get_const_type())
+                  {
+                    case pca::matrixpcaconst<double>::QVEC : 
+                      pcamat_to_armarowvec ((*it), qvec);
+                      hwmanygot++;
+                      break;
+                    case pca::matrixpcaconst<double>::KVEC :
+                      pcamat_to_armarowvec ((*it), kvec);
+                      hwmanygot++;
+                      break;
+                    case pca::matrixpcaconst<double>::CMTX :
+                      pcamat_to_armamat ((*it), cmtx);
+                      hwmanygot++;
+                      break;
+                    case pca::matrixpcaconst<double>::AMTX :
+                      pcamat_to_armamat ((*it), amtx);
+                      hwmanygot++;
+                      break;
+                    default:
+                      break;
+                  }
+                }
+              } 
+            }
           }
         }
       }
@@ -722,8 +742,11 @@ int main (int argc, char ** argv)
   double coord1min = std::numeric_limits<double>::infinity();
   double coord2min = std::numeric_limits<double>::infinity();
 
-  std::string sequence;
+  std::string sequence = "";
   int numoflayers = 6;
+
+  std::string layersid;
+  std::string pslayersid;
 
   int chargesign = 0;
 
@@ -898,7 +921,34 @@ int main (int argc, char ** argv)
     usage (argv[0]);
 
   fitter.set_useintbitewise(intbitewise);
+
+  // very quick 
+  if (sequence == "")
+  {
+    std::ostringstream psosss, osss;
+    std::cout << "Only for BARREL" << std::endl;
+    for (int i =5; i<=10; ++i)
+    {
+      if (usefakefiveoutofsix)
+        if (i == layeridtorm)
+          continue;
  
+      osss << i << ":";
+      if (i <= 7)
+        psosss << i << ":";
+    }
+
+    layersid = osss.str();
+    layersid.erase(layersid.end()-1);
+
+    pslayersid = psosss.str();
+    pslayersid.erase(pslayersid.end()-1);
+  }
+  else
+  {
+    std::cerr << "Import of constants to be implemented" << std::endl;
+    return EXIT_FAILURE;
+  }
 
   if (numoflayers == 5)
   {
@@ -1018,7 +1068,7 @@ int main (int argc, char ** argv)
     {
       if (!import_pca_const_int (cfname, cmtx, qvec, amtx, kvec, 
             rzplane, rphiplane, etamin, etamax, ptmin, 
-            ptmax, chargesign))
+            ptmax, chargesign, layersid, pslayersid))
       {
         std::cerr << "Error in reading constants from file" << std::endl;
         return EXIT_FAILURE;
@@ -1028,7 +1078,7 @@ int main (int argc, char ** argv)
     {
       if (!import_pca_const (cfname, cmtx, qvec, amtx, kvec, 
             rzplane, rphiplane, etamin, etamax, ptmin, 
-            ptmax, chargesign))
+            ptmax, chargesign, layersid, pslayersid))
       {
         std::cerr << "Error in reading constants from file" << std::endl;
         return EXIT_FAILURE;
