@@ -1,5 +1,5 @@
-if [ "$#" -ne 2 ]; then
-  echo $0 " rootfile towerid "
+if [ "$#" -ne 3 ]; then
+  echo $0 " rootfile towerid etaminval"
   exit
 fi
 
@@ -56,7 +56,7 @@ do
 
 done
 
-export k="-0.6" 
+export k=$2
 for i in `seq 1 20`;
 do
   export start=$k
