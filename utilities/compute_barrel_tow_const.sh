@@ -56,7 +56,7 @@ do
 
 done
 
-export k=$2
+export k=$3
 for i in `seq 1 20`;
 do
   export start=$k
