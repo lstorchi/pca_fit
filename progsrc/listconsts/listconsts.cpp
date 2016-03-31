@@ -38,6 +38,8 @@ bool read_pca_const (const std::string & cfname)
     int totaldim = 0;
     std::vector<pca::matrixpcaconst<double> >::const_iterator it = 
       vct.begin();
+    std::cout << "plane_type const_type towerid sector_type " << 
+      "ttype layerseq ptmin ptmax etamin etamax chargesign dim" << std::endl;
     for (; it != vct.end(); ++it)
     {
       double ptmin, ptmax, etamin, etamax;
@@ -54,12 +56,11 @@ bool read_pca_const (const std::string & cfname)
         << pca::matrixpcaconst<double>::const_type_to_string(it->get_const_type()) << " "
         << it->get_towerid() << " "
         << pca::matrixpcaconst<double>::sector_type_to_string(it->get_sector_type()) << " "
-        << pca::matrixpcaconst<double>::ttype_to_string(it->get_ttype()) << " "
-        << std::endl;
+        << pca::matrixpcaconst<double>::ttype_to_string(it->get_ttype()) << "";
       std::cout << layerseq << " " << ptmin << " " <<  ptmax << " " 
-        << etamin << " "<< etamax << " " << chargesign << std::endl;
+        << etamin << " "<< etamax << " " << chargesign << " ";
       int dim = it->n_rows() * it->n_cols();
-      std::cout << "number of values: " << dim << std::endl;
+      std::cout << dim << std::endl;
       totaldim += dim;
     }
 
