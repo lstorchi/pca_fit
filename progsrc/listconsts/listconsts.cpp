@@ -56,7 +56,7 @@ bool read_pca_const (const std::string & cfname)
         << pca::matrixpcaconst<double>::const_type_to_string(it->get_const_type()) << " "
         << it->get_towerid() << " "
         << pca::matrixpcaconst<double>::sector_type_to_string(it->get_sector_type()) << " "
-        << pca::matrixpcaconst<double>::ttype_to_string(it->get_ttype()) << "";
+        << pca::matrixpcaconst<double>::ttype_to_string(it->get_ttype()) << " ";
       std::cout << layerseq << " " << ptmin << " " <<  ptmax << " " 
         << etamin << " "<< etamax << " " << chargesign << " ";
       int dim = it->n_rows() * it->n_cols();
