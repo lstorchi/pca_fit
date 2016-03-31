@@ -432,8 +432,8 @@ PCATrackFitter::~PCATrackFitter()
 
 void PCATrackFitter::initialize()
 {
-  pcacontvct_float.clear();
-  pcacontvct_integer.clear();
+  pcacontvct_float_.clear();
+  pcacontvct_integer_.clear();
   useinteger_ = false;
   track_ = NULL;
 }
@@ -536,15 +536,15 @@ TrackFitter* PCATrackFitter::clone()
 
 void PCATrackFitter::read_float_const_filename (const std::string & in)
 {
-  if (pca::read_pcacosnt_from_file (pcacontvct_float, in.c_str()))
+  if (pca::read_pcacosnt_from_file (pcacontvct_float_, in.c_str()))
   {
     std::cerr << "Error while reading constant from " << in << std::endl;
     return;
   }
 
   std::vector<pca::matrixpcaconst<double> >::const_iterator it = 
-      pcacontvct_float.begin();
-  for (; it != pcacontvct_float.end(); ++it)
+      pcacontvct_float_.begin();
+  for (; it != pcacontvct_float_.end(); ++it)
   {
     if (it->get_ttype() != pca::matrixpcaconst<double>::FLOATPT)
     {
@@ -557,15 +557,15 @@ void PCATrackFitter::read_float_const_filename (const std::string & in)
 
 void PCATrackFitter::read_integegr_const_filename (const std::string & in)
 {
-  if (pca::read_pcacosnt_from_file (pcacontvct_integer, in.c_str()))
+  if (pca::read_pcacosnt_from_file (pcacontvct_integer_, in.c_str()))
   {
     std::cerr << "Error while reading constant from " << in << std::endl;
     return;
   }
 
   std::vector<pca::matrixpcaconst<int32_t> >::const_iterator it = 
-      pcacontvct_integer.begin();
-  for (; it != pcacontvct_integer.end(); ++it)
+      pcacontvct_integer_.begin();
+  for (; it != pcacontvct_integer_.end(); ++it)
   {
     if (it->get_ttype() != pca::matrixpcaconst<int32_t>::INTEGPT)
     {
@@ -578,7 +578,7 @@ void PCATrackFitter::read_integegr_const_filename (const std::string & in)
 
 void PCATrackFitter::fit_integer(vector<Hit*> hits)
 {
-  if (pcacontvct_integer.size() == 0)
+  if (pcacontvct_integer_.size() == 0)
   {
     std::cerr << "error PCA const is empty" << std::endl;
     return;
@@ -615,7 +615,7 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
       pca::matrixpcaconst<int32_t> amtx_rphi(0, 0); 
       pca::matrixpcaconst<int32_t> kvec_rphi(0, 0); 
       
-      if (import_pca_const (pcacontvct_integer, 
+      if (import_pca_const (pcacontvct_integer_, 
                             cmtx_rz, 
                             qvec_rz, 
                             amtx_rz, 
@@ -666,7 +666,7 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
 
 void PCATrackFitter::fit_float(vector<Hit*> hits)
 {
-  if (pcacontvct_float.size() == 0)
+  if (pcacontvct_float_.size() == 0)
   {
     std::cerr << "error PCA const is empty" << std::endl;
     return;
@@ -764,7 +764,7 @@ void PCATrackFitter::fit_float(vector<Hit*> hits)
       pca::matrixpcaconst<double> amtx_rphi(0, 0); 
       pca::matrixpcaconst<double> kvec_rphi(0, 0); 
       
-      if (import_pca_const (pcacontvct_float, 
+      if (import_pca_const (pcacontvct_float_, 
                             cmtx_rz, 
                             qvec_rz, 
                             amtx_rz, 
@@ -914,7 +914,7 @@ void PCATrackFitter::fit_float(vector<Hit*> hits)
       pca::matrixpcaconst<double> amtx_rphi(0, 0); 
       pca::matrixpcaconst<double> kvec_rphi(0, 0); 
       
-      if (import_pca_const (pcacontvct_float, 
+      if (import_pca_const (pcacontvct_float_, 
                             cmtx_rz, 
                             qvec_rz, 
                             amtx_rz, 

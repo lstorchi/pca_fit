@@ -42,8 +42,8 @@ class PCATrackFitter:public TrackFitter
   std::string cfname_;
   bool useinteger_ ;
 
-  std::vector<pca::matrixpcaconst<double> > pcacontvct_float;
-  std::vector<pca::matrixpcaconst<int32_t> > pcacontvct_integer;
+  std::vector<pca::matrixpcaconst<double> > pcacontvct_float_;
+  std::vector<pca::matrixpcaconst<int32_t> > pcacontvct_integer_;
 
   /* we will merge these using TypeIs... structs */
   void fit_float(vector<Hit*> hits);
@@ -62,14 +62,17 @@ class PCATrackFitter:public TrackFitter
   PCATrackFitter(int nb);
   ~PCATrackFitter();
 
+  void fit();
   void initialize();
   void fit(vector<Hit*> hits);
-  void fit();
+
   void setTrack(Track* intc); 
 
   void mergePatterns();
   void mergeTracks();
 
+  /* In case a second file is read values will be appended,
+   * initialize will remove all the values */
   void read_float_const_filename (const std::string & in);
   void read_integegr_const_filename (const std::string & in);
 

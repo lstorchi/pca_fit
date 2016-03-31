@@ -154,7 +154,14 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
 
   /// STEP 0
   /// Read PCAConst file
+  PCA->read_float_const_filename ("../data/barrel_tow16_pca_const.txt");
+  PCA->read_float_const_filename ("../data/barrel_tow17_pca_const.txt");
   PCA->read_float_const_filename ("../data/barrel_tow18_pca_const.txt");
+  PCA->read_float_const_filename ("../data/barrel_tow19_pca_const.txt");
+  PCA->read_float_const_filename ("../data/barrel_tow20_pca_const.txt");
+  PCA->read_float_const_filename ("../data/barrel_tow21_pca_const.txt");
+  PCA->read_float_const_filename ("../data/barrel_tow22_pca_const.txt");
+  PCA->read_float_const_filename ("../data/barrel_tow23_pca_const.txt");
 
   /// STEP 1
   /// Loop over track candidates
