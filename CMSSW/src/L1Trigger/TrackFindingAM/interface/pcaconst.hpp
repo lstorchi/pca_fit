@@ -424,7 +424,7 @@ namespace pca
   bool pca::matrixpcaconst<T>::operator==( 
       const pca::matrixpcaconst<T>& cp ) const
   {
-    return (compare_non_element(cp));
+    return (compare_nonelements(cp));
   }
   
   template<typename T>

@@ -35,6 +35,7 @@ bool read_pca_const (const std::string & cfname)
   std::vector<pca::matrixpcaconst<double> > vct;
   if (read_pcacosnt_from_file (vct, cfname.c_str()))
   {
+    int totaldim = 0;
     std::vector<pca::matrixpcaconst<double> >::const_iterator it = 
       vct.begin();
     for (; it != vct.end(); ++it)
@@ -57,7 +58,12 @@ bool read_pca_const (const std::string & cfname)
         << std::endl;
       std::cout << layerseq << " " << ptmin << " " <<  ptmax << " " 
         << etamin << " "<< etamax << " " << chargesign << std::endl;
+      int dim = it->n_rows() * it->n_cols();
+      std::cout << "number of values: " << dim << std::endl;
+      totaldim += dim;
     }
+
+    std::cout << "Total values: " << totaldim << std::endl;
 
     return true;
   }
