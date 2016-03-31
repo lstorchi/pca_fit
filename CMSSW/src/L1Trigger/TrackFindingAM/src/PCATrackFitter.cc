@@ -544,7 +544,7 @@ TrackFitter* PCATrackFitter::clone()
 
 void PCATrackFitter::read_float_const_filename (const std::string & in)
 {
-  std::cout << "Reading " in << std::endl;
+  std::cout << "Reading " << in << std::endl;
   if (pca::read_pcacosnt_from_file (pcacontvct_float_, in.c_str()))
   {
     std::cerr << "Error while reading constant from " << in << std::endl;
@@ -567,7 +567,7 @@ void PCATrackFitter::read_float_const_filename (const std::string & in)
 
 void PCATrackFitter::read_integegr_const_filename (const std::string & in)
 {
-  std::cout << "Reading " in << std::endl;
+  std::cout << "Reading " << in << std::endl;
   if (pca::read_pcacosnt_from_file (pcacontvct_integer_, in.c_str()))
   {
     std::cerr << "Error while reading constant from " << in << std::endl;
