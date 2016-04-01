@@ -46,7 +46,7 @@ class PCATrackFitter:public TrackFitter
   std::vector<pca::matrixpcaconst<int32_t> > pcacontvct_integer_;
 
   std::vector<double> chi2vf_;
-  std::vector<int31_t> chi2vi_;
+  std::vector<int32_t> chi2vi_;
 
   /* we will merge these using TypeIs... structs */
   void fit_float(vector<Hit*> hits);
@@ -75,7 +75,7 @@ class PCATrackFitter:public TrackFitter
   {
     return chi2vf_;
   }
-  const std::vector<int31_t> & get_chi2i() const
+  const std::vector<int32_t> & get_chi2i() const
   {
     return chi2vi_;
   }
