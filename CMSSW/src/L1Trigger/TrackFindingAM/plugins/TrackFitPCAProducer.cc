@@ -293,36 +293,42 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
       tracks = PCA->getTracks();
       PCA->clean();
 
-
       delete TC;      
-      // Store the tracks (no duplicate cleaning yet)
-      //      cout<<"Found "<<tracks.size()<<" track"<<endl;
 
-      std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > > tempVec;
+      std::vector<double> chi2v = PCA->get_chi2f();
 
-      for(unsigned int tt=0;tt<tracks.size();tt++)
-      {	
-	tempVec.clear();
-
-	vector<int> stubs = tracks[tt]->getStubs();
-	for(unsigned int sti=0;sti<stubs.size();sti++) tempVec.push_back( stubMap[ stubs[sti] ]);
-
-	double pz = tracks[tt]->getCurve()/(tan(2*atan(exp(-tracks[tt]->getEta0()))));
-	
-	TTTrack< Ref_PixelDigi_ > tempTrack( tempVec );
-	GlobalPoint POCA(0.,0.,tracks[tt]->getZ0());
-	GlobalVector mom(tracks[tt]->getCurve()*cos(tracks[tt]->getPhi0()),
-			 tracks[tt]->getCurve()*sin(tracks[tt]->getPhi0()),
-			 pz);
-	
-	tempTrack.setSector( seedSector );
-	tempTrack.setWedge( tracks[tt]->getCharge() );
-	tempTrack.setMomentum( mom , 5);
-	tempTrack.setPOCA( POCA , 5);
-
-	TTTracksForOutput->push_back( tempTrack );
-	
-	delete tracks[tt];
+      if (chi2v.size() == tracks.size())
+      {
+        // Store the tracks (no duplicate cleaning yet)
+        //      cout<<"Found "<<tracks.size()<<" track"<<endl;
+        
+        std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > > tempVec;
+        
+        for(unsigned int tt=0;tt<tracks.size();tt++)
+        {	
+          tempVec.clear();
+        
+          vector<int> stubs = tracks[tt]->getStubs();
+          for(unsigned int sti=0;sti<stubs.size();sti++) tempVec.push_back( stubMap[ stubs[sti] ]);
+        
+          double pz = tracks[tt]->getCurve()/(tan(2*atan(exp(-tracks[tt]->getEta0()))));
+          
+          TTTrack< Ref_PixelDigi_ > tempTrack( tempVec );
+          GlobalPoint POCA(0.,0.,tracks[tt]->getZ0());
+          GlobalVector mom(tracks[tt]->getCurve()*cos(tracks[tt]->getPhi0()),
+          		 tracks[tt]->getCurve()*sin(tracks[tt]->getPhi0()),
+          		 pz);
+          
+          tempTrack.setSector( seedSector );
+          tempTrack.setWedge( tracks[tt]->getCharge() );
+          tempTrack.setMomentum( mom , 5);
+          tempTrack.setPOCA( POCA , 5);
+          tempTrack.setChi2(chi2v[tt]);
+        
+          TTTracksForOutput->push_back( tempTrack );
+          
+          delete tracks[tt];
+        }
       }
     } // End of loop over patterns
 

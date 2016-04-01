@@ -442,6 +442,8 @@ void PCATrackFitter::initialize()
 {
   pcacontvct_float_.clear();
   pcacontvct_integer_.clear();
+  chi2vf_.clear();
+  chi2vi_.clear();
   useinteger_ = false;
   track_ = NULL;
 }
@@ -885,6 +887,7 @@ void PCATrackFitter::fit_float(vector<Hit*> hits)
         for(unsigned int idx = 0; idx < hits.size(); ++idx)
           fit_track->addStubIndex(hits[idx]->getID());
         
+        chi2vf_.push_back(chi2rz+chi2rphi);
         tracks.push_back(fit_track);
       }
       else 
@@ -1023,6 +1026,7 @@ void PCATrackFitter::fit_float(vector<Hit*> hits)
           fit_track->addStubIndex(hits[idx]->getID());
         
         tracks.push_back(fit_track);
+        chi2vf_.push_back(chi2rz+chi2rphi);
       }
       else 
       {
