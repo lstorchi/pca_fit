@@ -285,7 +285,8 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
 
       } /// End of loop over track stubs
 
-      if (tempTrackPtr->getSector()!=18) continue; // For the moment don't need to bother with the rest
+      //if (tempTrackPtr->getSector()!=18) continue; // For the moment don't need to bother with the rest
+      if (tempTrackPtr->getSector() < 16 || tempTrackPtr->getSector() > 31) continue; // For the moment don't need to bother with the rest
 
       PCA->setSectorID(tempTrackPtr->getSector());
       PCA->setTrack(TC);
