@@ -663,7 +663,7 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
         dump_element(qvec_rphi, std::cout);
 
         std::cout << "AMTX RZ: " << std::endl;
-        dump_element(Amtx_rz, std::cout);
+        dump_element(amtx_rz, std::cout);
       
         std::cout << "KVEC RZ: " << std::endl;
         dump_element(kvec_rz, std::cout);
