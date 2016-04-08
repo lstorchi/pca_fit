@@ -622,8 +622,8 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
 
       double pt_est = track_->getCurve();
       double eta_est = track_->getEta0();
-      double z0_est = track_->getZ0();
-      double phi_est = track_->getPhi0();
+      //double z0_est = track_->getZ0();
+      //double phi_est = track_->getPhi0();
       
       pca::matrixpcaconst<int32_t> cmtx_rz(0, 0);
       pca::matrixpcaconst<int32_t> qvec_rz(0, 0); 
