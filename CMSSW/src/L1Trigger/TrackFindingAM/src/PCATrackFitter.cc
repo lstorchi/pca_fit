@@ -442,7 +442,7 @@ void PCATrackFitter::initialize()
 {
   pcacontvct_float_.clear();
   pcacontvct_integer_.clear();
-  clearChi2();
+  cleanChi2();
   useinteger_ = false;
   track_ = NULL;
 }
@@ -661,6 +661,18 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
       
         std::cout << "QVEC RPHI: " << std::endl;
         dump_element(qvec_rphi, std::cout);
+
+        std::cout << "AMTX RZ: " << std::endl;
+        dump_element(Amtx_rz, std::cout);
+      
+        std::cout << "KVEC RZ: " << std::endl;
+        dump_element(kvec_rz, std::cout);
+      
+        std::cout << "AMTX RPHI: " << std::endl;
+        dump_element(amtx_rphi, std::cout);
+      
+        std::cout << "KVEC RPHI: " << std::endl;
+        dump_element(kvec_rphi, std::cout);
       }
       else 
       {
