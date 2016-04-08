@@ -903,7 +903,8 @@ void PCATrackFitter::fit_float(vector<Hit*> hits)
         for(unsigned int idx = 0; idx < hits.size(); ++idx)
           fit_track->addStubIndex(hits[idx]->getID());
         
-        chi2vf_.push_back(chi2rz+chi2rphi);
+        // TODO: check NDF (14)
+        chi2vf_.push_back((chi2rz+chi2rphi)/14.0);
         tracks.push_back(fit_track);
       }
       else 
@@ -1041,7 +1042,8 @@ void PCATrackFitter::fit_float(vector<Hit*> hits)
           fit_track->addStubIndex(hits[idx]->getID());
         
         tracks.push_back(fit_track);
-        chi2vf_.push_back(chi2rz+chi2rphi);
+        // TODO: check NDF (10)
+        chi2vf_.push_back((chi2rz+chi2rphi)/(10.0));
       }
       else 
       {
