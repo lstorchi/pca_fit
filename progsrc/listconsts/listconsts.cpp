@@ -35,7 +35,7 @@ bool read_pca_const (const std::string & cfname)
   std::vector<pca::matrixpcaconst<double> > vct;
   if (read_pcacosnt_from_file (vct, cfname.c_str()))
   {
-    int totaldim = 0;
+    int totaldim = 0, muplus = 0, muneg = 0;
     std::vector<pca::matrixpcaconst<double> >::const_iterator it = 
       vct.begin();
     std::cout << "plane_type const_type towerid sector_type " << 
@@ -59,12 +59,27 @@ bool read_pca_const (const std::string & cfname)
         << pca::matrixpcaconst<double>::ttype_to_string(it->get_ttype()) << " ";
       std::cout << layerseq << " " << ptmin << " " <<  ptmax << " " 
         << etamin << " "<< etamax << " " << chargesign << " ";
+      if (pca::matrixpcaconst<double>::plane_type_to_string(it->get_plane_type()) == "RPHI")
+      {
+        if (chargesign > 0)
+          muplus++;
+        else if (chargesign < 0)
+          muneg++;
+        else 
+        {
+          std::cerr << "error charge " << std::endl;
+          exit(1);
+        }
+      }
       int dim = it->n_rows() * it->n_cols();
       std::cout << dim << std::endl;
       totaldim += dim;
     }
 
     std::cout << "Total values: " << totaldim << std::endl;
+    std::cout << "mu+: " << muplus << " mu-: " << muneg << std::endl;
+    if (muplus != muneg)
+      std::cerr << "Error  in mu+ mu- number " << std::endl;
 
     return true;
   }
