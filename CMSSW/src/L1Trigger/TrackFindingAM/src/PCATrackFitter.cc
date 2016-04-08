@@ -442,10 +442,15 @@ void PCATrackFitter::initialize()
 {
   pcacontvct_float_.clear();
   pcacontvct_integer_.clear();
-  chi2vf_.clear();
-  chi2vi_.clear();
+  clearChi2();
   useinteger_ = false;
   track_ = NULL;
+}
+
+void PCATrackFitter::cleanChi2()
+{
+  chi2vf_.clear();
+  chi2vi_.clear();
 }
 
 void PCATrackFitter::mergePatterns()
@@ -617,8 +622,8 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
 
       double pt_est = track_->getCurve();
       double eta_est = track_->getEta0();
-      //double z0_est = track_->getZ0();
-      //double phi_est = track_->getPhi0();
+      double z0_est = track_->getZ0();
+      double phi_est = track_->getPhi0();
       
       pca::matrixpcaconst<int32_t> cmtx_rz(0, 0);
       pca::matrixpcaconst<int32_t> qvec_rz(0, 0); 
@@ -740,17 +745,16 @@ void PCATrackFitter::fit_float(vector<Hit*> hits)
           layersid, pslayersid))
     {
       int charge = +1;
-      double pt_est, eta_est, z0_est, phi_est;
       if (track_->getCurve() < 0.0)
        charge = -1;
 
       // Check the charge TODO
       charge = -1 * charge;
 
-      pt_est = track_->getCurve();
-      eta_est = track_->getEta0();
-      z0_est = track_->getZ0();
-      phi_est = track_->getPhi0();
+      double pt_est = track_->getCurve();
+      double eta_est = track_->getEta0();
+      double z0_est = track_->getZ0();
+      double phi_est = track_->getPhi0();
       
       /* TEST 
       zrv(0, 0) = -16.1314; zrv(0, 1) = 23.3135;
@@ -910,17 +914,16 @@ void PCATrackFitter::fit_float(vector<Hit*> hits)
           layersid, pslayersid))
     {
       int charge = +1;
-      double pt_est, eta_est, z0_est, phi_est;
       if (track_->getCurve() < 0.0)
        charge = -1;
 
       // Check the charge TODO
       charge = -1 * charge;
 
-      pt_est = track_->getCurve();
-      eta_est = track_->getEta0();
-      z0_est = track_->getZ0();
-      phi_est = track_->getPhi0();
+      double pt_est = track_->getCurve();
+      double eta_est = track_->getEta0();
+      double z0_est = track_->getZ0();
+      double phi_est = track_->getPhi0();
       
       pca::matrixpcaconst<double> cmtx_rz(0, 0);
       pca::matrixpcaconst<double> qvec_rz(0, 0); 

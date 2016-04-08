@@ -12,7 +12,7 @@
 #include <boost/serialization/export.hpp>
 
 
-#include "../interface/pcaconst.hpp"
+#include "../interface/pcaconst.h"
 
 /**
    \brief PCA fitter hfile : Loriano Storchi 2016
@@ -80,6 +80,7 @@ class PCATrackFitter:public TrackFitter
     return chi2vi_;
   }
 
+  void cleanChi2();
   void mergePatterns();
   void mergeTracks();
 
