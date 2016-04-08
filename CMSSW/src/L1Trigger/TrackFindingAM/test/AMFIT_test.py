@@ -39,13 +39,14 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input source
 #
-# You can use as input file the result of the script AMTC_test.py of part 6.1.2 of the tutorial
+# You can use as input file the result of the script AMPR_test.py of part 5.2.2 of the tutorial
 #
-# Any other EDM file containing TCs and produced with CMSSW 620_SLHC27 should also work
+# Any other EDM file containing patterns and produced with CMSSW 620_SLHC13 should also work
 #
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring('file:AMTC_output.root'),
+#                            fileNames = cms.untracked.vstring('file:/data/viret/test.root'),
                             duplicateCheckMode = cms.untracked.string( 'noDuplicateCheck' )
 )
 
@@ -55,8 +56,6 @@ process.source = cms.Source("PoolSource",
 process.TTStubAssociatorFromPixelDigis.TTStubs        = cms.VInputTag( cms.InputTag("MergeFITOutput", "StubInTrack"))
 process.TTStubAssociatorFromPixelDigis.TTClusterTruth = cms.VInputTag( cms.InputTag("TTClusterAssociatorFromPixelDigis","ClusterAccepted"))
 process.TTTrackAssociatorFromPixelDigis.TTTracks      = cms.VInputTag( cms.InputTag("MergeFITOutput", "AML1Tracks"))
-
-process.TTTracksTAMUFromTC.ConstantsDir               = cms.FileInPath("L1Trigger/TrackFindingAM/data/PreEstimate_Transverse/matrixVD_2016.txt")
 
 # Additional output definition
 from Configuration.AlCa.GlobalTag import GlobalTag
@@ -77,12 +76,11 @@ process.RAWSIMoutput = cms.OutputModule("PoolOutputModule",
 # (not yet in the customizing scripts)
 
 # Keep the PR output
-process.RAWSIMoutput.outputCommands.append('keep  *_*_*_AMPR')
 process.RAWSIMoutput.outputCommands.append('keep  *_*_*_AMTC')
 
 # Keep the FIT output
 process.RAWSIMoutput.outputCommands.append('keep  *_*_*_AMFIT')
-process.RAWSIMoutput.outputCommands.append('drop *_TTTracks*FromTC_*_*')
+process.RAWSIMoutput.outputCommands.append('drop *_TTTracksFromTC_*_*')
 process.RAWSIMoutput.outputCommands.append('keep  *_*_MergedTrackTruth_*')
 
 # Path and EndPath definitions
