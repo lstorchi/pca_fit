@@ -30,244 +30,6 @@
 // lstorchi: basi code to fit tracks, using the PCA constants generated 
 //           by the related generatepca
 
-bool import_pca_const_int (const std::string & cfname, 
-    arma::mat & cmtx, arma::rowvec & qvec, 
-    arma::mat & amtx, arma::rowvec & kvec, 
-    bool rzplane, bool rphiplane, double etaminin, 
-    double etamaxin, double ptminin, double ptmaxin, 
-    int chargesignin,
-    const std::string & layersid,
-    const std::string & pslayersid)
-{
-  assert(rzplane != rphiplane); 
-
-  std::vector<pca::matrixpcaconst<int32_t> > vct;
-  if (read_pcacosnt_from_file (vct, cfname.c_str()))
-  {
-    int hwmanygot = 0;
-    std::vector<pca::matrixpcaconst<int32_t> >::const_iterator it = 
-      vct.begin();
-    for (; it != vct.end(); ++it)
-    {
-      double ptmin, ptmax, etamin, etamax;
-      std::string actuallayids;
-      int chargesign;
-
-      it->get_ptrange(ptmin, ptmax);
-      it->get_etarange(etamin, etamax);
-      chargesign = it->get_chargesign();
-      actuallayids = it->get_layersids();
-
-      if (it->get_ttype() == pca::matrixpcaconst<int32_t>::INTEGPT)
-      {
-        if (rzplane)
-        {
-          if (it->get_plane_type() == pca::matrixpcaconst<int32_t>::RZ)
-          {
-            if (actuallayids == pslayersid)
-            {
-              if ((etaminin >= etamin) && (etaminin <= etamax) &&
-                  (etamaxin >= etamin) && (etamaxin <= etamax))
-              {
-                switch(it->get_const_type())
-                {
-                  case pca::matrixpcaconst<int32_t>::QVEC :
-                    pcamat_to_armarowvec ((*it), qvec);
-                    hwmanygot++;
-                    break;
-                  case pca::matrixpcaconst<int32_t>::KVEC :
-                    pcamat_to_armarowvec ((*it), kvec);
-                    hwmanygot++;
-                    break;
-                  case pca::matrixpcaconst<int32_t>::CMTX :
-                    pcamat_to_armamat ((*it), cmtx);
-                    hwmanygot++;
-                    break;
-                  case pca::matrixpcaconst<int32_t>::AMTX :
-                    pcamat_to_armamat ((*it), amtx);
-                    hwmanygot++;
-                    break;
-                  default:
-                    break;
-                }
-              } 
-            }
-          }
-        }
-        else if (rphiplane)
-        {
-          if (it->get_plane_type() == pca::matrixpcaconst<int32_t>::RPHI)
-          {
-            if (actuallayids == layersid)
-            {
-              if (chargesignin == chargesign)
-              {
-                if ((ptminin >= ptmin) && (ptminin <= ptmax) &&
-                    (ptmaxin >= ptmin) && (ptmaxin <= ptmax))
-                {
-                  switch(it->get_const_type())
-                  {
-                    case pca::matrixpcaconst<int32_t>::QVEC : 
-                      pcamat_to_armarowvec ((*it), qvec);
-                      hwmanygot++;
-                      break;
-                    case pca::matrixpcaconst<int32_t>::KVEC :
-                      pcamat_to_armarowvec ((*it), kvec);
-                      hwmanygot++;
-                      break;
-                    case pca::matrixpcaconst<int32_t>::CMTX :
-                      pcamat_to_armamat ((*it), cmtx);
-                      hwmanygot++;
-                      break;
-                    case pca::matrixpcaconst<int32_t>::AMTX :
-                      pcamat_to_armamat ((*it), amtx);
-                      hwmanygot++;
-                      break;
-                    default:
-                      break;
-                  }
-                }
-              } 
-            }
-          }
-        }
-      }
-    }
-
-    if (hwmanygot == 4)
-      return true;
-    else
-    {
-      std::cerr << "Found " << hwmanygot << " const instead of 4" << std::endl;
-      return false;
-    }
-  }
-
-  // TODO add consistency check for dims
-
-  return false;
-}
-
-
-bool import_pca_const (const std::string & cfname, 
-    arma::mat & cmtx, arma::rowvec & qvec, 
-    arma::mat & amtx, arma::rowvec & kvec, 
-    bool rzplane, bool rphiplane, double etaminin, 
-    double etamaxin, double ptminin, double ptmaxin, 
-    int chargesignin,
-    const std::string & layersid,
-    const std::string & pslayersid)
-{
-  assert(rzplane != rphiplane); 
-
-  std::vector<pca::matrixpcaconst<double> > vct;
-  if (read_pcacosnt_from_file (vct, cfname.c_str()))
-  {
-    int hwmanygot = 0;
-    std::vector<pca::matrixpcaconst<double> >::const_iterator it = 
-      vct.begin();
-    for (; it != vct.end(); ++it)
-    {
-      double ptmin, ptmax, etamin, etamax;
-      std::string actuallayids;
-      int chargesign;
-
-      it->get_ptrange(ptmin, ptmax);
-      it->get_etarange(etamin, etamax);
-      chargesign = it->get_chargesign();
-      actuallayids = it->get_layersids();
-
-      if (it->get_ttype() == pca::matrixpcaconst<double>::FLOATPT)
-      {
-        if (rzplane)
-        {
-          if (it->get_plane_type() == pca::matrixpcaconst<double>::RZ)
-          {
-            if (actuallayids == pslayersid)
-            {
-              if ((etaminin >= etamin) && (etaminin <= etamax) &&
-                  (etamaxin >= etamin) && (etamaxin <= etamax))
-              {
-                switch(it->get_const_type())
-                {
-                  case pca::matrixpcaconst<double>::QVEC :
-                    pcamat_to_armarowvec ((*it), qvec);
-                    hwmanygot++;
-                    break;
-                  case pca::matrixpcaconst<double>::KVEC :
-                    pcamat_to_armarowvec ((*it), kvec);
-                    hwmanygot++;
-                    break;
-                  case pca::matrixpcaconst<double>::CMTX :
-                    pcamat_to_armamat ((*it), cmtx);
-                    hwmanygot++;
-                    break;
-                  case pca::matrixpcaconst<double>::AMTX :
-                    pcamat_to_armamat ((*it), amtx);
-                    hwmanygot++;
-                    break;
-                  default:
-                    break;
-                }
-              } 
-            }
-          }
-        }
-        else if (rphiplane)
-        {
-          if (it->get_plane_type() == pca::matrixpcaconst<double>::RPHI)
-          {
-            if (actuallayids == layersid)
-            {
-              if (chargesignin == chargesign)
-              {
-                if ((ptminin >= ptmin) && (ptminin <= ptmax) &&
-                    (ptmaxin >= ptmin) && (ptmaxin <= ptmax))
-                {
-                  switch(it->get_const_type())
-                  {
-                    case pca::matrixpcaconst<double>::QVEC : 
-                      pcamat_to_armarowvec ((*it), qvec);
-                      hwmanygot++;
-                      break;
-                    case pca::matrixpcaconst<double>::KVEC :
-                      pcamat_to_armarowvec ((*it), kvec);
-                      hwmanygot++;
-                      break;
-                    case pca::matrixpcaconst<double>::CMTX :
-                      pcamat_to_armamat ((*it), cmtx);
-                      hwmanygot++;
-                      break;
-                    case pca::matrixpcaconst<double>::AMTX :
-                      pcamat_to_armamat ((*it), amtx);
-                      hwmanygot++;
-                      break;
-                    default:
-                      break;
-                  }
-                }
-              } 
-            }
-          }
-        }
-      }
-    }
-
-    if (hwmanygot == 4)
-      return true;
-    else
-    {
-      std::cerr << "Found " << hwmanygot << " const instead of 4" << std::endl;
-      return false;
-    }
-  }
-
-  // TODO add consistency check for dims
-
-  return false;
-}
- 
-
 bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt, 
      arma::mat & cmtx, arma::rowvec & q, arma::mat & amtx, 
      arma::rowvec & k, bool verbose, pca::pcafitter & fitter, 
@@ -288,6 +50,29 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
     * i_phicmp = NULL;
   double * cothetacmp = NULL, * z0cmp = NULL, * qoverptcmp = NULL,
     * phicmp = NULL;
+  
+  unsigned int coorddim = (unsigned int) fitter.get_coordim();
+  unsigned int paramdim = (unsigned int) fitter.get_paramdim();
+
+  std::cout << "using " << coorddim << " coordinates and " << paramdim <<
+    " parameters " << std::endl;
+
+  if (coorddim != cmtx.n_cols)
+  {
+    std::cerr << "Incompatible dimensions CMTX (2S-modules ?)" << std::endl;
+    return EXIT_FAILURE;
+  }
+  if (paramdim != cmtx.n_rows)
+  {
+    std::cerr << "Incompatible dimensions CMTX (2S-modules ?)" << std::endl;
+    return EXIT_FAILURE;
+  }
+  if (paramdim != qvec.n_elem)
+  {
+    std::cerr << "Incompatible dimensions QVEC (2S-modules ?)" << std::endl;
+    return EXIT_FAILURE;
+  }
+
   
   if (rzplane)
   {
@@ -677,9 +462,10 @@ void usage (char * name)
   std::cerr << " -h, --help                       : display this help and exit" << std::endl;
   std::cerr << " -V, --verbose                    : verbose option on" << std::endl;
   std::cerr << " -v, --version                    : print version and exit" << std::endl;
-  std::cerr << " -T, --int-bitewise              : Integer bitewise mode on" << std::endl;
+  std::cerr << " -T, --int-bitewise               : Integer bitewise mode on" << std::endl;
   std::cerr << " -p, --dump-allcoords             : dump all stub coordinates to a file" << std::endl;
-  std::cerr << " -c, --pca-const-file=[fillename] : PCA const txt filename [default is pca_const.txt]" << std::endl;
+  std::cerr << " -c, --pca-const-file=[\"fillename1;fillename2;...;fillenameN\"] " << std::endl;
+  std::cerr << "                                  : PCA const txt filenames [default is pca_const.txt]" << std::endl;
   std::cerr << std::endl;                         
   std::cerr << " -z, --rz-plane                   : use rz plane view (fit eta and z0)" << std::endl;
   std::cerr << " -r, --rphi-plane                 : use r-phi plane view (fit ot and phi)" << std::endl;
@@ -719,7 +505,9 @@ int main (int argc, char ** argv)
 
   pca::pcafitter fitter;
 
-  std::string cfname = "pca_const.txt";
+  std::vector<std::string> cfnames;  
+  cfnames.push_back("pca_const.txt");
+
   bool verbose = false;
   bool rzplane = false;
   bool rphiplane = false;
@@ -909,7 +697,14 @@ int main (int argc, char ** argv)
         usage (argv[0]);
         break;
       case'c':
-        cfname = optarg;
+        tokens.clear();
+        pca::tokenize (optarg, tokens, ";");
+        if (tokens.size() == 0)
+          usage (argv[0]);
+
+        cfnames.clear();
+        cfnames = tokens;
+
         break;
       default:
         usage (argv[0]);
@@ -1060,56 +855,67 @@ int main (int argc, char ** argv)
     return EXIT_FAILURE;
   }
 
-  if (pca::file_exists(cfname.c_str()))
-  {
-    std::cout << "Reading " << cfname << std::endl;
+  std::vector<pca::matrixpcaconst<double> > pcacontvct_float;
+  std::vector<pca::matrixpcaconst<int32_t> > pcacontvct_int;
 
+  if (cfnames.size() != 0)
+  {
     if (intbitewise)
     {
-      if (!import_pca_const_int (cfname, cmtx, qvec, amtx, kvec, 
-            rzplane, rphiplane, etamin, etamax, ptmin, 
-            ptmax, chargesign, layersid, pslayersid))
+      std::vector<std::string>::iterator in = cfnames.begin();
+      for (; in != cfnames.end(); ++in)
       {
-        std::cerr << "Error in reading constants from file" << std::endl;
-        return EXIT_FAILURE;
+        std::cout << "Reading " << *in << std::endl;
+        if (!pca::read_pcacosnt_from_file (pcacontvct_int, in->c_str()))
+        {
+          std::cerr << "Error while reading constant from " << *in << " read only " << 
+            pcacontvct_int.size() << std::endl;
+          return EXIT_FAILURE;
+        }
+      
+        std::vector<pca::matrixpcaconst<int32_t> >::const_iterator it = 
+            pcacontvct_int.begin();
+        for (; it != pcacontvct_int.end(); ++it)
+        {
+          if (it->get_ttype() != pca::matrixpcaconst<int32_t>::INTEGPT)
+          {
+            std::cerr << "Wrong PCAconst type " << std::endl;
+            return EXIT_FAILURE;
+          }
+        }
       }
+
     }
     else
     {
-      if (!import_pca_const (cfname, cmtx, qvec, amtx, kvec, 
-            rzplane, rphiplane, etamin, etamax, ptmin, 
-            ptmax, chargesign, layersid, pslayersid))
+      std::vector<std::string>::iterator in = cfnames.begin();
+      for (; in != cfnames.end(); ++in)
       {
-        std::cerr << "Error in reading constants from file" << std::endl;
-        return EXIT_FAILURE;
+        std::cout << "Reading " << *in << std::endl;
+        if (!pca::read_pcacosnt_from_file (pcacontvct_float, in->c_str()))
+        {
+          std::cerr << "Error while reading constant from " << *in << " read only " << 
+            pcacontvct_float.size() << std::endl;
+          return EXIT_FAILURE;
+        }
+      
+        std::vector<pca::matrixpcaconst<double> >::const_iterator it = 
+            pcacontvct_float.begin();
+        for (; it != pcacontvct_float.end(); ++it)
+        {
+          if (it->get_ttype() != pca::matrixpcaconst<double>::FLOATPT)
+          {
+            std::cerr << "Wrong PCAconst type " << std::endl;
+            return EXIT_FAILURE;
+          }
+        }
       }
     }
 
-    unsigned int coorddim = (unsigned int) fitter.get_coordim();
-    unsigned int paramdim = (unsigned int) fitter.get_paramdim();
-
-    std::cout << "using " << coorddim << " coordinates and " << paramdim <<
-      " parameters " << std::endl;
-
-    if (coorddim != cmtx.n_cols)
-    {
-      std::cerr << "Incompatible dimensions CMTX (2S-modules ?)" << std::endl;
-      return EXIT_FAILURE;
-    }
-    if (paramdim != cmtx.n_rows)
-    {
-      std::cerr << "Incompatible dimensions CMTX (2S-modules ?)" << std::endl;
-      return EXIT_FAILURE;
-    }
-    if (paramdim != qvec.n_elem)
-    {
-      std::cerr << "Incompatible dimensions QVEC (2S-modules ?)" << std::endl;
-      return EXIT_FAILURE;
-    }
   }
   else
   {
-    std::cerr << cfname << " does not exist" << std::endl;
+    std::cerr << "Const file list is empty" << std::endl;
     return 1;
   }
 

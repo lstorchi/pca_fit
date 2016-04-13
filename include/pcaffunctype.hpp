@@ -53,6 +53,38 @@ namespace pca
 
   void read_armvct_ibw (const char * fname, arma::rowvec & q);
   
+  bool import_pca_const (
+    std::vector<pca::matrixpcaconst<int32_t> > & vct,
+    pca::matrixpcaconst<int32_t> & cmtx_rz, 
+    pca::matrixpcaconst<int32_t> & qvec_rz, 
+    pca::matrixpcaconst<int32_t> & amtx_rz, 
+    pca::matrixpcaconst<int32_t> & kvec_rz, 
+    pca::matrixpcaconst<int32_t> & cmtx_rphi, 
+    pca::matrixpcaconst<int32_t> & qvec_rphi, 
+    pca::matrixpcaconst<int32_t> & amtx_rphi, 
+    pca::matrixpcaconst<int32_t> & kvec_rphi, 
+    double eta, double pt, 
+    int chargesignin,
+    const std::string & layersid,
+    const std::string & pslayersid,
+    int towerid);
+
+  bool import_pca_const (
+    std::vector<pca::matrixpcaconst<double> > & vct,
+    pca::matrixpcaconst<double> & cmtx_rz, 
+    pca::matrixpcaconst<double> & qvec_rz, 
+    pca::matrixpcaconst<double> & amtx_rz, 
+    pca::matrixpcaconst<double> & kvec_rz, 
+    pca::matrixpcaconst<double> & cmtx_rphi, 
+    pca::matrixpcaconst<double> & qvec_rphi, 
+    pca::matrixpcaconst<double> & amtx_rphi, 
+    pca::matrixpcaconst<double> & kvec_rphi, 
+    double eta, double pt, 
+    int chargesignin,
+    const std::string & layersid,
+    const std::string & pslayersid,
+    int towerid);
+ 
 #if 0
   bool reading_from_file_split (const pca::pcafitter &, const char * filename, 
           arma::mat & paramin, arma::mat & coordin,

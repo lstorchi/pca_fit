@@ -1,5 +1,5 @@
-if [ "$#" -ne 2 ]; then
-  echo $0 " rootfile consfile"
+if [ "$#" -ne 3 ]; then
+  echo $0 " rootfile consfile etamin"
   exit
 fi
 
