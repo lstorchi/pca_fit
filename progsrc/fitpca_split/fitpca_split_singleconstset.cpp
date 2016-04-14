@@ -707,6 +707,9 @@ void usage (char * name)
   std::cerr << std::endl;
   std::cerr << " -x, --exclude-s-module           : exclude S-module (last three layer) so 6 " << 
     "coordinates inseatd of 12 (rz)" << std::endl;
+  std::cerr << " -D, --towerid=[num]              : MANDATORY: specify towid to be used for the XY rotation " 
+    << std::endl;
+  std::cerr << "                                    written in the file " << std::endl;
 
   exit(1);
 }
@@ -754,6 +757,8 @@ int main (int argc, char ** argv)
 
   bool excludesmodule = false;
 
+  int towerid = -99;
+
   while (1)
   {
     int c, option_index;
@@ -780,10 +785,11 @@ int main (int argc, char ** argv)
       {"five-hits-lin", 1, NULL, 'l'},
       {"fk-five-hits", 1, NULL, 'w'},
       {"dump-allcoords", 0, NULL, 'p'},
+      {"towerid", 1, NULL, 'D'},
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "TpkxzrhaVw:l:f:b:t:g:c:n:s:m:o:u", 
+    c = getopt_long (argc, argv, "TpkxzrhaVD:w:l:f:b:t:g:c:n:s:m:o:u", 
         long_options, &option_index);
 
     if (c == -1)
@@ -791,6 +797,9 @@ int main (int argc, char ** argv)
 
     switch (c)
     {
+      case 'D':
+        towerid = atoi(optarg);
+        break;
       case 'T':
         intbitewise = true;
         break;
@@ -919,6 +928,12 @@ int main (int argc, char ** argv)
 
   if (optind >= argc) 
     usage (argv[0]);
+
+  if (towerid == -99)
+  {
+    std::cerr << "Towid is mandatory for XY rotation" << std::endl;
+    return EXIT_FAILURE;
+  }
 
   fitter.set_useintbitewise(intbitewise);
 
@@ -1137,6 +1152,8 @@ int main (int argc, char ** argv)
   rootrdr.set_d0limits(d0min, d0max);
   rootrdr.set_verbose(verbose);
   rootrdr.set_checklayersids(checklayersids);
+
+  rootrdr.set_towid(towerid);
 
   rootrdr.set_fkfiveoutofsix(usefakefiveoutofsix, 
       layeridtorm);

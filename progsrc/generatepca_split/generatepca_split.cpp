@@ -509,6 +509,12 @@ int main (int argc, char ** argv)
 
   fitter.set_useintbitewise(intbitewise);
 
+  if (towerid == -99)
+  {
+    std::cerr << "Towid is mandatory for XY rotation" << std::endl;
+    return EXIT_FAILURE;
+  }
+
   if (numoflayers == 5)
   {
     if (usefakefiveoutofsix)
@@ -631,6 +637,8 @@ int main (int argc, char ** argv)
   rootrdr.set_checklayersids(checklayersids);
   rootrdr.set_checklayersids(checklayersids);
   rootrdr.set_maxnumoftracks(maxnumoftracks);
+
+  rootrdr.set_towid(towerid);
 
   rootrdr.set_fkfiveoutofsix(usefakefiveoutofsix, 
       layeridtorm);
