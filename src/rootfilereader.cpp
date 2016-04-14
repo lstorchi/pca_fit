@@ -131,6 +131,8 @@ void rootfilereader::reset()
 
   reset_error();
   filename_ = "";
+
+  tow_ = -1;
 }
 
 void rootfilereader::set_useintbitewise (bool in)
@@ -321,6 +323,16 @@ void rootfilereader::set_verbose (bool in)
 bool rootfilereader::get_verbose () const
 {
   return verbose_;
+}
+
+void rootfilereader::set_towid (int towid)
+{
+  tow_ = towid;
+}
+
+int rootfilereader::get_towid () const
+{
+  return tow_;
 }
 
 const std::string & rootfilereader::get_errmsg () const
@@ -787,6 +799,18 @@ bool rootfilereader::reading_from_root_file (
 bool rootfilereader::convertorphiz (std::vector<track_rphiz_str> & 
     rphiz_tracks)
 {
+  if (tow_ == -1)
+  {
+    set_errmsg (-15, "Need to set towid");
+    return false;
+  }
+
+  if (useintbitewise_) 
+  {
+    set_errmsg (-16, "Integer phi rotation not yet implemented");
+    return false;
+  }
+
   std::vector<track_str>::const_iterator track = tracks_vct_.begin();
   for (; track != tracks_vct_.end(); ++track)
   {
@@ -806,10 +830,17 @@ bool rootfilereader::convertorphiz (std::vector<track_rphiz_str> &
 
     for (int j = 0; j < track->dim; ++j)
     {
-      double ri = sqrt(pow(track->x[j], 2.0) + 
-          pow (track->y[j], 2.0));
+      double sec_phi = (tow_ % 8) * M_PI / 4.0 - 0.4;
+
+      double ci = cos(-sec_phi);
+      double si = sin(-sec_phi);
+
+      double x = track->x[j] * ci - track->y[j] * si;
+      double y = track->x[j] * si + track->y[j] * ci;
+
+      double ri = sqrt(pow(x, 2.0) + pow (y, 2.0));
       //double phii = acos(track->x[j]/ri);
-      double phii = atan2(track->y[j],track->x[j]);
+      double phii = atan2(y, x);
 
       int32_t i_ri = sqrt(pow(track->i_x[j], 2.0) + 
           pow (track->i_y[j], 2.0));

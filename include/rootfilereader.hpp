@@ -86,6 +86,9 @@ namespace pca
       void set_useintbitewise (bool);
       bool get_useintbitewise () const;
 
+      void set_towid (int);
+      int get_towid () const;
+
       void set_specificseq (const char *);
       const std::string & get_specificseq () const;
 
@@ -116,6 +119,8 @@ namespace pca
     private:
   
       std::vector<track_str> tracks_vct_;
+
+      int tow_;
 
       int errnum_;
       std::string errmsg_, filename_;

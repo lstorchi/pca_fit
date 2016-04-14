@@ -28,7 +28,7 @@ namespace
     }
   }
 
-  bool hits_to_zrpmatrix_integer (
+  bool hits_to_zrpmatrix_integer (double ci, double si,
       const std::vector<Hit*> & hits, 
       pca::matrixpcaconst<int32_t> & zrv, 
       pca::matrixpcaconst<int32_t> & phirv, 
@@ -39,8 +39,11 @@ namespace
     int counter = 0;
     for (unsigned int idx=0; idx<hits.size(); idx++) 
     {
-      double xi = hits[idx]->getX();
-      double yi = hits[idx]->getY();
+      //double xi = hits[idx]->getX();
+      //double yi = hits[idx]->getY();
+
+      double xi = hits[idx]->getX() * ci - hits[idx]->getY() * si;
+      double yi = hits[idx]->getX() * si + hits[idx]->getY() * ci;
 
       int32_t zi = (int32_t) hits[idx]->getZ();
       int32_t ri = (int32_t) sqrt(xi*xi+yi*yi);
@@ -84,11 +87,11 @@ namespace
     for (unsigned int idx=0; idx<hits.size(); ++idx) 
     {
       // TODO double check this
-      //double xi =  hits[idx]->getX()*ci+ hits[idx]->getY()*si;
-      //double yi = -hits[idx]->getX()*si+ hits[idx]->getY()*ci;
+      double xi = hits[idx]->getX() * ci - hits[idx]->getY() * si;
+      double yi = hits[idx]->getX() * si + hits[idx]->getY() * ci;
 
-      double xi = hits[idx]->getX();
-      double yi = hits[idx]->getY();
+      //double xi = hits[idx]->getX();
+      //double yi = hits[idx]->getY();
 
       double zi = hits[idx]->getZ();
       double ri = sqrt(xi*xi+yi*yi);
@@ -607,12 +610,16 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
 
   int tow = sector_id; 
 
+  double sec_phi = (tow%8) * M_PI / 4.0 - 0.4;
+  double ci = cos(sec_phi);
+  double si = sin(sec_phi);
+
   if (hits.size() == 6)
   {
     pca::matrixpcaconst<int32_t> zrv(1, 12), phirv(1, 12);
     std::string layersid, pslayersid;
 
-    if (hits_to_zrpmatrix_integer (hits, zrv, phirv, 
+    if (hits_to_zrpmatrix_integer (ci, si, hits, zrv, phirv, 
           layersid, pslayersid))
     {
       int charge = +1;
@@ -711,32 +718,7 @@ void PCATrackFitter::fit_float(vector<Hit*> hits)
   //std::cout << "PCA::fit tow: " << tow << " hits size: " << 
   //  hits.size() << std::endl;
   
-  double sec_phi = 0;
-  switch (tow%8)
-  {
-    case 0:
-      sec_phi = 0.4;
-      break;
-    case 1:
-      sec_phi = 1.2;
-      break;
-    case 3:
-      sec_phi = 2.0;
-      break;
-    case 4:
-      sec_phi = 2.7;
-      break;
-    case 5:
-      sec_phi = -2.0;
-      break;
-    case 6:
-      sec_phi = -1.2;
-      break;
-    case 7:
-      sec_phi = -0.4;
-      break;
-  }
-  
+  double sec_phi = (tow%8) * M_PI / 4.0 - 0.4;
   double ci = cos(sec_phi);
   double si = sin(sec_phi);
 
