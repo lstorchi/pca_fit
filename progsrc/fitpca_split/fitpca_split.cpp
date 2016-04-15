@@ -1154,7 +1154,7 @@ int main (int argc, char ** argv)
   rootrdr.set_d0limits(d0min, d0max);
   rootrdr.set_verbose(verbose);
   rootrdr.set_checklayersids(checklayersids);
-  maxnumoftracks = 100000;
+  //maxnumoftracks = 100000;
   rootrdr.set_maxnumoftracks(maxnumoftracks);
 
   rootrdr.set_towid(towerid);

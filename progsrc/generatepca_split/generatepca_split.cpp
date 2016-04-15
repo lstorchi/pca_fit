@@ -636,7 +636,7 @@ int main (int argc, char ** argv)
   rootrdr.set_verbose(verbose);
   rootrdr.set_checklayersids(checklayersids);
   rootrdr.set_checklayersids(checklayersids);
-  maxnumoftracks = 100000;
+  //maxnumoftracks = 100000;
   rootrdr.set_maxnumoftracks(maxnumoftracks);
   // needed expecially for tow 19 20 27 28
   // only for the genration
