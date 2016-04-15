@@ -611,8 +611,8 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
   int tow = sector_id; 
 
   double sec_phi = (tow%8) * M_PI / 4.0 - 0.4;
-  double ci = cos(sec_phi);
-  double si = sin(sec_phi);
+  double ci = cos(-sec_phi);
+  double si = sin(-sec_phi);
 
   if (hits.size() == 6)
   {
@@ -719,8 +719,8 @@ void PCATrackFitter::fit_float(vector<Hit*> hits)
   //  hits.size() << std::endl;
   
   double sec_phi = (tow%8) * M_PI / 4.0 - 0.4;
-  double ci = cos(sec_phi);
-  double si = sin(sec_phi);
+  double ci = cos(-sec_phi);
+  double si = sin(-sec_phi);
 
   //std::cout << "tracks_.size() : " << tracks_.size() << std::endl;
   
@@ -830,6 +830,7 @@ void PCATrackFitter::fit_float(vector<Hit*> hits)
           coverpt += cmtx_rphi(0, i) * phirv(0, i);
           phi += cmtx_rphi(1, i) * phirv(0, i);
         }
+        phi += sec_phi;  
         
         double pt = (double)(charge)/coverpt;
         
@@ -968,6 +969,7 @@ void PCATrackFitter::fit_float(vector<Hit*> hits)
           coverpt += cmtx_rphi(0, i) * phirv(0, i);
           phi += cmtx_rphi(1, i) * phirv(0, i);
         }
+        phi += sec_phi;
         
         double pt = (double)(charge)/coverpt;
         

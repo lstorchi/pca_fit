@@ -133,6 +133,7 @@ void rootfilereader::reset()
   filename_ = "";
 
   tow_ = -1;
+  sec_phi_ = 0.0;
 }
 
 void rootfilereader::set_useintbitewise (bool in)
@@ -328,6 +329,9 @@ bool rootfilereader::get_verbose () const
 void rootfilereader::set_towid (int towid)
 {
   tow_ = towid;
+
+  double sec_phi = (tow_ % 8) * M_PI / 4.0 - 0.4;
+  sec_phi_ = sec_phi;
 }
 
 int rootfilereader::get_towid () const
@@ -811,6 +815,9 @@ bool rootfilereader::convertorphiz (std::vector<track_rphiz_str> &
     return false;
   }
 
+  double ci = cos(-sec_phi_);
+  double si = sin(-sec_phi_);
+
   std::vector<track_str>::const_iterator track = tracks_vct_.begin();
   for (; track != tracks_vct_.end(); ++track)
   {
@@ -830,11 +837,6 @@ bool rootfilereader::convertorphiz (std::vector<track_rphiz_str> &
 
     for (int j = 0; j < track->dim; ++j)
     {
-      double sec_phi = (tow_ % 8) * M_PI / 4.0 - 0.4;
-
-      double ci = cos(-sec_phi);
-      double si = sin(-sec_phi);
-
       double x = track->x[j] * ci - track->y[j] * si;
       double y = track->x[j] * si + track->y[j] * ci;
 
@@ -1049,7 +1051,12 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
     }
     else if (rphiplane_)
     {
-      paramin(counter, PCA_PHIIDX) = track->phi;
+      double phiorig = track->phi + sec_phi_;
+
+      phiorig = fmod(phiorig + M_PI, 2 * M_PI) - M_PI;
+
+      paramin(counter, PCA_PHIIDX) = phiorig;
+
       // use 1/pt
       if (chargeoverpt_)
       {

@@ -272,7 +272,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
      arma::mat & cmtx, arma::rowvec & q, arma::mat & amtx, 
      arma::rowvec & k, bool verbose, pca::pcafitter & fitter, 
      bool rzplane, bool rphiplane, arma::vec & ptvals, 
-     bool intbitewise)
+     bool intbitewise, double sec_phi)
 {
   int nbins = 100;
 
@@ -559,8 +559,9 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
         double diffqoverpt = qoverptcmps - qoverptorig;
     
         double phiorig = paramslt(i, PCA_PHIIDX);
-        double phicmps = phicmp[i];      
-        double diffphi = phicmps - phiorig;
+        double phicmps = phicmp[i];
+        //phicmps = fmod(phicmps + M_PI, 2 * M_PI) - M_PI;
+        double diffphi = pca::delta_phi(phicmps, phiorig);
     
         pcrelative[PCA_PHIIDX](diffphi/phiorig);
         pcrelative[PCA_ONEOVERPTIDX](diffqoverpt/qoverptorig);
@@ -736,6 +737,8 @@ int main (int argc, char ** argv)
   bool intbitewise = false;
 
   int layeridtorm = -1;
+
+  unsigned int maxnumoftracks = (unsigned int) INFINITY;
 
   double etamin = -1.0e0 * INFINITY, etamax = +1.0e0 * INFINITY;
   double ptmin = -1.0e0 * INFINITY, ptmax = +1.0e0 * INFINITY;
@@ -1153,6 +1156,9 @@ int main (int argc, char ** argv)
   rootrdr.set_verbose(verbose);
   rootrdr.set_checklayersids(checklayersids);
 
+  maxnumoftracks = 100000;
+  rootrdr.set_maxnumoftracks(maxnumoftracks);
+
   rootrdr.set_towid(towerid);
 
   rootrdr.set_fkfiveoutofsix(usefakefiveoutofsix, 
@@ -1173,6 +1179,8 @@ int main (int argc, char ** argv)
     std::cerr << rootrdr.get_errmsg() << std::endl;
     return EXIT_FAILURE;
   }
+
+  std::cout << "Rotation angle used: " << rootrdr.get_rotation_angle() << std::endl;
 
   if (userelativecoord)
     pca::global_to_relative(coord, coord1min, coord2min);
@@ -1208,7 +1216,8 @@ int main (int argc, char ** argv)
   }
 
   if (!build_and_compare (param, coord, cmtx, qvec, amtx, kvec, 
-        verbose, fitter, rzplane, rphiplane, ptvals, intbitewise))
+        verbose, fitter, rzplane, rphiplane, ptvals, intbitewise, 
+        rootrdr.get_rotation_angle()))
     return EXIT_FAILURE;
 
   std::cout << "Constants Used: C matrix: " << std::endl;

@@ -116,11 +116,18 @@ namespace pca
           arma::mat & paramin, arma::mat & coordin, 
           arma::vec & ptvalsout);
 
+      // add back to fitted phi values
+      double get_rotation_angle () const
+      {
+        return sec_phi_;
+      }
+
     private:
   
       std::vector<track_str> tracks_vct_;
 
       int tow_;
+      double sec_phi_;
 
       int errnum_;
       std::string errmsg_, filename_;
