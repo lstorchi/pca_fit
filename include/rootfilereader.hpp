@@ -122,12 +122,24 @@ namespace pca
         return sec_phi_;
       }
 
+      // neede for const generation
+      void apply_rotation_to_phi (bool in)
+      {
+        applyrotationtophi_ = in;
+      }
+      bool get_apply_rotation_to_phi () const
+      {
+        return applyrotationtophi_;
+      }
+
+
     private:
   
       std::vector<track_str> tracks_vct_;
 
       int tow_;
       double sec_phi_;
+      bool applyrotationtophi_;
 
       int errnum_;
       std::string errmsg_, filename_;

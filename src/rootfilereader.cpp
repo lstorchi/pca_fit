@@ -134,6 +134,7 @@ void rootfilereader::reset()
 
   tow_ = -1;
   sec_phi_ = 0.0;
+  applyrotationtophi_ = false;
 }
 
 void rootfilereader::set_useintbitewise (bool in)
@@ -1051,9 +1052,12 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
     }
     else if (rphiplane_)
     {
-      double phiorig = track->phi + sec_phi_;
-
-      phiorig = fmod(phiorig + M_PI, 2 * M_PI) - M_PI;
+      double phiorig = track->phi;
+      if (applyrotationtophi_ )
+      {
+        phiorig += sec_phi_;
+        phiorig = fmod(phiorig + M_PI, 2 * M_PI) - M_PI;
+      }
 
       paramin(counter, PCA_PHIIDX) = phiorig;
 

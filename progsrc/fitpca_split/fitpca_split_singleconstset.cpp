@@ -272,7 +272,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
      arma::mat & cmtx, arma::rowvec & q, arma::mat & amtx, 
      arma::rowvec & k, bool verbose, pca::pcafitter & fitter, 
      bool rzplane, bool rphiplane, arma::vec & ptvals, 
-     bool intbitewise, double sec_phi)
+     bool intbitewise)
 {
   int nbins = 100;
 
@@ -560,7 +560,6 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
     
         double phiorig = paramslt(i, PCA_PHIIDX);
         double phicmps = phicmp[i];
-        //phicmps = fmod(phicmps + M_PI, 2 * M_PI) - M_PI;
         double diffphi = pca::delta_phi(phicmps, phiorig);
     
         pcrelative[PCA_PHIIDX](diffphi/phiorig);
@@ -1155,7 +1154,7 @@ int main (int argc, char ** argv)
   rootrdr.set_d0limits(d0min, d0max);
   rootrdr.set_verbose(verbose);
   rootrdr.set_checklayersids(checklayersids);
-  //maxnumoftracks = 100000;
+  maxnumoftracks = 100000;
   rootrdr.set_maxnumoftracks(maxnumoftracks);
 
   rootrdr.set_towid(towerid);
@@ -1215,8 +1214,7 @@ int main (int argc, char ** argv)
   }
 
   if (!build_and_compare (param, coord, cmtx, qvec, amtx, kvec, 
-        verbose, fitter, rzplane, rphiplane, ptvals, intbitewise, 
-        rootrdr.get_rotation_angle()))
+        verbose, fitter, rzplane, rphiplane, ptvals, intbitewise))
     return EXIT_FAILURE;
 
   std::cout << "Constants Used: C matrix: " << std::endl;
