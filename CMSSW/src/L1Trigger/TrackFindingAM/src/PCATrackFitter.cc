@@ -830,7 +830,10 @@ void PCATrackFitter::fit_float(vector<Hit*> hits)
           coverpt += cmtx_rphi(0, i) * phirv(0, i);
           phi += cmtx_rphi(1, i) * phirv(0, i);
         }
-        phi -= sec_phi;
+
+        if ((tow == 19) || (tow == 20) || (tow == 27) ||
+            (tow == 28))
+          phi -= sec_phi;
         
         double pt = (double)(charge)/coverpt;
         
@@ -969,7 +972,9 @@ void PCATrackFitter::fit_float(vector<Hit*> hits)
           coverpt += cmtx_rphi(0, i) * phirv(0, i);
           phi += cmtx_rphi(1, i) * phirv(0, i);
         }
-        phi -= sec_phi;
+        if ((tow == 19) || (tow == 20) || (tow == 27) ||
+            (tow == 28))
+          phi -= sec_phi;
         
         double pt = (double)(charge)/coverpt;
         
