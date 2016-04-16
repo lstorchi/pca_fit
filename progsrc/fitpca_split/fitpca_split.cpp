@@ -272,7 +272,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
      arma::mat & cmtx, arma::rowvec & q, arma::mat & amtx, 
      arma::rowvec & k, bool verbose, pca::pcafitter & fitter, 
      bool rzplane, bool rphiplane, arma::vec & ptvals, 
-     bool intbitewise)
+     bool intbitewise, double sec_phi)
 {
   int nbins = 100;
 
@@ -559,7 +559,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
         double diffqoverpt = qoverptcmps - qoverptorig;
     
         double phiorig = paramslt(i, PCA_PHIIDX);
-        double phicmps = phicmp[i];
+        double phicmps = phicmp[i] - sec_phi;
         double diffphi = pca::delta_phi(phicmps, phiorig);
     
         pcrelative[PCA_PHIIDX](diffphi/phiorig);
@@ -1214,7 +1214,8 @@ int main (int argc, char ** argv)
   }
 
   if (!build_and_compare (param, coord, cmtx, qvec, amtx, kvec, 
-        verbose, fitter, rzplane, rphiplane, ptvals, intbitewise))
+        verbose, fitter, rzplane, rphiplane, ptvals, intbitewise,
+        rootrdr.get_rotation_angle()))
     return EXIT_FAILURE;
 
   std::cout << "Constants Used: C matrix: " << std::endl;
