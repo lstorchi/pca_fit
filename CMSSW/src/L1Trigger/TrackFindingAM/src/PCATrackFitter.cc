@@ -732,6 +732,13 @@ void PCATrackFitter::fit_float(vector<Hit*> hits)
   rpzfile.open ("PCArphizfile.txt");
   */
 
+  int charge = +1;
+  if (track_->getCurve() < 0.0)
+   charge = -1;
+
+  // Check the charge TODO
+  charge = -1 * charge;
+
   if (hits.size() == 6)
   {
     pca::matrixpcaconst<double> zrv(1, 12), phirv(1, 12);
@@ -740,13 +747,6 @@ void PCATrackFitter::fit_float(vector<Hit*> hits)
     if (hits_to_zrpmatrix (ci, si, hits, zrv, phirv, 
           layersid, pslayersid))
     {
-      int charge = +1;
-      if (track_->getCurve() < 0.0)
-       charge = -1;
-
-      // Check the charge TODO
-      charge = -1 * charge;
-
       double pt_est = track_->getCurve();
       double eta_est = track_->getEta0();
       double z0_est = track_->getZ0();
@@ -880,6 +880,8 @@ void PCATrackFitter::fit_float(vector<Hit*> hits)
         std::cout << " 6oof6 z0:      " << z0 << " " << z0_est << std::endl;
         std::cout << " 6oof6 chirz:   " << chi2rz << std::endl;
         std::cout << " 6oof6 chirphi: " << chi2rphi << std::endl;
+        std::cout << " 6oof6 chi2:    " << (chi2rz+chi2rphi)/14.0 << std::endl;
+
 
         Track* fit_track = new Track();
         
@@ -914,13 +916,6 @@ void PCATrackFitter::fit_float(vector<Hit*> hits)
     if (hits_to_zrpmatrix (ci, si, hits, zrv, phirv, 
           layersid, pslayersid))
     {
-      int charge = +1;
-      if (track_->getCurve() < 0.0)
-       charge = -1;
-
-      // Check the charge TODO
-      charge = -1 * charge;
-
       double pt_est = track_->getCurve();
       double eta_est = track_->getEta0();
       double z0_est = track_->getZ0();
@@ -1021,6 +1016,7 @@ void PCATrackFitter::fit_float(vector<Hit*> hits)
         std::cout << " 5oof6 z0:      " << z0 << " " << z0_est << std::endl;
         std::cout << " 5oof6 chirz:   " << chi2rz << std::endl;
         std::cout << " 5oof6 chirphi: " << chi2rphi << std::endl;
+        std::cout << " 6oof6 chi2:    " << (chi2rz+chi2rphi)/10.0 << std::endl;
 
         Track* fit_track = new Track();
         
