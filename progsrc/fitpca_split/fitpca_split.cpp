@@ -272,7 +272,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
      arma::mat & cmtx, arma::rowvec & q, arma::mat & amtx, 
      arma::rowvec & k, bool verbose, pca::pcafitter & fitter, 
      bool rzplane, bool rphiplane, arma::vec & ptvals, 
-     bool intbitewise, double sec_phi)
+     bool intbitewise, double sec_phi, bool writeresults)
 {
   int nbins = 100;
 
@@ -365,7 +365,8 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
   {
     if (rzplane)
     {
-      myfile << "pt eta_orig eta_fitt diff z0_orig z0_fitt diff chi2 chi2" << std::endl;
+      if (writeresults)
+        myfile << "pt eta_orig eta_fitt diff z0_orig z0_fitt diff chi2 chi2" << std::endl;
     
       arma::rowvec etadiffvct(coordslt.n_rows), 
         z0diffvct(coordslt.n_rows);
@@ -404,16 +405,18 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
      
         chi2stat(chi2values(i));
         
-        myfile << ptvals(i) << "   " <<
-          etaorig << "   " << etacmp << "   " <<
-          (etacmp - etaorig) << " " <<
-          z0orig << " " << z0cmps << " " <<
-          (z0cmps - z0orig) << " " << chi2values(i) << std::endl;
+        if (writeresults)
+          myfile << ptvals(i) << "   " <<
+            etaorig << "   " << etacmp << "   " <<
+            (etacmp - etaorig) << " " <<
+            z0orig << " " << z0cmps << " " <<
+            (z0cmps - z0orig) << " " << chi2values(i) << std::endl;
       }
     }
     else if (rphiplane)
     {
       std::ofstream myfile(fname.str().c_str());
+      if (writeresults)
         myfile << "pt q/pt_orig q/pt_fitt diff phi_orig phi_fitt diff chi2 chi2" << std::endl; 
     
       arma::rowvec qoverptdiffvct(coordslt.n_rows), 
@@ -441,10 +444,11 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
         qoverptdiffvct(i) = diffqoverpt/qoverptorig;
         phidiffvct(i) = diffphi;
       
-        myfile << ptvals(i) << " " <<
-          qoverptorig << " " << qoverptcmps << " " << diffqoverpt << " " <<
-          phiorig     << " " << phicmps     << " " << diffphi     << " " << 
-          chi2values(i) << std::endl;
+        if (writeresults)
+          myfile << ptvals(i) << " " <<
+            qoverptorig << " " << qoverptcmps << " " << diffqoverpt << " " <<
+            phiorig     << " " << phicmps     << " " << diffphi     << " " << 
+            chi2values(i) << std::endl;
       }
     }
   }
@@ -452,7 +456,8 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
   {
     if (rzplane)
     {
-      myfile << "pt eta_orig eta_fitt diff z0_orig z0_fitt diff chi2 chi2" << std::endl;
+      if (writeresults)
+        myfile << "pt eta_orig eta_fitt diff z0_orig z0_fitt diff chi2 chi2" << std::endl;
     
       arma::rowvec etadiffvct(coordslt.n_rows), 
         z0diffvct(coordslt.n_rows);
@@ -491,11 +496,12 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
      
         chi2stat(chi2values(i));
         
-        myfile << ptvals(i) << "   " <<
-          etaorig << "   " << etacmp << "   " <<
-          (etacmp - etaorig) << " " <<
-          z0orig << " " << z0cmps << " " <<
-          (z0cmps - z0orig) << " " << chi2values(i) << std::endl;
+        if (writeresults)
+          myfile << ptvals(i) << "   " <<
+            etaorig << "   " << etacmp << "   " <<
+            (etacmp - etaorig) << " " <<
+            z0orig << " " << z0cmps << " " <<
+            (z0cmps - z0orig) << " " << chi2values(i) << std::endl;
       
         if (verbose)
         {
@@ -546,6 +552,8 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
     else if (rphiplane)
     {
       std::ofstream myfile(fname.str().c_str());
+
+      if (writeresults)
         myfile << "pt q/pt_orig q/pt_fitt diff phi_orig phi_fitt diff chi2 chi2" << std::endl; 
     
       arma::rowvec qoverptdiffvct(coordslt.n_rows), 
@@ -573,10 +581,11 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
         qoverptdiffvct(i) = diffqoverpt/qoverptorig;
         phidiffvct(i) = diffphi;
       
-        myfile << ptvals(i) << " " <<
-          qoverptorig << " " << qoverptcmps << " " << diffqoverpt << " " <<
-          phiorig     << " " << phicmps     << " " << diffphi     << " " << 
-          chi2values(i) << std::endl;
+        if (writeresults) 
+          myfile << ptvals(i) << " " <<
+            qoverptorig << " " << qoverptcmps << " " << diffqoverpt << " " <<
+            phiorig     << " " << phicmps     << " " << diffphi     << " " << 
+            chi2values(i) << std::endl;
       
         if (verbose)
         {
@@ -622,8 +631,6 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
     }
   }
 
-  myfile.close();
-
   for (int i=0; i<fitter.get_paramdim(); ++i)
   {
     std::cout << "For " << fitter.paramidx_to_string(i) << " error " << 
@@ -638,7 +645,8 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
   std::cout << " " << std::endl;
   std::cout << "Chivalue mean " << chi2stat.mean() << " stdev " << 
     chi2stat.stddev() << std::endl;
-
+  
+  myfile.close();
 
   if (intbitewise)
   {
@@ -677,7 +685,7 @@ void usage (char * name)
   std::cerr << " -h, --help                       : display this help and exit" << std::endl;
   std::cerr << " -V, --verbose                    : verbose option on" << std::endl;
   std::cerr << " -v, --version                    : print version and exit" << std::endl;
-  std::cerr << " -T, --int-bitewise              : Integer bitewise mode on" << std::endl;
+  std::cerr << " -T, --int-bitewise               : Integer bitewise mode on" << std::endl;
   std::cerr << " -p, --dump-allcoords             : dump all stub coordinates to a file" << std::endl;
   std::cerr << " -c, --pca-const-file=[fillename] : PCA const txt filename [default is pca_const.txt]" << std::endl;
   std::cerr << std::endl;                         
@@ -710,6 +718,9 @@ void usage (char * name)
   std::cerr << " -D, --towerid=[num]              : MANDATORY: specify towid to be used for the XY rotation " 
     << std::endl;
   std::cerr << "                                    written in the file " << std::endl;
+  std::cerr << " -N, --no-results                 : results file is not written, only mean and stdev " << std::endl;
+  std::cerr << "                                    are computed and reported " << std::endl; 
+ 
 
   exit(1);
 }
@@ -761,6 +772,8 @@ int main (int argc, char ** argv)
 
   int towerid = -99;
 
+  bool writeresults = true;
+
   while (1)
   {
     int c, option_index;
@@ -788,10 +801,11 @@ int main (int argc, char ** argv)
       {"fk-five-hits", 1, NULL, 'w'},
       {"dump-allcoords", 0, NULL, 'p'},
       {"towerid", 1, NULL, 'D'},
+      {"no-results", 0, NULL, 'N'},
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "TpkxzrhaVD:w:l:f:b:t:g:c:n:s:m:o:u", 
+    c = getopt_long (argc, argv, "NTpkxzrhaVD:w:l:f:b:t:g:c:n:s:m:o:u", 
         long_options, &option_index);
 
     if (c == -1)
@@ -799,6 +813,9 @@ int main (int argc, char ** argv)
 
     switch (c)
     {
+      case 'N':
+        writeresults = false;
+        break;
       case 'D':
         towerid = atoi(optarg);
         break;
@@ -1215,7 +1232,7 @@ int main (int argc, char ** argv)
 
   if (!build_and_compare (param, coord, cmtx, qvec, amtx, kvec, 
         verbose, fitter, rzplane, rphiplane, ptvals, intbitewise,
-        rootrdr.get_rotation_angle()))
+        rootrdr.get_rotation_angle(), writeresults))
     return EXIT_FAILURE;
 
   std::cout << "Constants Used: C matrix: " << std::endl;
