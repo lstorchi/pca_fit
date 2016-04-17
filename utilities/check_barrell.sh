@@ -1,13 +1,14 @@
-if [ "$#" -ne 3 ]; then
-  echo $0 " rootfile consfile etamin"
+if [ "$#" -ne 4 ]; then
+  echo $0 " rootfile consfile etamin towerid"
   exit
 fi
 
 export ROTTFILENAME=$1
 export OUTFILENAME="output_check_pca_const.out"
 export CONSTFILE=$2
+export TOWERID=$4
 
-echo "Using " $ROTTFILENAME " and const file " $CONSTFILE " out " $OUTFILENAME 
+echo "Using " $ROTTFILENAME " and const file " $CONSTFILE " out " $OUTFILENAME " towerid " $TOWERID
 > $OUTFILENAME
 
 declare -a arr=("3.0;7.0" "7.0;12.0" "12.0;18.0" "18.0;25.0" "25.0;50.0" "50.0;100.0" "100.0;200.0")
@@ -19,7 +20,7 @@ do
   export FFILE="results_rphi_"$i"_p.txt" 
   FILENAME=${FFILE//;/_}
   echo $FILENAME
-  ./fitpca_split -c "$CONSTFILE" -k --rphi-plane --charge-sign=+ --pt-range="$i" $ROTTFILENAME >> $OUTFILENAME
+  ./fitpca_split -c "$CONSTFILE" -k --rphi-plane --charge-sign=+ --pt-range="$i" -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
   mv results.txt $FILENAME
   echo ""
 
@@ -27,7 +28,7 @@ do
   export FFILE="results_rphi_"$i"_n.txt"
   FILENAME=${FFILE//;/_}
   echo $FILENAME
-  ./fitpca_split -c "$CONSTFILE" -k --rphi-plane --charge-sign=- --pt-range="$i" $ROTTFILENAME >> $OUTFILENAME
+  ./fitpca_split -c "$CONSTFILE" -k --rphi-plane --charge-sign=- --pt-range="$i" -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
   mv results.txt $FILENAME
   echo ""
 done
@@ -41,7 +42,7 @@ do
   k=$(echo "$k + 0.05" | bc | awk '{printf "%f", $0}')
   echo "Eta range: " $start " "  $k >> $OUTFILENAME
   export rage=$start";"$k
-  ./fitpca_split -c "$CONSTFILE" -x --rz-plane --eta-range="$rage" -k $ROTTFILENAME >> $OUTFILENAME
+  ./fitpca_split -c "$CONSTFILE" -x --rz-plane --eta-range="$rage" -k -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
   mv results.txt results_rz_$i.txt
   echo ""
 done
@@ -59,7 +60,7 @@ do
     export FFILE="results_rphi_"$i"_p_fk"$j".txt"
     FILENAME=${FFILE//;/_}
     echo $FILENAME
-    ./fitpca_split -c "$CONSTFILE" --fk-five-hits=$j -k --rphi-plane --charge-sign=+ --pt-range="$i" $ROTTFILENAME >> $OUTFILENAME
+    ./fitpca_split -c "$CONSTFILE" --fk-five-hits=$j -k --rphi-plane --charge-sign=+ --pt-range="$i" -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
     mv results.txt $FILENAME
     echo ""
 
@@ -67,7 +68,7 @@ do
     export FFILE="results_rphi_"$i"_n_fk"$j".txt"
     FILENAME=${FFILE//;/_}
     echo $FILENAME
-    ./fitpca_split -c "$CONSTFILE" --fk-five-hits=$j -k --rphi-plane --charge-sign=- --pt-range="$i" $ROTTFILENAME >> $OUTFILENAME
+    ./fitpca_split -c "$CONSTFILE" --fk-five-hits=$j -k --rphi-plane --charge-sign=- --pt-range="$i" -D $TOWERID  $ROTTFILENAME >> $OUTFILENAME
     mv results.txt $FILENAME
     echo ""
   done
@@ -85,13 +86,13 @@ do
   echo "Eta range: " $start " "  $k >> $OUTFILENAME
   export rage=$start";"$k
 
-  ./fitpca_split -c "$CONSTFILE" -x --rz-plane --eta-range="$rage" -k --fk-five-hits=5 $ROTTFILENAME >> $OUTFILENAME
+  ./fitpca_split -c "$CONSTFILE" -x --rz-plane --eta-range="$rage" -k --fk-five-hits=5 -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
   mv results.txt results_fk5_rz_$i.txt
  
-  ./fitpca_split -c "$CONSTFILE" -x --rz-plane --eta-range="$rage" -k --fk-five-hits=6 $ROTTFILENAME >> $OUTFILENAME
+  ./fitpca_split -c "$CONSTFILE" -x --rz-plane --eta-range="$rage" -k --fk-five-hits=6 -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
   mv results.txt results_fk6_rz_$i.txt
  
-  ./fitpca_split -c "$CONSTFILE" -x --rz-plane --eta-range="$rage" -k --fk-five-hits=7 $ROTTFILENAME >> $OUTFILENAME
+  ./fitpca_split -c "$CONSTFILE" -x --rz-plane --eta-range="$rage" -k --fk-five-hits=7 -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
   mv results.txt results_fk7_rz_$i.txt
 done
 
