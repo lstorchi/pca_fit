@@ -272,7 +272,8 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
      arma::mat & cmtx, arma::rowvec & q, arma::mat & amtx, 
      arma::rowvec & k, bool verbose, pca::pcafitter & fitter, 
      bool rzplane, bool rphiplane, arma::vec & ptvals, 
-     bool intbitewise, double sec_phi, bool writeresults)
+     bool intbitewise, int towerid, double sec_phi, 
+     bool writeresults)
 {
   int nbins = 100;
 
@@ -567,8 +568,15 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
         double diffqoverpt = qoverptcmps - qoverptorig;
     
         double phiorig = paramslt(i, PCA_PHIIDX);
-        double phicmps = phicmp[i] - sec_phi;
-        phicmps = fmod(phicmps + M_PI, 2 * M_PI) - M_PI;
+        double phicmps = phicmp[i];
+
+        if ((towerid == 19) || (towerid == 20) || 
+            (towerid == 27) || (towerid == 28))
+        {
+          phicmps = phicmps - sec_phi;
+          phicmps = fmod(phicmps + M_PI, 2 * M_PI) - M_PI;
+        }
+
         double diffphi = pca::delta_phi(phicmps, phiorig);
     
         pcrelative[PCA_PHIIDX](diffphi/phiorig);
@@ -1233,7 +1241,7 @@ int main (int argc, char ** argv)
 
   if (!build_and_compare (param, coord, cmtx, qvec, amtx, kvec, 
         verbose, fitter, rzplane, rphiplane, ptvals, intbitewise,
-        rootrdr.get_rotation_angle(), writeresults))
+        towerid, rootrdr.get_rotation_angle(), writeresults))
     return EXIT_FAILURE;
 
   std::cout << "Constants Used: C matrix: " << std::endl;

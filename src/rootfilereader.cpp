@@ -1054,9 +1054,10 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
     {
       double phiorig = track->phi;
       if (applyrotationtophi_ )
+      {
         phiorig += sec_phi_;
-
-      phiorig = fmod(phiorig + M_PI, 2 * M_PI) - M_PI;
+        phiorig = fmod(phiorig + M_PI, 2 * M_PI) - M_PI;
+      }
 
       paramin(counter, PCA_PHIIDX) = phiorig;
 

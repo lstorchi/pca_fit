@@ -638,9 +638,12 @@ int main (int argc, char ** argv)
   rootrdr.set_checklayersids(checklayersids);
   //maxnumoftracks = 100000;
   rootrdr.set_maxnumoftracks(maxnumoftracks);
+
   // needed expecially for tow 19 20 27 28
   // only for the genration
-  rootrdr.apply_rotation_to_phi(true);
+  if ((towerid == 19) || (towerid == 20) || 
+      (towerid == 27) || (towerid == 28))
+    rootrdr.apply_rotation_to_phi(true);
 
   rootrdr.set_towid(towerid);
 
