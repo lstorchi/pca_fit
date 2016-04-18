@@ -568,6 +568,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
     
         double phiorig = paramslt(i, PCA_PHIIDX);
         double phicmps = phicmp[i] - sec_phi;
+        phicmps = fmod(phicmps + M_PI, 2 * M_PI) - M_PI;
         double diffphi = pca::delta_phi(phicmps, phiorig);
     
         pcrelative[PCA_PHIIDX](diffphi/phiorig);
