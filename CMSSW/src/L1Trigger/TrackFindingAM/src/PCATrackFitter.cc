@@ -33,7 +33,8 @@ namespace
       pca::matrixpcaconst<int32_t> & zrv, 
       pca::matrixpcaconst<int32_t> & phirv, 
       std::string & layersid, 
-      std::string & pslayersid)
+      std::string & pslayersid,
+      int tow)
   {
     std::ostringstream osss, psosss;
     int counter = 0;
@@ -42,8 +43,15 @@ namespace
       //double xi = hits[idx]->getX();
       //double yi = hits[idx]->getY();
 
-      double xi = hits[idx]->getX() * ci - hits[idx]->getY() * si;
-      double yi = hits[idx]->getX() * si + hits[idx]->getY() * ci;
+      double xi = hits[idx]->getX();
+      double yi = hits[idx]->getY();
+
+      if ((tow == 19) || (tow == 20) ||
+          (tow == 27) || (tow == 28))
+      {
+        xi = hits[idx]->getX() * ci - hits[idx]->getY() * si;
+        yi = hits[idx]->getX() * si + hits[idx]->getY() * ci;
+      }
 
       int32_t zi = (int32_t) hits[idx]->getZ();
       int32_t ri = (int32_t) sqrt(xi*xi+yi*yi);
@@ -77,7 +85,8 @@ namespace
       pca::matrixpcaconst<double> & zrv, 
       pca::matrixpcaconst<double> & phirv, 
       std::string & layersid, 
-      std::string & pslayersid)
+      std::string & pslayersid, 
+      int tow)
   {
     //std::vector<int> layerids;
     //std::vector<double> riv, piv, ziv;
@@ -86,9 +95,16 @@ namespace
     int counter = 0;
     for (unsigned int idx=0; idx<hits.size(); ++idx) 
     {
+      double xi = hits[idx]->getX();
+      double yi = hits[idx]->getY();
+ 
       // TODO double check this
-      double xi = hits[idx]->getX() * ci - hits[idx]->getY() * si;
-      double yi = hits[idx]->getX() * si + hits[idx]->getY() * ci;
+      if ((tow == 19) || (tow == 20) ||
+          (tow == 27) || (tow == 28))
+      {
+        xi = hits[idx]->getX() * ci - hits[idx]->getY() * si;
+        yi = hits[idx]->getX() * si + hits[idx]->getY() * ci;
+      }
 
       //double xi = hits[idx]->getX();
       //double yi = hits[idx]->getY();
@@ -620,7 +636,7 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
     std::string layersid, pslayersid;
 
     if (hits_to_zrpmatrix_integer (ci, si, hits, zrv, phirv, 
-          layersid, pslayersid))
+          layersid, pslayersidi, tow))
     {
       int charge = +1;
       if (track_->getCurve() < 0.0)
@@ -745,7 +761,7 @@ void PCATrackFitter::fit_float(vector<Hit*> hits)
     std::string layersid, pslayersid;
 
     if (hits_to_zrpmatrix (ci, si, hits, zrv, phirv, 
-          layersid, pslayersid))
+          layersid, pslayersid, tow))
     {
       double pt_est = track_->getCurve();
       double eta_est = track_->getEta0();
@@ -830,9 +846,14 @@ void PCATrackFitter::fit_float(vector<Hit*> hits)
           coverpt += cmtx_rphi(0, i) * phirv(0, i);
           phi += cmtx_rphi(1, i) * phirv(0, i);
         }
-        phi -= sec_phi;
-        phi = fmod(phi + M_PI, 2 * M_PI) - M_PI;
-        
+
+        if ((tow == 19) || (tow == 20) ||
+            (tow == 27) || (tow == 28))
+        {
+          phi -= sec_phi;
+          phi = fmod(phi + M_PI, 2 * M_PI) - M_PI;
+        }
+
         double pt = (double)(charge)/coverpt;
         
         // TODO: checkit theta to eta 
@@ -965,8 +986,13 @@ void PCATrackFitter::fit_float(vector<Hit*> hits)
           coverpt += cmtx_rphi(0, i) * phirv(0, i);
           phi += cmtx_rphi(1, i) * phirv(0, i);
         }
-        phi -= sec_phi;
-        phi = fmod(phi + M_PI, 2 * M_PI) - M_PI;
+
+        if ((tow == 19) || (tow == 20) ||
+            (tow == 27) || (tow == 28))
+        {
+          phi -= sec_phi;
+          phi = fmod(phi + M_PI, 2 * M_PI) - M_PI;
+        }
         
         double pt = (double)(charge)/coverpt;
         
