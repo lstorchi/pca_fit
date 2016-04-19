@@ -849,10 +849,7 @@ void PCATrackFitter::fit_float(vector<Hit*> hits)
 
         if ((tow == 19) || (tow == 20) ||
             (tow == 27) || (tow == 28))
-        {
           phi -= sec_phi;
-          phi = fmod(phi + M_PI, 2 * M_PI) - M_PI;
-        }
 
         double pt = (double)(charge)/coverpt;
         
@@ -989,10 +986,7 @@ void PCATrackFitter::fit_float(vector<Hit*> hits)
 
         if ((tow == 19) || (tow == 20) ||
             (tow == 27) || (tow == 28))
-        {
           phi -= sec_phi;
-          phi = fmod(phi + M_PI, 2 * M_PI) - M_PI;
-        }
         
         double pt = (double)(charge)/coverpt;
         
