@@ -838,8 +838,14 @@ bool rootfilereader::convertorphiz (std::vector<track_rphiz_str> &
 
     for (int j = 0; j < track->dim; ++j)
     {
-      double x = track->x[j] * ci - track->y[j] * si;
-      double y = track->x[j] * si + track->y[j] * ci;
+      double x = track->x[j];
+      double y = track->y[j];
+ 
+      if (applyrotationtophi_ )
+      {
+        x = track->x[j] * ci - track->y[j] * si;
+        y = track->x[j] * si + track->y[j] * ci;
+      }
 
       double ri = sqrt(pow(x, 2.0) + pow (y, 2.0));
       //double phii = acos(track->x[j]/ri);
