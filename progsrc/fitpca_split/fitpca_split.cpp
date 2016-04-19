@@ -574,6 +574,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
             (towerid == 27) || (towerid == 28))
         {
           phicmps = phicmps - sec_phi;
+          phicmps = fmod(phicmps + M_PI, 2 * M_PI) - M_PI;
         }
 
         double diffphi = pca::delta_phi(phicmps, phiorig);
