@@ -729,7 +729,8 @@ void usage (char * name)
   std::cerr << "                                    written in the file " << std::endl;
   std::cerr << " -N, --no-results                 : results file is not written, only mean and stdev " << std::endl;
   std::cerr << "                                    are computed and reported " << std::endl; 
- 
+  std::cerr << " -X, --max-num-oftracks=[n]      : stop reading root file after n tracks" << std::endl;
+  std::cerr << std::endl;
 
   exit(1);
 }
@@ -810,11 +811,12 @@ int main (int argc, char ** argv)
       {"fk-five-hits", 1, NULL, 'w'},
       {"dump-allcoords", 0, NULL, 'p'},
       {"towerid", 1, NULL, 'D'},
+      {"max-num-oftracks", 1, NULL, 'X'},
       {"no-results", 0, NULL, 'N'},
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "NTpkxzrhaVD:w:l:f:b:t:g:c:n:s:m:o:u", 
+    c = getopt_long (argc, argv, "NTpkxzrhaVD:w:X:l:f:b:t:g:c:n:s:m:o:u", 
         long_options, &option_index);
 
     if (c == -1)
@@ -947,6 +949,9 @@ int main (int argc, char ** argv)
         break;
       case'c':
         cfname = optarg;
+        break;
+      case 'X':
+        maxnumoftracks = atoi(optarg);
         break;
       default:
         usage (argv[0]);
