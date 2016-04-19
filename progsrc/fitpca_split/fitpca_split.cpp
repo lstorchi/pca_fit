@@ -1185,6 +1185,12 @@ int main (int argc, char ** argv)
 
   rootrdr.set_towid(towerid);
 
+  if ((towerid == 19) || (towerid == 20) || 
+      (towerid == 27) || (towerid == 28))
+  {
+    rootrdr.apply_rotation_to_xy(true);
+  }
+
   rootrdr.set_fkfiveoutofsix(usefakefiveoutofsix, 
       layeridtorm);
 

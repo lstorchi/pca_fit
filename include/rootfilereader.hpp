@@ -122,7 +122,7 @@ namespace pca
         return sec_phi_;
       }
 
-      // neede for const generation
+      // need for const generation
       void apply_rotation_to_phi (bool in)
       {
         applyrotationtophi_ = in;
@@ -132,6 +132,15 @@ namespace pca
         return applyrotationtophi_;
       }
 
+      // need for const generation
+      void apply_rotation_to_xy (bool in)
+      {
+        applyrotationtoxy_ = in;
+      }
+      bool get_apply_rotation_to_xy () const
+      {
+        return applyrotationtoxy_;
+      }
 
     private:
   
@@ -140,6 +149,7 @@ namespace pca
       int tow_;
       double sec_phi_;
       bool applyrotationtophi_;
+      bool applyrotationtoxy_;
 
       int errnum_;
       std::string errmsg_, filename_;

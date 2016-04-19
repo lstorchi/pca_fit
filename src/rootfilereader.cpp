@@ -135,6 +135,7 @@ void rootfilereader::reset()
   tow_ = -1;
   sec_phi_ = 0.0;
   applyrotationtophi_ = false;
+  applyrotationtoxy_ = false;
 }
 
 void rootfilereader::set_useintbitewise (bool in)
@@ -841,7 +842,7 @@ bool rootfilereader::convertorphiz (std::vector<track_rphiz_str> &
       double x = track->x[j];
       double y = track->y[j];
  
-      if (applyrotationtophi_ )
+      if (applyrotationtoxy_ )
       {
         x = track->x[j] * ci - track->y[j] * si;
         y = track->x[j] * si + track->y[j] * ci;

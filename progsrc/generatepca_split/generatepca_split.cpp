@@ -643,7 +643,10 @@ int main (int argc, char ** argv)
   // only for the genration
   if ((towerid == 19) || (towerid == 20) || 
       (towerid == 27) || (towerid == 28))
+  {
     rootrdr.apply_rotation_to_phi(true);
+    rootrdr.apply_rotation_to_xy(true);
+  }
 
   rootrdr.set_towid(towerid);
 
