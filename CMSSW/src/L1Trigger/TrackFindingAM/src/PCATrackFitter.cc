@@ -930,7 +930,7 @@ void PCATrackFitter::fit_float(vector<Hit*> hits)
     std::string layersid, pslayersid;
 
     if (hits_to_zrpmatrix (ci, si, hits, zrv, phirv, 
-          layersid, pslayersid))
+          layersid, pslayersid, tow))
     {
       double pt_est = track_->getCurve();
       double eta_est = track_->getEta0();
