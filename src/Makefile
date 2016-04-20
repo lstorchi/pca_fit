@@ -17,10 +17,10 @@ CFLAGS += $(shell root-config --cflags) -I./
 
 LIBNAME = libpcafitter.a
 
-OBJ = $(LIBNAME)(pcafitter.o) \
-      $(LIBNAME)(utility.o) \
-      $(LIBNAME)(dicts.o) \
-      $(LIBNAME)(rootfilereader.o)
+OBJ = pcafitter.o \
+      utility.o \
+      dicts.o \
+      rootfilereader.o
 
 all: $(LIBNAME)
 
@@ -31,6 +31,7 @@ dicts.o: dicts.cpp
 	g++ -c $(CFLAGS) -o $@ $<
 
 $(LIBNAME): $(OBJ)
+	ar -rcs $@ $(OBJ)
 	cp -f $(LIBNAME) ../lib
 
 clean:
