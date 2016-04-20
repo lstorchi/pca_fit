@@ -636,7 +636,7 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
     std::string layersid, pslayersid;
 
     if (hits_to_zrpmatrix_integer (ci, si, hits, zrv, phirv, 
-          layersid, pslayersidi, tow))
+          layersid, pslayersid, tow))
     {
       int charge = +1;
       if (track_->getCurve() < 0.0)
