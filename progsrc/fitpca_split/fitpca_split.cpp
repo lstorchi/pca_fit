@@ -521,10 +521,19 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
         }
       }
 
+      double mmstdev = pcrelative[PCA_Z0IDX].mean() - pcrelative[PCA_Z0IDX].stddev();
+      double mpstdev = pcrelative[PCA_Z0IDX].mean() + pcrelative[PCA_Z0IDX].stddev();
+      //TH1D *hist_z0 = new TH1D("hist_diff_z0","z0 diff histogram",nbins, 
+      //    z0diffvct.min(), z0diffvct.max());
       TH1D *hist_z0 = new TH1D("hist_diff_z0","z0 diff histogram",nbins, 
-          z0diffvct.min(), z0diffvct.max());
+          mmstdev, mpstdev);
+ 
+      mmstdev = pcrelative[PCA_COTTHETAIDX].mean() - pcrelative[PCA_COTTHETAIDX].stddev();
+      mpstdev = pcrelative[PCA_COTTHETAIDX].mean() + pcrelative[PCA_COTTHETAIDX].stddev();
+      //TH1D *hist_eta = new TH1D("hist_diff_eta","eta diff histogram",nbins, 
+      //    etadiffvct.min(), etadiffvct.max());
       TH1D *hist_eta = new TH1D("hist_diff_eta","eta diff histogram",nbins, 
-          etadiffvct.min(), etadiffvct.max());
+          mmstdev, mpstdev);
       
       for (int i=0; i<(int)coordslt.n_rows; ++i)
       {
@@ -532,8 +541,8 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
         hist_eta->Fill((double_t) etadiffvct(i));
       }
 
-      double mmstdev = pcrelative[PCA_Z0IDX].mean() - pcrelative[PCA_Z0IDX].stddev();
-      double mpstdev = pcrelative[PCA_Z0IDX].mean() + pcrelative[PCA_Z0IDX].stddev();
+      mmstdev = pcrelative[PCA_Z0IDX].mean() - pcrelative[PCA_Z0IDX].stddev();
+      mpstdev = pcrelative[PCA_Z0IDX].mean() + pcrelative[PCA_Z0IDX].stddev();
       //hist_z0->Fit("gaus","","",z0diffvct.min(),z0diffvct.max());
       hist_z0->Fit("gaus","","",mmstdev,mpstdev);
 
@@ -617,11 +626,21 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
           std::cout << " chi2              " << chi2values(i) << std::endl;
         }
       }
-    
+
+      double mmstdev = pcrelative[PCA_PHIIDX].mean() - pcrelative[PCA_PHIIDX].stddev();
+      double mpstdev = pcrelative[PCA_PHIIDX].mean() + pcrelative[PCA_PHIIDX].stddev();
+      //TH1D *hist_qoverpt = new TH1D("hist_diff_qoverpt","q/pt diff histogram",nbins, 
+      //    qoverptdiffvct.min(), qoverptdiffvct.max());
       TH1D *hist_qoverpt = new TH1D("hist_diff_qoverpt","q/pt diff histogram",nbins, 
-          qoverptdiffvct.min(), qoverptdiffvct.max());
+            mmstdev, mpstdev);
+
+      mmstdev = pcrelative[PCA_ONEOVERPTIDX].mean() - pcrelative[PCA_ONEOVERPTIDX].stddev();
+      mpstdev = pcrelative[PCA_ONEOVERPTIDX].mean() + pcrelative[PCA_ONEOVERPTIDX].stddev();
+      //TH1D *hist_phi = new TH1D("hist_diff_phi","phi diff histogram",nbins, 
+      //    phidiffvct.min(), phidiffvct.max());
+      //
       TH1D *hist_phi = new TH1D("hist_diff_phi","phi diff histogram",nbins, 
-          phidiffvct.min(), phidiffvct.max());
+          mmstdev, mpstdev);
     
       for (int i=0; i<(int)coordslt.n_rows; ++i)
       {
@@ -629,8 +648,8 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
         hist_phi->Fill((double_t) phidiffvct(i));
       }
 
-      double mmstdev = pcrelative[PCA_PHIIDX].mean() - pcrelative[PCA_PHIIDX].stddev();
-      double mpstdev = pcrelative[PCA_PHIIDX].mean() + pcrelative[PCA_PHIIDX].stddev();
+      mmstdev = pcrelative[PCA_PHIIDX].mean() - pcrelative[PCA_PHIIDX].stddev();
+      mpstdev = pcrelative[PCA_PHIIDX].mean() + pcrelative[PCA_PHIIDX].stddev();
       //hist_phi->Fit("gaus","","",phidiffvct.min(),
       //    phidiffvct.max());
       hist_phi->Fit("gaus","","", mmstdev, mpstdev);
