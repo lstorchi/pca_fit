@@ -627,15 +627,15 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
         }
       }
 
-      double mmstdev = pcrelative[PCA_PHIIDX].mean() - pcrelative[PCA_PHIIDX].stddev();
-      double mpstdev = pcrelative[PCA_PHIIDX].mean() + pcrelative[PCA_PHIIDX].stddev();
+      double mmstdev = pcrelative[PCA_ONEOVERPTIDX].mean() - pcrelative[PCA_ONEOVERPTIDX].stddev();
+      double mpstdev = pcrelative[PCA_ONEOVERPTIDX].mean() + pcrelative[PCA_ONEOVERPTIDX].stddev();
       //TH1D *hist_qoverpt = new TH1D("hist_diff_qoverpt","q/pt diff histogram",nbins, 
       //    qoverptdiffvct.min(), qoverptdiffvct.max());
       TH1D *hist_qoverpt = new TH1D("hist_diff_qoverpt","q/pt diff histogram",nbins, 
             mmstdev, mpstdev);
 
-      mmstdev = pcabsolute[PCA_ONEOVERPTIDX].mean() - pcabsolute[PCA_ONEOVERPTIDX].stddev();
-      mpstdev = pcabsolute[PCA_ONEOVERPTIDX].mean() + pcabsolute[PCA_ONEOVERPTIDX].stddev();
+      mmstdev = pcabsolute[PCA_PHIIDX].mean() - pcabsolute[PCA_PHIIDX].stddev();
+      mpstdev = pcabsolute[PCA_PHIIDX].mean() + pcabsolute[PCA_PHIIDX].stddev();
       //TH1D *hist_phi = new TH1D("hist_diff_phi","phi diff histogram",nbins, 
       //    phidiffvct.min(), phidiffvct.max());
       //
