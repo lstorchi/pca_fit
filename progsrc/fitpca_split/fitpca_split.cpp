@@ -273,7 +273,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
      arma::rowvec & k, bool verbose, pca::pcafitter & fitter, 
      bool rzplane, bool rphiplane, arma::vec & ptvals, 
      bool intbitewise, int towerid, double sec_phi, 
-     bool writeresults)
+     bool writeresults, int layeridtorm)
 {
   int nbins = 100;
 
@@ -531,23 +531,34 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
         hist_z0->Fill((Double_t) z0diffvct(i));
         hist_eta->Fill((double_t) etadiffvct(i));
       }
-      
-      hist_z0->Fit("gaus","","",z0diffvct.min(),z0diffvct.max());
-      hist_eta->Fit("gaus","","",etadiffvct.min(),etadiffvct.max());
+
+      double mmstdev = pcrelative[PCA_Z0IDX].mean() - pcrelative[PCA_Z0IDX].stddev();
+      double mpstdev = pcrelative[PCA_Z0IDX].mean() + pcrelative[PCA_Z0IDX].stddev();
+      //hist_z0->Fit("gaus","","",z0diffvct.min(),z0diffvct.max());
+      hist_z0->Fit("gaus","","",mmstdev,mpstdev);
+
+      mmstdev = pcrelative[PCA_COTTHETAIDX].mean() - pcrelative[PCA_COTTHETAIDX].stddev();
+      mpstdev = pcrelative[PCA_COTTHETAIDX].mean() + pcrelative[PCA_COTTHETAIDX].stddev();
+      //hist_eta->Fit("gaus","","",etadiffvct.min(),etadiffvct.max());
+      hist_eta->Fit("gaus","","",mmstdev,mpstdev);
       
       TF1 *func_eta = (TF1*)hist_eta->GetFunction("gaus");
       TF1 *func_z0 = (TF1*)hist_z0->GetFunction("gaus");
       
       std::cout << 
-        "Eta fitted mean: " << func_eta->GetParameter("Mean") << " +/- " << 
+        "Eta fitted mean " << layeridtorm << " " 
+        << func_eta->GetParameter("Mean") << " +/- " << 
         func_eta->GetParError(1) << std::endl << 
-        "Eta fitted sigma: " << func_eta->GetParameter("Sigma") << " +/- " <<
+        "Eta fitted sigma " << layeridtorm << " " 
+        << func_eta->GetParameter("Sigma") << " +/- " <<
         func_eta->GetParError(2) << std::endl;
       
       std::cout << 
-        "z0 fitted mean: " << func_z0->GetParameter("Mean") << " +/- " << 
+        "z0 fitted mean " << layeridtorm << " "
+        << func_z0->GetParameter("Mean") << " +/- " << 
         func_z0->GetParError(1) << std::endl << 
-        "z0 fitted sigma: " << func_z0->GetParameter("Sigma") << " +/- " <<
+        "z0 fitted sigma " << layeridtorm << " " 
+        << func_z0->GetParameter("Sigma") << " +/- " <<
         func_z0->GetParError(2) << std::endl;
     }
     else if (rphiplane)
@@ -617,42 +628,54 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
         hist_qoverpt->Fill((Double_t) qoverptdiffvct(i));
         hist_phi->Fill((double_t) phidiffvct(i));
       }
-    
-      hist_qoverpt->Fit("gaus","","",qoverptdiffvct.min(),
-          qoverptdiffvct.max());
-      hist_phi->Fit("gaus","","",phidiffvct.min(),
-          phidiffvct.max());
+
+      double mmstdev = pcrelative[PCA_PHIIDX].mean() - pcrelative[PCA_PHIIDX].stddev();
+      double mpstdev = pcrelative[PCA_PHIIDX].mean() + pcrelative[PCA_PHIIDX].stddev();
+      //hist_phi->Fit("gaus","","",phidiffvct.min(),
+      //    phidiffvct.max());
+      hist_phi->Fit("gaus","","", mmstdev, mpstdev);
+ 
+      mmstdev = pcrelative[PCA_ONEOVERPTIDX].mean() - pcrelative[PCA_ONEOVERPTIDX].stddev();
+      mpstdev = pcrelative[PCA_ONEOVERPTIDX].mean() + pcrelative[PCA_ONEOVERPTIDX].stddev();
+      //hist_qoverpt->Fit("gaus","","",qoverptdiffvct.min(),
+      //    qoverptdiffvct.max());
+      hist_qoverpt->Fit("gaus","","",mmstdev, mpstdev);
     
       TF1 *func_qoverpt = (TF1*)hist_qoverpt->GetFunction("gaus");
       TF1 *func_phi = (TF1*)hist_phi->GetFunction("gaus");
     
       std::cout << 
-        "q/pt fitted mean: " << func_qoverpt->GetParameter("Mean")*100.0 << " +/- " << 
+        "q/pt fitted mean " << layeridtorm << " "  
+        << func_qoverpt->GetParameter("Mean")*100.0 << " +/- " << 
         func_qoverpt->GetParError(1)*100.0 << std::endl << 
-        "p/pt fitted sigma: " << func_phi->GetParameter("Sigma")*100.0 << " +/- " <<
+        "p/pt fitted sigma " << layeridtorm << " " 
+        << func_phi->GetParameter("Sigma")*100.0 << " +/- " <<
         func_phi->GetParError(2)*100.0 << std::endl;
     
       std::cout << 
-        "Phi fitted mean: " << func_phi->GetParameter("Mean") << " +/- " << 
+        "Phi fitted mean " << layeridtorm << " " 
+        << func_phi->GetParameter("Mean") << " +/- " << 
         func_phi->GetParError(1) << std::endl << 
-        "Phi fitted sigma: " << func_phi->GetParameter("Sigma") << " +/- " <<
+        "Phi fitted sigma: " << layeridtorm << " " 
+        << func_phi->GetParameter("Sigma") << " +/- " <<
         func_phi->GetParError(2) << std::endl;
     }
   }
 
   for (int i=0; i<fitter.get_paramdim(); ++i)
   {
-    std::cout << "For " << fitter.paramidx_to_string(i) << " error " << 
-      pcabsolute[i].mean() << " " << pcabsolute[i].stddev() << std::endl;
+    std::cout << "For " << fitter.paramidx_to_string(i) << " error " << layeridtorm << " "
+      << pcabsolute[i].mean() << " " << pcabsolute[i].stddev() << std::endl;
 
     if (fitter.paramidx_to_string(i) == "q/pt")
-      std::cout << "For " << fitter.paramidx_to_string(i) << " error " << 
-        100.0 * pcrelative[i].mean() << " % " << 100.0 * pcrelative[i].stddev() << 
+      std::cout << "For " << fitter.paramidx_to_string(i) << " error " << layeridtorm << " "
+        << 100.0 * pcrelative[i].mean() << " % " << 100.0 * pcrelative[i].stddev() << 
         " % " << std::endl;
   }
 
   std::cout << " " << std::endl;
-  std::cout << "Chivalue mean " << chi2stat.mean() << " stdev " << 
+  std::cout << "Chivalue mean " << layeridtorm << " " 
+    << chi2stat.mean() << " stdev " << 
     chi2stat.stddev() << std::endl;
   
   myfile.close();
@@ -1252,7 +1275,8 @@ int main (int argc, char ** argv)
 
   if (!build_and_compare (param, coord, cmtx, qvec, amtx, kvec, 
         verbose, fitter, rzplane, rphiplane, ptvals, intbitewise,
-        towerid, rootrdr.get_rotation_angle(), writeresults))
+        towerid, rootrdr.get_rotation_angle(), writeresults, 
+        layeridtorm))
     return EXIT_FAILURE;
 
   std::cout << "Constants Used: C matrix: " << std::endl;
