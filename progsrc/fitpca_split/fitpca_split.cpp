@@ -668,7 +668,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
         << func_qoverpt->GetParameter("Mean")*100.0 << " +/- " << 
         func_qoverpt->GetParError(1)*100.0 << std::endl << 
         "q/pt fitted sigma " << layeridtorm << " " 
-        << func_phi->GetParameter("Sigma")*100.0 << " +/- " <<
+        << func_qoverpt->GetParameter("Sigma")*100.0 << " +/- " <<
         func_phi->GetParError(2)*100.0 << std::endl;
     
       std::cout << 
