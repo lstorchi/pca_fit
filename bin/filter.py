@@ -14,7 +14,7 @@ w, h = 20, 16
 mat = [[0 for x in range(w)] for y in range(w)]
 xval = [0 for x in range(w)]
 
-for itow in range(0,16):
+for itow in range(0,8):
   for j in range(0,20):
     l = file.readline()
 
