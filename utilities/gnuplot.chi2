@@ -1,0 +1,13 @@
+set xlabel "Chi^2/ndof"
+set ylabel "Entries"
+set boxwidth 0.95 relative
+set style fill empty  
+set xrange[0:10]
+set grid
+set title "Chi^2 R-Phi plane"
+set title font "Arial-Bold, 15"
+set xtics font "Arial-Bold, 15" 
+set ytics font "Arial-Bold, 15"
+set xlabel font "Arial-Bold, 15"
+set ylabel font "Arial-Bold, 15"
+plot "chi2_rphi.hist" w boxes lw 2 ti ""

@@ -273,7 +273,9 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
      arma::rowvec & k, bool verbose, pca::pcafitter & fitter, 
      bool rzplane, bool rphiplane, arma::vec & ptvals, 
      bool intbitewise, int towerid, double sec_phi, 
-     bool writeresults, int layeridtorm)
+     bool writeresults, int layeridtorm, 
+     double etamin, double etamax, 
+     double ptmin, double ptmax, int chargesign)
 {
   int nbins = 100;
 
@@ -566,7 +568,9 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
       TF1 *func_z0 = (TF1*)hist_z0->GetFunction("gaus");
       
       std::cout << 
-        "Eta fitted mean " << layeridtorm << " " 
+        "Eta fitted mean " 
+        << etamin << " " << etamax << " "
+        << layeridtorm << " " 
         << func_eta->GetParameter("Mean") << " +/- " << 
         func_eta->GetParError(1) << std::endl << 
         "Eta fitted sigma " << layeridtorm << " " 
@@ -574,7 +578,9 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
         func_eta->GetParError(2) << std::endl;
       
       std::cout << 
-        "z0 fitted mean " << layeridtorm << " "
+        "z0 fitted mean " 
+        << etamin << " " << etamax << " "
+        << layeridtorm << " "
         << func_z0->GetParameter("Mean") << " +/- " << 
         func_z0->GetParError(1) << std::endl << 
         "z0 fitted sigma " << layeridtorm << " " 
@@ -686,7 +692,9 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
       TF1 *func_phi = (TF1*)hist_phi->GetFunction("gaus");
     
       std::cout << 
-        "q/pt fitted mean " << layeridtorm << " "  
+        "q/pt fitted mean " 
+        << ptmin << " " << ptmax << " " << chargesign << " "
+        << layeridtorm << " "  
         << func_qoverpt->GetParameter("Mean")*100.0 << " +/- " << 
         func_qoverpt->GetParError(1)*100.0 << std::endl << 
         "q/pt fitted sigma " << layeridtorm << " " 
@@ -694,7 +702,9 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
         func_phi->GetParError(2)*100.0 << std::endl;
     
       std::cout << 
-        "Phi fitted mean " << layeridtorm << " " 
+        "Phi fitted mean " 
+        << ptmin << " " << ptmax << " " << chargesign << " "
+        << layeridtorm << " " 
         << func_phi->GetParameter("Mean") << " +/- " << 
         func_phi->GetParError(1) << std::endl << 
         "Phi fitted sigma: " << layeridtorm << " " 
@@ -705,11 +715,15 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
 
   for (int i=0; i<fitter.get_paramdim(); ++i)
   {
-    std::cout << "For " << fitter.paramidx_to_string(i) << " error " << layeridtorm << " "
+    std::cout << "For " << fitter.paramidx_to_string(i) << " error " 
+      << etamin << " " << etamax << " " << ptmin << " " << ptmax << " " 
+      << chargesign << " " << layeridtorm << " "
       << pcabsolute[i].mean() << " " << pcabsolute[i].stddev() << std::endl;
 
     if (fitter.paramidx_to_string(i) == "q/pt")
-      std::cout << "For " << fitter.paramidx_to_string(i) << " error " << layeridtorm << " "
+      std::cout << "For " << fitter.paramidx_to_string(i) << " error " 
+        << etamin << " " << etamax << " " << ptmin << " " << ptmax << " " 
+        << chargesign << " " << layeridtorm << " "
         << 100.0 * pcrelative[i].mean() << " % " << 100.0 * pcrelative[i].stddev() << 
         " % " << std::endl;
   }
@@ -1317,7 +1331,7 @@ int main (int argc, char ** argv)
   if (!build_and_compare (param, coord, cmtx, qvec, amtx, kvec, 
         verbose, fitter, rzplane, rphiplane, ptvals, intbitewise,
         towerid, rootrdr.get_rotation_angle(), writeresults, 
-        layeridtorm))
+        layeridtorm, etamin, etamax, ptmin, ptmax, chargesign))
     return EXIT_FAILURE;
 
   std::cout << "Constants Used: C matrix: " << std::endl;

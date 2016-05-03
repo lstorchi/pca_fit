@@ -14,7 +14,7 @@ w, h = 20, 16
 mat = [[0 for x in range(w)] for y in range(w)]
 xval = [0 for x in range(w)]
 
-for itow in range(0,8):
+for itow in range(0,16):
   for j in range(0,20):
     l = file.readline()
 
@@ -23,15 +23,17 @@ for itow in range(0,8):
     line = line.lstrip()
     line = line.rstrip()
     linelist = line.split(",")
-    #print linelist[1], linelist[2]
-    
-    eta = float(linelist[1])
-    val = float(linelist[2])
 
-    xval[j] = eta
-    mat[j][itow] = val 
+    if (itow < 8):
+      #print linelist[1], linelist[2]
+    
+      eta = float(linelist[1])
+      val = float(linelist[2])
+
+      xval[j] = eta
+      mat[j][itow] = val 
 
 
 for i in range(0,20):
-  print xval[i] , " ", numpy.mean(mat[i]), " " ,  numpy.std(mat[i])
+  print xval[i] , " ", numpy.mean(mat[i]), " ",  numpy.std(mat[i])
 
