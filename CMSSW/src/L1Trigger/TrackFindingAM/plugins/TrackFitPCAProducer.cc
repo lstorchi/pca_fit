@@ -212,9 +212,9 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
       Track* TC = new Track();
       // TODO getWedge is unsigned ???
       if (tempTrackPtr->getWedge() == 1)
-        TC->setCharge(+1.0);
-      else
         TC->setCharge(-1.0);
+      else
+        TC->setCharge(+1.0);
       //std::cout << "Wedge: " << tempTrackPtr->getWedge() << std::endl;
       TC->setCurve(tempTrackPtr->getMomentum(5).perp());
       TC->setEta0(tempTrackPtr->getMomentum(5).eta());
