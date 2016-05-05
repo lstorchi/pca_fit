@@ -211,6 +211,7 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
 
       Track* TC = new Track();
       TC->setCharge(tempTrackPtr->getWedge());
+      std::cout << "Wedge: " << tempTrackPtr->getWedge() << std::endl;
       TC->setCurve(tempTrackPtr->getMomentum(5).perp());
       TC->setEta0(tempTrackPtr->getMomentum(5).eta());
       TC->setPhi0(tempTrackPtr->getMomentum(5).phi());
