@@ -896,8 +896,8 @@ void PCATrackFitter::fit_float(vector<Hit*> hits)
         std::cout << " 6oof6 phi:     " << phi << " " << phi_est << std::endl; 
         std::cout << " 6oof6 eta:     " << eta << " " << eta_est << std::endl;
         std::cout << " 6oof6 z0:      " << z0 << " " << z0_est << std::endl;
-        std::cout << " 6oof6 chirz:   " << chi2rz << std::endl;
-        std::cout << " 6oof6 chirphi: " << chi2rphi << std::endl;
+        std::cout << " 6oof6 chirz:   " << chi2rz/4.0 << std::endl;
+        std::cout << " 6oof6 chirphi: " << chi2rphi/10.0 << std::endl;
         std::cout << " 6oof6 chi2:    " << (chi2rz+chi2rphi)/14.0 << std::endl;
 
         Track* fit_track = new Track();
@@ -1034,8 +1034,8 @@ void PCATrackFitter::fit_float(vector<Hit*> hits)
         std::cout << " 5oof6 phi:     " << phi << " " << phi_est << std::endl; 
         std::cout << " 5oof6 eta:     " << eta << " " << eta_est << std::endl;
         std::cout << " 5oof6 z0:      " << z0 << " " << z0_est << std::endl;
-        std::cout << " 5oof6 chirz:   " << chi2rz << std::endl;
-        std::cout << " 5oof6 chirphi: " << chi2rphi << std::endl;
+        std::cout << " 5oof6 chirz:   " << chi2rz/2.0 << std::endl;
+        std::cout << " 5oof6 chirphi: " << chi2rphi/8.0 << std::endl;
         std::cout << " 6oof6 chi2:    " << (chi2rz+chi2rphi)/10.0 << std::endl;
 
         Track* fit_track = new Track();
@@ -1050,7 +1050,9 @@ void PCATrackFitter::fit_float(vector<Hit*> hits)
         
         tracks.push_back(fit_track);
         // TODO: check NDF (10)
-        chi2vf_.push_back((chi2rz+chi2rphi)/(10.0));
+        //chi2vf_.push_back((chi2rz+chi2rphi)/(10.0));
+        // use only rphi 
+        chi2vf_.push_back(chi2rphi/8.0);
       }
       else 
       {
