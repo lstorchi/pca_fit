@@ -639,11 +639,11 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
           layersid, pslayersid, tow))
     {
       int charge = +1;
-      if (track_->getCurve() < 0.0)
+      if (track_->getCharge() < 0.0)
        charge = -1;
 
       // Check the charge TODO
-      charge = -1 * charge;
+      //charge = -1 * charge;
 
       double pt_est = track_->getCurve();
       double eta_est = track_->getEta0();
@@ -749,8 +749,8 @@ void PCATrackFitter::fit_float(vector<Hit*> hits)
   */
 
   int charge = +1; /* Try to use only + muons const */ 
-  //if (track_->getCurve() < 0.0)
-  //  charge = -1;
+  if (track_->getCharge() < 0.0)
+    charge = -1;
 
   // Check the charge TODO
   //charge = -1 * charge;
