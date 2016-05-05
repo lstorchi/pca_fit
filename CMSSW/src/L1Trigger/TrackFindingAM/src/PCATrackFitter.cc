@@ -752,6 +752,8 @@ void PCATrackFitter::fit_float(vector<Hit*> hits)
   if (track_->getCharge() < 0.0)
     charge = -1;
 
+  std::cout << "Charge from TCB: " << track_->getCharge() << std::endl;
+
   // Check the charge TODO
   //charge = -1 * charge;
 
@@ -897,7 +899,6 @@ void PCATrackFitter::fit_float(vector<Hit*> hits)
         std::cout << " 6oof6 chirz:   " << chi2rz << std::endl;
         std::cout << " 6oof6 chirphi: " << chi2rphi << std::endl;
         std::cout << " 6oof6 chi2:    " << (chi2rz+chi2rphi)/14.0 << std::endl;
-
 
         Track* fit_track = new Track();
         
