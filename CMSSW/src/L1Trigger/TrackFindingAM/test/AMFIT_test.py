@@ -19,7 +19,7 @@
 
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process('AMFIT')
+process = cms.Process('AMPCAFIT')
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -65,7 +65,7 @@ process.RAWSIMoutput = cms.OutputModule("PoolOutputModule",
     splitLevel = cms.untracked.int32(0),
     eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
     outputCommands = process.RAWSIMEventContent.outputCommands,
-    fileName = cms.untracked.string('AMFIT_output.root'),
+    fileName = cms.untracked.string('AMPCAFIT_output.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string(''),
         dataTier = cms.untracked.string('GEN-SIM')
@@ -79,16 +79,16 @@ process.RAWSIMoutput = cms.OutputModule("PoolOutputModule",
 process.RAWSIMoutput.outputCommands.append('keep  *_*_*_AMTC')
 
 # Keep the FIT output
-process.RAWSIMoutput.outputCommands.append('keep  *_*_*_AMFIT')
+process.RAWSIMoutput.outputCommands.append('keep  *_*_*_AMPCAFIT')
 process.RAWSIMoutput.outputCommands.append('drop *_TTTracksFromTC_*_*')
 process.RAWSIMoutput.outputCommands.append('keep  *_*_MergedTrackTruth_*')
 
 # Path and EndPath definitions
-process.L1AMFIT_step         = cms.Path(process.TTTracksFromTCswStubs)
+process.L1AMPCAFIT_step         = cms.Path(process.TTTracksFromTCswStubs)
 process.endjob_step          = cms.EndPath(process.endOfProcess)
 process.RAWSIMoutput_step    = cms.EndPath(process.RAWSIMoutput)
 
-process.schedule = cms.Schedule(process.L1AMFIT_step,process.endjob_step,process.RAWSIMoutput_step)
+process.schedule = cms.Schedule(process.L1AMPCAFIT_step,process.endjob_step,process.RAWSIMoutput_step)
 
 # Automatic addition of the customisation function
 
