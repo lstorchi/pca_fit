@@ -5,6 +5,7 @@
 #
 # This script works on any official production sample
 # (assuming that this sample contains a container of TTStubs,
+        o
 # a container of TTClusters, and a container of TrackingParticles)
 #
 # And of course, a container of TCs.... (TTTracks) 
@@ -80,11 +81,11 @@ process.RAWSIMoutput.outputCommands.append('keep  *_*_*_AMTC')
 
 # Keep the FIT output
 process.RAWSIMoutput.outputCommands.append('keep  *_*_*_AMPCAFIT')
-process.RAWSIMoutput.outputCommands.append('drop *_TTTracksFromTC_*_*')
+process.RAWSIMoutput.outputCommands.append('drop *_TTTracksINFNFromTC_*_*')
 process.RAWSIMoutput.outputCommands.append('keep  *_*_MergedTrackTruth_*')
 
 # Path and EndPath definitions
-process.L1AMPCAFIT_step         = cms.Path(process.TTTracksFromTCswStubs)
+process.L1AMPCAFIT_step         = cms.Path(process.TTTracksINFNFFromTCswStubs)
 process.endjob_step          = cms.EndPath(process.endOfProcess)
 process.RAWSIMoutput_step    = cms.EndPath(process.RAWSIMoutput)
 
