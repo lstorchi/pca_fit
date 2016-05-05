@@ -853,6 +853,8 @@ void PCATrackFitter::fit_float(vector<Hit*> hits)
             (tow == 27) || (tow == 28))
           phi -= sec_phi;
 
+        phi = fmod(phi + M_PI, 2 * M_PI) - M_PI;
+
         double pt = (double)(charge)/coverpt;
         
         // TODO: checkit theta to eta 
