@@ -748,12 +748,12 @@ void PCATrackFitter::fit_float(vector<Hit*> hits)
   rpzfile.open ("PCArphizfile.txt");
   */
 
-  int charge = +1;
-  if (track_->getCurve() < 0.0)
-   charge = -1;
+  int charge = +1; /* Try to use only + muons const */ 
+  //if (track_->getCurve() < 0.0)
+  //  charge = -1;
 
   // Check the charge TODO
-  charge = -1 * charge;
+  //charge = -1 * charge;
 
   if (hits.size() == 6)
   {
