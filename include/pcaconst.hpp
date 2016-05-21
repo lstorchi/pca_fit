@@ -469,7 +469,7 @@ namespace pca
   }
 
   template<typename T> 
-  bool read_pcacosnt_from_file (std::vector<matrixpcaconst<T> > & vct, 
+  bool read_pcaconst_from_file (std::vector<matrixpcaconst<T> > & vct, 
               const char * filename)
   {
     if (std::ifstream(filename))
