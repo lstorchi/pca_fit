@@ -37,7 +37,7 @@ int get_missing_layer(matrixpcaconst<double> c)
   string layers_str;
   layers_str = c.get_layersids();
   
-  if (c.get_plane_type() == matrixpcaconst<double>::plane_type::RPHI) 
+  if (c.get_plane_type() == plane_type::RPHI) 
   {
     for (int i = 0; i < 6; ++i)
     {
@@ -79,9 +79,9 @@ int main (int argc, char *argv[])
   std::vector<double> constants_rphi_cmtx;
   for (matrixpcaconst<double> c : all_constants) 
   {
-    if (c.get_plane_type() == matrixpcaconst<double>::plane_type::RPHI)
+    if (c.get_plane_type() == plane_type::RPHI)
     {
-      if (c.get_const_type() == matrixpcaconst<double>::const_type::CMTX) 
+      if (c.get_const_type() == const_type::CMTX) 
       {
 	for (int i = 0; i < 2; ++i)
         {
@@ -101,8 +101,8 @@ int main (int argc, char *argv[])
 
   std::vector<double> constants_rphi_qvec;
   for (matrixpcaconst<double> c : all_constants) 
-    if (c.get_plane_type() == matrixpcaconst<double>::plane_type::RPHI)
-      if (c.get_const_type() == matrixpcaconst<double>::const_type::QVEC) 
+    if (c.get_plane_type() == plane_type::RPHI)
+      if (c.get_const_type() == const_type::QVEC) 
 	for (int i = 0; i < 2; ++i)
 	  constants_rphi_qvec.push_back(c.element(0, i));
 
@@ -110,6 +110,9 @@ int main (int argc, char *argv[])
   
   ofstream ofs_rphi_param("rphi_patt_coeff.coe", ofstream::out);
   ofs_rphi_param << "memory_initialization_radix=2;\nmemory_initialization_vector=\n";
+
+  ofstream ofs_rphi_param_nb("rphi_patt_coeff", ofstream::out);
+  ofs_rphi_param_nb << "memory_initialization_radix=2;\nmemory_initialization_vector=\n";
 
   int base_addr = 0;
   long long int tmp;
@@ -120,17 +123,20 @@ int main (int argc, char *argv[])
       base_addr = (ptbins & 0xfe)*7 + mlcombs*2 + (ptbins & 0x1);
       tmp = const_mult_factor*constants_rphi_qvec[base_addr*2+1];
       check_val(tmp, add_const_w, "rphi add consts");
+      ofs_rphi_param_nb << tmp << " ";
       bitset<add_const_w> tmp_bin1(tmp);
       ofs_rphi_param << tmp_bin1;
 
       tmp = const_mult_factor*constants_rphi_qvec[base_addr*2];
       check_val(tmp, add_const_w, "rphi add consts");
+      ofs_rphi_param_nb << tmp << " ";
       bitset<add_const_w> tmp_bin2(tmp);
       ofs_rphi_param << tmp_bin2;
 
       for (int i = 2*12-1; i>=0; --i) 
       {
 	tmp = mult_factor*constants_rphi_cmtx[base_addr*2*12 + i];
+        ofs_rphi_param_nb << tmp << std::endl;
 	if (i%2==0)
 	  tmp /= 64;
 	check_val(tmp, const_w, "rphi matrix consts");
@@ -138,19 +144,21 @@ int main (int argc, char *argv[])
 	ofs_rphi_param << tmp_bin3;
       }
       ofs_rphi_param << ',' << endl;
+      ofs_rphi_param_nb << ',' << endl;
     }
   }
   
   ofs_rphi_param.close();
+  ofs_rphi_param_nb.close();
 
   // write rphi chisq
   //int prevsize;
   std::vector<double> constants_rphi_amtx;
   for (matrixpcaconst<double> c : all_constants) 
   {
-    if (c.get_plane_type() == matrixpcaconst<double>::plane_type::RPHI)
+    if (c.get_plane_type() == plane_type::RPHI)
     {
-      if (c.get_const_type() == matrixpcaconst<double>::const_type::AMTX) 
+      if (c.get_const_type() == const_type::AMTX) 
       {
 	//cout << c.n_rows() << ' ' << c.n_cols() << endl;
 	//prevsize = constants_rphi_amtx.size();
@@ -187,9 +195,9 @@ int main (int argc, char *argv[])
   std::vector<double> constants_rphi_kvec;
   for (matrixpcaconst<double> c : all_constants) 
   {
-    if (c.get_plane_type() == matrixpcaconst<double>::plane_type::RPHI)
+    if (c.get_plane_type() == plane_type::RPHI)
     {
-      if (c.get_const_type() == matrixpcaconst<double>::const_type::KVEC) 
+      if (c.get_const_type() == const_type::KVEC) 
       {
 	//prevsize = constants_rphi_kvec.size();
 	//cout << c.n_rows() << ' ' << c.n_cols() << endl;
@@ -247,9 +255,9 @@ int main (int argc, char *argv[])
   std::vector<double> constants_rz_cmtx;
   for (matrixpcaconst<double> c : all_constants) 
   {
-    if (c.get_plane_type() == matrixpcaconst<double>::plane_type::RZ)
+    if (c.get_plane_type() == plane_type::RZ)
     {
-      if (c.get_const_type() == matrixpcaconst<double>::const_type::CMTX) 
+      if (c.get_const_type() == const_type::CMTX) 
       {
 	for (int i = 0; i < 2; ++i)
         {
@@ -269,8 +277,8 @@ int main (int argc, char *argv[])
 
   std::vector<double> constants_rz_qvec;
   for (matrixpcaconst<double> c : all_constants) 
-    if (c.get_plane_type() == matrixpcaconst<double>::plane_type::RZ)
-      if (c.get_const_type() == matrixpcaconst<double>::const_type::QVEC) 
+    if (c.get_plane_type() == plane_type::RZ)
+      if (c.get_const_type() == const_type::QVEC) 
 	for (int i = 0; i < 2; ++i)
 	  constants_rz_qvec.push_back(c.element(0, i));
 
@@ -314,9 +322,9 @@ int main (int argc, char *argv[])
   std::vector<double> constants_rz_amtx;
   for (matrixpcaconst<double> c : all_constants) 
   {
-    if (c.get_plane_type() == matrixpcaconst<double>::plane_type::RZ)
+    if (c.get_plane_type() == plane_type::RZ)
     {
-      if (c.get_const_type() == matrixpcaconst<double>::const_type::AMTX) 
+      if (c.get_const_type() == const_type::AMTX) 
       {
 	//cout << c.n_rows() << ' ' << c.n_cols() << endl;
 	//prevsize = constants_rz_amtx.size();
@@ -353,9 +361,9 @@ int main (int argc, char *argv[])
   std::vector<double> constants_rz_kvec;
   for (matrixpcaconst<double> c : all_constants) 
   {
-    if (c.get_plane_type() == matrixpcaconst<double>::plane_type::RZ)
+    if (c.get_plane_type() == plane_type::RZ)
     {
-      if (c.get_const_type() == matrixpcaconst<double>::const_type::KVEC) 
+      if (c.get_const_type() == const_type::KVEC) 
       {
 	//prevsize = constants_rz_kvec.size();
 	//cout << c.n_rows() << ' ' << c.n_cols() << endl;

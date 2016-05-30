@@ -39,41 +39,40 @@ struct TypeIsDouble< double >
 
 namespace pca
 {
+  enum const_type 
+  {
+    QVEC,
+    CMTX,
+    AMTX,
+    KVEC,
+    NONDEF
+  };
+
+  enum sector_type 
+  {
+    BARREL,
+    HYBRID,
+    ENDCAP,
+    UNKN
+  };
+
+  enum plane_type 
+  {
+    RPHI,
+    RZ,
+    UNDEF
+  };
+
+  enum ttype 
+  {
+    FLOATPT,
+    INTEGPT,
+    NOONE
+  };
+
   template<typename T> 
   class matrixpcaconst
   {
-     public:
-        enum const_type 
-        {
-          QVEC,
-          CMTX,
-          AMTX,
-          KVEC,
-          NONDEF
-        };
-
-        enum sector_type 
-        {
-          BARREL,
-          HYBRID,
-          ENDCAP,
-          UNKN
-        };
-
-        enum plane_type 
-        {
-          RPHI,
-          RZ,
-          UNDEF
-        };
-
-        enum ttype 
-        {
-          FLOATPT,
-          INTEGPT,
-          NOONE
-        };
-
      private:
         std::vector<T> elements_; 
         unsigned int rows_;  
@@ -185,123 +184,123 @@ namespace pca
            return elements_[i*cols_+j];
         }
 
-        static std::string const_type_to_string (matrixpcaconst<T>::const_type in)
+        static std::string const_type_to_string (const_type in)
         {
           switch (in)
           {
-            case matrixpcaconst<T>::QVEC:
+            case QVEC:
               return "QVEC";
-            case matrixpcaconst<T>::CMTX:
+            case CMTX:
               return "CMTX";
-            case matrixpcaconst<T>::AMTX:
+            case AMTX:
               return "AMTX";
-            case matrixpcaconst<T>::KVEC:
+            case KVEC:
               return "KVEC";
-            case matrixpcaconst<T>::NONDEF:
+            case NONDEF:
               return "NONDEF";
           }
         
           return "";
         }
 
-        static matrixpcaconst<T>::const_type string_to_const_type (
+        static const_type string_to_const_type (
             const std::string & in)
         {
           if (in == "QVEC")
-            return matrixpcaconst<T>::QVEC;
+            return QVEC;
           else if (in == "CMTX")
-            return matrixpcaconst<T>::CMTX;
+            return CMTX;
           else if (in == "AMTX")
-            return matrixpcaconst<T>::AMTX;
+            return AMTX;
           else if (in == "KVEC")
-            return matrixpcaconst<T>::KVEC;
+            return KVEC;
 
-          return matrixpcaconst<T>::NONDEF;
+          return NONDEF;
         }
 
 
-        static std::string sector_type_to_string (matrixpcaconst<T>::sector_type in)
+        static std::string sector_type_to_string (sector_type in)
         {
           switch (in)
           {
-            case matrixpcaconst<T>::BARREL:
+            case BARREL:
               return "BARREL";
-            case matrixpcaconst<T>::HYBRID:
+            case HYBRID:
               return "HYBRID";
-            case matrixpcaconst<T>::ENDCAP:
+            case ENDCAP:
               return "ENDCAP";
-            case matrixpcaconst<T>::UNKN:
+            case UNKN:
               return "UNKN";
           }
         
           return "";
         }
 
-        static matrixpcaconst<T>::sector_type string_to_sector_type (
+        static sector_type string_to_sector_type (
             const std::string & in)
         {
           if (in == "BARREL")
-            return matrixpcaconst<T>::BARREL;
+            return BARREL;
           else if (in == "HYBRID")
-            return matrixpcaconst<T>::HYBRID;
+            return HYBRID;
           else if (in == "ENDCAP")
-            return matrixpcaconst<T>::ENDCAP;
+            return ENDCAP;
 
-          return matrixpcaconst<T>::UNKN;
+          return UNKN;
         }
 
 
-        static std::string plane_type_to_string (matrixpcaconst<T>::plane_type in)
+        static std::string plane_type_to_string (plane_type in)
         {
           switch (in)
           {
-            case matrixpcaconst<T>::RPHI:
+            case RPHI:
               return "RPHI";
-            case matrixpcaconst<T>::RZ:
+            case RZ:
               return "RZ";
-            case matrixpcaconst<T>::UNDEF:
+            case UNDEF:
               return "UNDEF";
           }
         
           return "";
         }
 
-        static matrixpcaconst<T>::plane_type string_to_plane_type (
+        static plane_type string_to_plane_type (
             const std::string & in)
         {
           if (in == "RPHI")
-            return matrixpcaconst<T>::RPHI;
+            return RPHI;
           else if (in == "RZ")
-            return matrixpcaconst<T>::RZ;
+            return RZ;
 
-          return matrixpcaconst<T>::UNDEF;
+          return UNDEF;
         }
 
 
-        static std::string ttype_to_string (matrixpcaconst<T>::ttype in)
+        static std::string ttype_to_string (ttype in)
         {
           switch (in)
           {
-            case matrixpcaconst<T>::FLOATPT:
+            case FLOATPT:
               return "FLOATPT";
-            case matrixpcaconst<T>::INTEGPT:
+            case INTEGPT:
               return "INTEGPT";
-            case matrixpcaconst<T>::NOONE:
+            case NOONE:
               return "NOONE";
           }
         
           return "";
         }
 
-        static matrixpcaconst<T>::ttype string_to_ttype (
+        static ttype string_to_ttype (
             const std::string & in)
         {
           if (in == "FLOATPT")
-            return matrixpcaconst<T>::FLOATPT;
+            return FLOATPT;
           else if (in == "INTEGPT")
-            return matrixpcaconst<T>::INTEGPT;
+            return INTEGPT;
 
-          return matrixpcaconst<T>::NOONE;
+          return NOONE;
         }
  
   };
@@ -534,7 +533,7 @@ namespace pca
     if (std::ifstream(filename))
     {
       std::vector<matrixpcaconst<T> > vct;
-      if (read_pcacosnt_from_file (vct, filename))
+      if (read_pcaconst_from_file (vct, filename))
       {
         bool copied = false;
         for (unsigned int i = 0; i != vct.size(); ++i)
@@ -627,6 +626,134 @@ namespace pca
     }
 
      return true;
+  }
+
+  template<typename T>
+  bool import_pca_const (
+      std::vector<pca::matrixpcaconst<T> > & vct,
+      pca::matrixpcaconst<T> & cmtx_rz, 
+      pca::matrixpcaconst<T> & qvec_rz, 
+      pca::matrixpcaconst<T> & amtx_rz, 
+      pca::matrixpcaconst<T> & kvec_rz, 
+      pca::matrixpcaconst<T> & cmtx_rphi, 
+      pca::matrixpcaconst<T> & qvec_rphi, 
+      pca::matrixpcaconst<T> & amtx_rphi, 
+      pca::matrixpcaconst<T> & kvec_rphi, 
+      double eta, double pt, 
+      int chargesignin,
+      const std::string & layersid,
+      const std::string & pslayersid,
+      int towerid, 
+      ttype tipo)
+  {
+    int hwmanygot = 0, hwmanygotrphi = 0, hwmanygotrz = 0;;
+    typename std::vector<pca::matrixpcaconst<T> >::const_iterator it = 
+      vct.begin();
+    for (; it != vct.end(); ++it)
+    {
+      double ptmin, ptmax, etamin, etamax;
+      std::string actuallayids;
+      int chargesign;
+  
+      it->get_ptrange(ptmin, ptmax);
+      it->get_etarange(etamin, etamax);
+      chargesign = it->get_chargesign();
+      actuallayids = it->get_layersids();
+
+      if (towerid == it->get_towerid())
+      {
+        if (it->get_ttype() == tipo)
+        {
+          if (it->get_plane_type() == pca::matrixpcaconst<T>::RZ)
+          {
+            if (actuallayids == pslayersid)
+            {
+              if ((eta >= etamin) && (eta <= etamax)) 
+              {
+                switch(it->get_const_type())
+                {
+                  case pca::matrixpcaconst<T>::QVEC :
+                    qvec_rz = *it;
+                    hwmanygot++;
+                    hwmanygotrz++;
+                    break;
+                  case pca::matrixpcaconst<T>::KVEC :
+                    kvec_rz = *it;
+                    hwmanygot++;
+                    hwmanygotrz++;
+                    break;
+                  case pca::matrixpcaconst<T>::CMTX :
+                    cmtx_rz = *it;
+                    hwmanygot++;
+                    hwmanygotrz++;
+                    break;
+                  case pca::matrixpcaconst<T>::AMTX :
+                    amtx_rz = *it;
+                    hwmanygot++;
+                    hwmanygotrz++;
+                    break;
+                  default:
+                    break;
+                }
+              } 
+            }
+          }
+          else if (it->get_plane_type() == pca::matrixpcaconst<T>::RPHI)
+          {
+            if (actuallayids == layersid)
+            {
+              if (chargesignin == chargesign)
+              {
+                if ((pt >= ptmin) && (pt <= ptmax))
+                {
+                  switch(it->get_const_type())
+                  {
+                    case pca::matrixpcaconst<T>::QVEC : 
+                      qvec_rphi = *it;
+                      hwmanygot++;
+                      hwmanygotrphi++;
+                      break;
+                    case pca::matrixpcaconst<T>::KVEC :
+                      kvec_rphi = *it;
+                      hwmanygot++;
+                      hwmanygotrphi++;
+                      break;
+                    case pca::matrixpcaconst<T>::CMTX :
+                      cmtx_rphi = *it;
+                      hwmanygot++;
+                      hwmanygotrphi++;
+                      break;
+                    case pca::matrixpcaconst<T>::AMTX :
+                      amtx_rphi = *it;
+                      hwmanygot++;
+                      hwmanygotrphi++;
+                      break;
+                    default:
+                      break;
+                  }
+                }
+              } 
+            }
+          }
+        }
+      }
+    }
+  
+    if (hwmanygot == 8)
+      return true;
+    else
+    {
+      std::cerr << "Found " << hwmanygot << " const instead of 8" << std::endl;
+      std::cerr << layersid << " and " << pslayersid << std::endl;
+      std::cerr << "charge: " << chargesignin << " eta: " << eta << " pt: " << pt << std::endl;
+      std::cerr << "Foundrz " << hwmanygotrz << std::endl;
+      std::cerr << "Foundrphi " << hwmanygotrphi << std::endl;
+      return false;
+    }
+  
+    // TODO add consistency check for dims
+  
+    return false;
   }
 
 }

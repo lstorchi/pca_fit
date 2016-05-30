@@ -42,7 +42,7 @@ bool import_pca_const_int (const std::string & cfname,
   assert(rzplane != rphiplane); 
 
   std::vector<pca::matrixpcaconst<int32_t> > vct;
-  if (read_pcacosnt_from_file (vct, cfname.c_str()))
+  if (read_pcaconst_from_file (vct, cfname.c_str()))
   {
     int hwmanygot = 0;
     std::vector<pca::matrixpcaconst<int32_t> >::const_iterator it = 
@@ -58,11 +58,11 @@ bool import_pca_const_int (const std::string & cfname,
       chargesign = it->get_chargesign();
       actuallayids = it->get_layersids();
 
-      if (it->get_ttype() == pca::matrixpcaconst<int32_t>::INTEGPT)
+      if (it->get_ttype() == pca::INTEGPT)
       {
         if (rzplane)
         {
-          if (it->get_plane_type() == pca::matrixpcaconst<int32_t>::RZ)
+          if (it->get_plane_type() == pca::RZ)
           {
             if (actuallayids == pslayersid)
             {
@@ -71,19 +71,19 @@ bool import_pca_const_int (const std::string & cfname,
               {
                 switch(it->get_const_type())
                 {
-                  case pca::matrixpcaconst<int32_t>::QVEC :
+                  case pca::QVEC :
                     pcamat_to_armarowvec ((*it), qvec);
                     hwmanygot++;
                     break;
-                  case pca::matrixpcaconst<int32_t>::KVEC :
+                  case pca::KVEC :
                     pcamat_to_armarowvec ((*it), kvec);
                     hwmanygot++;
                     break;
-                  case pca::matrixpcaconst<int32_t>::CMTX :
+                  case pca::CMTX :
                     pcamat_to_armamat ((*it), cmtx);
                     hwmanygot++;
                     break;
-                  case pca::matrixpcaconst<int32_t>::AMTX :
+                  case pca::AMTX :
                     pcamat_to_armamat ((*it), amtx);
                     hwmanygot++;
                     break;
@@ -96,7 +96,7 @@ bool import_pca_const_int (const std::string & cfname,
         }
         else if (rphiplane)
         {
-          if (it->get_plane_type() == pca::matrixpcaconst<int32_t>::RPHI)
+          if (it->get_plane_type() == pca::RPHI)
           {
             if (actuallayids == layersid)
             {
@@ -107,19 +107,19 @@ bool import_pca_const_int (const std::string & cfname,
                 {
                   switch(it->get_const_type())
                   {
-                    case pca::matrixpcaconst<int32_t>::QVEC : 
+                    case pca::QVEC : 
                       pcamat_to_armarowvec ((*it), qvec);
                       hwmanygot++;
                       break;
-                    case pca::matrixpcaconst<int32_t>::KVEC :
+                    case pca::KVEC :
                       pcamat_to_armarowvec ((*it), kvec);
                       hwmanygot++;
                       break;
-                    case pca::matrixpcaconst<int32_t>::CMTX :
+                    case pca::CMTX :
                       pcamat_to_armamat ((*it), cmtx);
                       hwmanygot++;
                       break;
-                    case pca::matrixpcaconst<int32_t>::AMTX :
+                    case pca::AMTX :
                       pcamat_to_armamat ((*it), amtx);
                       hwmanygot++;
                       break;
@@ -161,7 +161,7 @@ bool import_pca_const (const std::string & cfname,
   assert(rzplane != rphiplane); 
 
   std::vector<pca::matrixpcaconst<double> > vct;
-  if (read_pcacosnt_from_file (vct, cfname.c_str()))
+  if (read_pcaconst_from_file (vct, cfname.c_str()))
   {
     int hwmanygot = 0;
     std::vector<pca::matrixpcaconst<double> >::const_iterator it = 
@@ -177,11 +177,11 @@ bool import_pca_const (const std::string & cfname,
       chargesign = it->get_chargesign();
       actuallayids = it->get_layersids();
 
-      if (it->get_ttype() == pca::matrixpcaconst<double>::FLOATPT)
+      if (it->get_ttype() == pca::FLOATPT)
       {
         if (rzplane)
         {
-          if (it->get_plane_type() == pca::matrixpcaconst<double>::RZ)
+          if (it->get_plane_type() == pca::RZ)
           {
             if (actuallayids == pslayersid)
             {
@@ -190,19 +190,19 @@ bool import_pca_const (const std::string & cfname,
               {
                 switch(it->get_const_type())
                 {
-                  case pca::matrixpcaconst<double>::QVEC :
+                  case pca::QVEC :
                     pcamat_to_armarowvec ((*it), qvec);
                     hwmanygot++;
                     break;
-                  case pca::matrixpcaconst<double>::KVEC :
+                  case pca::KVEC :
                     pcamat_to_armarowvec ((*it), kvec);
                     hwmanygot++;
                     break;
-                  case pca::matrixpcaconst<double>::CMTX :
+                  case pca::CMTX :
                     pcamat_to_armamat ((*it), cmtx);
                     hwmanygot++;
                     break;
-                  case pca::matrixpcaconst<double>::AMTX :
+                  case pca::AMTX :
                     pcamat_to_armamat ((*it), amtx);
                     hwmanygot++;
                     break;
@@ -215,7 +215,7 @@ bool import_pca_const (const std::string & cfname,
         }
         else if (rphiplane)
         {
-          if (it->get_plane_type() == pca::matrixpcaconst<double>::RPHI)
+          if (it->get_plane_type() == pca::RPHI)
           {
             if (actuallayids == layersid)
             {
@@ -226,19 +226,19 @@ bool import_pca_const (const std::string & cfname,
                 {
                   switch(it->get_const_type())
                   {
-                    case pca::matrixpcaconst<double>::QVEC : 
+                    case pca::QVEC : 
                       pcamat_to_armarowvec ((*it), qvec);
                       hwmanygot++;
                       break;
-                    case pca::matrixpcaconst<double>::KVEC :
+                    case pca::KVEC :
                       pcamat_to_armarowvec ((*it), kvec);
                       hwmanygot++;
                       break;
-                    case pca::matrixpcaconst<double>::CMTX :
+                    case pca::CMTX :
                       pcamat_to_armamat ((*it), cmtx);
                       hwmanygot++;
                       break;
-                    case pca::matrixpcaconst<double>::AMTX :
+                    case pca::AMTX :
                       pcamat_to_armamat ((*it), amtx);
                       hwmanygot++;
                       break;

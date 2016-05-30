@@ -144,64 +144,64 @@ void perform_main_computation (const arma::mat & coord,
     assert(rootrdr.get_rphiplane() != rootrdr.get_rzplane());
     
     pca::armamat_to_pcamat (cmtx, pcmtx);
-    pcmtx.set_const_type (pca::matrixpcaconst<int32_t>::CMTX);
+    pcmtx.set_const_type (pca::CMTX);
     pcmtx.set_layersids (rootrdr.get_actualseq().c_str());
-    pcmtx.set_sector_type (pca::matrixpcaconst<int32_t>::BARREL);
+    pcmtx.set_sector_type (pca::BARREL);
     pcmtx.set_towerid (towerid);
-    pcmtx.set_ttype (pca::matrixpcaconst<int32_t>::INTEGPT);
+    pcmtx.set_ttype (pca::INTEGPT);
     pcmtx.set_chargesign(rootrdr.get_chargesign());
     if (rootrdr.get_rphiplane())
-      pcmtx.set_plane_type (pca::matrixpcaconst<int32_t>::RPHI);
+      pcmtx.set_plane_type (pca::RPHI);
     else if (rootrdr.get_rzplane())
-      pcmtx.set_plane_type (pca::matrixpcaconst<int32_t>::RZ);
+      pcmtx.set_plane_type (pca::RZ);
     pcmtx.set_ptrange (ptmin, ptmax);
     pcmtx.set_etarange (etamin, etamax); 
     
     write_pcaconst_to_file (pcmtx, "pca_const.txt");
     
     pca::armamat_to_pcamat (q, pqvct);
-    pqvct.set_const_type (pca::matrixpcaconst<int32_t>::QVEC);
+    pqvct.set_const_type (pca::QVEC);
     pqvct.set_layersids (rootrdr.get_actualseq().c_str());
-    pqvct.set_sector_type (pca::matrixpcaconst<int32_t>::BARREL);
+    pqvct.set_sector_type (pca::BARREL);
     pqvct.set_towerid (towerid);
-    pqvct.set_ttype (pca::matrixpcaconst<int32_t>::INTEGPT);
+    pqvct.set_ttype (pca::INTEGPT);
     pqvct.set_chargesign(rootrdr.get_chargesign());
     if (rootrdr.get_rphiplane())
-      pqvct.set_plane_type (pca::matrixpcaconst<int32_t>::RPHI);
+      pqvct.set_plane_type (pca::RPHI);
     else if (rootrdr.get_rzplane())
-      pqvct.set_plane_type (pca::matrixpcaconst<int32_t>::RZ);
+      pqvct.set_plane_type (pca::RZ);
     pqvct.set_ptrange (ptmin, ptmax);
     pqvct.set_etarange (etamin, etamax); 
     
     write_pcaconst_to_file (pqvct, "pca_const.txt");
     
     pca::armamat_to_pcamat (amtx, pamtx);
-    pamtx.set_const_type (pca::matrixpcaconst<int32_t>::AMTX);
+    pamtx.set_const_type (pca::AMTX);
     pamtx.set_layersids (rootrdr.get_actualseq().c_str());
-    pamtx.set_sector_type (pca::matrixpcaconst<int32_t>::BARREL);
+    pamtx.set_sector_type (pca::BARREL);
     pamtx.set_towerid (towerid);
-    pamtx.set_ttype (pca::matrixpcaconst<int32_t>::INTEGPT);
+    pamtx.set_ttype (pca::INTEGPT);
     pamtx.set_chargesign(rootrdr.get_chargesign());
     if (rootrdr.get_rphiplane())
-      pamtx.set_plane_type (pca::matrixpcaconst<int32_t>::RPHI);
+      pamtx.set_plane_type (pca::RPHI);
     else if (rootrdr.get_rzplane())
-      pamtx.set_plane_type (pca::matrixpcaconst<int32_t>::RZ);
+      pamtx.set_plane_type (pca::RZ);
     pamtx.set_ptrange (ptmin, ptmax);
     pamtx.set_etarange (etamin, etamax); 
     
     write_pcaconst_to_file (pamtx, "pca_const.txt");
     
     pca::armamat_to_pcamat (kivec, pkvct);
-    pkvct.set_const_type (pca::matrixpcaconst<int32_t>::KVEC);
+    pkvct.set_const_type (pca::KVEC);
     pkvct.set_layersids (rootrdr.get_actualseq().c_str());
-    pkvct.set_sector_type (pca::matrixpcaconst<int32_t>::BARREL);
+    pkvct.set_sector_type (pca::BARREL);
     pkvct.set_towerid (towerid);
-    pkvct.set_ttype (pca::matrixpcaconst<int32_t>::INTEGPT);
+    pkvct.set_ttype (pca::INTEGPT);
     pkvct.set_chargesign(rootrdr.get_chargesign());
     if (rootrdr.get_rphiplane())
-      pkvct.set_plane_type (pca::matrixpcaconst<int32_t>::RPHI);
+      pkvct.set_plane_type (pca::RPHI);
     else if (rootrdr.get_rzplane())
-      pkvct.set_plane_type (pca::matrixpcaconst<int32_t>::RZ);
+      pkvct.set_plane_type (pca::RZ);
     pkvct.set_ptrange (ptmin, ptmax);
     pkvct.set_etarange (etamin, etamax); 
     
@@ -221,72 +221,72 @@ void perform_main_computation (const arma::mat & coord,
     assert(rootrdr.get_rphiplane() != rootrdr.get_rzplane());
     
     pca::armamat_to_pcamat (cmtx, pcmtx);
-    pcmtx.set_const_type (pca::matrixpcaconst<double>::CMTX);
+    pcmtx.set_const_type (pca::CMTX);
     pcmtx.set_layersids (rootrdr.get_actualseq().c_str());
     /* TODO should be given as input */
-    pcmtx.set_sector_type (pca::matrixpcaconst<double>::BARREL);
+    pcmtx.set_sector_type (pca::BARREL);
     /* */
     pcmtx.set_towerid (towerid);
-    pcmtx.set_ttype (pca::matrixpcaconst<double>::FLOATPT);
+    pcmtx.set_ttype (pca::FLOATPT);
     pcmtx.set_chargesign(rootrdr.get_chargesign());
     if (rootrdr.get_rphiplane())
-      pcmtx.set_plane_type (pca::matrixpcaconst<double>::RPHI);
+      pcmtx.set_plane_type (pca::RPHI);
     else if (rootrdr.get_rzplane())
-      pcmtx.set_plane_type (pca::matrixpcaconst<double>::RZ);
+      pcmtx.set_plane_type (pca::RZ);
     pcmtx.set_ptrange (ptmin, ptmax);
     pcmtx.set_etarange (etamin, etamax); 
     
     write_pcaconst_to_file (pcmtx, "pca_const.txt");
     
     pca::armamat_to_pcamat (q, pqvct);
-    pqvct.set_const_type (pca::matrixpcaconst<double>::QVEC);
+    pqvct.set_const_type (pca::QVEC);
     pqvct.set_layersids (rootrdr.get_actualseq().c_str());
     /* TODO should be given as input */
-    pqvct.set_sector_type (pca::matrixpcaconst<double>::BARREL);
+    pqvct.set_sector_type (pca::BARREL);
     /* */
     pqvct.set_towerid (towerid);
-    pqvct.set_ttype (pca::matrixpcaconst<double>::FLOATPT);
+    pqvct.set_ttype (pca::FLOATPT);
     pqvct.set_chargesign(rootrdr.get_chargesign());
     if (rootrdr.get_rphiplane())
-      pqvct.set_plane_type (pca::matrixpcaconst<double>::RPHI);
+      pqvct.set_plane_type (pca::RPHI);
     else if (rootrdr.get_rzplane())
-      pqvct.set_plane_type (pca::matrixpcaconst<double>::RZ);
+      pqvct.set_plane_type (pca::RZ);
     pqvct.set_ptrange (ptmin, ptmax);
     pqvct.set_etarange (etamin, etamax); 
     
     write_pcaconst_to_file (pqvct, "pca_const.txt");
     
     pca::armamat_to_pcamat (amtx, pamtx);
-    pamtx.set_const_type (pca::matrixpcaconst<double>::AMTX);
+    pamtx.set_const_type (pca::AMTX);
     pamtx.set_layersids (rootrdr.get_actualseq().c_str());
     /* TODO should be given as input */
-    pamtx.set_sector_type (pca::matrixpcaconst<double>::BARREL);
+    pamtx.set_sector_type (pca::BARREL);
     /* */
     pamtx.set_towerid (towerid);
-    pamtx.set_ttype (pca::matrixpcaconst<double>::FLOATPT);
+    pamtx.set_ttype (pca::FLOATPT);
     pamtx.set_chargesign(rootrdr.get_chargesign());
     if (rootrdr.get_rphiplane())
-      pamtx.set_plane_type (pca::matrixpcaconst<double>::RPHI);
+      pamtx.set_plane_type (pca::RPHI);
     else if (rootrdr.get_rzplane())
-      pamtx.set_plane_type (pca::matrixpcaconst<double>::RZ);
+      pamtx.set_plane_type (pca::RZ);
     pamtx.set_ptrange (ptmin, ptmax);
     pamtx.set_etarange (etamin, etamax); 
     
     write_pcaconst_to_file (pamtx, "pca_const.txt");
     
     pca::armamat_to_pcamat (kivec, pkvct);
-    pkvct.set_const_type (pca::matrixpcaconst<double>::KVEC);
+    pkvct.set_const_type (pca::KVEC);
     pkvct.set_layersids (rootrdr.get_actualseq().c_str());
     /* TODO should be given as input */
-    pkvct.set_sector_type (pca::matrixpcaconst<double>::BARREL);
+    pkvct.set_sector_type (pca::BARREL);
     /* */
     pkvct.set_towerid (towerid);
-    pkvct.set_ttype (pca::matrixpcaconst<double>::FLOATPT);
+    pkvct.set_ttype (pca::FLOATPT);
     pkvct.set_chargesign(rootrdr.get_chargesign());
     if (rootrdr.get_rphiplane())
-      pkvct.set_plane_type (pca::matrixpcaconst<double>::RPHI);
+      pkvct.set_plane_type (pca::RPHI);
     else if (rootrdr.get_rzplane())
-      pkvct.set_plane_type (pca::matrixpcaconst<double>::RZ);
+      pkvct.set_plane_type (pca::RZ);
     pkvct.set_ptrange (ptmin, ptmax);
     pkvct.set_etarange (etamin, etamax); 
     
