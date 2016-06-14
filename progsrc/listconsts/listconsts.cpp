@@ -33,7 +33,7 @@
 bool read_pca_const (const std::string & cfname)
 {
   std::vector<pca::matrixpcaconst<double> > vct;
-  if (read_pcacosnt_from_file (vct, cfname.c_str()))
+  if (read_pcaconst_from_file (vct, cfname.c_str()))
   {
     int totaldim = 0, muplus = 0, muneg = 0;
     std::vector<pca::matrixpcaconst<double> >::const_iterator it = 
