@@ -664,7 +664,7 @@ namespace pca
       {
         if (it->get_ttype() == tipo)
         {
-          if (it->get_plane_type() == pca::matrixpcaconst<T>::RZ)
+          if (it->get_plane_type() == pca::RZ)
           {
             if (actuallayids == pslayersid)
             {
@@ -672,22 +672,22 @@ namespace pca
               {
                 switch(it->get_const_type())
                 {
-                  case pca::matrixpcaconst<T>::QVEC :
+                  case pca::QVEC :
                     qvec_rz = *it;
                     hwmanygot++;
                     hwmanygotrz++;
                     break;
-                  case pca::matrixpcaconst<T>::KVEC :
+                  case pca::KVEC :
                     kvec_rz = *it;
                     hwmanygot++;
                     hwmanygotrz++;
                     break;
-                  case pca::matrixpcaconst<T>::CMTX :
+                  case pca::CMTX :
                     cmtx_rz = *it;
                     hwmanygot++;
                     hwmanygotrz++;
                     break;
-                  case pca::matrixpcaconst<T>::AMTX :
+                  case pca::AMTX :
                     amtx_rz = *it;
                     hwmanygot++;
                     hwmanygotrz++;
@@ -698,7 +698,7 @@ namespace pca
               } 
             }
           }
-          else if (it->get_plane_type() == pca::matrixpcaconst<T>::RPHI)
+          else if (it->get_plane_type() == pca::RPHI)
           {
             if (actuallayids == layersid)
             {
@@ -708,22 +708,22 @@ namespace pca
                 {
                   switch(it->get_const_type())
                   {
-                    case pca::matrixpcaconst<T>::QVEC : 
+                    case pca::QVEC : 
                       qvec_rphi = *it;
                       hwmanygot++;
                       hwmanygotrphi++;
                       break;
-                    case pca::matrixpcaconst<T>::KVEC :
+                    case pca::KVEC :
                       kvec_rphi = *it;
                       hwmanygot++;
                       hwmanygotrphi++;
                       break;
-                    case pca::matrixpcaconst<T>::CMTX :
+                    case pca::CMTX :
                       cmtx_rphi = *it;
                       hwmanygot++;
                       hwmanygotrphi++;
                       break;
-                    case pca::matrixpcaconst<T>::AMTX :
+                    case pca::AMTX :
                       amtx_rphi = *it;
                       hwmanygot++;
                       hwmanygotrphi++;

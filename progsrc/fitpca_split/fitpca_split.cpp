@@ -881,7 +881,7 @@ int main (int argc, char ** argv)
       {"phi-range", 1, NULL, 'm'},
       {"z0-range", 1, NULL, 'o'},
       {"d0-range", 1, NULL, 'u'},
-      {"check-layersids", 1, NULL, 'k'},
+      {"check-layersids", 0, NULL, 'k'},
       {"relative", 0, NULL, 'a'},
       {"relative-values", 1, NULL, 'b'},
       {"five-hits", 1, NULL, 'f'},
@@ -894,7 +894,7 @@ int main (int argc, char ** argv)
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "NTpkxzrhaVD:w:X:l:f:b:t:g:c:n:s:m:o:u", 
+    c = getopt_long (argc, argv, "NTpkxzrhaVD:w:X:l:f:b:t:g:c:n:s:m:o:u:", 
         long_options, &option_index);
 
     if (c == -1)
@@ -937,7 +937,6 @@ int main (int argc, char ** argv)
         coord2min = atof(tokens[1].c_str());
           
         break;
-
       case 'a':
         userelativecoord = true;
         break;
