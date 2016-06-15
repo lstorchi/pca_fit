@@ -49,9 +49,6 @@ void usage (char * name)
   std::cerr << std::endl; 
   std::cerr << " -f, --five-hits=[\"sequence\"]     : fit a specific 5 / 6 sequence, it will use " << std::endl;
   std::cerr << "                                    \"real 5 out of 6\" tracks " << std::endl;
-  std::cerr << " -l, --five-hits-lin=[\"sequence\"] : fit a specific the sequence using standard constat  " << std::endl;
-  std::cerr << "                                      use linear interpolation to approximate the missed hit " 
-    << std::endl;
   std::cerr << " -w, --fk-five-hits=[layerid]     : build constants for 5 / 6, specify the layr to be removed " 
     << std::endl;
   std::cerr << "                                   it will use 6 layers tracks, removing a layer " << std::endl;
@@ -81,9 +78,9 @@ int main (int argc, char ** argv)
   pca::pcafitter fitter;
 
   bool rzplane = false, rphiplane = true, excludesmodule = false, 
-       checklayersids = false, lininterpolation = false, 
-       usefakefiveoutofsix = false, printallcoords = false, 
-       writeresults = true, verbose = false, userelativecoord = false;
+       checklayersids = false, usefakefiveoutofsix = false, 
+       printallcoords = false, writeresults = true, verbose = false, 
+       userelativecoord = false;
   double coord1min = std::numeric_limits<double>::infinity();
   double coord2min = std::numeric_limits<double>::infinity();
 
@@ -91,7 +88,7 @@ int main (int argc, char ** argv)
 
   int layeridtorm = -1, towerid = -99, numoflayers = 6;
 
-  std::string sequence = "";
+  std::string sequence = "", layersid, pslayersid;
 
   std::vector<std::string> cfnames, tokens;
 
@@ -110,7 +107,6 @@ int main (int argc, char ** argv)
       {"relative", 0, NULL, 'a'},
       {"relative-values", 1, NULL, 'b'},
       {"five-hits", 1, NULL, 'f'},
-      {"five-hits-lin", 1, NULL, 'l'},
       {"fk-five-hits", 1, NULL, 'w'},
       {"dump-allcoords", 0, NULL, 'p'},
       {"towerid", 1, NULL, 'D'},
@@ -119,7 +115,7 @@ int main (int argc, char ** argv)
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "hc:Vvzrxkab:f:l:w:pD:X:N", 
+    c = getopt_long (argc, argv, "hc:Vvzrxkab:f:w:pD:X:N", 
         long_options, &option_index);
 
     if (c == -1)
@@ -171,10 +167,6 @@ int main (int argc, char ** argv)
         numoflayers = 5;
         sequence = optarg;
         break;
-      case 'l':
-        sequence = optarg;
-        lininterpolation = true;
-        break;
       case 'w':
         usefakefiveoutofsix = true;
         layeridtorm = atoi(optarg);
@@ -205,6 +197,128 @@ int main (int argc, char ** argv)
     std::cerr << "Towid is mandatory for XY rotation" << std::endl;
     return EXIT_FAILURE;
   }
+
+  if (sequence == "")
+  {
+    std::ostringstream psosss, osss;
+    std::cout << "Only for BARREL" << std::endl;
+    for (int i =5; i<=10; ++i)
+    {
+      if (usefakefiveoutofsix)
+        if (i == layeridtorm)
+          continue;
+ 
+      osss << i << ":";
+      if (i <= 7)
+        psosss << i << ":";
+    }
+
+    layersid = osss.str();
+    layersid.erase(layersid.end()-1);
+
+    pslayersid = psosss.str();
+    pslayersid.erase(pslayersid.end()-1);
+  }
+  else
+  {
+    std::cout << "Only for BARREL" << std::endl;
+    layersid = sequence;
+    tokens.clear();
+    pca::tokenize (sequence, tokens, ";");
+
+    std::ostringstream psosss;
+    for (int i=0; i<(int) tokens.size(); ++i)
+      if (atoi(tokens[i].c_str()) <= 7)
+        psosss << i << ":"; 
+
+    pslayersid = psosss.str();
+    pslayersid.erase(pslayersid.end()-1);
+  }
+
+  if (numoflayers == 5)
+  {
+    if (usefakefiveoutofsix)
+    {
+      std::cerr << "Wrong options, cannot use both options together" << std::endl;
+      return EXIT_FAILURE;
+    }
+
+    if (!pca::validate_barrel_sequence_5 (sequence))
+    {
+      std::cerr << "Wrong sequence" << std::endl;
+      return EXIT_FAILURE;
+    }
+  }
+
+  if ((rzplane && rphiplane) ||
+      (!rzplane && !rphiplane))
+  {
+    std::cerr << "r-phi or r-z plane ?" << std::endl;
+    usage (argv[0]);
+  }
+
+  if (usefakefiveoutofsix)
+  {
+    if (excludesmodule)
+      fitter.set_coordim (2*2);
+    else
+      fitter.set_coordim (2*5);
+  }
+  else
+  {
+    if (numoflayers == 5)
+    {
+      if (excludesmodule)
+        fitter.set_coordim (2*2);
+      else
+        fitter.set_coordim (2*5);
+    }
+    else if (numoflayers == 6)
+    {
+      if (excludesmodule)
+        fitter.set_coordim (2*3);
+      else
+        fitter.set_coordim (2*6);
+    }
+    else 
+    {
+      std::cerr << "Can use 5 or 6 layers" << std::endl;
+      return EXIT_FAILURE;
+    }
+  }
+
+  fitter.set_paramdim(2);
+
+  if (rzplane)
+  {
+    // I am using cot(theta) internally
+    if (!fitter.set_paramidx(PCA_COTTHETAIDX, "eta"))
+    {
+      std::cerr << fitter.get_errmsg() << std::endl;
+      return EXIT_FAILURE;
+    }
+
+    if (!fitter.set_paramidx(PCA_Z0IDX, "z0"))
+    {
+      std::cerr << fitter.get_errmsg() << std::endl;
+      return EXIT_FAILURE;
+    }
+  }
+  else if (rphiplane)
+  {
+    if (!fitter.set_paramidx(PCA_PHIIDX, "phi"))
+    {
+      std::cerr << fitter.get_errmsg() << std::endl;
+      return EXIT_FAILURE;
+    }
+    
+    if (!fitter.set_paramidx(PCA_ONEOVERPTIDX, "q/pt"))
+    {
+      std::cerr << fitter.get_errmsg() << std::endl;
+      return EXIT_FAILURE;
+    }
+  }
+
 
   return EXIT_SUCCESS;
 }
