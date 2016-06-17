@@ -282,9 +282,13 @@ bool pcafitter::compute_parameters (
     const arma::mat & coord, 
     double ** paraptr,
     int paramdim,
-    arma::rowvec & chi2values,
-    arma::rowvec & chi2values1)
+    arma::rowvec & chi2values)
 {
+  const arma::mat cmtx;
+  const arma::rowvec q; 
+  const arma::mat amtx;
+  const arma::rowvec kvct; 
+ 
   reset_error();
 
   if (useintbitewise_)
@@ -321,33 +325,6 @@ bool pcafitter::compute_parameters (
     }
   }
     
-  /*
-  for (int k=0; k<coordim_; ++k)
-  {
-    std::cout << coord[k].mean() << " " 
-       << coord[k].stddev() << std::endl;
-    std::cout << coordm(k) << std::endl;
-  }
-  */
-
-  if ((vinv.n_rows != 0) && (vinv.n_cols != 0))
-  {
-    for (int k=0; k<(int)coord.n_rows; ++k)
-    {
-      for (int i=0; i<coordim_; ++i)
-      {
-        for (int j=0; j<coordim_; ++j)
-        {
-          chi2values1(k) += (coord(k,i) - coordm(i)) * 
-            vinv(i, j) * (coord(k,j) - coordm(j));
-        }
-      }
-  
-      //std::cout << "chi2 using eq 10 pg 112 " << k << " ==> " 
-      //   << chi2values1(k)  << std::endl;
-    }
-  }
-
   std::cout << "coord.n_rows : " << coord.n_rows << std::endl;
   std::cout << "coord.n_cols : " << coord.n_cols << std::endl;
 
