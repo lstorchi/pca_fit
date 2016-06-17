@@ -277,6 +277,110 @@ bool pcafitter::compute_parameters (
   return true;
 }
 
+bool pcafitter::compute_parameters (
+    std::vector<pca::matrixpcaconst<double> > & allconst,
+    const arma::mat & coord, 
+    double ** paraptr,
+    int paramdim,
+    arma::rowvec & chi2values,
+    arma::rowvec & chi2values1)
+{
+  reset_error();
+
+  if (useintbitewise_)
+  {
+    set_errmsg (21, "invalid number of parameters");
+    return false;
+  }
+
+  if (paramdim != paramdim_)
+  {
+    set_errmsg (2, "use this method only with float");
+    return false;
+  }
+
+  for (int j=0; j<paramdim; ++j)
+  {
+    double *ptr = paraptr[j];
+    for (int i=0; i<(int)coord.n_rows; ++i)
+    {
+      ptr[i] = q(j);
+      for (int k=0; k<coordim_; ++k)
+        ptr[i] += cmtx(j,k)*coord(i,k);
+    }
+  }
+
+  for (int j=0; j<paramdim; ++j)
+  {
+    double *ptr = paraptr[j];
+    for (int i=0; i<(int)coord.n_rows; ++i)
+    {
+      ptr[i] = q(j);
+      for (int k=0; k<coordim_; ++k)
+	ptr[i] += (cmtx(j,k)*coord(i,k));
+    }
+  }
+    
+  /*
+  for (int k=0; k<coordim_; ++k)
+  {
+    std::cout << coord[k].mean() << " " 
+       << coord[k].stddev() << std::endl;
+    std::cout << coordm(k) << std::endl;
+  }
+  */
+
+  if ((vinv.n_rows != 0) && (vinv.n_cols != 0))
+  {
+    for (int k=0; k<(int)coord.n_rows; ++k)
+    {
+      for (int i=0; i<coordim_; ++i)
+      {
+        for (int j=0; j<coordim_; ++j)
+        {
+          chi2values1(k) += (coord(k,i) - coordm(i)) * 
+            vinv(i, j) * (coord(k,j) - coordm(j));
+        }
+      }
+  
+      //std::cout << "chi2 using eq 10 pg 112 " << k << " ==> " 
+      //   << chi2values1(k)  << std::endl;
+    }
+  }
+
+  std::cout << "coord.n_rows : " << coord.n_rows << std::endl;
+  std::cout << "coord.n_cols : " << coord.n_cols << std::endl;
+
+  for (int b=0; b<(int)coord.n_rows; ++b) // loop over tracks 
+  {
+    double chi2 = 0.0;
+
+    for (int i=0; i<coordim_-paramdim_; ++i)
+    {
+      double val = 0.0;
+      
+      /* sum over j */
+      for (int j=0; j<coordim_; ++j)
+        val += amtx(i,j) * coord(b,j);
+
+      /* wrong sign */
+      val -= kvct(i);
+
+      //std::cout << "  val:" << val << std::endl;
+
+      chi2 += val*val;
+    }
+
+    chi2values(b) = chi2;
+
+    //std::cout << "chi2 using eq 11 pg 112 " << b << " ==> " 
+    //  << chi2  << std::endl;
+  }
+
+  return true;
+}
+
+
 
 void pcafitter::select_bigger_sub (
     const std::map<std::string, int> & sublist, 

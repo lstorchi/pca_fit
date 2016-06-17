@@ -4,6 +4,7 @@
 #include <armadillo>
 #include <vector>
 #include <map>
+#include <pcaconst.hpp>
 
 // lstorchi: this should be moved into include as soon as the utility code should be
 //           a class... This is not a proper class, just a way to collect some functions 
@@ -56,6 +57,14 @@ namespace pca
           arma::rowvec & chi2values1, 
           const arma::mat & vmtx = NULLA,
           const arma::rowvec & coordm = NULLO);
+
+      bool compute_parameters (
+          std::vector<pca::matrixpcaconst<double> > & allconst,
+          const arma::mat & coord, 
+          double ** paraptr,
+          int paramdim,
+          arma::rowvec & chi2values, 
+          arma::rowvec & chi2values1);
            
       void select_bigger_sub (
           const std::map<std::string, int> & sublist, 
