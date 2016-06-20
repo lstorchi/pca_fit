@@ -42,7 +42,7 @@ namespace pca
           const arma::rowvec & kvct, 
           const arma::mat & coord, 
           int32_t ** paraptr,
-          int paramdim,
+          int paramdim, 
           arma::rowvec & chi2values); 
  
       bool compute_parameters (
@@ -61,8 +61,12 @@ namespace pca
       bool compute_parameters (
           std::vector<pca::matrixpcaconst<double> > & allconst,
           const arma::mat & coord, 
+          const arma::mat & paramslt,
+          const std::string & layersid,
+          const std::string & pslayersid,
+          int towerid,
           double ** paraptr,
-          int paramdim,
+          int paramdim, bool rphiplane,
           arma::rowvec & chi2values);
            
       void select_bigger_sub (

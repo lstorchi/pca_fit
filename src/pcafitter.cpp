@@ -99,7 +99,7 @@ bool pcafitter::compute_parameters (
     const arma::rowvec & kvct, 
     const arma::mat & coord, 
     int32_t ** paraptr,
-    int paramdim,
+    int paramdim, 
     arma::rowvec & chi2values)
 {
   reset_error();
@@ -114,17 +114,6 @@ bool pcafitter::compute_parameters (
   {
     set_errmsg (2, "invalid number of parameters");
     return false;
-  }
-
-  for (int j=0; j<paramdim; ++j)
-  {
-    int32_t *ptr = paraptr[j];
-    for (int i=0; i<(int)coord.n_rows; ++i)
-    {
-      ptr[i] = q(j);
-      for (int k=0; k<coordim_; ++k)
-        ptr[i] += cmtx(j,k)*coord(i,k);
-    }
   }
 
   for (int j=0; j<paramdim; ++j)
@@ -203,17 +192,6 @@ bool pcafitter::compute_parameters (
     {
       ptr[i] = q(j);
       for (int k=0; k<coordim_; ++k)
-        ptr[i] += cmtx(j,k)*coord(i,k);
-    }
-  }
-
-  for (int j=0; j<paramdim; ++j)
-  {
-    double *ptr = paraptr[j];
-    for (int i=0; i<(int)coord.n_rows; ++i)
-    {
-      ptr[i] = q(j);
-      for (int k=0; k<coordim_; ++k)
 	ptr[i] += (cmtx(j,k)*coord(i,k));
     }
   }
@@ -280,20 +258,20 @@ bool pcafitter::compute_parameters (
 bool pcafitter::compute_parameters (
     std::vector<pca::matrixpcaconst<double> > & allconst,
     const arma::mat & coord, 
+    const arma::mat & paramslt,
+    const std::string & layersid,
+    const std::string & pslayersid,
+    int towerid,
     double ** paraptr,
-    int paramdim,
+    int paramdim, bool rphiplane,
     arma::rowvec & chi2values)
 {
-  const arma::mat cmtx;
-  const arma::rowvec q; 
-  const arma::mat amtx;
-  const arma::rowvec kvct; 
- 
+
   reset_error();
 
   if (useintbitewise_)
   {
-    set_errmsg (21, "invalid number of parameters");
+    set_errmsg (21, "not yet implemented");
     return false;
   }
 
@@ -303,33 +281,64 @@ bool pcafitter::compute_parameters (
     return false;
   }
 
-  for (int j=0; j<paramdim; ++j)
-  {
-    double *ptr = paraptr[j];
-    for (int i=0; i<(int)coord.n_rows; ++i)
-    {
-      ptr[i] = q(j);
-      for (int k=0; k<coordim_; ++k)
-        ptr[i] += cmtx(j,k)*coord(i,k);
-    }
-  }
-
-  for (int j=0; j<paramdim; ++j)
-  {
-    double *ptr = paraptr[j];
-    for (int i=0; i<(int)coord.n_rows; ++i)
-    {
-      ptr[i] = q(j);
-      for (int k=0; k<coordim_; ++k)
-	ptr[i] += (cmtx(j,k)*coord(i,k));
-    }
-  }
-    
   std::cout << "coord.n_rows : " << coord.n_rows << std::endl;
   std::cout << "coord.n_cols : " << coord.n_cols << std::endl;
 
   for (int b=0; b<(int)coord.n_rows; ++b) // loop over tracks 
   {
+    arma::mat cmtx;
+    arma::rowvec q; 
+    arma::mat amtx;
+    arma::rowvec kvct; 
+  
+    pca::matrixpcaconst<double> cmtx_c(0, 0), 
+      qvec_c(0, 0), amtx_c(0, 0), kvec_c(0, 0);
+ 
+    double theta = atan(1.0e0 / paramslt(b, PCA_COTTHETAIDX));
+    double etaorig = 0.0e0;
+    double tantheta2 = tan (theta/2.0e0);
+    if (tantheta2 < 0.0)
+      etaorig = 1.0e0 * log (-1.0e0 * tantheta2);
+    else
+      etaorig = -1.0e0 * log (tantheta2);
+
+    double qoverptorig = paramslt(b, PCA_ONEOVERPTIDX);
+    int chargesignin = ((qoverptorig < 0.0) ? -1 : 1);
+    double pt = ((double)chargesignin) / qoverptorig;
+
+    if (rphiplane)
+    {
+      if (!import_pca_const (allconst, cmtx_c, qvec_c, 
+            amtx_c, kvec_c, etaorig, pt, 
+            chargesignin, layersid, pslayersid, 
+            towerid, pca::FLOATPT, pca::RPHI))
+        return false;
+    }
+    else 
+    {
+      chargesignin = 0;
+
+      if (!import_pca_const (allconst, cmtx_c, qvec_c, 
+            amtx_c, kvec_c, etaorig, pt, 
+            chargesignin, layersid, pslayersid, 
+            towerid, pca::FLOATPT, pca::RZ))
+        return false;
+    }
+
+    pcamat_to_armamat (cmtx_c, cmtx);
+    pcamat_to_armamat (amtx_c, amtx);
+    pcamat_to_armarowvec (qvec_c, q);
+    pcamat_to_armarowvec (kvec_c, kvct);
+
+    double *ptr = paraptr[b];
+
+    for (int i=0; i<(int)coord.n_rows; ++i)
+    {
+      ptr[i] = q(b);
+      for (int k=0; k<coordim_; ++k)
+        ptr[i] += cmtx(b,k)*coord(i,k);
+    }
+
     double chi2 = 0.0;
 
     for (int i=0; i<coordim_-paramdim_; ++i)
@@ -343,15 +352,10 @@ bool pcafitter::compute_parameters (
       /* wrong sign */
       val -= kvct(i);
 
-      //std::cout << "  val:" << val << std::endl;
-
       chi2 += val*val;
     }
 
     chi2values(b) = chi2;
-
-    //std::cout << "chi2 using eq 11 pg 112 " << b << " ==> " 
-    //  << chi2  << std::endl;
   }
 
   return true;

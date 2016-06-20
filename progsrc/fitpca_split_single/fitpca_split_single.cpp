@@ -37,7 +37,8 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
      int towerid, double sec_phi, 
      bool writeresults, int layeridtorm, 
      double etamin, double etamax, 
-     double ptmin, double ptmax, int chargesign)
+     double ptmin, double ptmax, int chargesign, 
+     const std::string & layersid, const std::string & pslayersid)
 {
   int nbins = 100;
 
@@ -68,8 +69,9 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
   chi2values_fake.resize(0);
 
   if (!fitter.compute_parameters (allconst, 
-        coordslt, ptrs, fitter.get_paramdim(), 
-        chi2values, chi2values_fake))
+        coordslt, paramslt, layersid, pslayersid, 
+        towerid, ptrs, fitter.get_paramdim(), 
+        rphiplane, chi2values))
   {
     std::cerr << fitter.get_errmsg() << std::endl;
     return false;
@@ -845,7 +847,8 @@ int main (int argc, char ** argv)
   if (!build_and_compare (param, coord, allconst,
         verbose, fitter, rzplane, rphiplane, ptvals, 
         towerid, rootrdr.get_rotation_angle(), writeresults, 
-        layeridtorm, etamin, etamax, ptmin, ptmax, chargesign))
+        layeridtorm, etamin, etamax, ptmin, ptmax, chargesign, 
+        layersid,  pslayersid))
     return EXIT_FAILURE;
 
   return EXIT_SUCCESS;

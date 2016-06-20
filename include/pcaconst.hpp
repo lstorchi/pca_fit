@@ -756,6 +756,91 @@ namespace pca
     return false;
   }
 
+  template<typename T>
+  bool import_pca_const (
+      std::vector<pca::matrixpcaconst<T> > & vct,
+      pca::matrixpcaconst<T> & cmtx, 
+      pca::matrixpcaconst<T> & qvec, 
+      pca::matrixpcaconst<T> & amtx, 
+      pca::matrixpcaconst<T> & kvec, 
+      double eta, double pt, 
+      int chargesignin,
+      const std::string & layersid,
+      const std::string & pslayersid,
+      int towerid, 
+      ttype tipo, plane_type ptipo)
+  {
+    int hwmanygot = 0;
+    typename std::vector<pca::matrixpcaconst<T> >::const_iterator it = 
+      vct.begin();
+    for (; it != vct.end(); ++it)
+    {
+      double ptmin, ptmax, etamin, etamax;
+      std::string actuallayids;
+      int chargesign;
+  
+      it->get_ptrange(ptmin, ptmax);
+      it->get_etarange(etamin, etamax);
+      chargesign = it->get_chargesign();
+      actuallayids = it->get_layersids();
+
+      if (towerid == it->get_towerid())
+      {
+        if (it->get_ttype() == tipo)
+        {
+          if (it->get_plane_type() == ptipo)
+          {
+            if (chargesignin == chargesign)
+            {
+              if (actuallayids == pslayersid)
+              {
+                if ((eta >= etamin) && (eta <= etamax)) 
+                {
+                  switch(it->get_const_type())
+                  {
+                    case pca::QVEC :
+                      qvec = *it;
+                      hwmanygot++;
+                      break;
+                    case pca::KVEC :
+                      kvec = *it;
+                      hwmanygot++;
+                      break;
+                    case pca::CMTX :
+                      cmtx = *it;
+                      hwmanygot++;
+                      break;
+                    case pca::AMTX :
+                      amtx = *it;
+                      hwmanygot++;
+                      break;
+                    default:
+                      break;
+                  }
+                } 
+              }
+            }
+          }
+        }
+      }
+    }
+  
+    if (hwmanygot == 4)
+      return true;
+    else
+    {
+      std::cerr << "Found " << hwmanygot << " const instead of 8" << std::endl;
+      std::cerr << layersid << " and " << pslayersid << std::endl;
+      std::cerr << "charge: " << chargesignin << " eta: " << eta << " pt: " << pt << std::endl;
+      return false;
+    }
+  
+    // TODO add consistency check for dims
+  
+    return false;
+  }
+
+
 }
 
 #endif
