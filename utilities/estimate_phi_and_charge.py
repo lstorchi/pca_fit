@@ -33,6 +33,8 @@ fp = open(filename, "r")
 fp.readline()
 
 phidiffvalues = []
+x = []
+y = []
 
 for i in range(numofline):
   l = fp.readline()
@@ -113,6 +115,8 @@ for i in range(numofline):
     print "RZPhi plane using layers 1 and 6: "
     slope = (phival[5]-phival[0])/(rval[5]-rval[0])
     print "layers 1 6 c/pt: ", charge/pt, "     slope: ", slope
+    x.append(charge/pt)
+    y.append(slope)
     intercept = phival[0] - slope*rval[0]
     print "layers 1 6  phi: ", phi,  " intercept: ", intercept, " diff: ", phi-intercept
 
@@ -122,5 +126,10 @@ print "phi layers 1 6: "
 print "Num of events: ", len(phidiffvalues)
 print "Mean val: ", numpy.mean(phidiffvalues)
 print "STD  val: ", numpy.std(phidiffvalues)
+
+slope, intercept, r_value, p_value, std_err = stats.linregress(x,y)
+
+print "Lin Regr slope, intercept, r_value, p_value, std_err"
+print slope, intercept, r_value, p_value, std_err
 
 fp.close()
