@@ -133,6 +133,8 @@ for i in range(numofline):
 
       diffpt = (pt - ptest) / pt
 
+      print "  pt: ", pt, "  pt_est: ", ptest , "   diff: " , diffpt
+
       ptdiffvalues.append(diffpt)
 
       if pt <= 10:
