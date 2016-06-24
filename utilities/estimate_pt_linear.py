@@ -39,8 +39,8 @@ pt10_50diffvalues = []
 pt50_100diffvalues = []
 pt100_200diffvalues = []
 
-q = 0.0057544097038
-b = 1.64483470352e-06
+q = 173.587410572
+b = -0.00028578750571
 
 for i in range(numofline):
   l = fp.readline()
@@ -122,16 +122,27 @@ for i in range(numofline):
       slope = (phival[5]-phival[0])/(rval[5]-rval[0])
       est = (slope*q + b)
       print "c/pt: ", charge/pt, "     estimated: ", est
-      ptdiffvalues.append((charge/pt) - est)
+
+      c = 0.0
+      if (est < 0.0):
+        c = -1.0
+      elif (est > 0.0):
+        c = 1.0 
+
+      ptest = c/est 
+
+      diffpt = (pt - ptest) / pt
+
+      ptdiffvalues.append(diffpt)
 
       if pt <= 10:
-        pt3_10diffvalues.append((charge/pt) - est)
+        pt3_10diffvalues.append(diffpt)
       elif pt > 10 and pt <= 50:
-        pt10_50diffvalues.append((charge/pt) - est)
+        pt10_50diffvalues.append(diffpt)
       elif pt > 50 and pt <= 100:
-        pt50_100diffvalues.append((charge/pt) - est)
+        pt50_100diffvalues.append(diffpt)
       elif pt > 100 and pt <= 200:
-        pt100_200diffvalues.append((charge/pt) - est)
+        pt100_200diffvalues.append(diffpt)
 
 print "Num of events: ", len(ptdiffvalues)
 print "Mean val: ", numpy.mean(ptdiffvalues)
