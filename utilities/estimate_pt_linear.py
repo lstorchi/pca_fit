@@ -39,9 +39,6 @@ pt10_50diffvalues = []
 pt50_100diffvalues = []
 pt100_200diffvalues = []
 
-x = []
-y = []
-
 q = 0.0057544097038
 b = 1.64483470352e-06
 

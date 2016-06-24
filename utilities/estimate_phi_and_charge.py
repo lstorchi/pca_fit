@@ -116,8 +116,8 @@ for i in range(numofline):
       print "RZPhi plane using layers 1 and 6: "
       slope = (phival[5]-phival[0])/(rval[5]-rval[0])
       print "layers 1 6 c/pt: ", charge/pt, "     slope: ", slope
-      x.append(charge/pt)
-      y.append(slope)
+      y.append(charge/pt)
+      x.append(slope)
       intercept = phival[0] - slope*rval[0]
       print "layers 1 6  phi: ", phi,  " intercept: ", intercept, " diff: ", phi-intercept
 
