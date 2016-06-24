@@ -32,9 +32,18 @@ fp = open(filename, "r")
 # jump first line
 fp.readline()
 
-phidiffvalues = []
+ptdiffvalues = []
+
+pt3_10diffvalues = []
+pt10_50diffvalues = []
+pt50_100diffvalues = []
+pt100_200diffvalues = []
+
 x = []
 y = []
+
+q = 0.0057544097038
+b = 1.64483470352e-06
 
 for i in range(numofline):
   l = fp.readline()
@@ -113,24 +122,35 @@ for i in range(numofline):
     print >> sys.stderr, "Wrong seq: ", layersids
   else:
     if pt >= 3.0:
-      print "RZPhi plane using layers 1 and 6: "
       slope = (phival[5]-phival[0])/(rval[5]-rval[0])
-      print "layers 1 6 c/pt: ", charge/pt, "     slope: ", slope
-      x.append(charge/pt)
-      y.append(slope)
-      intercept = phival[0] - slope*rval[0]
-      print "layers 1 6  phi: ", phi,  " intercept: ", intercept, " diff: ", phi-intercept
+      est = (slope*q + b)
+      print "c/pt: ", charge/pt, "     estimated: ", est
+      ptdiffvalues.append((charge/pt) - est)
 
-    phidiffvalues.append(phi-intercept)
+      if pt <= 10:
+        pt3_10diffvalues.append((charge/pt) - est)
+      elif pt > 10 and pt <= 50:
+        pt10_50diffvalues.append((charge/pt) - est)
+      elif pt > 50 and pt <= 100:
+        pt50_100diffvalues.append((charge/pt) - est)
+      elif pt > 100 and pt <= 200:
+        pt100_200diffvalues.append((charge/pt) - est)
 
-print "phi layers 1 6: " 
-print "Num of events: ", len(phidiffvalues)
-print "Mean val: ", numpy.mean(phidiffvalues)
-print "STD  val: ", numpy.std(phidiffvalues)
+print "Num of events: ", len(ptdiffvalues)
+print "Mean val: ", numpy.mean(ptdiffvalues)
+print "STD  val: ", numpy.std(ptdiffvalues)
+print "3 a 10"
+print "Mean val: ", numpy.mean(pt3_10diffvalues)
+print "STD  val: ", numpy.std(pt3_10diffvalues)
+print "10 a 50"
+print "Mean val: ", numpy.mean(pt10_50diffvalues)
+print "STD  val: ", numpy.std(pt10_50diffvalues)
+print "50 a 100"
+print "Mean val: ", numpy.mean(pt50_100diffvalues)
+print "STD  val: ", numpy.std(pt50_100diffvalues)
+print "100 a 200"
+print "Mean val: ", numpy.mean(pt100_200diffvalues)
+print "STD  val: ", numpy.std(pt100_200diffvalues)
 
-slope, intercept, r_value, p_value, std_err = stats.linregress(x,y)
-
-print "Lin Regr slope, intercept, r_value, p_value, std_err"
-print slope, intercept, r_value, p_value, std_err
 
 fp.close()
