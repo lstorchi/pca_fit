@@ -42,6 +42,9 @@ pt100_200diffvalues = []
 q = 173.587410572
 b = -0.00028578750571
 
+chargegood = 0
+totnumber = 0
+
 for i in range(numofline):
   l = fp.readline()
 
@@ -129,6 +132,11 @@ for i in range(numofline):
       elif (est > 0.0):
         c = 1.0 
 
+      if c == charge:
+        chargegood = chargegood + 1
+
+      totnumber = totnumber + 1
+
       ptest = c/est 
 
       diffpt = (pt - ptest) / pt
@@ -161,6 +169,7 @@ print "STD  val: ", numpy.std(pt50_100diffvalues)
 print "100 a 200"
 print "Mean val: ", numpy.mean(pt100_200diffvalues)
 print "STD  val: ", numpy.std(pt100_200diffvalues)
+print "Charge : " , 100.0 * (chargegood/totnumber)
 
 
 fp.close()
