@@ -125,12 +125,12 @@ for i in range(numofline):
   if (layersids != "5678910"):
     print >> sys.stderr, "Wrong seq: ", layersids
   else:
-    print "RZ plane using layers 1 and 3: "
-    slope = (zval[2]-zval[0])/(rval[2]-rval[0])
+    print "RZ plane using layers 2 and 3: "
+    slope = (zval[2]-zval[1])/(rval[2]-rval[1])
     print "layers 1 3 eta: ", eta, "     slope: ", slope,     " diff: ", eta-slope, \
         " theta: ", theta*180.0/math.pi, " pz: ", pz
     intercept = zval[0] - slope*rval[0]
-    print "layers 1 3  z0: ", z0,  " intercept: ", intercept, " diff: ", z0-intercept, \
+    print "layers 2 3  z0: ", z0,  " intercept: ", intercept, " diff: ", z0-intercept, \
         " eta: " , eta
 
     etadiffvalues.append(eta-slope)
