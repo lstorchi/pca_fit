@@ -112,6 +112,9 @@ namespace pca
       int get_chargesign () const;
       unsigned int get_maxnumoftracks () const;
 
+      void set_use3layers(std::set<int> &);
+      void reset_use3layers ();
+
       bool reading_from_root_file (const pca::pcafitter & fitter, 
           arma::mat & paramin, arma::mat & coordin, 
           arma::vec & ptvalsout);
@@ -157,6 +160,9 @@ namespace pca
       std::string layersid_;
 
       bool useintbitewise_;
+
+      bool use3layers_;
+      std::set<int> tlayers_;
 
       bool rzplane_, rphiplane_, chargeoverpt_, 
           excludesmodule_, verbose_, checklayersids_, 

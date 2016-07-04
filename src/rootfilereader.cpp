@@ -107,6 +107,8 @@ void rootfilereader::reset()
   fkfiveoutofsix_ = false;
 
   useintbitewise_ = false;
+  use3layers_ = false;
+  tlayers_.clear();
 
   etamin_ = -INFINITY; 
   etamax_ = INFINITY; 
@@ -409,6 +411,12 @@ bool rootfilereader::reading_from_root_file (
 
   if (fkfiveoutofsix_)
   {
+    if (use3layers_)
+    {
+      set_errmsg (11, "Not yet implemented");
+      return false;
+    }
+
     if (!is_avalid_layerid (isbarrel_, excludesmodule_, layeridtorm_) )
     {
       set_errmsg (11, "Invalid layer to remove");
@@ -874,6 +882,19 @@ bool rootfilereader::convertorphiz (std::vector<track_rphiz_str> &
   return true;
 }
 
+void rootfilereader::set_use3layers(std::set<int> & in)
+{
+  use3layers_ = true;
+  tlayers_ = in;
+}
+
+void rootfilereader::reset_use3layers ()
+{
+  use3layers_ = false;
+  tlayers_.clear();
+}
+
+
 bool rootfilereader::check_if_withinranges (const int & charge, 
     const double & eta, const double & phi, const double & z0, 
     const double & d0, const double & pt, 
@@ -920,6 +941,14 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
   }
 
   if (excludesmodule_)
+  {
+    if (fitter.get_coordim() != (maxnumoflayers_ - 3) * 2)
+    {
+      set_errmsg (1, "Wrong coord dim");
+      return false;
+    }
+  }
+  else if (use3layers_)
   {
     if (fitter.get_coordim() != (maxnumoflayers_ - 3) * 2)
     {
@@ -988,6 +1017,10 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
     {
       if (excludesmodule_)
         if (j > excludesmodval)
+          continue;
+
+      if (use3layers_)
+        if (tlayers_.find(track->layer[j]) == tlayers_.end())
           continue;
 
       if (useintbitewise_)

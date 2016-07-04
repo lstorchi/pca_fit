@@ -72,8 +72,9 @@ void usage (char * name)
   std::cerr << " -o, --z0-range=\"z0min;z0max\"    : specify the z0 range to use " << std::endl;
   std::cerr << " -u, --d0-range=\"d0min;d0max\"    : specify the d0 range to use " << std::endl;
   std::cerr << std::endl;
-  std::cerr << " -x, --exclude-s-module          : exclude S-module (last three layer) so 6 coordinates " << 
+  std::cerr << " -x, --exclude-s-module          : exclude 2S-module (last three layer) so 6 coordinates " << 
     "instead of 12 (rz)" << std::endl;                                  
+  std::cerr << " -c, --use-only-3-layers         : use three leyers ..." << std::endl;
   std::cerr << " -B, --write-binfiles            : will wite the PCA contants also as bin files " << std::endl;
   std::cerr << " -D, --towerid=[num]             : specify towid to be wriiten in the file " << std::endl;
 
@@ -332,6 +333,7 @@ int main (int argc, char ** argv)
   bool verbose = false;
 
   bool intbitewise = false;
+  bool use3layers = false;
 
   int towerid = -99;
 
@@ -363,10 +365,11 @@ int main (int argc, char ** argv)
       {"max-num-oftracks", 1, NULL, 'X'},
       {"write-binfiles", 1, NULL, 'B'},
       {"towerid", 1, NULL, 'D'},
+      {"use-only-3-layers", 0, NULL, 'c'},
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "TBaVlkxhvdpzrX:D:b:g:t:n:m:o:u:f:y:", 
+    c = getopt_long (argc, argv, "TBaVlkxhvdpzrX:D:b:g:t:n:m:o:u:f:y:c", 
         long_options, &option_index);
 
     if (c == -1)
@@ -500,6 +503,9 @@ int main (int argc, char ** argv)
       case 'v':
         std::cout << "Version: " << pca::pcafitter::get_version_string() << std::endl;
         exit(1);
+        break;
+      case 'c':
+        use3layers = true;
         break;
       default:
         usage (argv[0]);
@@ -638,6 +644,17 @@ int main (int argc, char ** argv)
   rootrdr.set_checklayersids(checklayersids);
   //maxnumoftracks = 100000;
   rootrdr.set_maxnumoftracks(maxnumoftracks);
+  if (use3layers)
+  {
+    std::set<int> layers;
+
+    layers.insert(5);
+    layers.insert(8);
+    layers.insert(10);
+
+    rootrdr.set_use3layers(layers);
+  }
+
 
   // needed expecially for tow 19 20 27 28
   // only for the genration
