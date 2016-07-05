@@ -411,11 +411,13 @@ bool rootfilereader::reading_from_root_file (
 
   if (fkfiveoutofsix_)
   {
+    /*
     if (use3layers_)
     {
       set_errmsg (11, "Not yet implemented");
       return false;
     }
+    */
 
     if (!is_avalid_layerid (isbarrel_, excludesmodule_, layeridtorm_) )
     {

@@ -548,6 +548,12 @@ int main (int argc, char ** argv)
 
   if (usefakefiveoutofsix)
   {
+    if (use3layers)
+    {
+      std::cerr << "Not yet implemented" << std::endl;
+      return EXIT_FAILURE; 
+    }
+
     if (excludesmodule)
       fitter.set_coordim (2*2);
     else
@@ -557,6 +563,12 @@ int main (int argc, char ** argv)
   {
     if (numoflayers == 5)
     {
+      if (use3layers)
+      {
+        std::cerr << "Not yet implemented" << std::endl;
+        return EXIT_FAILURE; 
+      }
+
       if (excludesmodule)
         fitter.set_coordim (2*2);
       else
@@ -565,6 +577,8 @@ int main (int argc, char ** argv)
     else if (numoflayers == 6)
     {
       if (excludesmodule)
+        fitter.set_coordim (2*3);
+      else if (use3layers)
         fitter.set_coordim (2*3);
       else
         fitter.set_coordim (2*6);
