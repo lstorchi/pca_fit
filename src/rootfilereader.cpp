@@ -952,7 +952,7 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
   }
   else if (use3layers_)
   {
-    if (fitter.get_coordim() != (maxnumoflayers_ - 3) * 2)
+    if (fitter.get_coordim() != 3 * 2)
     {
       set_errmsg (1, "Wrong coord dim");
       return false;
@@ -966,6 +966,8 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
       return false;
     }
   }
+
+  //std::cout << fitter.get_coordim() << std::endl;
 
   coordin.resize(tracks_vct_.size(), fitter.get_coordim());
   paramin.resize(tracks_vct_.size(), fitter.get_paramdim());
@@ -1013,6 +1015,7 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
   std::vector<track_rphiz_str>::const_iterator track = rphiz_tracks.begin();
   for (; track != rphiz_tracks.end(); ++track)
   {
+    int jidx = 0;
     std::ostringstream osss;
     std::string actuallayersids = "";
     for (int j = 0; j < track->dim; ++j)
@@ -1022,35 +1025,39 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
           continue;
 
       if (use3layers_)
+      {
         if (tlayers_.find(track->layer[j]) == tlayers_.end())
           continue;
+      }
 
       if (useintbitewise_)
       {
         if (rzplane_)
         {
-          coordin(counter, j*2) = track->i_z[j];
-          coordin(counter, j*2+1) = track->i_r[j];
+          coordin(counter, jidx*2) = track->i_z[j];
+          coordin(counter, jidx*2+1) = track->i_r[j];
         }
         else if (rphiplane_)
         {
-          coordin(counter, j*2) = track->i_phii[j];
-          coordin(counter, j*2+1) = track->i_r[j];
+          coordin(counter, jidx*2) = track->i_phii[j];
+          coordin(counter, jidx*2+1) = track->i_r[j];
         }
       }
       else
       { 
         if (rzplane_)
         {
-          coordin(counter, j*2) = track->z[j];
-          coordin(counter, j*2+1) = track->r[j];
+          coordin(counter, jidx*2) = track->z[j];
+          coordin(counter, jidx*2+1) = track->r[j];
         }
         else if (rphiplane_)
         {
-          coordin(counter, j*2) = track->phii[j];
-          coordin(counter, j*2+1) = track->r[j];
+          coordin(counter, jidx*2) = track->phii[j];
+          coordin(counter, jidx*2+1) = track->r[j];
         }
       }
+
+      ++jidx;
 
       osss << track->layer[j] << ":";
     }
