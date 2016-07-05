@@ -808,6 +808,7 @@ void usage (char * name)
   std::cerr << " -N, --no-results                 : results file is not written, only mean and stdev " << std::endl;
   std::cerr << "                                    are computed and reported " << std::endl; 
   std::cerr << " -X, --max-num-oftracks=[n]      : stop reading root file after n tracks" << std::endl;
+  std::cerr << " -C, --use-only-3-layers         : use three leyers ..." << std::endl;
   std::cerr << std::endl;
 
   exit(1);
@@ -861,6 +862,7 @@ int main (int argc, char ** argv)
   int towerid = -99;
 
   bool writeresults = true;
+  bool use3layers = false;
 
   while (1)
   {
@@ -894,7 +896,7 @@ int main (int argc, char ** argv)
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "NTpkxzrhaVD:w:X:l:f:b:t:g:c:n:s:m:o:u:", 
+    c = getopt_long (argc, argv, "CNTpkxzrhaVD:w:X:l:f:b:t:g:c:n:s:m:o:u:", 
         long_options, &option_index);
 
     if (c == -1)
@@ -1030,6 +1032,9 @@ int main (int argc, char ** argv)
       case 'X':
         maxnumoftracks = atoi(optarg);
         break;
+      case 'C':
+        use3layers = true;
+        break;
       default:
         usage (argv[0]);
         break;
@@ -1045,6 +1050,14 @@ int main (int argc, char ** argv)
     return EXIT_FAILURE;
   }
 
+  std::set<int> layers;
+  if (use3layers)
+  {
+    layers.insert(5);
+    layers.insert(8);
+    layers.insert(10);
+  }
+
   fitter.set_useintbitewise(intbitewise);
 
   // very quick 
@@ -1056,6 +1069,10 @@ int main (int argc, char ** argv)
     {
       if (usefakefiveoutofsix)
         if (i == layeridtorm)
+          continue;
+
+      if (use3layers)
+        if (layers.find(i) == layers.end())
           continue;
  
       osss << i << ":";
@@ -1108,6 +1125,12 @@ int main (int argc, char ** argv)
 
   if (usefakefiveoutofsix)
   {
+    if (use3layers)
+    {
+      std::cerr << "Not yet implemented" << std::endl;
+      return EXIT_FAILURE; 
+    }
+
     if (excludesmodule)
       fitter.set_coordim (2*2);
     else
@@ -1117,6 +1140,12 @@ int main (int argc, char ** argv)
   {
     if (numoflayers == 5)
     {
+      if (use3layers)
+      {
+        std::cerr << "Not yet implemented" << std::endl;
+        return EXIT_FAILURE; 
+      }
+
       if (excludesmodule)
         fitter.set_coordim (2*2);
       else
@@ -1125,6 +1154,8 @@ int main (int argc, char ** argv)
     else if (numoflayers == 6)
     {
       if (excludesmodule)
+        fitter.set_coordim (2*3);
+      else if (use3layers)
         fitter.set_coordim (2*3);
       else
         fitter.set_coordim (2*6);
@@ -1264,6 +1295,10 @@ int main (int argc, char ** argv)
   rootrdr.set_checklayersids(checklayersids);
   //maxnumoftracks = 100000;
   rootrdr.set_maxnumoftracks(maxnumoftracks);
+  if (use3layers)
+  {
+    rootrdr.set_use3layers(layers);
+  }
 
   rootrdr.set_towid(towerid);
 

@@ -1025,10 +1025,8 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
           continue;
 
       if (use3layers_)
-      {
         if (tlayers_.find(track->layer[j]) == tlayers_.end())
           continue;
-      }
 
       if (useintbitewise_)
       {
