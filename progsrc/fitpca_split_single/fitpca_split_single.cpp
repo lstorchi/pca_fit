@@ -68,6 +68,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
   chi2values.resize(coordslt.n_rows);
   chi2values_fake.resize(0);
 
+
   if (!fitter.compute_parameters (allconst, 
         coordslt, paramslt, layersid, pslayersid, 
         towerid, ptrs, fitter.get_paramdim(), 
@@ -76,6 +77,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
     std::cerr << fitter.get_errmsg() << std::endl;
     return false;
   }
+
   delete [] ptrs; 
 
   std::ostringstream fname;
@@ -732,7 +734,6 @@ int main (int argc, char ** argv)
         return EXIT_FAILURE; 
       }
 
-
       if (excludesmodule)
         fitter.set_coordim (2*2);
       else
@@ -788,6 +789,8 @@ int main (int argc, char ** argv)
 
   std::vector<pca::matrixpcaconst<double> > allconst;
 
+  std::cout << "Reading PCA const" << std::endl;
+
   std::vector<std::string>::iterator cfname = cfnames.begin();
   for (; cfname != cfnames.end(); ++cfname)
   {
@@ -797,6 +800,14 @@ int main (int argc, char ** argv)
       return EXIT_FAILURE;
     }
   }
+
+  if (allconst.size() == 0)
+  {
+    std::cerr << "PCA const is empty " << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  std::cout << "PCA const size: " << allconst.size() << std::endl;
 
   char * filename = (char *) alloca (strlen(argv[optind]) + 1);
   strcpy (filename, argv[optind]);

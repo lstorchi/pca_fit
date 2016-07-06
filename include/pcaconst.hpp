@@ -766,13 +766,13 @@ namespace pca
       double eta, double pt, 
       int chargesignin,
       const std::string & layersid,
-      const std::string & pslayersid,
       int towerid, 
       ttype tipo, plane_type ptipo)
   {
     int hwmanygot = 0;
     typename std::vector<pca::matrixpcaconst<T> >::const_iterator it = 
       vct.begin();
+
     for (; it != vct.end(); ++it)
     {
       double ptmin, ptmax, etamin, etamax;
@@ -784,6 +784,8 @@ namespace pca
       chargesign = it->get_chargesign();
       actuallayids = it->get_layersids();
 
+      //std::cout << "Here> " << actuallayids << " " << layersid  << std::endl;
+
       if (towerid == it->get_towerid())
       {
         if (it->get_ttype() == tipo)
@@ -792,7 +794,7 @@ namespace pca
           {
             if (chargesignin == chargesign)
             {
-              if (actuallayids == pslayersid)
+              if (actuallayids == layersid)
               {
                 if ((eta >= etamin) && (eta <= etamax)) 
                 {
@@ -829,8 +831,8 @@ namespace pca
       return true;
     else
     {
-      std::cerr << "Found " << hwmanygot << " const instead of 8" << std::endl;
-      std::cerr << layersid << " and " << pslayersid << std::endl;
+      std::cerr << "Found " << hwmanygot << " const instead of 4" << std::endl;
+      std::cerr << layersid << std::endl;
       std::cerr << "charge: " << chargesignin << " eta: " << eta << " pt: " << pt << std::endl;
       return false;
     }

@@ -310,7 +310,7 @@ bool pcafitter::compute_parameters (
     {
       if (!import_pca_const (allconst, cmtx_c, qvec_c, 
             amtx_c, kvec_c, etaorig, pt, 
-            chargesignin, layersid, pslayersid, 
+            chargesignin, layersid,  
             towerid, pca::FLOATPT, pca::RPHI))
         return false;
     }
@@ -320,7 +320,7 @@ bool pcafitter::compute_parameters (
 
       if (!import_pca_const (allconst, cmtx_c, qvec_c, 
             amtx_c, kvec_c, etaorig, pt, 
-            chargesignin, layersid, pslayersid, 
+            chargesignin, pslayersid, 
             towerid, pca::FLOATPT, pca::RZ))
         return false;
     }
@@ -330,8 +330,10 @@ bool pcafitter::compute_parameters (
     pcamat_to_armarowvec (qvec_c, q);
     pcamat_to_armarowvec (kvec_c, kvct);
 
-    double *ptr = paraptr[b];
+    //std::cout << "Here" << std::endl;
 
+    double *ptr = paraptr[b];
+   
     for (int i=0; i<(int)coord.n_rows; ++i)
     {
       ptr[i] = q(b);
