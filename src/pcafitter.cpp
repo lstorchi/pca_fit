@@ -332,13 +332,13 @@ bool pcafitter::compute_parameters (
 
     //std::cout << "Here" << std::endl;
 
-    double *ptr = paraptr[b];
-   
-    for (int i=0; i<(int)coord.n_rows; ++i)
+    for (int i=0; i<(int)paramdim; ++i)
     {
-      ptr[i] = q(b);
+      double *ptr = paraptr[i];
+
+      ptr[b] = q(i);
       for (int k=0; k<coordim_; ++k)
-        ptr[i] += cmtx(b,k)*coord(i,k);
+        ptr[b] += cmtx(i,k)*coord(b,k);
     }
 
     double chi2 = 0.0;
