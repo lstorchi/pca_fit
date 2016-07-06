@@ -893,6 +893,7 @@ int main (int argc, char ** argv)
       {"towerid", 1, NULL, 'D'},
       {"max-num-oftracks", 1, NULL, 'X'},
       {"no-results", 0, NULL, 'N'},
+      {"use-only-3-layers", 0, NULL, 'C'},
       {0, 0, 0, 0}
     };
 

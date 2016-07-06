@@ -421,6 +421,7 @@ void usage (char * name)
   std::cerr << " -N, --no-results                 : results file is not written, only mean and stdev " << std::endl;
   std::cerr << "                                    are computed and reported " << std::endl; 
   std::cerr << " -X, --max-num-oftracks=[n]       : stop reading root file after n tracks" << std::endl;
+  std::cerr << " -C, --use-only-3-layers          : use three leyers ..." << std::endl;
   std::cerr << std::endl;
 
   exit(1);
@@ -456,6 +457,9 @@ int main (int argc, char ** argv)
   double d0min = -1.0e0 * INFINITY, d0max = +1.0e0 * INFINITY;
   int chargesign = 0;
 
+  bool use3layers = false;
+
+
   while (1)
   {
     int c, option_index;
@@ -482,10 +486,11 @@ int main (int argc, char ** argv)
       {"phi-range", 1, NULL, 'm'},
       {"z0-range", 1, NULL, 'o'},
       {"d0-range", 1, NULL, 'u'},
+      {"use-only-3-layers", 0, NULL, 'C'},
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "hc:Vvzrxkab:f:w:pD:X:Ng:n:t:m:o:u:", 
+    c = getopt_long (argc, argv, "hc:Vvzrxkab:f:w:pD:X:Ng:n:t:m:o:u:C", 
         long_options, &option_index);
 
     if (c == -1)
@@ -615,6 +620,9 @@ int main (int argc, char ** argv)
         d0max = atof(tokens[1].c_str());
 
         break;
+      case 'C':
+        use3layers = true;
+        break;
       default:
         usage (argv[0]);
         break;
@@ -630,12 +638,24 @@ int main (int argc, char ** argv)
     return EXIT_FAILURE;
   }
 
+  std::set<int> layers;
+  if (use3layers)
+  {
+    layers.insert(5);
+    layers.insert(8);
+    layers.insert(10);
+  }
+
   if (sequence == "")
   {
     std::ostringstream psosss, osss;
     std::cout << "Only for BARREL" << std::endl;
     for (int i =5; i<=10; ++i)
     {
+      if (use3layers)
+        if (layers.find(i) == layers.end())
+          continue;
+ 
       if (usefakefiveoutofsix)
         if (i == layeridtorm)
           continue;
@@ -691,6 +711,12 @@ int main (int argc, char ** argv)
 
   if (usefakefiveoutofsix)
   {
+    if (use3layers)
+    {
+      std::cerr << "Not yet implemented" << std::endl;
+      return EXIT_FAILURE; 
+    }
+
     if (excludesmodule)
       fitter.set_coordim (2*2);
     else
@@ -700,6 +726,13 @@ int main (int argc, char ** argv)
   {
     if (numoflayers == 5)
     {
+      if (use3layers)
+      {
+        std::cerr << "Not yet implemented" << std::endl;
+        return EXIT_FAILURE; 
+      }
+
+
       if (excludesmodule)
         fitter.set_coordim (2*2);
       else
@@ -708,6 +741,8 @@ int main (int argc, char ** argv)
     else if (numoflayers == 6)
     {
       if (excludesmodule)
+        fitter.set_coordim (2*3);
+      else if (use3layers)
         fitter.set_coordim (2*3);
       else
         fitter.set_coordim (2*6);
@@ -805,6 +840,10 @@ int main (int argc, char ** argv)
   rootrdr.set_checklayersids(checklayersids);
   //maxnumoftracks = 100000;
   rootrdr.set_maxnumoftracks(maxnumoftracks);
+  if (use3layers)
+  {
+    rootrdr.set_use3layers(layers);
+  }
 
   rootrdr.set_towid(towerid);
 
