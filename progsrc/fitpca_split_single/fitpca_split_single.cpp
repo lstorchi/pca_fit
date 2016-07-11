@@ -448,7 +448,7 @@ int main (int argc, char ** argv)
 
   pca::pcafitter fitter;
 
-  bool rzplane = false, rphiplane = true, excludesmodule = false, 
+  bool rzplane = false, rphiplane = false, excludesmodule = false, 
        checklayersids = false, usefakefiveoutofsix = false, 
        printallcoords = false, writeresults = true, verbose = false, 
        userelativecoord = false;
@@ -670,7 +670,7 @@ int main (int argc, char ** argv)
   {
     std::ostringstream psosss, osss;
     std::cout << "Only for BARREL" << std::endl;
-    for (int i =5; i<=10; ++i)
+    for (int i=5; i<=10; ++i)
     {
       if (use3layers)
         if (layers.find(i) == layers.end())
@@ -725,6 +725,7 @@ int main (int argc, char ** argv)
   if ((rzplane && rphiplane) ||
       (!rzplane && !rphiplane))
   {
+    std::cerr << rzplane << " " << rphiplane << std::endl;
     std::cerr << "r-phi or r-z plane ?" << std::endl;
     usage (argv[0]);
   }
