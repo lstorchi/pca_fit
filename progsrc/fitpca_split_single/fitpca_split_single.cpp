@@ -38,7 +38,10 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
      bool writeresults, int layeridtorm, 
      double etamin, double etamax, 
      double ptmin, double ptmax, int chargesign, 
-     const std::string & layersid, const std::string & pslayersid)
+     const std::string & layersid, 
+     const std::string & pslayersid, 
+     bool coarsegrainpca, 
+     std::string & cgpcafname)
 {
   int nbins = 100;
 
@@ -68,14 +71,20 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
   chi2values.resize(coordslt.n_rows);
   chi2values_fake.resize(0);
 
-
-  if (!fitter.compute_parameters (allconst, 
-        coordslt, paramslt, layersid, pslayersid, 
-        towerid, ptrs, fitter.get_paramdim(), 
-        rphiplane, chi2values))
+  if (coarsegrainpca)
   {
-    std::cerr << fitter.get_errmsg() << std::endl;
-    return false;
+
+  }
+  else
+  {
+    if (!fitter.compute_parameters (allconst, 
+          coordslt, paramslt, layersid, pslayersid, 
+          towerid, ptrs, fitter.get_paramdim(), 
+          rphiplane, chi2values))
+    {
+      std::cerr << fitter.get_errmsg() << std::endl;
+      return false;
+    }
   }
 
   delete [] ptrs; 
@@ -424,6 +433,8 @@ void usage (char * name)
   std::cerr << "                                    are computed and reported " << std::endl; 
   std::cerr << " -X, --max-num-oftracks=[n]       : stop reading root file after n tracks" << std::endl;
   std::cerr << " -C, --use-only-3-layers          : use three leyers ..." << std::endl;
+  std::cerr << " -Y, --coarse-grain-pca=[const_file.txt]  " << std::endl;
+  std::cerr << "                                  : coarse grain PCA" << std::endl;
   std::cerr << std::endl;
 
   exit(1);
@@ -461,6 +472,8 @@ int main (int argc, char ** argv)
 
   bool use3layers = false;
 
+  bool coarsegrainpca = false;
+  std::string cgpcafname;
 
   while (1)
   {
@@ -489,10 +502,11 @@ int main (int argc, char ** argv)
       {"z0-range", 1, NULL, 'o'},
       {"d0-range", 1, NULL, 'u'},
       {"use-only-3-layers", 0, NULL, 'C'},
+      {"coarse-grain-pca", 1, NULL, 'Y'},
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "hc:Vvzrxkab:f:w:pD:X:Ng:n:t:m:o:u:C", 
+    c = getopt_long (argc, argv, "hc:Vvzrxkab:f:w:pD:X:Ng:n:t:m:o:u:CY:", 
         long_options, &option_index);
 
     if (c == -1)
@@ -624,6 +638,10 @@ int main (int argc, char ** argv)
         break;
       case 'C':
         use3layers = true;
+        break;
+      case 'Y':
+        coarsegrainpca = true;
+        cgpcafname = optarg;
         break;
       default:
         usage (argv[0]);
@@ -898,7 +916,7 @@ int main (int argc, char ** argv)
         verbose, fitter, rzplane, rphiplane, ptvals, 
         towerid, rootrdr.get_rotation_angle(), writeresults, 
         layeridtorm, etamin, etamax, ptmin, ptmax, chargesign, 
-        layersid,  pslayersid))
+        layersid,  pslayersid, coarsegrainpca, cgpcafname))
     return EXIT_FAILURE;
 
   return EXIT_SUCCESS;
