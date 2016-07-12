@@ -364,6 +364,158 @@ bool pcafitter::compute_parameters (
 }
 
 
+bool pcafitter::compute_parameters_cgpca (
+    std::vector<pca::matrixpcaconst<double> > & cgconst,
+    std::vector<pca::matrixpcaconst<double> > & allconst,
+    const arma::mat & coord, 
+    const arma::mat & paramslt,
+    const std::string & layersid,
+    const std::string & pslayersid,
+    int towerid,
+    double ** paraptr,
+    int paramdim, bool rphiplane,
+    arma::rowvec & chi2values)
+{
+
+  reset_error();
+
+  if (useintbitewise_)
+  {
+    set_errmsg (21, "not yet implemented");
+    return false;
+  }
+
+  if (paramdim != paramdim_)
+  {
+    set_errmsg (2, "use this method only with float");
+    return false;
+  }
+
+  std::cout << "coord.n_rows : " << coord.n_rows << std::endl;
+  std::cout << "coord.n_cols : " << coord.n_cols << std::endl;
+
+  for (int b=0; b<(int)coord.n_rows; ++b) // loop over tracks 
+  {
+    arma::mat cmtx;
+    arma::rowvec q; 
+    arma::mat amtx;
+    arma::rowvec kvct; 
+
+    if (coord.n_cols != 12)
+    {
+      set_errmsg (21, "not yet implemented for 5 oof 6");
+      return false;
+    }
+  
+    double theta = atan(1.0e0 / paramslt(b, PCA_COTTHETAIDX));
+    double etaorig = 0.0e0;
+    double tantheta2 = tan (theta/2.0e0);
+    if (tantheta2 < 0.0)
+      etaorig = 1.0e0 * log (-1.0e0 * tantheta2);
+    else
+      etaorig = -1.0e0 * log (tantheta2);
+
+    double qoverptorig = paramslt(b, PCA_ONEOVERPTIDX);
+    int chargesignin = ((qoverptorig < 0.0) ? -1 : 1);
+    double pt = ((double)chargesignin) / qoverptorig;
+
+    pca::matrixpcaconst<double> cmtx_c(0, 0), 
+      qvec_c(0, 0), amtx_c(0, 0), kvec_c(0, 0);
+
+    if (rphiplane)
+    {
+      /* CG PCA */
+      pca::matrixpcaconst<double> cgcmtx_c(0, 0), 
+        cgqvec_c(0, 0), cgamtx_c(0, 0), cgkvec_c(0, 0);
+
+      std::string layids = "5:8:10";
+
+      if (!import_pca_const (cgconst, cgcmtx_c, cgqvec_c, 
+            cgamtx_c, cgkvec_c, etaorig, pt, 
+            chargesignin, layids,  
+            towerid, pca::FLOATPT, pca::RPHI))
+        return false;
+
+      arma::mat cgcmtx;
+      arma::rowvec cgq; 
+ 
+      pcamat_to_armamat (cgcmtx_c, cgcmtx);
+      pcamat_to_armarowvec (cgqvec_c, cgq);
+
+      std::cout << "cgcmtx.n_rows : " << cgcmtx.n_rows << std::endl;
+      std::cout << "cgcmtx.n_cols : " << cgcmtx.n_cols << std::endl;
+
+      double cgqoverpt = 0.0; 
+      cgqoverpt = cgq(0);
+      // lay 5
+      cgqoverpt += cgcmtx(0,0)*coord(b,0);
+      cgqoverpt += cgcmtx(0,1)*coord(b,1);
+      // lay 8
+      cgqoverpt += cgcmtx(0,2)*coord(b,6);
+      cgqoverpt += cgcmtx(0,3)*coord(b,7);
+      // lay 10
+      cgqoverpt += cgcmtx(0,4)*coord(b,10);
+      cgqoverpt += cgcmtx(0,5)*coord(b,11);
+      // 5     6     7     8    9      10 
+      //0 1 / 2 3 / 4 5 / 6 7 / 8 9 / 10 11 
+
+      std::cout << ((double)chargesignin)/cgqoverpt << " vs " << pt << std::endl; 
+
+      if (!import_pca_const (allconst, cmtx_c, qvec_c, 
+            amtx_c, kvec_c, etaorig, pt, 
+            chargesignin, layersid,  
+            towerid, pca::FLOATPT, pca::RPHI))
+        return false;
+    }
+    else 
+    {
+      chargesignin = 0;
+
+      if (!import_pca_const (allconst, cmtx_c, qvec_c, 
+            amtx_c, kvec_c, etaorig, pt, 
+            chargesignin, pslayersid, 
+            towerid, pca::FLOATPT, pca::RZ))
+        return false;
+    }
+
+    pcamat_to_armamat (cmtx_c, cmtx);
+    pcamat_to_armamat (amtx_c, amtx);
+    pcamat_to_armarowvec (qvec_c, q);
+    pcamat_to_armarowvec (kvec_c, kvct);
+
+    //std::cout << "Here" << std::endl;
+
+    for (int i=0; i<(int)paramdim; ++i)
+    {
+      double *ptr = paraptr[i];
+
+      ptr[b] = q(i);
+      for (int k=0; k<coordim_; ++k)
+        ptr[b] += cmtx(i,k)*coord(b,k);
+    }
+
+    double chi2 = 0.0;
+
+    for (int i=0; i<coordim_-paramdim_; ++i)
+    {
+      double val = 0.0;
+      
+      /* sum over j */
+      for (int j=0; j<coordim_; ++j)
+        val += amtx(i,j) * coord(b,j);
+
+      /* wrong sign */
+      val -= kvct(i);
+
+      chi2 += val*val;
+    }
+
+    chi2values(b) = chi2;
+  }
+
+  return true;
+}
+
 
 void pcafitter::select_bigger_sub (
     const std::map<std::string, int> & sublist, 
