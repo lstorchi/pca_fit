@@ -798,26 +798,32 @@ namespace pca
               {
                 if ((eta >= etamin) && (eta <= etamax)) 
                 {
-                  switch(it->get_const_type())
+                  if (chargesignin == chargesign)
                   {
-                    case pca::QVEC :
-                      qvec = *it;
-                      hwmanygot++;
-                      break;
-                    case pca::KVEC :
-                      kvec = *it;
-                      hwmanygot++;
-                      break;
-                    case pca::CMTX :
-                      cmtx = *it;
-                      hwmanygot++;
-                      break;
-                    case pca::AMTX :
-                      amtx = *it;
-                      hwmanygot++;
-                      break;
-                    default:
-                      break;
+                    if ((pt >= ptmin) && (pt <= ptmax))
+                    {
+                      switch(it->get_const_type())
+                      {
+                        case pca::QVEC :
+                          qvec = *it;
+                          hwmanygot++;
+                          break;
+                        case pca::KVEC :
+                          kvec = *it;
+                          hwmanygot++;
+                          break;
+                        case pca::CMTX :
+                          cmtx = *it;
+                          hwmanygot++;
+                          break;
+                        case pca::AMTX :
+                          amtx = *it;
+                          hwmanygot++;
+                          break;
+                        default:
+                          break;
+                      }
+                    }
                   }
                 } 
               }
