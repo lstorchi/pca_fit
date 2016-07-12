@@ -36,6 +36,7 @@ void usage (char * name)
   std::cerr << std::endl;
   std::cerr << " -h, --help                       : display this help and exit" << std::endl;
   std::cerr << " -v, --version                    : print version and exit" << std::endl;
+  std::cerr << " -n, --pt-range=\"ptmin;ptmax\"   : specify the pt range to use " << std::endl;
 
   exit(1);
 }
@@ -46,16 +47,22 @@ int main (int argc, char ** argv)
 {
   gROOT->ProcessLine("#include <vector>");
 
+  double ptmin = 3.0;
+  double ptmax = 7.0;
+
+  std::vector<std::string> tokens;
+
   while (1)
   {
     int c, option_index;
     static struct option long_options[] = {
       {"help", 0, NULL, 'h'},
       {"version", 0, NULL, 'v'},
+      {"pt-range", 1, NULL, 'n'},
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "hv", 
+    c = getopt_long (argc, argv, "hvn:", 
         long_options, &option_index);
 
     if (c == -1)
@@ -69,6 +76,16 @@ int main (int argc, char ** argv)
       case 'v':
         std::cout << "Version: " << pca::pcafitter::get_version_string() << std::endl;
         exit(1);
+        break;
+      case 'n':
+        tokens.clear();
+        pca::tokenize (optarg, tokens, ";");
+        if (tokens.size() != 2)
+          usage (argv[0]);
+
+        ptmin = atof(tokens[0].c_str());
+        ptmax = atof(tokens[1].c_str());
+
         break;
       default:
         usage (argv[0]);
@@ -95,10 +112,7 @@ int main (int argc, char ** argv)
 
   fin.ignore (1024, '\n');
 
-  double mmstdev, mpstdev, ptmin, ptmax;
-
-  ptmin = 3.0;
-  ptmax = 7.0;
+  double mmstdev, mpstdev;
 
   int nbins = 2000;
   mmstdev = -1.0;
@@ -144,6 +158,15 @@ int main (int argc, char ** argv)
     func_qoverpt->GetParError(1)*100.0 << std::endl << 
     "q/pt fitted sigma " << 
     func_qoverpt->GetParameter("Sigma")*100.0 << " +/- " <<
+    func_qoverpt->GetParError(2)*100.0 << std::endl;
+
+  std::cout << 
+    "phi fitted mean " 
+    << ptmin << " " << ptmax << " " <<
+    func_phi->GetParameter("Mean")*100.0 << " +/- " << 
+    func_phi->GetParError(1)*100.0 << std::endl << 
+    "q/pt fitted sigma " << 
+    func_phi->GetParameter("Sigma")*100.0 << " +/- " <<
     func_phi->GetParError(2)*100.0 << std::endl;
 
 
