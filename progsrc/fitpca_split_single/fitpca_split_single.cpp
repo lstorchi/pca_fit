@@ -41,7 +41,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
      const std::string & layersid, 
      const std::string & pslayersid, 
      bool coarsegrainpca, 
-     std::string & cgpcafname)
+     std::vector<pca::matrixpcaconst<double> > & cgconst)
 {
   int nbins = 100;
 
@@ -73,7 +73,14 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
 
   if (coarsegrainpca)
   {
-
+    if (!fitter.compute_parameters_cgpca (cgconst, allconst, 
+          coordslt, paramslt, layersid, pslayersid, 
+          towerid, ptrs, fitter.get_paramdim(), 
+          rphiplane, chi2values))
+    {
+      std::cerr << fitter.get_errmsg() << std::endl;
+      return false;
+    }
   }
   else
   {
@@ -828,6 +835,26 @@ int main (int argc, char ** argv)
 
   std::cout << "PCA const size: " << allconst.size() << std::endl;
 
+  std::vector<pca::matrixpcaconst<double> > cgconst;
+
+  if (coarsegrainpca)
+  {
+    std::cout << "Reading coarse grain PCA const" << std::endl;
+    
+    if (!read_pcaconst_from_file (cgconst, cgpcafname.c_str()))
+    {
+      std::cerr << "Error while reading from file " << cgpcafname << std::endl;
+      return EXIT_FAILURE;
+    }
+    
+    if (cgconst.size() == 0)
+    {
+      std::cerr << "PCA const is empty " << std::endl;
+      return EXIT_FAILURE;
+    }
+
+  }
+
   char * filename = (char *) alloca (strlen(argv[optind]) + 1);
   strcpy (filename, argv[optind]);
 
@@ -917,7 +944,7 @@ int main (int argc, char ** argv)
         verbose, fitter, rzplane, rphiplane, ptvals, 
         towerid, rootrdr.get_rotation_angle(), writeresults, 
         layeridtorm, etamin, etamax, ptmin, ptmax, chargesign, 
-        layersid,  pslayersid, coarsegrainpca, cgpcafname))
+        layersid,  pslayersid, coarsegrainpca, cgconst))
     return EXIT_FAILURE;
 
   return EXIT_SUCCESS;
