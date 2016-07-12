@@ -442,8 +442,8 @@ bool pcafitter::compute_parameters_cgpca (
       pcamat_to_armamat (cgcmtx_c, cgcmtx);
       pcamat_to_armarowvec (cgqvec_c, cgq);
 
-      std::cout << "cgcmtx.n_rows : " << cgcmtx.n_rows << std::endl;
-      std::cout << "cgcmtx.n_cols : " << cgcmtx.n_cols << std::endl;
+      //std::cout << "cgcmtx.n_rows : " << cgcmtx.n_rows << std::endl;
+      //std::cout << "cgcmtx.n_cols : " << cgcmtx.n_cols << std::endl;
 
       double cgqoverpt = 0.0; 
       cgqoverpt = cgq(0);
@@ -459,10 +459,24 @@ bool pcafitter::compute_parameters_cgpca (
       // 5     6     7     8    9      10 
       //0 1 / 2 3 / 4 5 / 6 7 / 8 9 / 10 11 
 
-      std::cout << ((double)chargesignin)/cgqoverpt << " vs " << pt << std::endl; 
+      //std::cout << ((double)chargesignin)/cgqoverpt << " vs " << pt << std::endl; 
+
+      double estpt = ((double)chargesignin)/cgqoverpt;
+
+      if (estpt < 3.0)
+      {
+        std::cout << "CG PCA low 3.o GeV " << estpt << std::endl;
+        estpt = 3.0 ;
+      }
+
+      if (estpt > 200.0)
+      {
+        std::cout << "CG PCA gt 200.o GeV " << estpt << std::endl;
+        estpt = 200.0 ;
+      }
 
       if (!import_pca_const (allconst, cmtx_c, qvec_c, 
-            amtx_c, kvec_c, etaorig, pt, 
+            amtx_c, kvec_c, etaorig, estpt, 
             chargesignin, layersid,  
             towerid, pca::FLOATPT, pca::RPHI))
         return false;
