@@ -499,7 +499,12 @@ bool pcafitter::compute_parameters_cgpca (
             amtx_c, kvec_c, etaorig, estpt, 
             chargesignin, layersid,  
             towerid, pca::FLOATPT, pca::RPHI))
+      {
+        std::cerr << chargesignin << " " <<  
+          layersid << " " << towerid << " " << 
+          estpt << " " << etaorig << std::endl;
         return false;
+      }
     }
     else 
     {
