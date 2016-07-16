@@ -165,7 +165,7 @@ int main (int argc, char ** argv)
     << ptmin << " " << ptmax << " " <<
     func_phi->GetParameter("Mean")*100.0 << " +/- " << 
     func_phi->GetParError(1)*100.0 << std::endl << 
-    "q/pt fitted sigma " << 
+    "phi fitted sigma " << 
     func_phi->GetParameter("Sigma")*100.0 << " +/- " <<
     func_phi->GetParError(2)*100.0 << std::endl;
 
