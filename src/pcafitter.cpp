@@ -428,8 +428,10 @@ bool pcafitter::compute_parameters_cgpca (
       pca::matrixpcaconst<double> cgcmtx_c(0, 0), 
         cgqvec_c(0, 0), cgamtx_c(0, 0), cgkvec_c(0, 0);
 
-      //std::string layids = "5:8:10";
-      std::string layids = "5:6:7:8:9:10";
+      // lay 3
+      std::string layids = "5:8:10";
+      // lay 5
+      //std::string layids = "5:6:7:8:9:10";
 
       if (!import_pca_const (cgconst, cgcmtx_c, cgqvec_c, 
             cgamtx_c, cgkvec_c, etaorig, pt, 
@@ -446,7 +448,7 @@ bool pcafitter::compute_parameters_cgpca (
       //std::cout << "cgcmtx.n_rows : " << cgcmtx.n_rows << std::endl;
       //std::cout << "cgcmtx.n_cols : " << cgcmtx.n_cols << std::endl;
 
-      /* 3 layers
+      /* 3 layers */
       double cgqoverpt = 0.0; 
       cgqoverpt = cgq(0);
       // lay 5
@@ -460,12 +462,10 @@ bool pcafitter::compute_parameters_cgpca (
       cgqoverpt += cgcmtx(0,5)*coord(b,11);
       // 5     6     7     8    9      10 
       //0 1 / 2 3 / 4 5 / 6 7 / 8 9 / 10 11 
-      */
 
-      /* 5 layers */
+      /* 5 layers 
       double cgqoverpt = 0.0; 
       cgqoverpt = cgq(0);
-      // lay 5
       cgqoverpt += cgcmtx(0,0)*coord(b,0);
       cgqoverpt += cgcmtx(0,1)*coord(b,1);
       cgqoverpt += cgcmtx(0,2)*coord(b,2);
@@ -478,6 +478,7 @@ bool pcafitter::compute_parameters_cgpca (
       cgqoverpt += cgcmtx(0,9)*coord(b,9);
       cgqoverpt += cgcmtx(0,10)*coord(b,10);
       cgqoverpt += cgcmtx(0,11)*coord(b,11);
+      */
 
       //std::cout << ((double)chargesignin)/cgqoverpt << " vs " << pt << std::endl; 
 
