@@ -9,6 +9,10 @@
 //           a class... This is not a proper class, just a way to collect some functions 
 //           as soon as have time please rewrite it and move main_computation here ... 
 
+#define ISBARREL 0
+#define ISHYBRID 1
+#define ISENDCAP 2
+
 namespace pca
 {
   class rootfilereader
@@ -47,6 +51,9 @@ namespace pca
       ~rootfilereader();
   
       void reset();
+
+      void set_region_type (int);
+      int get_region_type () const;
 
       std::string get_filename();
       void set_filename(const std::string &);
@@ -168,11 +175,12 @@ namespace pca
           excludesmodule_, verbose_, checklayersids_, 
           savecheckfiles_, printoutstdinfo_, 
           performlinearinterpolation_,
-          fkfiveoutofsix_, isbarrel_;
+          fkfiveoutofsix_;
       double etamin_, etamax_, phimin_, phimax_,
             z0min_, z0max_, d0min_, d0max_, 
             ptmin_, ptmax_;
-      int maxnumoflayers_, chargesign_, layeridtorm_;
+      int maxnumoflayers_, chargesign_, layeridtorm_, 
+          regiontype_;
       unsigned int maxnumoftracks_;
       std::string specificseq_;
 

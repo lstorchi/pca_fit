@@ -62,7 +62,8 @@ void usage (char * name)
   std::cerr << std::endl;
   std::cerr << " -f, --five-hits=[\"sequence\"]    : build constants for 5 / 6, specify the sequence " << std::endl;
   std::cerr << "                                     it will use \"real 5 out of 6\" tracks " << std::endl;
-  std::cerr << " -y, --fk-five-hits=[layerid]    : build constants for 5 / 6, specify the layr to be removed " << std::endl;
+  std::cerr << " -y, --fk-five-hits=[layerid]    : build constants for 5 / 6, specify the layr to be removed " 
+    << std::endl;
   std::cerr << "                                   it will use 6 layers tracks, removing a layer " << std::endl;
   std::cerr << std::endl;
   std::cerr << " -g, --charge-sign=[+/-]         : use only + particle or - paricle (again both planes) " << std::endl;
@@ -77,6 +78,8 @@ void usage (char * name)
   std::cerr << " -c, --use-only-3-layers         : use three leyers ..." << std::endl;
   std::cerr << " -B, --write-binfiles            : will wite the PCA contants also as bin files " << std::endl;
   std::cerr << " -D, --towerid=[num]             : specify towid to be wriiten in the file " << std::endl;
+  std::cerr << " -R, --region-type=[num]         : specify region-type 0=BARREL, 1=HYBRID, 2=ENDCAP " << std::endl;
+  std::cerr << "                                   BARREL is the default " << std::endl;
 
   exit(1);
 }
@@ -312,6 +315,7 @@ int main (int argc, char ** argv)
   bool userelativecoord = false;
   bool usefakefiveoutofsix = false;
 
+  int regiontype = 0;
   int chargesign = 0;
   int numoflayers = 6;
   int layeridtorm = -1;
@@ -366,10 +370,11 @@ int main (int argc, char ** argv)
       {"write-binfiles", 1, NULL, 'B'},
       {"towerid", 1, NULL, 'D'},
       {"use-only-3-layers", 0, NULL, 'c'},
+      {"region-type", 1, NULL, 'R'},
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "TBaVlkxhvdpzrX:D:b:g:t:n:m:o:u:f:y:c", 
+    c = getopt_long (argc, argv, "hvVTlpg:zrxn:t:m:o:u:k:af:b:dy:X:B:D:cR:", 
         long_options, &option_index);
 
     if (c == -1)
@@ -377,48 +382,65 @@ int main (int argc, char ** argv)
 
     switch (c)
     {
-      case 'D':
-        towerid = atoi(optarg);
+      case 'h':
+        usage (argv[0]);
+        break;
+      case 'v':
+        std::cout << "Version: " << pca::pcafitter::get_version_string() << std::endl;
+        exit(1);
+        break;
+      case 'V':
+        verbose = true;
         break;
       case 'T':
         intbitewise = true;
         break;
-      case 'B':
-        writebinfiles = true;
+      case 'l':
+        correlation = true;
         break;
-      case 'X':
-        maxnumoftracks = atoi(optarg);
+      case 'p':
+        printallcoords = true;
         break;
-      case 'y':
-        usefakefiveoutofsix = true;
-        layeridtorm = atoi(optarg);
+      case 'g':
+        if (strlen(optarg) > 1)
+          usage (argv[0]);
+        
+        if (*optarg == '-')
+          chargesign = -1;
+        else if (*optarg == '+')
+          chargesign = +1;
+        else
+          usage (argv[0]);
+
         break;
-      case 'd':
-        savecheckfiles = true;
+      case 'z':
+        rzplane = true;
         break;
-      case 'f':
-        numoflayers = 5;
-        sequence = optarg;
+      case 'r':
+        rphiplane = true;
         break;
-      case 'b':
-        userelativecoord = true;
+      case 'x':
+        excludesmodule = true;
+        break;
+      case 'n':
         tokens.clear();
         pca::tokenize (optarg, tokens, ";");
         if (tokens.size() != 2)
           usage (argv[0]);
 
-        coord1min = atof(tokens[0].c_str());
-        coord2min = atof(tokens[1].c_str());
+        ptmin = atof(tokens[0].c_str());
+        ptmax = atof(tokens[1].c_str());
 
         break;
-      case 'a':
-        userelativecoord = true;
-        break;
-      case 'k':
-        checklayersids = true;
-        break;
-      case 'l':
-        correlation = true;
+      case 't':
+        tokens.clear();
+        pca::tokenize (optarg, tokens, ";");
+        if (tokens.size() != 2)
+          usage (argv[0]);
+
+        etamin = atof(tokens[0].c_str());
+        etamax = atof(tokens[1].c_str());
+
         break;
       case 'm':
         tokens.clear();
@@ -450,62 +472,55 @@ int main (int argc, char ** argv)
         d0max = atof(tokens[1].c_str());
 
         break;
-      case 'V':
-        verbose = true;
+      case 'k':
+        checklayersids = true;
         break;
-      case 'x':
-        excludesmodule = true;
+      case 'a':
+        userelativecoord = true;
         break;
-      case 'n':
+      case 'f':
+        numoflayers = 5;
+        sequence = optarg;
+        break;
+      case 'b':
+        userelativecoord = true;
         tokens.clear();
         pca::tokenize (optarg, tokens, ";");
         if (tokens.size() != 2)
           usage (argv[0]);
 
-        ptmin = atof(tokens[0].c_str());
-        ptmax = atof(tokens[1].c_str());
+        coord1min = atof(tokens[0].c_str());
+        coord2min = atof(tokens[1].c_str());
 
         break;
-      case 't':
-        tokens.clear();
-        pca::tokenize (optarg, tokens, ";");
-        if (tokens.size() != 2)
-          usage (argv[0]);
-
-        etamin = atof(tokens[0].c_str());
-        etamax = atof(tokens[1].c_str());
-
+      case 'd':
+        savecheckfiles = true;
         break;
-      case 'g':
-        if (strlen(optarg) > 1)
-          usage (argv[0]);
-        
-        if (*optarg == '-')
-          chargesign = -1;
-        else if (*optarg == '+')
-          chargesign = +1;
-        else
-          usage (argv[0]);
-
+      case 'y':
+        usefakefiveoutofsix = true;
+        layeridtorm = atoi(optarg);
         break;
-      case 'z':
-        rzplane = true;
+      case 'X':
+        maxnumoftracks = atoi(optarg);
         break;
-      case 'r':
-        rphiplane = true;
+      case 'B':
+        writebinfiles = true;
         break;
-      case 'p':
-        printallcoords = true;
-        break;
-      case 'h':
-        usage (argv[0]);
-        break;
-      case 'v':
-        std::cout << "Version: " << pca::pcafitter::get_version_string() << std::endl;
-        exit(1);
+      case 'D':
+        towerid = atoi(optarg);
         break;
       case 'c':
         use3layers = true;
+        break;
+      case 'R':
+        regiontype = atoi(optarg);
+        if ((regiontype != 0) || 
+            (regiontype != 1) ||
+            (regiontype != 2))
+        {
+          std::cerr << "Regiontype is wrong " << std::endl;
+          return EXIT_FAILURE;
+        }
         break;
       default:
         usage (argv[0]);
@@ -529,9 +544,17 @@ int main (int argc, char ** argv)
       return EXIT_FAILURE;
     }
 
-    if (!pca::validate_barrel_sequence_5 (sequence))
+    if (regiontype == ISBARREL)
     {
-      std::cerr << "Wrong sequence" << std::endl;
+      if (!pca::validate_barrel_sequence_5 (sequence))
+      {
+        std::cerr << "Wrong sequence" << std::endl;
+        return EXIT_FAILURE;
+      }
+    }
+    else
+    {
+      std::cerr << "Not yet implemented" << std::endl;
       return EXIT_FAILURE;
     }
   }
@@ -656,6 +679,7 @@ int main (int argc, char ** argv)
   rootrdr.set_verbose(verbose);
   rootrdr.set_checklayersids(checklayersids);
   rootrdr.set_checklayersids(checklayersids);
+  rootrdr.set_region_type(regiontype);
   //maxnumoftracks = 100000;
   rootrdr.set_maxnumoftracks(maxnumoftracks);
   if (use3layers)

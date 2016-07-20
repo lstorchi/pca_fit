@@ -97,7 +97,7 @@ void rootfilereader::reset()
 {
   rzplane_ = false;
   verbose_ = false; 
-  isbarrel_ = true;
+  regiontype_ = ISBARREL;
   rphiplane_ = false; 
   chargeoverpt_ = true;
   excludesmodule_ = false; 
@@ -138,6 +138,16 @@ void rootfilereader::reset()
   sec_phi_ = 0.0;
   applyrotationtophi_ = false;
   applyrotationtoxy_ = false;
+}
+
+void rootfilereader::set_region_type (int in)
+{
+  regiontype_ = in;
+}
+
+int rootfilereader::get_region_type () const
+{
+  return regiontype_;
 }
 
 void rootfilereader::set_useintbitewise (bool in)
@@ -419,7 +429,7 @@ bool rootfilereader::reading_from_root_file (
     }
     */
 
-    if (!is_avalid_layerid (isbarrel_, excludesmodule_, layeridtorm_) )
+    if (!is_avalid_layerid (regiontype_ == ISBARREL, excludesmodule_, layeridtorm_) )
     {
       set_errmsg (11, "Invalid layer to remove");
       return false;
@@ -903,7 +913,7 @@ bool rootfilereader::check_if_withinranges (const int & charge,
     const std::string & layersid) const
 {
   if (is_a_valid_layers_seq(layersid, maxnumoflayers_, 
-        isbarrel_, checklayersids_))
+        regiontype_ == ISBARREL, checklayersids_))
     if (check_sequence (layersid, specificseq_))
       if (check_charge (charge, chargesign_))
         if ((eta <= etamax_) && (eta >= etamin_))
