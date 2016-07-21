@@ -514,8 +514,8 @@ int main (int argc, char ** argv)
         break;
       case 'R':
         regiontype = atoi(optarg);
-        if ((regiontype != 0) || 
-            (regiontype != 1) ||
+        if ((regiontype != 0) &&
+            (regiontype != 1) &&
             (regiontype != 2))
         {
           std::cerr << "Regiontype is wrong " << std::endl;
@@ -684,6 +684,13 @@ int main (int argc, char ** argv)
   rootrdr.set_maxnumoftracks(maxnumoftracks);
   if (use3layers)
   {
+
+    if (regiontype != ISBARREL)
+    {
+      std::cerr << "Cannot be used in non BARREL regions " << std::endl;
+      return EXIT_FAILURE;
+    }
+
     std::set<int> layers;
 
     layers.insert(5);
