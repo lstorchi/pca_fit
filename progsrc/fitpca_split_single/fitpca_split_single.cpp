@@ -41,7 +41,8 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
      const std::string & layersid, 
      const std::string & pslayersid, 
      bool coarsegrainpca, 
-     std::vector<pca::matrixpcaconst<double> > & cgconst)
+     std::vector<pca::matrixpcaconst<double> > & cgconst,
+     int regiontype)
 {
   int nbins = 100;
 
@@ -73,6 +74,12 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
 
   if (coarsegrainpca)
   {
+    if (regiontype != ISBARREL)
+    {
+      std::cerr << "Cannot be used with non barrel" << std::endl;
+      return false;
+    }
+
     if (!fitter.compute_parameters_cgpca (cgconst, allconst, 
           coordslt, paramslt, layersid, pslayersid, 
           towerid, ptrs, fitter.get_paramdim(), 
@@ -84,8 +91,21 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
   }
   else
   {
+    std::string ls, ps;
+
+    if (regiontype == ISBARREL)
+    {
+      ls = layersid;
+      ps = pslayersid;
+    }
+    else
+    {
+      ls = "unspecified";
+      ps = "unspecified";
+    }
+
     if (!fitter.compute_parameters (allconst, 
-          coordslt, paramslt, layersid, pslayersid, 
+          coordslt, paramslt, ls, ps, 
           towerid, ptrs, fitter.get_paramdim(), 
           rphiplane, chi2values))
     {
@@ -442,11 +462,12 @@ void usage (char * name)
   std::cerr << " -C, --use-only-3-layers          : use three leyers ..." << std::endl;
   std::cerr << " -Y, --coarse-grain-pca=[const_file.txt]  " << std::endl;
   std::cerr << "                                  : coarse grain PCA" << std::endl;
+  std::cerr << " -R, --region-type=[num]         : specify region-type 0=BARREL, 1=HYBRID, 2=ENDCAP " << std::endl;
+  std::cerr << "                                   BARREL is the default " << std::endl;
   std::cerr << std::endl;
 
   exit(1);
 }
-
 
 # ifndef __CINT__
 int main (int argc, char ** argv)
@@ -482,6 +503,8 @@ int main (int argc, char ** argv)
   bool coarsegrainpca = false;
   std::string cgpcafname;
 
+  int regiontype = 0;
+
   while (1)
   {
     int c, option_index;
@@ -510,10 +533,11 @@ int main (int argc, char ** argv)
       {"d0-range", 1, NULL, 'u'},
       {"use-only-3-layers", 0, NULL, 'C'},
       {"coarse-grain-pca", 1, NULL, 'Y'},
+      {"region-type", 1, NULL, 'R'},
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "hc:Vvzrxkab:f:w:pD:X:Ng:n:t:m:o:u:CY:", 
+    c = getopt_long (argc, argv, "hc:Vvzrxkab:f:w:pD:X:Ng:n:t:m:o:u:CY:R:", 
         long_options, &option_index);
 
     if (c == -1)
@@ -650,6 +674,16 @@ int main (int argc, char ** argv)
         coarsegrainpca = true;
         cgpcafname = optarg;
         break;
+      case 'R':
+        regiontype = atoi(optarg);
+        if ((regiontype != 0) &&
+            (regiontype != 1) &&
+            (regiontype != 2))
+        {
+          std::cerr << "Regiontype is wrong " << std::endl;
+          return EXIT_FAILURE;
+        }
+        break;
       default:
         usage (argv[0]);
         break;
@@ -671,6 +705,12 @@ int main (int argc, char ** argv)
     layers.insert(5);
     layers.insert(8);
     layers.insert(10);
+
+    if (regiontype != ISBARREL)
+    {
+      std::cerr << "Cannot be used for non barrel" << std::endl;
+      return EXIT_FAILURE;
+    }
   }
 
   if (sequence == "")
@@ -722,9 +762,17 @@ int main (int argc, char ** argv)
       return EXIT_FAILURE;
     }
 
-    if (!pca::validate_barrel_sequence_5 (sequence))
+    if (regiontype == 0)
     {
-      std::cerr << "Wrong sequence" << std::endl;
+      if (!pca::validate_barrel_sequence_5 (sequence))
+      {
+        std::cerr << "Wrong sequence" << std::endl;
+        return EXIT_FAILURE;
+      }
+    }
+    else 
+    {
+      std::cerr << "Non barrel region to be implemented" << std::endl;
       return EXIT_FAILURE;
     }
   }
@@ -839,6 +887,12 @@ int main (int argc, char ** argv)
 
   if (coarsegrainpca)
   {
+    if (regiontype != ISBARREL)
+    {
+      std::cerr << "Cannot be used for non barrel" << std::endl;
+      return EXIT_FAILURE;
+    }
+
     std::cout << "Reading coarse grain PCA const" << std::endl;
     
     if (!read_pcaconst_from_file (cgconst, cgpcafname.c_str()))
@@ -897,6 +951,7 @@ int main (int argc, char ** argv)
   rootrdr.set_checklayersids(checklayersids);
   //maxnumoftracks = 100000;
   rootrdr.set_maxnumoftracks(maxnumoftracks);
+  rootrdr.set_region_type(regiontype);
   if (use3layers)
   {
     rootrdr.set_use3layers(layers);
@@ -944,7 +999,7 @@ int main (int argc, char ** argv)
         verbose, fitter, rzplane, rphiplane, ptvals, 
         towerid, rootrdr.get_rotation_angle(), writeresults, 
         layeridtorm, etamin, etamax, ptmin, ptmax, chargesign, 
-        layersid,  pslayersid, coarsegrainpca, cgconst))
+        layersid,  pslayersid, coarsegrainpca, cgconst, regiontype))
     return EXIT_FAILURE;
 
   return EXIT_SUCCESS;
