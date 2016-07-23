@@ -25,6 +25,10 @@
 #define STDDIM_BARREL_PRV_VLS_5 6
 #define STDDIM_BARREL_PRV_VLS_5_NS 3
 
+#define STDDIM_HYBRID_PRV_VLS_6 6
+#define STDDIM_HYBRID_PRV_VLS_5 35
+
+
 namespace 
 {
   static const char * 
@@ -37,6 +41,51 @@ namespace
                                                           "567910",
                                                           "567810",
                                                           "56789" };
+
+  static const char * 
+    valid_hybrid_layers_seq_6[STDDIM_HYBRID_PRV_VLS_6] = {"5678910",
+                                                          "5678918",
+                                                          "56781819",
+                                                          "567181920",
+                                                          "5618192021",
+                                                          "51819202122"};
+
+  static const char * 
+    valid_hybrid_layers_seq_5[STDDIM_HYBRID_PRV_VLS_5] = {"678910",
+                                                          "578910",
+                                                          "568910",
+                                                          "567910",
+                                                          "567810",
+                                                          "56789", 
+                                                          "678918",
+                                                          "578918",
+                                                          "568918",
+                                                          "567918",
+                                                          "567818",
+                                                          "6781819",
+                                                          "5781819",
+                                                          "5681819",
+                                                          "5671819",
+                                                          "567819",
+                                                          "567818",
+                                                          "67181920",
+                                                          "57181920",
+                                                          "56181920",
+                                                          "5671920",
+                                                          "5671820",
+                                                          "5671819",
+                                                          "618192021",
+                                                          "518192021",
+                                                          "56192021",
+                                                          "56182021",
+                                                          "56181921",
+                                                          "56181920",
+                                                          "1819202122",
+                                                          "519202122",
+                                                          "518202122",
+                                                          "518192122",
+                                                          "518192022",
+                                                          "518192021"};
 }
 
 using namespace pca;
@@ -67,6 +116,21 @@ bool pca::is_a_valid_layers_seq(const std::string & in, int maxnumoflayers,
       {
         for (int i=0; i<STDDIM_BARREL_PRV_VLS_5; i++)
           if (in.compare(valid_barrel_layers_seq_5[i]) == 0)
+            return true;
+      }
+    }
+    else if (regiontype == ISHYBRID)
+    {
+      if (maxnumoflayers == 6)
+      {
+        for (int i=0; i<STDDIM_HYBRID_PRV_VLS_6; i++)
+          if (in.compare(valid_hybrid_layers_seq_6[i]) == 0)
+            return true;
+      }
+      else if (maxnumoflayers == 5)
+      {
+        for (int i=0; i<STDDIM_HYBRID_PRV_VLS_5; i++)
+          if (in.compare(valid_hybrid_layers_seq_5[i]) == 0)
             return true;
       }
     }
