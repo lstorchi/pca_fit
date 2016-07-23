@@ -17,10 +17,14 @@
 #define PCA_ONEOVERPTIDX 0
 #define PCA_PHIIDX 1
 
+#define ISBARREL 0
+#define ISHYBRID 1
+#define ISENDCAP 2
+
 namespace pca
 {
   bool is_a_valid_layers_seq(const std::string &, 
-      int, const bool, const bool);
+      int, const int, const bool);
 
   bool validate_barrel_sequence_5 (
       const std::string & sequence);

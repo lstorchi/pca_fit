@@ -95,7 +95,8 @@ void perform_main_computation (const arma::mat & coord,
     pca::pcafitter & fitter, 
     pca::rootfilereader & rootrdr,
     bool verbose, bool writebinfiles,
-    bool intbitewise, int towerid)
+    bool intbitewise, int towerid,
+    int regiontype)
 {
   std::cout << fitter.get_paramdim() << " X " << fitter.get_coordim() << std::endl;
 
@@ -150,7 +151,14 @@ void perform_main_computation (const arma::mat & coord,
     pca::armamat_to_pcamat (cmtx, pcmtx);
     pcmtx.set_const_type (pca::CMTX);
     pcmtx.set_layersids (rootrdr.get_actualseq().c_str());
-    pcmtx.set_sector_type (pca::BARREL);
+    
+    if (regiontype == ISBARREL)
+      pcmtx.set_sector_type (pca::BARREL);
+    else if (regiontype == ISHYBRID)
+      pcmtx.set_sector_type (pca::HYBRID);
+    else if (regiontype == ISENDCAP)
+      pcmtx.set_sector_type (pca::ENDCAP);
+
     pcmtx.set_towerid (towerid);
     pcmtx.set_ttype (pca::INTEGPT);
     pcmtx.set_chargesign(rootrdr.get_chargesign());
@@ -166,7 +174,12 @@ void perform_main_computation (const arma::mat & coord,
     pca::armamat_to_pcamat (q, pqvct);
     pqvct.set_const_type (pca::QVEC);
     pqvct.set_layersids (rootrdr.get_actualseq().c_str());
-    pqvct.set_sector_type (pca::BARREL);
+    if (regiontype == ISBARREL)
+      pqvct.set_sector_type (pca::BARREL);
+    else if (regiontype == ISHYBRID)
+      pqvct.set_sector_type (pca::HYBRID);
+    else if (regiontype == ISENDCAP)
+      pqvct.set_sector_type (pca::ENDCAP);
     pqvct.set_towerid (towerid);
     pqvct.set_ttype (pca::INTEGPT);
     pqvct.set_chargesign(rootrdr.get_chargesign());
@@ -182,7 +195,12 @@ void perform_main_computation (const arma::mat & coord,
     pca::armamat_to_pcamat (amtx, pamtx);
     pamtx.set_const_type (pca::AMTX);
     pamtx.set_layersids (rootrdr.get_actualseq().c_str());
-    pamtx.set_sector_type (pca::BARREL);
+    if (regiontype == ISBARREL)
+      pamtx.set_sector_type (pca::BARREL);
+    else if (regiontype == ISHYBRID)
+      pamtx.set_sector_type (pca::HYBRID);
+    else if (regiontype == ISENDCAP)
+      pamtx.set_sector_type (pca::ENDCAP);
     pamtx.set_towerid (towerid);
     pamtx.set_ttype (pca::INTEGPT);
     pamtx.set_chargesign(rootrdr.get_chargesign());
@@ -198,7 +216,12 @@ void perform_main_computation (const arma::mat & coord,
     pca::armamat_to_pcamat (kivec, pkvct);
     pkvct.set_const_type (pca::KVEC);
     pkvct.set_layersids (rootrdr.get_actualseq().c_str());
-    pkvct.set_sector_type (pca::BARREL);
+    if (regiontype == ISBARREL)
+      pkvct.set_sector_type (pca::BARREL);
+    else if (regiontype == ISHYBRID)
+      pkvct.set_sector_type (pca::HYBRID);
+    else if (regiontype == ISENDCAP)
+      pkvct.set_sector_type (pca::ENDCAP);
     pkvct.set_towerid (towerid);
     pkvct.set_ttype (pca::INTEGPT);
     pkvct.set_chargesign(rootrdr.get_chargesign());
@@ -227,9 +250,12 @@ void perform_main_computation (const arma::mat & coord,
     pca::armamat_to_pcamat (cmtx, pcmtx);
     pcmtx.set_const_type (pca::CMTX);
     pcmtx.set_layersids (rootrdr.get_actualseq().c_str());
-    /* TODO should be given as input */
-    pcmtx.set_sector_type (pca::BARREL);
-    /* */
+    if (regiontype == ISBARREL)
+      pcmtx.set_sector_type (pca::BARREL);
+    else if (regiontype == ISHYBRID)
+      pcmtx.set_sector_type (pca::HYBRID);
+    else if (regiontype == ISENDCAP)
+      pcmtx.set_sector_type (pca::ENDCAP);
     pcmtx.set_towerid (towerid);
     pcmtx.set_ttype (pca::FLOATPT);
     pcmtx.set_chargesign(rootrdr.get_chargesign());
@@ -245,9 +271,12 @@ void perform_main_computation (const arma::mat & coord,
     pca::armamat_to_pcamat (q, pqvct);
     pqvct.set_const_type (pca::QVEC);
     pqvct.set_layersids (rootrdr.get_actualseq().c_str());
-    /* TODO should be given as input */
-    pqvct.set_sector_type (pca::BARREL);
-    /* */
+    if (regiontype == ISBARREL)
+      pqvct.set_sector_type (pca::BARREL);
+    else if (regiontype == ISHYBRID)
+      pqvct.set_sector_type (pca::HYBRID);
+    else if (regiontype == ISENDCAP)
+      pqvct.set_sector_type (pca::ENDCAP);
     pqvct.set_towerid (towerid);
     pqvct.set_ttype (pca::FLOATPT);
     pqvct.set_chargesign(rootrdr.get_chargesign());
@@ -263,9 +292,12 @@ void perform_main_computation (const arma::mat & coord,
     pca::armamat_to_pcamat (amtx, pamtx);
     pamtx.set_const_type (pca::AMTX);
     pamtx.set_layersids (rootrdr.get_actualseq().c_str());
-    /* TODO should be given as input */
-    pamtx.set_sector_type (pca::BARREL);
-    /* */
+    if (regiontype == ISBARREL)
+      pamtx.set_sector_type (pca::BARREL);
+    else if (regiontype == ISHYBRID)
+      pamtx.set_sector_type (pca::HYBRID);
+    else if (regiontype == ISENDCAP)
+      pamtx.set_sector_type (pca::ENDCAP);
     pamtx.set_towerid (towerid);
     pamtx.set_ttype (pca::FLOATPT);
     pamtx.set_chargesign(rootrdr.get_chargesign());
@@ -281,9 +313,12 @@ void perform_main_computation (const arma::mat & coord,
     pca::armamat_to_pcamat (kivec, pkvct);
     pkvct.set_const_type (pca::KVEC);
     pkvct.set_layersids (rootrdr.get_actualseq().c_str());
-    /* TODO should be given as input */
-    pkvct.set_sector_type (pca::BARREL);
-    /* */
+    if (regiontype == ISBARREL)
+      pkvct.set_sector_type (pca::BARREL);
+    else if (regiontype == ISHYBRID)
+      pkvct.set_sector_type (pca::HYBRID);
+    else if (regiontype == ISENDCAP)
+      pkvct.set_sector_type (pca::ENDCAP);
     pkvct.set_towerid (towerid);
     pkvct.set_ttype (pca::FLOATPT);
     pkvct.set_chargesign(rootrdr.get_chargesign());
@@ -360,7 +395,7 @@ int main (int argc, char ** argv)
       {"phi-range", 1, NULL, 'm'},
       {"z0-range", 1, NULL, 'o'},
       {"d0-range", 1, NULL, 'u'},
-      {"check-layersids", 1, NULL, 'k'},
+      {"check-layersids", 0, NULL, 'k'},
       {"relative", 0, NULL, 'a'},
       {"five-hits", 1, NULL, 'f'},
       {"relative-values", 1, NULL, 'b'},
@@ -374,7 +409,7 @@ int main (int argc, char ** argv)
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "hvVTlpg:zrxn:t:m:o:u:k:af:b:dy:X:B:D:cR:", 
+    c = getopt_long (argc, argv, "hvVTlpg:zrxn:t:m:o:u:kaf:b:dy:X:B:D:cR:", 
         long_options, &option_index);
 
     if (c == -1)
@@ -678,7 +713,6 @@ int main (int argc, char ** argv)
   rootrdr.set_d0limits(d0min, d0max);
   rootrdr.set_verbose(verbose);
   rootrdr.set_checklayersids(checklayersids);
-  rootrdr.set_checklayersids(checklayersids);
   rootrdr.set_region_type(regiontype);
   //maxnumoftracks = 100000;
   rootrdr.set_maxnumoftracks(maxnumoftracks);
@@ -852,7 +886,7 @@ int main (int argc, char ** argv)
       cfname.str(), qfname.str(), afname.str() ,
       vfname.str(), kfname.str(), coordmfname.str(),
       fitter, rootrdr, verbose, writebinfiles, 
-      intbitewise, towerid);
+      intbitewise, towerid, regiontype);
 
   return EXIT_SUCCESS;
 }

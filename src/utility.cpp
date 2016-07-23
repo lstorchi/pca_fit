@@ -51,11 +51,11 @@ bool pca::validate_barrel_sequence_5 (const std::string & sequence)
 }
 
 bool pca::is_a_valid_layers_seq(const std::string & in, int maxnumoflayers, 
-    const bool isbarrel, const bool tocheck)
+    const int regiontype, const bool tocheck)
 {
   if (tocheck)
   {
-    if (isbarrel)
+    if (regiontype == ISBARREL)
     {
       if (maxnumoflayers == 6)
       {

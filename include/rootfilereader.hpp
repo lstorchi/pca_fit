@@ -9,10 +9,6 @@
 //           a class... This is not a proper class, just a way to collect some functions 
 //           as soon as have time please rewrite it and move main_computation here ... 
 
-#define ISBARREL 0
-#define ISHYBRID 1
-#define ISENDCAP 2
-
 namespace pca
 {
   class rootfilereader

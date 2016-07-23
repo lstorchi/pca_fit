@@ -60,9 +60,9 @@ namespace
     return false;
   }
 
-  bool is_avalid_layerid (bool isbarrel, bool excludesmodule, int layerid)
+  bool is_avalid_layerid (int regid, bool excludesmodule, int layerid)
   {
-    if (isbarrel)
+    if (regid == ISBARREL)
     {
       if (excludesmodule)
       {
@@ -429,7 +429,7 @@ bool rootfilereader::reading_from_root_file (
     }
     */
 
-    if (!is_avalid_layerid (regiontype_ == ISBARREL, excludesmodule_, layeridtorm_) )
+    if (!is_avalid_layerid (regiontype_, excludesmodule_, layeridtorm_) )
     {
       set_errmsg (11, "Invalid layer to remove");
       return false;
@@ -913,7 +913,7 @@ bool rootfilereader::check_if_withinranges (const int & charge,
     const std::string & layersid) const
 {
   if (is_a_valid_layers_seq(layersid, maxnumoflayers_, 
-        regiontype_ == ISBARREL, checklayersids_))
+        regiontype_, checklayersids_))
     if (check_sequence (layersid, specificseq_))
       if (check_charge (charge, chargesign_))
         if ((eta <= etamax_) && (eta >= etamin_))
