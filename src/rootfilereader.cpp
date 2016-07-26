@@ -688,6 +688,8 @@ bool rootfilereader::reading_from_root_file (
                  single_track.ladder.pop_back();
                  single_track.module.pop_back();
                  single_track.segid.pop_back();
+
+                 single_track.dim = 6;
                
                  tracks_vct_.push_back(single_track);
                }
@@ -720,6 +722,8 @@ bool rootfilereader::reading_from_root_file (
                  single_track.module.pop_back();
                  single_track.segid.pop_back();
                
+                 single_track.dim = 6;
+
                  tracks_vct_.push_back(single_track);
                }
                else 
@@ -970,7 +974,7 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
   }
 
   //std::cout << fitter.get_coordim() << std::endl;
-
+  
   coordin.resize(tracks_vct_.size(), fitter.get_coordim());
   paramin.resize(tracks_vct_.size(), fitter.get_paramdim());
   ptvalsout.resize(tracks_vct_.size());
