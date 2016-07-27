@@ -264,7 +264,9 @@ bool pcafitter::compute_parameters (
     int towerid, 
     double ** paraptr,
     int paramdim, bool rphiplane,
-    arma::rowvec & chi2values)
+    arma::rowvec & chi2values, 
+    arma::vec & etavals,
+    arma::vec & ptvals)
 {
 
   reset_error();
@@ -293,23 +295,19 @@ bool pcafitter::compute_parameters (
   
     pca::matrixpcaconst<double> cmtx_c(0, 0), 
       qvec_c(0, 0), amtx_c(0, 0), kvec_c(0, 0);
- 
-    double theta = atan(1.0e0 / paramslt(b, PCA_COTTHETAIDX));
+
     double etaorig = 0.0e0;
-    double tantheta2 = tan (theta/2.0e0);
-    if (tantheta2 < 0.0)
-      etaorig = 1.0e0 * log (-1.0e0 * tantheta2);
-    else
-      etaorig = -1.0e0 * log (tantheta2);
-
-    std::cout << paramslt(b, PCA_COTTHETAIDX) << " " << etaorig << std::endl;
-
-    double qoverptorig = paramslt(b, PCA_ONEOVERPTIDX);
-    int chargesignin = ((qoverptorig < 0.0) ? -1 : 1);
-    double pt = ((double)chargesignin) / qoverptorig;
-
+    double pt = 0.0e0;
+    int chargesignin = 0;
+ 
     if (rphiplane)
     {
+      etaorig = etavals(b);
+
+      double qoverptorig = paramslt(b, PCA_ONEOVERPTIDX);
+      chargesignin = ((qoverptorig < 0.0) ? -1 : 1);
+      pt = ((double)chargesignin) / qoverptorig;
+
       if (!import_pca_const (allconst, cmtx_c, qvec_c, 
             amtx_c, kvec_c, etaorig, pt, 
             chargesignin, layersid,  
@@ -318,7 +316,14 @@ bool pcafitter::compute_parameters (
     }
     else 
     {
-      chargesignin = 0;
+      double theta = atan(1.0e0 / paramslt(b, PCA_COTTHETAIDX));
+      double tantheta2 = tan (theta/2.0e0);
+      if (tantheta2 < 0.0)
+        etaorig = 1.0e0 * log (-1.0e0 * tantheta2);
+      else
+        etaorig = -1.0e0 * log (tantheta2);
+
+      pt = ptvals(b);
 
       if (!import_pca_const (allconst, cmtx_c, qvec_c, 
             amtx_c, kvec_c, etaorig, pt, 

@@ -42,7 +42,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
      const std::string & pslayersid, 
      bool coarsegrainpca, 
      std::vector<pca::matrixpcaconst<double> > & cgconst,
-     int regiontype)
+     int regiontype, arma::vec & etavals)
 {
   int nbins = 100;
 
@@ -107,7 +107,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
     if (!fitter.compute_parameters (allconst, 
           coordslt, paramslt, ls, ps, 
           towerid, ptrs, fitter.get_paramdim(), 
-          rphiplane, chi2values))
+          rphiplane, chi2values, etavals, ptvals))
     {
       std::cerr << fitter.get_errmsg() << std::endl;
       return false;
@@ -935,7 +935,7 @@ int main (int argc, char ** argv)
   std::cout << "Reading data from " << filename << " file " << std::endl;
 
   arma::mat coord, param;
-  arma::vec ptvals;
+  arma::vec ptvals, etavals;
 
   pca::rootfilereader rootrdr;
 
@@ -979,7 +979,7 @@ int main (int argc, char ** argv)
   rootrdr.set_savecheckfiles(false);
 
   if (!rootrdr.reading_from_root_file (fitter, param, coord, 
-        ptvals))
+        ptvals, etavals))
   {
     std::cerr << rootrdr.get_errmsg() << std::endl;
     return EXIT_FAILURE;
@@ -1007,7 +1007,8 @@ int main (int argc, char ** argv)
         verbose, fitter, rzplane, rphiplane, ptvals, 
         towerid, rootrdr.get_rotation_angle(), writeresults, 
         layeridtorm, etamin, etamax, ptmin, ptmax, chargesign, 
-        layersid,  pslayersid, coarsegrainpca, cgconst, regiontype))
+        layersid,  pslayersid, coarsegrainpca, cgconst, regiontype,
+        etavals))
     return EXIT_FAILURE;
 
   return EXIT_SUCCESS;

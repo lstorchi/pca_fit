@@ -67,7 +67,9 @@ namespace pca
           int towerid,
           double ** paraptr,
           int paramdim, bool rphiplane,
-          arma::rowvec & chi2values);
+          arma::rowvec & chi2values, 
+          arma::vec & etavals,
+          arma::vec & ptvals);
 
       bool compute_parameters_cgpca (
           std::vector<pca::matrixpcaconst<double> > & cgconst,
