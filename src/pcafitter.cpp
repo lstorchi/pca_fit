@@ -302,6 +302,8 @@ bool pcafitter::compute_parameters (
     else
       etaorig = -1.0e0 * log (tantheta2);
 
+    std::cout << paramslt(b, PCA_COTTHETAIDX) << " " << etaorig << std::endl;
+
     double qoverptorig = paramslt(b, PCA_ONEOVERPTIDX);
     int chargesignin = ((qoverptorig < 0.0) ? -1 : 1);
     double pt = ((double)chargesignin) / qoverptorig;

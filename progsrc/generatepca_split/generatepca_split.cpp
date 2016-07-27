@@ -689,7 +689,7 @@ int main (int argc, char ** argv)
   }
                   
   arma::mat coordin, paramin;
-  arma::vec ptvals;
+  arma::vec ptvals, etavals;
 
   std::cout << "Reading data from " << filename << " file " << std::endl;
 
@@ -752,7 +752,7 @@ int main (int argc, char ** argv)
   rootrdr.set_savecheckfiles(savecheckfiles);
 
   if (!rootrdr.reading_from_root_file (fitter, paramin, coordin, 
-        ptvals))
+        ptvals, etavals))
   {
     std::cerr << rootrdr.get_errmsg() << std::endl;
     return EXIT_FAILURE;

@@ -425,6 +425,8 @@ void usage (char * name)
   std::cerr << " -h, --help                       : display this help and exit" << std::endl;
   std::cerr << " -V, --verbose                    : verbose option on" << std::endl;
   std::cerr << " -v, --version                    : print version and exit" << std::endl;
+  std::cerr << " -d, --dump-bankfiles            : dump all coordinates files and more extracted from the rootfile" 
+    << std::endl;
   std::cerr << " -p, --dump-allcoords             : dump all stub coordinates to a file" << std::endl;
   std::cerr << " -c, --pca-const-files=[file1;...;filen] " << std::endl;
   std::cerr << "                                  : PCA const txt filename [default is pca_const.txt]" << std::endl;
@@ -462,8 +464,8 @@ void usage (char * name)
   std::cerr << " -C, --use-only-3-layers          : use three leyers ..." << std::endl;
   std::cerr << " -Y, --coarse-grain-pca=[const_file.txt]  " << std::endl;
   std::cerr << "                                  : coarse grain PCA" << std::endl;
-  std::cerr << " -R, --region-type=[num]         : specify region-type 0=BARREL, 1=HYBRID, 2=ENDCAP " << std::endl;
-  std::cerr << "                                   BARREL is the default " << std::endl;
+  std::cerr << " -R, --region-type=[num]          : specify region-type 0=BARREL, 1=HYBRID, 2=ENDCAP " << std::endl;
+  std::cerr << "                                    BARREL is the default " << std::endl;
   std::cerr << std::endl;
 
   exit(1);
@@ -479,7 +481,7 @@ int main (int argc, char ** argv)
   bool rzplane = false, rphiplane = false, excludesmodule = false, 
        checklayersids = false, usefakefiveoutofsix = false, 
        printallcoords = false, writeresults = true, verbose = false, 
-       userelativecoord = false;
+       userelativecoord = false, savecheckfiles = false;
   double coord1min = std::numeric_limits<double>::infinity();
   double coord2min = std::numeric_limits<double>::infinity();
 
@@ -534,10 +536,11 @@ int main (int argc, char ** argv)
       {"use-only-3-layers", 0, NULL, 'C'},
       {"coarse-grain-pca", 1, NULL, 'Y'},
       {"region-type", 1, NULL, 'R'},
+      {"dump-bankfiles", 0, NULL, 'd'},
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "hc:Vvzrxkab:f:w:pD:X:Ng:n:t:m:o:u:CY:R:", 
+    c = getopt_long (argc, argv, "hc:Vvzrxkab:f:w:pD:X:Ng:n:t:m:o:u:CY:R:d", 
         long_options, &option_index);
 
     if (c == -1)
@@ -683,6 +686,9 @@ int main (int argc, char ** argv)
           std::cerr << "Regiontype is wrong " << std::endl;
           return EXIT_FAILURE;
         }
+        break;
+      case 'd':
+        savecheckfiles = true;
         break;
       default:
         usage (argv[0]);
@@ -956,6 +962,8 @@ int main (int argc, char ** argv)
   {
     rootrdr.set_use3layers(layers);
   }
+
+  rootrdr.set_savecheckfiles(savecheckfiles);
 
   rootrdr.set_towid(towerid);
 

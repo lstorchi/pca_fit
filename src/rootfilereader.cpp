@@ -400,7 +400,8 @@ bool rootfilereader::get_performlinearinterpolation () const
 
 bool rootfilereader::reading_from_root_file (
     const pca::pcafitter & fitter, arma::mat & paramin, 
-    arma::mat & coordin, arma::vec & ptvalsout)
+    arma::mat & coordin, arma::vec & ptvalsout, 
+    arma::vec & etavalout)
 {
   TFile* inputFile = TFile::Open(filename_.c_str());
 
@@ -811,7 +812,7 @@ bool rootfilereader::reading_from_root_file (
   }
 
   return rootfilereader::extract_data (fitter, 
-    paramin, coordin, ptvalsout);
+    paramin, coordin, ptvalsout, etavalout);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -935,7 +936,8 @@ void rootfilereader::reset_error ()
 }
 
 bool rootfilereader::extract_data (const pca::pcafitter & fitter, 
-    arma::mat & paramin, arma::mat & coordin, arma::vec & ptvalsout)
+    arma::mat & paramin, arma::mat & coordin, arma::vec & ptvalsout, 
+    arma::vec & etavalout)
 {
   if (printoutstdinfo_)
     std::cout << "Extracted  " << tracks_vct_.size() << " tracks " << std::endl;
@@ -978,6 +980,7 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
   coordin.resize(tracks_vct_.size(), fitter.get_coordim());
   paramin.resize(tracks_vct_.size(), fitter.get_paramdim());
   ptvalsout.resize(tracks_vct_.size());
+  etavalout.resize(tracks_vct_.size());
 
   int excludesmodval = 0;
 
@@ -1087,6 +1090,7 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
     }
 
     ptvalsout(counter) = track->pt;
+    etavalout(counter) = track->eta;
 
     if (rzplane_)
     {

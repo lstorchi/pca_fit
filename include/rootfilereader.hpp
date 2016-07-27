@@ -120,7 +120,7 @@ namespace pca
 
       bool reading_from_root_file (const pca::pcafitter & fitter, 
           arma::mat & paramin, arma::mat & coordin, 
-          arma::vec & ptvalsout);
+          arma::vec & ptvalsout, arma::vec & etavalout);
 
       // add back to fitted phi values
       double get_rotation_angle () const
@@ -182,7 +182,7 @@ namespace pca
 
       bool extract_data (const pca::pcafitter & fitter, 
           arma::mat & paramin, arma::mat & coordin, 
-          arma::vec & ptvalsout);
+          arma::vec & ptvalsout, arma::vec & etavalout);
 
       bool check_if_withinranges (const int & charge, 
           const double & eta, const double & phi, 
