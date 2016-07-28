@@ -497,6 +497,8 @@ bool rootfilereader::reading_from_root_file (
   std::set<int> layeridlist;
   unsigned int countlayerswithdupid = 0;
 
+  std::set<std::string> layersids_set;
+
   for (Int_t i=0; i<nevent; ++i) 
   { 
      TT->GetEntry(i);
@@ -663,13 +665,14 @@ bool rootfilereader::reading_from_root_file (
          }
          else if (regiontype_ == ISHYBRID)
          {
-           if (check_if_withinranges (pdg[j], 
-                 eta[j], phi[j], d0val, z0[j], 
-                 pt[j], osss.str()))
+           if (moduleid.size() >= (unsigned int) maxnumoflayers_)
            {
-             if (moduleid.size() >= (unsigned int) maxnumoflayers_)
+             layersids_set.insert(single_track.layersids);
+             if (check_if_withinranges (pdg[j], 
+                   eta[j], phi[j], d0val, z0[j], 
+                   pt[j], osss.str()))
              {
-               if (moduleid.size() == (unsigned int) maxnumoflayers_)
+              if (moduleid.size() == (unsigned int) maxnumoflayers_)
                {
                  // do not copy duplicated 
                  tracks_vct_.push_back(single_track);
@@ -809,6 +812,11 @@ bool rootfilereader::reading_from_root_file (
     std::cout << std::endl;
 
     std::cout << "Event with DupIds: " << countlayerswithdupid << std::endl;
+
+    std::cout << "Sequences: " << std::endl;
+    std::set<std::string>::iterator lidi = layersids_set.begin();
+    for (; lidi != layersids_set.end(); ++lidi)
+      std::cout << *lidi << std::endl;
   }
 
   return rootfilereader::extract_data (fitter, 
@@ -1072,7 +1080,9 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
     actuallayersids = osss.str();
     actuallayersids.erase(actuallayersids.end()-1);
 
-    if (checklayersids_)
+    // this should be removed if we decide to use a single 
+    // set for each combintaion 
+    if (checklayersids_ && (regiontype_ == ISBARREL))
     {
       if (layersid_ == "")
       {
