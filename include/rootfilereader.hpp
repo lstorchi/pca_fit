@@ -96,7 +96,7 @@ namespace pca
       const std::string & get_specificseq () const;
 
       const std::string & get_actualseq () const;
-
+      
       void set_etalimits (double & min, double & max);
       void set_philimits (double & min, double & max);
       void set_ptlimits (double & min, double & max);

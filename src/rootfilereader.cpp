@@ -1081,7 +1081,7 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
     actuallayersids.erase(actuallayersids.end()-1);
 
     // this should be removed if we decide to use a single 
-    // set for each combintaion 
+    // set for each possible combination 
     if (checklayersids_ && (regiontype_ == ISBARREL))
     {
       if (layersid_ == "")

@@ -958,6 +958,12 @@ int main (int argc, char ** argv)
   //maxnumoftracks = 100000;
   rootrdr.set_maxnumoftracks(maxnumoftracks);
   rootrdr.set_region_type(regiontype);
+
+  if (regiontype == ISHYBRID) // test single layers seq
+  {
+    rootrdr.set_specificseq("567181920");
+  }
+ 
   if (use3layers)
   {
     rootrdr.set_use3layers(layers);
