@@ -25,7 +25,7 @@
 #define STDDIM_BARREL_PRV_VLS_5 6
 #define STDDIM_BARREL_PRV_VLS_5_NS 3
 
-#define STDDIM_HYBRID_PRV_VLS_6 6
+#define STDDIM_HYBRID_PRV_VLS_6 10
 #define STDDIM_HYBRID_PRV_VLS_5 35
 
 
@@ -48,7 +48,11 @@ namespace
                                                           "56781819",
                                                           "567181920",
                                                           "5618192021",
-                                                          "51819202122"};
+                                                          "5678181920",
+                                                          "51819202122",
+                                                          "56718192021",
+                                                          "561819202122",
+                                                          "5671819202122"};
 
   static const char * 
     valid_hybrid_layers_seq_5[STDDIM_HYBRID_PRV_VLS_5] = {"678910",

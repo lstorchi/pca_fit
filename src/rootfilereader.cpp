@@ -694,6 +694,12 @@ bool rootfilereader::reading_from_root_file (
                  single_track.segid.pop_back();
 
                  single_track.dim = 6;
+
+                 std::ostringstream ossl;
+                 for (int i=0; i<(int)single_track.layer.size(); ++i)
+                   ossl << single_track.layer[i];
+
+                 single_track.layersids = ossl.str();
                
                  tracks_vct_.push_back(single_track);
                }
@@ -727,6 +733,23 @@ bool rootfilereader::reading_from_root_file (
                  single_track.segid.pop_back();
                
                  single_track.dim = 6;
+
+                 std::ostringstream ossl;
+                 for (int i=0; i<(int)single_track.layer.size(); ++i)
+                   ossl << single_track.layer[i];
+
+                 single_track.layersids = ossl.str();
+
+                 /*
+                 std::set<int>::iterator iit = layeridset.begin();
+                 for (; iit != layeridset.end(); ++iit)
+                 {
+                   std::cerr << *iit << " : ";
+                 }
+                 std::cerr << single_track.eta << std::endl;
+                 std::cerr << " " << single_track.pt << std::endl;
+                 std::cerr << std::endl;
+                 */
 
                  tracks_vct_.push_back(single_track);
                }

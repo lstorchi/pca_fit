@@ -716,10 +716,12 @@ int main (int argc, char ** argv)
   rootrdr.set_region_type(regiontype);
 
   // should be removed 
+  /*
   if (regiontype == ISHYBRID) // test single layers seq
   {
     rootrdr.set_specificseq("567181920");
   }
+  */
   //maxnumoftracks = 100000;
   rootrdr.set_maxnumoftracks(maxnumoftracks);
   if (use3layers)
