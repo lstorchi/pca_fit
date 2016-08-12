@@ -11,12 +11,12 @@ do
  echo $rage
 
  ./generatepca_split -x -k -R 1 --rz-plane --pt-range="3.0;200.0" --eta-range="$rage" -D $TOWERID $ROTTFILENAME
- ./fitpca_split_single -c "pca_const.txt" -x -k -R 1 --rz-plane --pt-range="3.0;200.0" --eta-range="-1.7;-1.65" -D $TOWERID $ROTTFILENAME
+ ./fitpca_split_single -c "pca_const.txt" -x -k -R 1 --rz-plane --pt-range="3.0;200.0" --eta-range="$rage" -D $TOWERID $ROTTFILENAME
 
  rm pca_const.txt
 
  ./generatepca_split -k -R 1 --rz-plane --pt-range="3.0;200.0" --eta-range="$rage" -D $TOWERID $ROTTFILENAME
- ./fitpca_split_single -c "pca_const.txt" -k -R 1 --rz-plane --pt-range="3.0;200.0" --eta-range="-1.7;-1.65" -D $TOWERID $ROTTFILENAME
+ ./fitpca_split_single -c "pca_const.txt" -k -R 1 --rz-plane --pt-range="3.0;200.0" --eta-range="$rage" -D $TOWERID $ROTTFILENAME
 
  rm pca_const.txt
 done
