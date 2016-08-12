@@ -672,7 +672,7 @@ bool rootfilereader::reading_from_root_file (
                    eta[j], phi[j], d0val, z0[j], 
                    pt[j], osss.str()))
              {
-              if (moduleid.size() == (unsigned int) maxnumoflayers_)
+               if (moduleid.size() == (unsigned int) maxnumoflayers_)
                {
                  // do not copy duplicated 
                  tracks_vct_.push_back(single_track);
@@ -972,6 +972,9 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
 {
   if (printoutstdinfo_)
     std::cout << "Extracted  " << tracks_vct_.size() << " tracks " << std::endl;
+
+  if (tracks_vct_.size() == 0)
+    return false;
 
   if (fkfiveoutofsix_)
   {
