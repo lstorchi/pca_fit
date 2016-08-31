@@ -710,7 +710,7 @@ void PCATrackFitter::fit_float(vector<Hit*> hits)
                             layersid, 
                             pslayersid, 
                             tow, 
-                            pca::INTEGPT))
+                            pca::FLOATPT))
       {
         double cottheta = 0.0; // eta
         double z0 = 0.0;
