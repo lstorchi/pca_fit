@@ -318,7 +318,7 @@ TrackFitter* PCATrackFitter::clone()
 void PCATrackFitter::read_float_const_filename (const std::string & in)
 {
   std::cout << "Reading " << in << std::endl;
-  if (!pca::read_pcacosnt_from_file (pcacontvct_float_, in.c_str()))
+  if (!pca::read_pcaconst_from_file (pcacontvct_float_, in.c_str()))
   {
     std::cerr << "Error while reading constant from " << in << " read only " << 
       pcacontvct_float_.size() << std::endl;
@@ -329,7 +329,7 @@ void PCATrackFitter::read_float_const_filename (const std::string & in)
       pcacontvct_float_.begin();
   for (; it != pcacontvct_float_.end(); ++it)
   {
-    if (it->get_ttype() != pca::matrixpcaconst<double>::FLOATPT)
+    if (it->get_ttype() != pca::FLOATPT)
     {
       std::cerr << "Wrong PCAconst type " << std::endl;
       return;
@@ -342,7 +342,7 @@ void PCATrackFitter::read_float_const_filename (const std::string & in)
 void PCATrackFitter::read_integegr_const_filename (const std::string & in)
 {
   std::cout << "Reading " << in << std::endl;
-  if (!pca::read_pcacosnt_from_file (pcacontvct_integer_, in.c_str()))
+  if (!pca::read_pcaconst_from_file (pcacontvct_integer_, in.c_str()))
   {
     std::cerr << "Error while reading constant from " << in << std::endl;
     return;
@@ -352,7 +352,7 @@ void PCATrackFitter::read_integegr_const_filename (const std::string & in)
       pcacontvct_integer_.begin();
   for (; it != pcacontvct_integer_.end(); ++it)
   {
-    if (it->get_ttype() != pca::matrixpcaconst<int32_t>::INTEGPT)
+    if (it->get_ttype() != pca::INTEGPT)
     {
       std::cerr << "Wrong PCAconst type " << std::endl;
       return;
@@ -418,7 +418,8 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
                             charge,
                             layersid, 
                             pslayersid, 
-                            tow))
+                            tow, 
+                            pca::INTEGPT))
       {
         std::cout << "CMTX RZ: " << std::endl;
         dump_element(cmtx_rz, std::cout);
