@@ -797,11 +797,18 @@ bool rootfilereader::reading_from_root_file (
                }
              }
            }
+           else
+           {
+             // there could be a 5 layers track ?
+
+           }
          }
          else if (regiontype_ == ISENDCAP)
          {
-           set_errmsg (1, "ENDCAP not yet implemented ");
-           return false;
+           if (moduleid.size() >= (unsigned int) maxnumoflayers_)
+           {
+             layersids_set.insert(single_track.layersids);
+           }
          }
        }
      }
@@ -841,6 +848,13 @@ bool rootfilereader::reading_from_root_file (
     for (; lidi != layersids_set.end(); ++lidi)
       std::cout << *lidi << std::endl;
   }
+
+  if (regiontype_ == ISENDCAP)
+  {
+    set_errmsg (1, "ENDCAP not yet implemented ");
+    return false;
+  }
+ 
 
   return rootfilereader::extract_data (fitter, 
     paramin, coordin, ptvalsout, etavalout);
