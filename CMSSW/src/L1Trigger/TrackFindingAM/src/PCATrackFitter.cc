@@ -335,7 +335,7 @@ void PCATrackFitter::read_float_const_filename (const std::string & in)
       return;
     }
   }
-  std::cout << "Done" << std::endl;
+  std::cout << "Done " << pcacontvct_float_.size() << std::endl;
  
 }
 
