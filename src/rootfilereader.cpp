@@ -457,110 +457,113 @@ bool rootfilereader::info_from_root_file (unsigned int & numevent,
   { 
      TT->GetEntry(i);
      
-     assert (moduleid.size() == stubx.size());
-     assert (moduleid.size() == stuby.size());
-     assert (moduleid.size() == stubz.size());
-     assert (moduleid.size() == pt.size());
-     assert (moduleid.size() == x0.size());
-     assert (moduleid.size() == y0.size());
-     assert (moduleid.size() == z0.size());
-     assert (moduleid.size() == eta.size());
-     assert (moduleid.size() == phi.size());
-     assert (moduleid.size() == pdg.size());
-
-     bool allAreEqual = ((std::find_if(z0.begin() + 1, z0.end(), 
-        std::bind1st(std::not_equal_to<int>(), z0.front())) == z0.end()) &&
-                        (std::find_if(x0.begin() + 1, x0.end(), 
-        std::bind1st(std::not_equal_to<int>(), x0.front())) == x0.end()) &&
-                        (std::find_if(y0.begin() + 1, y0.end(), 
-        std::bind1st(std::not_equal_to<int>(), y0.front())) == y0.end()) &&
-                        (std::find_if(pt.begin() + 1, pt.end(), 
-        std::bind1st(std::not_equal_to<int>(), pt.front())) == pt.end()) &&
-                        (std::find_if(eta.begin() + 1, eta.end(), 
-        std::bind1st(std::not_equal_to<int>(), eta.front())) == eta.end()) &&
-                        (std::find_if(phi.begin() + 1, phi.end(), 
-        std::bind1st(std::not_equal_to<int>(), phi.front())) == phi.end()) &&
-                        (std::find_if(pdg.begin() + 1, pdg.end(),
-        std::bind1st(std::not_equal_to<int>(), pdg.front())) == pdg.end()));
-
-     if (allAreEqual) // QA nel caso dei BankStubs questo check e' utile ?
+     if ((moduleid.size() == stubx.size()) &&
+         (moduleid.size() == stuby.size()) && 
+         (moduleid.size() == stubz.size()) && 
+         (moduleid.size() == pt.size()) && 
+         (moduleid.size() == x0.size()) && 
+         (moduleid.size() == y0.size()) && 
+         (moduleid.size() == z0.size()) && 
+         (moduleid.size() == eta.size()) && 
+         (moduleid.size() == phi.size()) && 
+         (moduleid.size() == pdg.size()))
      {
-       int j = 0;
-       for (; j<(int)moduleid.size(); ++j)
+       bool allAreEqual = ((std::find_if(z0.begin() + 1, z0.end(), 
+          std::bind1st(std::not_equal_to<int>(), z0.front())) == z0.end()) &&
+                          (std::find_if(x0.begin() + 1, x0.end(), 
+          std::bind1st(std::not_equal_to<int>(), x0.front())) == x0.end()) &&
+                          (std::find_if(y0.begin() + 1, y0.end(), 
+          std::bind1st(std::not_equal_to<int>(), y0.front())) == y0.end()) &&
+                          (std::find_if(pt.begin() + 1, pt.end(), 
+          std::bind1st(std::not_equal_to<int>(), pt.front())) == pt.end()) &&
+                          (std::find_if(eta.begin() + 1, eta.end(), 
+          std::bind1st(std::not_equal_to<int>(), eta.front())) == eta.end()) &&
+                          (std::find_if(phi.begin() + 1, phi.end(), 
+          std::bind1st(std::not_equal_to<int>(), phi.front())) == phi.end()) &&
+                          (std::find_if(pdg.begin() + 1, pdg.end(),
+          std::bind1st(std::not_equal_to<int>(), pdg.front())) == pdg.end()));
+       
+       if (allAreEqual) // QA nel caso dei BankStubs questo check e' utile ?
        {
-         if ((i == 0) && (j == 0))
+         int j = 0;
+         for (; j<(int)moduleid.size(); ++j)
          {
-           xmin = xmax = stubx[j];
-           ymin = ymax = stuby[j];
-           zmin = zmax = stubz[j];
+           if ((i == 0) && (j == 0))
+           {
+             xmin = xmax = stubx[j];
+             ymin = ymax = stuby[j];
+             zmin = zmax = stubz[j];
+           }
+           else
+           {
+             if (xmin > stubx[j])
+               xmin = stubx[j];
+             if (ymin > stuby[j])
+               ymin = stuby[j];
+             if (zmin > stubz[j])
+               zmin = stubz[j];
+             
+             if (xmax < stubx[j])
+               xmax = stubx[j];
+             if (ymax < stuby[j])
+               ymax = stuby[j];
+             if (zmax < stubz[j])
+               zmax = stubz[j];
+           }
+       
+           /*
+           int value = moduleid[j];
+           int layer = value/1000000;
+           value = value-layer*1000000;
+           int ladder = value/10000;
+           value = value-ladder*10000;
+           int module = value/100;
+           value = value-module*100;
+           int segid = value; 
+           */
+       
+         }
+       
+         j = 0;
+       
+         if (i == 0)
+         {
+           ptmin = ptmax = pt[j];
+           etamin = etamax = eta[j];
+           phimin = phimax = phi[j];
+       
+           x0min = x0max = x0[j];
+           y0min = y0max = y0[j];
+           z0min = z0max = z0[j];
          }
          else
          {
-           if (xmin > stubx[j])
-             xmin = stubx[j];
-           if (ymin > stuby[j])
-             ymin = stuby[j];
-           if (zmin > stubz[j])
-             zmin = stubz[j];
-           
-           if (xmax < stubx[j])
-             xmax = stubx[j];
-           if (ymax < stuby[j])
-             ymax = stuby[j];
-           if (zmax < stubz[j])
-             zmax = stubz[j];
+           if (ptmin > pt[j])
+             ptmin = pt[j];
+           if (etamin > eta[j])
+             etamin = eta[j];
+           if (phimin > phi[j])
+             phimin = phi[j];
+           if (x0min > x0[j])
+             x0min = x0[j];
+           if (y0min > y0[j])
+             y0min = y0[j];
+           if (z0min > z0[j])
+             z0min = z0[j];
+       
+           if (ptmax < pt[j])
+             ptmax = pt[j];
+           if (etamax < eta[j])
+             etamax = eta[j];
+           if (phimax < phi[j])
+             phimax = phi[j];
+           if (x0max < x0[j])
+             x0max = x0[j];
+           if (y0max < y0[j])
+             y0max = y0[j];
+           if (z0max < z0[j])
+             z0max = z0[j];
          }
-
-         int value = moduleid[j];
-         int layer = value/1000000;
-         value = value-layer*1000000;
-         int ladder = value/10000;
-         value = value-ladder*10000;
-         int module = value/100;
-         value = value-module*100;
-         int segid = value; // QA is just this ? from the source code seems so, I need to / by 10 ?
-
-       }
-       --j;
-
-
-       if (i == 0)
-       {
-         ptmin = ptmax = pt[j];
-         etamin = etamax = eta[j];
-         phimin = phimax = phi[j];
-
-         x0min = x0max = x0[j];
-         y0min = y0max = y0[j];
-         z0min = z0max = z0[j];
-       }
-       else
-       {
-         if (ptmin > pt[j])
-           ptmin = pt[j];
-         if (etamin > eta[j])
-           etamin = eta[j];
-         if (phimin > phi[j])
-           phimin = phi[j];
-         if (x0min > x0[j])
-           x0min = x0[j];
-         if (y0min > y0[j])
-           y0min = y0[j];
-         if (z0min > z0[j])
-           z0min = z0[j];
-
-         if (ptmax < pt[j])
-           ptmax = pt[j];
-         if (etamax < eta[j])
-           etamax = eta[j];
-         if (phimax < phi[j])
-           phimax = phi[j];
-         if (x0max < x0[j])
-           x0max = x0[j];
-         if (y0max < y0[j])
-           y0max = y0[j];
-         if (z0max < z0[j])
-           z0max = z0[j];
        }
      }
  

@@ -80,6 +80,7 @@ void usage (char * name)
   std::cerr << " -D, --towerid=[num]             : specify towid to be wriiten in the file " << std::endl;
   std::cerr << " -R, --region-type=[num]         : specify region-type 0=BARREL, 1=HYBRID, 2=ENDCAP " << std::endl;
   std::cerr << "                                   BARREL is the default " << std::endl;
+  std::cerr << " -G, --get-info                  : print some infos about the root file and exit " << std::endl;
 
   exit(1);
 }
@@ -340,6 +341,7 @@ int main (int argc, char ** argv)
 
   pca::pcafitter fitter; 
 
+  bool getinfo = false;
   bool rzplane = false;
   bool rphiplane = false;
   bool correlation = false;
@@ -406,10 +408,11 @@ int main (int argc, char ** argv)
       {"towerid", 1, NULL, 'D'},
       {"use-only-3-layers", 0, NULL, 'c'},
       {"region-type", 1, NULL, 'R'},
+      {"get-info", 0, NULL, 'G'},
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "hvVTlpg:zrxn:t:m:o:u:kaf:b:dy:X:B:D:cR:", 
+    c = getopt_long (argc, argv, "hvVTlpg:zrxn:t:m:o:u:kaf:b:dy:X:B:D:cR:G", 
         long_options, &option_index);
 
     if (c == -1)
@@ -557,6 +560,9 @@ int main (int argc, char ** argv)
           return EXIT_FAILURE;
         }
         break;
+      case 'G':
+        getinfo = true;
+        break;
       default:
         usage (argv[0]);
         break;
@@ -565,10 +571,13 @@ int main (int argc, char ** argv)
 
   fitter.set_useintbitewise(intbitewise);
 
-  if (towerid == -99)
+  if (!getinfo)
   {
-    std::cerr << "Towid is mandatory for XY rotation" << std::endl;
-    return EXIT_FAILURE;
+    if (towerid == -99)
+    {
+      std::cerr << "Towid is mandatory for XY rotation" << std::endl;
+      return EXIT_FAILURE;
+    }
   }
 
   if (numoflayers == 5)
@@ -597,11 +606,14 @@ int main (int argc, char ** argv)
   if (optind >= argc) 
     usage (argv[0]);
 
-  if ((rzplane && rphiplane) ||
-      (!rzplane && !rphiplane))
+  if (!getinfo)
   {
-    std::cerr << "r-phi or r-z plane ?" << std::endl;
-    usage (argv[0]);
+    if ((rzplane && rphiplane) ||
+        (!rzplane && !rphiplane))
+    {
+      std::cerr << "r-phi or r-z plane ?" << std::endl;
+      usage (argv[0]);
+    }
   }
 
   if (usefakefiveoutofsix)
@@ -758,29 +770,34 @@ int main (int argc, char ** argv)
 
   rootrdr.set_savecheckfiles(savecheckfiles);
 
-  unsigned int numev;
-  double ixmin, ixmax, iymin, iymax, izmin, izmax, 
-         ietamin, ietamax, iptmin, iptmax, iphimin, 
-         iphimax, ix0min, ix0max, iy0min, iy0max,
-         iz0min, iz0max;
-  if (!rootrdr.info_from_root_file (numev, ixmin, ixmax, iymin, 
-        iymax, izmin, izmax, ietamin, ietamax, iptmin, iptmax, iphimin, 
-        iphimax, ix0min, ix0max, iy0min, iy0max, iz0min, iz0max))
+  if (getinfo)
   {
-    std::cerr << rootrdr.get_errmsg() << std::endl;
-    return EXIT_FAILURE;
-  }
-  else
-  {
-    std::cout << "  xmin: " << ixmin   << "  xmax: " << ixmax << std::endl;
-    std::cout << "  ymin: " << iymin   << "  ymax: " << iymax << std::endl;
-    std::cout << "  zmin: " << izmin   << "  zmax: " << izmax << std::endl;
-    std::cout << "etamin: " << ietamin << " etamax: " << ietamax << std::endl;
-    std::cout << " ptmin: " << iptmin  << "  ptmax: " << iptmax << std::endl; 
-    std::cout << "phimin: " << iphimin << " phimax: " << iphimax << std::endl; 
-    std::cout << " x0min: " << ix0min  << "  x0max: " << ix0max << std::endl; 
-    std::cout << " y0min: " << iy0min  << "  y0max: " << iy0max << std::endl;
-    std::cout << " z0min: " << iz0min  << "  z0max: " << iz0max << std::endl;
+    unsigned int numev;
+    double ixmin, ixmax, iymin, iymax, izmin, izmax, 
+           ietamin, ietamax, iptmin, iptmax, iphimin, 
+           iphimax, ix0min, ix0max, iy0min, iy0max,
+           iz0min, iz0max;
+    if (!rootrdr.info_from_root_file (numev, ixmin, ixmax, iymin, 
+          iymax, izmin, izmax, ietamin, ietamax, iptmin, iptmax, iphimin, 
+          iphimax, ix0min, ix0max, iy0min, iy0max, iz0min, iz0max))
+    {
+      std::cerr << rootrdr.get_errmsg() << std::endl;
+      return EXIT_FAILURE;
+    }
+    else
+    {
+      std::cout << "  xmin: " << ixmin   << "  xmax: " << ixmax << std::endl;
+      std::cout << "  ymin: " << iymin   << "  ymax: " << iymax << std::endl;
+      std::cout << "  zmin: " << izmin   << "  zmax: " << izmax << std::endl;
+      std::cout << "etamin: " << ietamin << " etamax: " << ietamax << std::endl;
+      std::cout << " ptmin: " << iptmin  << "  ptmax: " << iptmax << std::endl; 
+      std::cout << "phimin: " << iphimin << " phimax: " << iphimax << std::endl; 
+      std::cout << " x0min: " << ix0min  << "  x0max: " << ix0max << std::endl; 
+      std::cout << " y0min: " << iy0min  << "  y0max: " << iy0max << std::endl;
+      std::cout << " z0min: " << iz0min  << "  z0max: " << iz0max << std::endl;
+    }
+
+    return EXIT_SUCCESS;
   }
 
   if (!rootrdr.reading_from_root_file (fitter, paramin, coordin, 
