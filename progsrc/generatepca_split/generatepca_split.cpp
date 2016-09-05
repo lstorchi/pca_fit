@@ -758,6 +758,31 @@ int main (int argc, char ** argv)
 
   rootrdr.set_savecheckfiles(savecheckfiles);
 
+  unsigned int numev;
+  double ixmin, ixmax, iymin, iymax, izmin, izmax, 
+         ietamin, ietamax, iptmin, iptmax, iphimin, 
+         iphimax, ix0min, ix0max, iy0min, iy0max,
+         iz0min, iz0max;
+  if (!rootrdr.info_from_root_file (numev, ixmin, ixmax, iymin, 
+        iymax, izmin, izmax, ietamin, ietamax, iptmin, iptmax, iphimin, 
+        iphimax, ix0min, ix0max, iy0min, iy0max, iz0min, iz0max))
+  {
+    std::cerr << rootrdr.get_errmsg() << std::endl;
+    return EXIT_FAILURE;
+  }
+  else
+  {
+    std::cout << "  xmin: " << ixmin   << "  xmax: " << ixmax << std::endl;
+    std::cout << "  ymin: " << iymin   << "  ymax: " << iymax << std::endl;
+    std::cout << "  zmin: " << izmin   << "  zmax: " << izmax << std::endl;
+    std::cout << "etamin: " << ietamin << " etamax: " << ietamax << std::endl;
+    std::cout << " ptmin: " << iptmin  << "  ptmax: " << iptmax << std::endl; 
+    std::cout << "phimin: " << iphimin << " phimax: " << iphimax << std::endl; 
+    std::cout << " x0min: " << ix0min  << "  x0max: " << ix0max << std::endl; 
+    std::cout << " y0min: " << iy0min  << "  y0max: " << iy0max << std::endl;
+    std::cout << " z0min: " << iz0min  << "  z0max: " << iz0max << std::endl;
+  }
+
   if (!rootrdr.reading_from_root_file (fitter, paramin, coordin, 
         ptvals, etavals))
   {

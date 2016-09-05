@@ -121,6 +121,13 @@ namespace pca
       bool reading_from_root_file (const pca::pcafitter & fitter, 
           arma::mat & paramin, arma::mat & coordin, 
           arma::vec & ptvalsout, arma::vec & etavalout);
+      
+      bool info_from_root_file (unsigned int & numevent, 
+          double & xmin, double & xmax, double & ymin, double & ymax,
+          double & zmin, double & zmax, double & etamin, double & etamax,
+          double & ptmin, double & ptmax, double & phimin, double & phimax, 
+          double & x0min, double & x0max, double & y0min, double & y0max,
+          double & z0min, double & z0max);
 
       // add back to fitted phi values
       double get_rotation_angle () const

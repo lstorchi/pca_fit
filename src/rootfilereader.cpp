@@ -398,6 +398,184 @@ bool rootfilereader::get_performlinearinterpolation () const
   return performlinearinterpolation_;
 }
 
+bool rootfilereader::info_from_root_file (unsigned int & numevent, 
+    double & xmin, double & xmax, double & ymin, double & ymax,
+    double & zmin, double & zmax, double & etamin, double & etamax,
+    double & ptmin, double & ptmax, double & phimin, double & phimax, 
+    double & x0min, double & x0max, double & y0min, double & y0max,
+    double & z0min, double & z0max)
+{
+  TFile* inputFile = TFile::Open(filename_.c_str());
+
+  TChain* TT = (TChain*) inputFile->Get("BankStubs");
+
+  std::vector<int> moduleid, * p_moduleid; 
+  p_moduleid = &moduleid;
+
+  TT->SetBranchAddress("STUB_modid", &p_moduleid); // QA come determino layerid e altro ? 
+                                                   //    devo caricare la geometria ?
+  std::vector<float> stubx, * p_stubx, stuby, * p_stuby, stubz, * p_stubz,
+    pt, * p_pt, x0, * p_x0, y0, * p_y0, z0, * p_z0, eta, * p_eta,
+    phi, * p_phi;
+  std::vector<float> pdg, * p_pdg;
+
+  p_stubx = &stubx;
+  p_stuby = &stuby;
+  p_stubz = &stubz;
+  p_pt = &pt;
+  p_x0 = &x0;
+  p_y0 = &y0;
+  p_z0 = &z0;
+  p_eta = &eta;
+  p_phi = &phi;
+  p_pdg = &pdg;
+
+  TT->SetBranchAddress("STUB_x", &p_stubx);
+  TT->SetBranchAddress("STUB_y", &p_stuby);
+  TT->SetBranchAddress("STUB_z", &p_stubz);
+
+  TT->SetBranchAddress("STUB_ptGEN", &p_pt);
+  TT->SetBranchAddress("STUB_X0", &p_x0);
+  TT->SetBranchAddress("STUB_Y0", &p_y0);
+  TT->SetBranchAddress("STUB_Z0", &p_z0);
+  TT->SetBranchAddress("STUB_etaGEN", &p_eta);
+  TT->SetBranchAddress("STUB_PHI0", &p_phi);
+  TT->SetBranchAddress("STUB_pdg", &p_pdg);
+
+  unsigned int countevt = 0;
+  Int_t nevent = TT->GetEntries(); 
+  numevent = (unsigned int) nevent;
+
+  if (printoutstdinfo_)
+    std::cout << "Total num of events: " << nevent << std::endl;
+
+  std::set<int> layeridlist;
+
+  std::set<std::string> layersids_set;
+
+  for (Int_t i=0; i<nevent; ++i) 
+  { 
+     TT->GetEntry(i);
+     
+     assert (moduleid.size() == stubx.size());
+     assert (moduleid.size() == stuby.size());
+     assert (moduleid.size() == stubz.size());
+     assert (moduleid.size() == pt.size());
+     assert (moduleid.size() == x0.size());
+     assert (moduleid.size() == y0.size());
+     assert (moduleid.size() == z0.size());
+     assert (moduleid.size() == eta.size());
+     assert (moduleid.size() == phi.size());
+     assert (moduleid.size() == pdg.size());
+
+     bool allAreEqual = ((std::find_if(z0.begin() + 1, z0.end(), 
+        std::bind1st(std::not_equal_to<int>(), z0.front())) == z0.end()) &&
+                        (std::find_if(x0.begin() + 1, x0.end(), 
+        std::bind1st(std::not_equal_to<int>(), x0.front())) == x0.end()) &&
+                        (std::find_if(y0.begin() + 1, y0.end(), 
+        std::bind1st(std::not_equal_to<int>(), y0.front())) == y0.end()) &&
+                        (std::find_if(pt.begin() + 1, pt.end(), 
+        std::bind1st(std::not_equal_to<int>(), pt.front())) == pt.end()) &&
+                        (std::find_if(eta.begin() + 1, eta.end(), 
+        std::bind1st(std::not_equal_to<int>(), eta.front())) == eta.end()) &&
+                        (std::find_if(phi.begin() + 1, phi.end(), 
+        std::bind1st(std::not_equal_to<int>(), phi.front())) == phi.end()) &&
+                        (std::find_if(pdg.begin() + 1, pdg.end(),
+        std::bind1st(std::not_equal_to<int>(), pdg.front())) == pdg.end()));
+
+     if (allAreEqual) // QA nel caso dei BankStubs questo check e' utile ?
+     {
+       int j = 0;
+       for (; j<(int)moduleid.size(); ++j)
+       {
+         if ((i == 0) && (j == 0))
+         {
+           xmin = xmax = stubx[j];
+           ymin = ymax = stuby[j];
+           zmin = zmax = stubz[j];
+         }
+         else
+         {
+           if (xmin > stubx[j])
+             xmin = stubx[j];
+           if (ymin > stuby[j])
+             ymin = stuby[j];
+           if (zmin > stubz[j])
+             zmin = stubz[j];
+           
+           if (xmax < stubx[j])
+             xmax = stubx[j];
+           if (ymax < stuby[j])
+             ymax = stuby[j];
+           if (zmax < stubz[j])
+             zmax = stubz[j];
+         }
+
+         int value = moduleid[j];
+         int layer = value/1000000;
+         value = value-layer*1000000;
+         int ladder = value/10000;
+         value = value-ladder*10000;
+         int module = value/100;
+         value = value-module*100;
+         int segid = value; // QA is just this ? from the source code seems so, I need to / by 10 ?
+
+       }
+       --j;
+
+
+       if (i == 0)
+       {
+         ptmin = ptmax = pt[j];
+         etamin = etamax = eta[j];
+         phimin = phimax = phi[j];
+
+         x0min = x0max = x0[j];
+         y0min = y0max = y0[j];
+         z0min = z0max = z0[j];
+       }
+       else
+       {
+         if (ptmin > pt[j])
+           ptmin = pt[j];
+         if (etamin > eta[j])
+           etamin = eta[j];
+         if (phimin > phi[j])
+           phimin = phi[j];
+         if (x0min > x0[j])
+           x0min = x0[j];
+         if (y0min > y0[j])
+           y0min = y0[j];
+         if (z0min > z0[j])
+           z0min = z0[j];
+
+         if (ptmax < pt[j])
+           ptmax = pt[j];
+         if (etamax < eta[j])
+           etamax = eta[j];
+         if (phimax < phi[j])
+           phimax = phi[j];
+         if (x0max < x0[j])
+           x0max = x0[j];
+         if (y0max < y0[j])
+           y0max = y0[j];
+         if (z0max < z0[j])
+           z0max = z0[j];
+       }
+     }
+ 
+     countevt++;
+
+     if (countevt >= maxnumoftracks_)
+       break;
+  }
+
+  inputFile->Close();
+
+  return true;
+}
+ 
+
 bool rootfilereader::reading_from_root_file (
     const pca::pcafitter & fitter, arma::mat & paramin, 
     arma::mat & coordin, arma::vec & ptvalsout, 
