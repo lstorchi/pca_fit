@@ -773,10 +773,12 @@ int main (int argc, char ** argv)
   if (getinfo)
   {
     unsigned int numev;
-    double ixmin, ixmax, iymin, iymax, izmin, izmax, 
-           ietamin, ietamax, iptmin, iptmax, iphimin, 
-           iphimax, ix0min, ix0max, iy0min, iy0max,
-           iz0min, iz0max;
+    double ixmin = 0.0, ixmax = 0.0, iymin = 0.0, 
+           iymax = 0.0, izmin = 0.0, izmax = 0.0, 
+           ietamin = 0.0, ietamax = 0.0, iptmin = 0.0, 
+           iptmax = 0.0, iphimin = 0.0, iphimax = 0.0, 
+           ix0min = 0.0, ix0max = 0.0, iy0min = 0.0, 
+           iy0max = 0.0, iz0min = 0.0, iz0max = 0.0;
     if (!rootrdr.info_from_root_file (numev, ixmin, ixmax, iymin, 
           iymax, izmin, izmax, ietamin, ietamax, iptmin, iptmax, iphimin, 
           iphimax, ix0min, ix0max, iy0min, iy0max, iz0min, iz0max))
