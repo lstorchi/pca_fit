@@ -453,6 +453,7 @@ bool rootfilereader::info_from_root_file (unsigned int & numevent,
 
   std::set<std::string> layersids_set;
   bool thefirst = true;
+  int counter = 0;
 
   for (Int_t i=0; i<nevent; ++i) 
   { 
@@ -582,6 +583,25 @@ bool rootfilereader::info_from_root_file (unsigned int & numevent,
      eta.clear();
      phi.clear();
      pdg.clear();
+
+     if (counter == 1000000)
+     {
+       counter = 0;
+       std::cout << " event: " << i << std::endl;
+       std::cout << "  xmin: " << xmin    << "    xmax: " << xmax << std::endl;
+       std::cout << "  ymin: " << ymin    << "    ymax: " << ymax << std::endl;
+       std::cout << "  zmin: " << zmin    << "    zmax: " << zmax << std::endl;
+       std::cout << "etamin: " << etamin  << "  etamax: " << etamax << std::endl;
+       std::cout << " ptmin: " << ptmin   << "   ptmax: " << ptmax << std::endl; 
+       std::cout << "phimin: " << phimin  << "  phimax: " << phimax << std::endl; 
+       std::cout << " x0min: " << x0min   << "   x0max: " << x0max << std::endl; 
+       std::cout << " y0min: " << y0min   << "   y0max: " << y0max << std::endl;
+       std::cout << " z0min: " << z0min   << "   z0max: " << z0max << std::endl;
+       std::cout << std::endl;
+ 
+     }
+
+     counter++;
 
      if (countevt >= maxnumoftracks_)
        break;
