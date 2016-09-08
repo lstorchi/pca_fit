@@ -13,7 +13,7 @@
 namespace 
 {
   static const arma::mat NULLA(0, 0);
-  static const arma::rowvec NULLO((unsigned int)0);
+  static const arma::rowvec NULLO((arma::uword)0);
 }
 
 namespace pca

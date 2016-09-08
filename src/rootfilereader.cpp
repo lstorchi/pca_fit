@@ -452,6 +452,7 @@ bool rootfilereader::info_from_root_file (unsigned int & numevent,
   std::set<int> layeridlist;
 
   std::set<std::string> layersids_set;
+  bool thefirst = true;
 
   for (Int_t i=0; i<nevent; ++i) 
   { 
@@ -488,7 +489,7 @@ bool rootfilereader::info_from_root_file (unsigned int & numevent,
          int j = 0;
          for (; j<(int)moduleid.size(); ++j)
          {
-           if ((i == 0) && (j == 0))
+           if (thefirst && (j == 0))
            {
              xmin = xmax = stubx[j];
              ymin = ymax = stuby[j];
@@ -526,7 +527,7 @@ bool rootfilereader::info_from_root_file (unsigned int & numevent,
        
          j = 0;
        
-         if (i == 0)
+         if (thefirst)
          {
            ptmin = ptmax = pt[j];
            etamin = etamax = eta[j];
@@ -535,6 +536,8 @@ bool rootfilereader::info_from_root_file (unsigned int & numevent,
            x0min = x0max = x0[j];
            y0min = y0max = y0[j];
            z0min = z0max = z0[j];
+
+           thefirst = false;
          }
          else
          {
