@@ -690,20 +690,25 @@ int main (int argc, char ** argv)
     }
   }
 
-  char * filename = (char *) alloca (strlen(argv[optind]) + 1);
-  strcpy (filename, argv[optind]);
+  std::vector<std::string> rootfilenames;
 
-  // leggere file coordinate tracce simulate plus parametri
-  if (!file_exists(filename))
+  for (int i=optind; i<argc; ++i)
   {
-    std::cerr << "Inout file does not exist" << std::endl;
-    return EXIT_FAILURE;
+    // leggere file coordinate tracce simulate plus parametri
+    if (!file_exists(argv[i]))
+    {
+      std::cerr << "Inout file does not exist" << std::endl;
+      return EXIT_FAILURE;
+    }
+
+    rootfilenames.push_back(argv[i]);
+
+    std::cout << argv[i] << " exists " << std::endl;
+    
   }
                   
   arma::mat coordin, paramin;
   arma::vec ptvals, etavals;
-
-  std::cout << "Reading data from " << filename << " file " << std::endl;
 
   pca::rootfilereader rootrdr;
 
@@ -712,8 +717,6 @@ int main (int argc, char ** argv)
   rootrdr.set_specificseq (sequence.c_str());
   rootrdr.set_maxnumoflayers(numoflayers);
 
-  rootrdr.set_filename(filename);
- 
   rootrdr.set_rzplane(rzplane);
   rootrdr.set_rphiplane(rphiplane);
   rootrdr.set_etalimits(etamin, etamax);
@@ -770,43 +773,60 @@ int main (int argc, char ** argv)
 
   rootrdr.set_savecheckfiles(savecheckfiles);
 
+  std::vector<std::string>::iterator filename = rootfilenames.begin();
+
   if (getinfo)
   {
-    unsigned int numev;
-    double ixmin = 0.0, ixmax = 0.0, iymin = 0.0, 
-           iymax = 0.0, izmin = 0.0, izmax = 0.0, 
-           ietamin = 0.0, ietamax = 0.0, iptmin = 0.0, 
-           iptmax = 0.0, iphimin = 0.0, iphimax = 0.0, 
-           ix0min = 0.0, ix0max = 0.0, iy0min = 0.0, 
-           iy0max = 0.0, iz0min = 0.0, iz0max = 0.0;
-    if (!rootrdr.info_from_root_file (numev, ixmin, ixmax, iymin, 
-          iymax, izmin, izmax, ietamin, ietamax, iptmin, iptmax, iphimin, 
-          iphimax, ix0min, ix0max, iy0min, iy0max, iz0min, iz0max))
+ 
+    for (; filename != rootfilenames.end(); ++filename)
     {
-      std::cerr << rootrdr.get_errmsg() << std::endl;
-      return EXIT_FAILURE;
-    }
-    else
-    {
-      std::cout << "  xmin: " << ixmin   << "  xmax: " << ixmax << std::endl;
-      std::cout << "  ymin: " << iymin   << "  ymax: " << iymax << std::endl;
-      std::cout << "  zmin: " << izmin   << "  zmax: " << izmax << std::endl;
-      std::cout << "etamin: " << ietamin << " etamax: " << ietamax << std::endl;
-      std::cout << " ptmin: " << iptmin  << "  ptmax: " << iptmax << std::endl; 
-      std::cout << "phimin: " << iphimin << " phimax: " << iphimax << std::endl; 
-      std::cout << " x0min: " << ix0min  << "  x0max: " << ix0max << std::endl; 
-      std::cout << " y0min: " << iy0min  << "  y0max: " << iy0max << std::endl;
-      std::cout << " z0min: " << iz0min  << "  z0max: " << iz0max << std::endl;
+      std::cout << "Reading data from " << *filename << " file " << std::endl;
+      rootrdr.set_filename(filename->c_str());
+  
+      unsigned int numev;
+      double ixmin = 0.0, ixmax = 0.0, iymin = 0.0, 
+             iymax = 0.0, izmin = 0.0, izmax = 0.0, 
+             ietamin = 0.0, ietamax = 0.0, iptmin = 0.0, 
+             iptmax = 0.0, iphimin = 0.0, iphimax = 0.0, 
+             ix0min = 0.0, ix0max = 0.0, iy0min = 0.0, 
+             iy0max = 0.0, iz0min = 0.0, iz0max = 0.0;
+      if (!rootrdr.info_from_root_file (numev, ixmin, ixmax, iymin, 
+            iymax, izmin, izmax, ietamin, ietamax, iptmin, iptmax, iphimin, 
+            iphimax, ix0min, ix0max, iy0min, iy0max, iz0min, iz0max))
+      {
+        std::cerr << rootrdr.get_errmsg() << std::endl;
+        return EXIT_FAILURE;
+      }
+      else
+      {
+        std::cout << "  xmin: " << ixmin   << "  xmax: " << ixmax << std::endl;
+        std::cout << "  ymin: " << iymin   << "  ymax: " << iymax << std::endl;
+        std::cout << "  zmin: " << izmin   << "  zmax: " << izmax << std::endl;
+        std::cout << "etamin: " << ietamin << " etamax: " << ietamax << std::endl;
+        std::cout << " ptmin: " << iptmin  << "  ptmax: " << iptmax << std::endl; 
+        std::cout << "phimin: " << iphimin << " phimax: " << iphimax << std::endl; 
+        std::cout << " x0min: " << ix0min  << "  x0max: " << ix0max << std::endl; 
+        std::cout << " y0min: " << iy0min  << "  y0max: " << iy0max << std::endl;
+        std::cout << " z0min: " << iz0min  << "  z0max: " << iz0max << std::endl;
+      }
     }
 
     return EXIT_SUCCESS;
   }
 
-  if (!rootrdr.reading_from_root_file (fitter, paramin, coordin, 
-        ptvals, etavals))
+  filename = rootfilenames.begin();
+
+  for (; filename != rootfilenames.end(); ++filename)
   {
-    std::cerr << rootrdr.get_errmsg() << std::endl;
-    return EXIT_FAILURE;
+    std::cout << "Reading data from " << *filename << " file " << std::endl;
+    rootrdr.set_filename(filename->c_str());
+ 
+    if (!rootrdr.reading_from_root_file (fitter, paramin, coordin, 
+          ptvals, etavals))
+    {
+      std::cerr << rootrdr.get_errmsg() << std::endl;
+      return EXIT_FAILURE;
+    }
   }
 
   std::cout << "Extracted layers seq: " << rootrdr.get_actualseq() << std::endl;
