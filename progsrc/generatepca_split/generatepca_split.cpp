@@ -816,16 +816,45 @@ int main (int argc, char ** argv)
 
   filename = rootfilenames.begin();
 
-  for (; filename != rootfilenames.end(); ++filename)
+  for (int i = 0; filename != rootfilenames.end(); ++filename, ++i)
   {
     std::cout << "Reading data from " << *filename << " file " << std::endl;
     rootrdr.set_filename(filename->c_str());
+
+    arma::mat coordin_temp, paramin_temp;
+    arma::vec ptvals_temp, etavals_temp;
  
-    if (!rootrdr.reading_from_root_file (fitter, paramin, coordin, 
-          ptvals, etavals))
+    if (!rootrdr.reading_from_root_file (fitter, paramin_temp, coordin_temp, 
+          ptvals_temp, etavals_temp))
     {
       std::cerr << rootrdr.get_errmsg() << std::endl;
       return EXIT_FAILURE;
+    }
+
+    if (i == 0)
+    {
+      coordin = coordin_temp;
+      paramin = paramin_temp;
+      ptvals = ptvals_temp;
+      etavals = etavals_temp;
+    }
+    else
+    {
+      int n = coordin.n_rows;
+      coordin.resize(n + coordin_temp.n_rows, fitter.get_coordim());
+      coordin.insert_rows(n, coordin_temp);
+
+      n = paramin.n_rows;
+      paramin.resize(n + paramin_temp.n_rows, fitter.get_paramdim());
+      paramin.insert_rows(n, paramin_temp);
+
+      n = ptvals.n_elem;
+      ptvals.resize(n + ptvals_temp.n_elem);
+      ptvals.insert_rows(n, ptvals_temp);
+
+      n = etavals.n_elem;
+      etavals.resize(n + etavals_temp.n_elem);
+      etavals.insert_rows(n, etavals_temp);
     }
   }
 
