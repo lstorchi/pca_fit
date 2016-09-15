@@ -25,18 +25,6 @@
 
 // lstorchi: basic quick code to generate PCA constants
 
-namespace
-{
-  bool file_exists(const std::string& filename)
-  {
-    struct stat buf;
-    if (stat(filename.c_str(), &buf) != -1)
-      return true;
-                
-    return false;
-  }
-}
-
 void usage (char * name)
 {
   std::cerr << "usage: " << name << " [options] rootcoordinatesfile " << std::endl;
@@ -695,7 +683,7 @@ int main (int argc, char ** argv)
   for (int i=optind; i<argc; ++i)
   {
     // leggere file coordinate tracce simulate plus parametri
-    if (!file_exists(argv[i]))
+    if (!pca::file_exists(argv[i]))
     {
       std::cerr << "Inout file does not exist" << std::endl;
       return EXIT_FAILURE;
@@ -704,7 +692,6 @@ int main (int argc, char ** argv)
     rootfilenames.push_back(argv[i]);
 
     std::cout << argv[i] << " exists " << std::endl;
-    
   }
                   
   arma::mat coordin, paramin;

@@ -915,9 +915,22 @@ int main (int argc, char ** argv)
 
   }
 
-  char * filename = (char *) alloca (strlen(argv[optind]) + 1);
-  strcpy (filename, argv[optind]);
+  std::vector<std::string> rootfilenames;
 
+  for (int i=optind; i<argc; ++i)
+  {
+    // leggere file coordinate tracce simulate plus parametri
+    if (!pca::file_exists(argv[i]))
+    {
+      std::cerr << "Inout file does not exist" << std::endl;
+      return EXIT_FAILURE;
+    }
+
+    rootfilenames.push_back(argv[i]);
+
+    std::cout << argv[i] << " exists " << std::endl;
+  }
+ 
   // leggere file coordinate tracce e file costanti PCA
   // N righe di 9 double sono le coordinate
   // matrice C e vettore q sono le costanti
@@ -926,20 +939,11 @@ int main (int argc, char ** argv)
   arma::rowvec qvec, kvec;
 
   // leggere file coordinate tracce simulate plus parametri
-  if (!pca::file_exists(filename))
-  {
-    std::cerr << "Inout file does not exist" << std::endl;
-    return EXIT_FAILURE;
-  }
-
-  std::cout << "Reading data from " << filename << " file " << std::endl;
 
   arma::mat coord, param;
   arma::vec ptvals, etavals;
 
   pca::rootfilereader rootrdr;
-
-  rootrdr.set_filename(filename);
 
   rootrdr.set_specificseq (sequence.c_str());
   rootrdr.set_maxnumoflayers(numoflayers);
@@ -986,11 +990,48 @@ int main (int argc, char ** argv)
 
   rootrdr.set_savecheckfiles(false);
 
-  if (!rootrdr.reading_from_root_file (fitter, param, coord, 
-        ptvals, etavals))
+  std::vector<std::string>::iterator filename = rootfilenames.begin();
+
+  for (int i = 0; filename != rootfilenames.end(); ++filename, ++i)
   {
-    std::cerr << rootrdr.get_errmsg() << std::endl;
-    return EXIT_FAILURE;
+    std::cout << "Reading data from " << *filename << " file " << std::endl;
+    rootrdr.set_filename(filename->c_str());
+
+    arma::mat coordin_temp, paramin_temp;
+    arma::vec ptvals_temp, etavals_temp;
+ 
+    if (!rootrdr.reading_from_root_file (fitter, paramin_temp, coordin_temp, 
+          ptvals_temp, etavals_temp))
+    {
+      std::cerr << rootrdr.get_errmsg() << std::endl;
+      return EXIT_FAILURE;
+    }
+
+    if (i == 0)
+    {
+      coord = coordin_temp;
+      param = paramin_temp;
+      ptvals = ptvals_temp;
+      etavals = etavals_temp;
+    }
+    else
+    {
+      int n = coord.n_rows;
+      coord.resize(n + coordin_temp.n_rows, fitter.get_coordim());
+      coord.insert_rows(n, coordin_temp);
+
+      n = param.n_rows;
+      param.resize(n + paramin_temp.n_rows, fitter.get_paramdim());
+      param.insert_rows(n, paramin_temp);
+
+      n = ptvals.n_elem;
+      ptvals.resize(n + ptvals_temp.n_elem);
+      ptvals.insert_rows(n, ptvals_temp);
+
+      n = etavals.n_elem;
+      etavals.resize(n + etavals_temp.n_elem);
+      etavals.insert_rows(n, etavals_temp);
+    }
   }
 
   std::cout << "Rotation angle used: " << rootrdr.get_rotation_angle() << std::endl;
