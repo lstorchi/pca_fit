@@ -375,6 +375,12 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
   double ci = cos(-sec_phi);
   double si = sin(-sec_phi);
 
+  int charge = +1; /* Try to use only + muons const */ 
+  if (track_->getCharge() < 0.0)
+    charge = -1;
+
+  std::cout << "Charge from TCB: " << track_->getCharge() << std::endl;
+
   if (hits.size() == 6)
   {
     pca::matrixpcaconst<int32_t> zrv(1, 12), phirv(1, 12);
@@ -383,18 +389,11 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
     if (hits_to_zrpmatrix_integer (ci, si, hits, zrv, phirv, 
           layersid, pslayersid, tow))
     {
-      int charge = +1;
-      if (track_->getCharge() < 0.0)
-       charge = -1;
-
-      // Check the charge TODO
-      //charge = -1 * charge;
-
       double pt_est = track_->getCurve();
       double eta_est = track_->getEta0();
-      //double z0_est = track_->getZ0();
-      //double phi_est = track_->getPhi0();
-      
+      double z0_est = track_->getZ0();
+      double phi_est = track_->getPhi0();
+ 
       pca::matrixpcaconst<int32_t> cmtx_rz(0, 0);
       pca::matrixpcaconst<int32_t> qvec_rz(0, 0); 
       pca::matrixpcaconst<int32_t> amtx_rz(0, 0); 
@@ -421,29 +420,27 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
                             tow, 
                             pca::INTEGPT))
       {
-        std::cout << "CMTX RZ: " << std::endl;
-        dump_element(cmtx_rz, std::cout);
-      
-        std::cout << "QVEC RZ: " << std::endl;
-        dump_element(qvec_rz, std::cout);
-      
-        std::cout << "CMTX RPHI: " << std::endl;
-        dump_element(cmtx_rphi, std::cout);
-      
-        std::cout << "QVEC RPHI: " << std::endl;
-        dump_element(qvec_rphi, std::cout);
-
-        std::cout << "AMTX RZ: " << std::endl;
-        dump_element(amtx_rz, std::cout);
-      
-        std::cout << "KVEC RZ: " << std::endl;
-        dump_element(kvec_rz, std::cout);
-      
-        std::cout << "AMTX RPHI: " << std::endl;
-        dump_element(amtx_rphi, std::cout);
-      
-        std::cout << "KVEC RPHI: " << std::endl;
-        dump_element(kvec_rphi, std::cout);
+        int_32 cottheta = 0;
+        int_32 z0 = 0;
+        
+        cottheta = qvec_rz(0,0);
+        z0 = qvec_rz(0,1);
+        for (int i=0; i<(int)cmtx_rz.n_cols(); ++i)
+        {
+          cottheta += cmtx_rz(0, i) * zrv(0, i);
+          z0 += cmtx_rz(1, i) * zrv(0, i);
+        }
+        
+        int_32 coverpt = 0; // pt
+        int_32 phi = 0;
+        
+        coverpt = qvec_rphi(0,0);
+        phi = qvec_rphi(0,1);
+        for (int i=0; i<(int)cmtx_rphi.n_cols(); ++i)
+        {
+          coverpt += cmtx_rphi(0, i) * phirv(0, i);
+          phi += cmtx_rphi(1, i) * phirv(0, i);
+        }
       }
       else 
       {
@@ -477,7 +474,6 @@ void PCATrackFitter::fit_float(vector<Hit*> hits)
 
   int tow = sector_id; // The tower ID, necessary to get the phi shift
 
-  //std::cout << "PCA::fit tow: " << tow << " hits size: " << 
   //  hits.size() << std::endl;
   
   double sec_phi = (tow%8) * M_PI / 4.0 - 0.4;

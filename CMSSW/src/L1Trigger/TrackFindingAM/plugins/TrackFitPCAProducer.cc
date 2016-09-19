@@ -148,7 +148,6 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
   unsigned int j     = 0;
 
   std::map< unsigned int , edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > > stubMap;
-  
 
   PCATrackFitter* PCA  = new PCATrackFitter(nbLayers); // Floating point
 
@@ -200,8 +199,6 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
 
       j = 0;
 
-
-
       m_hits.clear();
       tracks.clear();
       stubMap.clear();
@@ -220,7 +217,6 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
       TC->setEta0(tempTrackPtr->getMomentum(5).eta());
       TC->setPhi0(tempTrackPtr->getMomentum(5).phi());
       TC->setZ0(tempTrackPtr->getPOCA(5).z());
-
 
       // Get the stubs in the TC
 
