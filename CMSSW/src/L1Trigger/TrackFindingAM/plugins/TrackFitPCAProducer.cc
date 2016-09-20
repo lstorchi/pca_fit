@@ -150,6 +150,8 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
   std::map< unsigned int , edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > > stubMap;
 
   PCATrackFitter* PCA  = new PCATrackFitter(nbLayers); // Floating point
+  PCATrackFitter* PCA_int  = new PCATrackFitter(nbLayers); // Int
+  PCA_int->set_useinteger(true);
 
   /// STEP 0
   /// Read PCAConst file
@@ -169,6 +171,24 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
   PCA->read_float_const_filename ("../data/infnpca_const_files/barrel_tow29_pca_const.txt");
   PCA->read_float_const_filename ("../data/infnpca_const_files/barrel_tow30_pca_const.txt");
   PCA->read_float_const_filename ("../data/infnpca_const_files/barrel_tow31_pca_const.txt");
+
+  // Integer
+  PCA_int->read_integegr_const_filename ("../data/infnpca_const_files/barrel_tow16_pca_const.txt_int");
+  PCA_int->read_integegr_const_filename ("../data/infnpca_const_files/barrel_tow17_pca_const.txt_int");
+  PCA_int->read_integegr_const_filename ("../data/infnpca_const_files/barrel_tow18_pca_const.txt_int");
+  PCA_int->read_integegr_const_filename ("../data/infnpca_const_files/barrel_tow19_pca_const.txt_int");
+  PCA_int->read_integegr_const_filename ("../data/infnpca_const_files/barrel_tow20_pca_const.txt_int");
+  PCA_int->read_integegr_const_filename ("../data/infnpca_const_files/barrel_tow21_pca_const.txt_int");
+  PCA_int->read_integegr_const_filename ("../data/infnpca_const_files/barrel_tow22_pca_const.txt_int");
+  PCA_int->read_integegr_const_filename ("../data/infnpca_const_files/barrel_tow23_pca_const.txt_int");
+  PCA_int->read_integegr_const_filename ("../data/infnpca_const_files/barrel_tow24_pca_const.txt_int");
+  PCA_int->read_integegr_const_filename ("../data/infnpca_const_files/barrel_tow25_pca_const.txt_int");
+  PCA_int->read_integegr_const_filename ("../data/infnpca_const_files/barrel_tow26_pca_const.txt_int");
+  PCA_int->read_integegr_const_filename ("../data/infnpca_const_files/barrel_tow27_pca_const.txt_int");
+  PCA_int->read_integegr_const_filename ("../data/infnpca_const_files/barrel_tow28_pca_const.txt_int");
+  PCA_int->read_integegr_const_filename ("../data/infnpca_const_files/barrel_tow29_pca_const.txt_int");
+  PCA_int->read_integegr_const_filename ("../data/infnpca_const_files/barrel_tow30_pca_const.txt_int");
+  PCA_int->read_integegr_const_filename ("../data/infnpca_const_files/barrel_tow31_pca_const.txt_int");
 
   /// STEP 1
   /// Loop over track candidates
@@ -299,6 +319,12 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
       PCA->fit(m_hits);
       tracks = PCA->getTracks();
       PCA->clean();
+
+      PCA_int->cleanChi2();
+      PCA_int->setSectorID(tempTrackPtr->getSector());
+      PCA_int->setTrack(TC);
+      PCA_int->fit(m_hits);
+      PCA_int->clean();
 
       delete TC;      
 
