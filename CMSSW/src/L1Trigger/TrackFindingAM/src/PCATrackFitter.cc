@@ -420,8 +420,8 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
                             tow, 
                             pca::INTEGPT))
       {
-        int_32 cottheta = 0;
-        int_32 z0 = 0;
+        int32_t cottheta = 0;
+        int32_t z0 = 0;
         
         cottheta = qvec_rz(0,0);
         z0 = qvec_rz(0,1);
@@ -431,8 +431,8 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
           z0 += cmtx_rz(1, i) * zrv(0, i);
         }
         
-        int_32 coverpt = 0; // pt
-        int_32 phi = 0;
+        int32_t coverpt = 0; // pt
+        int32_t phi = 0;
         
         coverpt = qvec_rphi(0,0);
         phi = qvec_rphi(0,1);
@@ -441,6 +441,11 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
           coverpt += cmtx_rphi(0, i) * phirv(0, i);
           phi += cmtx_rphi(1, i) * phirv(0, i);
         }
+
+        std::cout << " 6oof6 pt:      " << coverpt << " " << pt_est << std::endl;
+        std::cout << " 6oof6 phi:     " << phi << " " << phi_est << std::endl; 
+        std::cout << " 6oof6 eta:     " << cottheta << " " << eta_est << std::endl;
+        std::cout << " 6oof6 z0:      " << z0 << " " << z0_est << std::endl;
       }
       else 
       {
