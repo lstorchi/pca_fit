@@ -461,6 +461,80 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
   }
   else if (hits.size() == 5)
   {
+    pca::matrixpcaconst<long long int> zrv(1, 10), phirv(1, 10);
+    std::string layersid, pslayersid;
+
+    if (hits_to_zrpmatrix_integer (ci, si, hits, zrv, phirv, 
+          layersid, pslayersid, tow))
+    {
+      double pt_est = track_->getCurve();
+      double eta_est = track_->getEta0();
+      double z0_est = track_->getZ0();
+      double phi_est = track_->getPhi0();
+      
+      pca::matrixpcaconst<long long int> cmtx_rz(0, 0);
+      pca::matrixpcaconst<long long int> qvec_rz(0, 0); 
+      pca::matrixpcaconst<long long int> amtx_rz(0, 0); 
+      pca::matrixpcaconst<long long int> kvec_rz(0, 0); 
+      pca::matrixpcaconst<long long int> cmtx_rphi(0, 0); 
+      pca::matrixpcaconst<long long int> qvec_rphi(0, 0); 
+      pca::matrixpcaconst<long long int> amtx_rphi(0, 0); 
+      pca::matrixpcaconst<long long int> kvec_rphi(0, 0); 
+      
+      if (import_pca_const (pcacontvct_integer_, 
+                            cmtx_rz, 
+                            qvec_rz, 
+                            amtx_rz, 
+                            kvec_rz, 
+                            cmtx_rphi, 
+                            qvec_rphi, 
+                            amtx_rphi, 
+                            kvec_rphi, 
+                            eta_est, 
+                            pt_est, 
+                            charge,
+                            layersid, 
+                            pslayersid, 
+                            tow, 
+                            pca::INTEGPT))
+      {
+        long long int cottheta = 0; 
+        long long int z0 = 0;
+        
+        cottheta = qvec_rz(0,0);
+        z0 = qvec_rz(0,1);
+        for (int i=0; i<(int)cmtx_rz.n_cols(); ++i)
+        {
+          cottheta += cmtx_rz(0, i) * zrv(0, i);
+          z0 += cmtx_rz(1, i) * zrv(0, i);
+        }
+        
+        long long int coverpt = 0.0; 
+        long long int phi = 0.0;
+        
+        coverpt = qvec_rphi(0,0);
+        phi = qvec_rphi(0,1);
+        for (int i=0; i<(int)cmtx_rphi.n_cols(); ++i)
+        {
+          coverpt += cmtx_rphi(0, i) * phirv(0, i);
+          phi += cmtx_rphi(1, i) * phirv(0, i);
+        }
+
+        std::cout << " 5oof6 pt:      " << coverpt << " " << pt_est << std::endl;
+        std::cout << " 5oof6 phi:     " << phi << " " << phi_est << std::endl; 
+        std::cout << " 5oof6 eta:     " << cottheta << " " << eta_est << std::endl;
+        std::cout << " 5oof6 z0:      " << z0 << " " << z0_est << std::endl;
+      }
+      else 
+      {
+        std::cerr << "error while reading PCA const" << std::endl;
+      }
+    } 
+    else
+    {
+      std::cerr << "error in coord conv" << std::endl;
+    }
+
     // TODO 
   }
   else 
