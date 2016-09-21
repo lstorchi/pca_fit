@@ -344,7 +344,8 @@ void PCATrackFitter::read_integegr_const_filename (const std::string & in)
   std::cout << "Reading " << in << std::endl;
   if (!pca::read_pcaconst_from_file (pcacontvct_integer_, in.c_str()))
   {
-    std::cerr << "Error while reading constant from " << in << std::endl;
+    std::cerr << "Error while reading constant from " << in << " read only " << 
+      pcacontvct_integer_.size() << std::endl;
     return;
   }
 
@@ -354,7 +355,8 @@ void PCATrackFitter::read_integegr_const_filename (const std::string & in)
   {
     if (it->get_ttype() != pca::INTEGPT)
     {
-      std::cerr << "Wrong PCAconst type " << std::endl;
+      std::cerr << "Wrong PCAconst type for " << it->get_towerid() << 
+        " input file " <<  in << std::endl;
       return;
     }
   }
