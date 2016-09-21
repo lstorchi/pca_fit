@@ -32,11 +32,11 @@
 
 bool read_pca_const (const std::string & cfname)
 {
-  std::vector<pca::matrixpcaconst<int32_t> > vct;
+  std::vector<pca::matrixpcaconst<long long int> > vct;
   if (read_pcaconst_from_file (vct, cfname.c_str()))
   {
     int totaldim = 0, muplus = 0, muneg = 0;
-    std::vector<pca::matrixpcaconst<int32_t> >::const_iterator it = 
+    std::vector<pca::matrixpcaconst<long long int> >::const_iterator it = 
       vct.begin();
     std::cout << "plane_type const_type towerid sector_type " << 
       "ttype layerseq ptmin ptmax etamin etamax chargesign dim" << std::endl;
@@ -52,14 +52,14 @@ bool read_pca_const (const std::string & cfname)
       layerseq = it->get_layersids();
 
       std::cout 
-        << pca::matrixpcaconst<int32_t>::plane_type_to_string(it->get_plane_type()) << " " 
-        << pca::matrixpcaconst<int32_t>::const_type_to_string(it->get_const_type()) << " "
+        << pca::matrixpcaconst<long long int>::plane_type_to_string(it->get_plane_type()) << " " 
+        << pca::matrixpcaconst<long long int>::const_type_to_string(it->get_const_type()) << " "
         << it->get_towerid() << " "
-        << pca::matrixpcaconst<int32_t>::sector_type_to_string(it->get_sector_type()) << " "
-        << pca::matrixpcaconst<int32_t>::ttype_to_string(it->get_ttype()) << " ";
+        << pca::matrixpcaconst<long long int>::sector_type_to_string(it->get_sector_type()) << " "
+        << pca::matrixpcaconst<long long int>::ttype_to_string(it->get_ttype()) << " ";
       std::cout << layerseq << " " << ptmin << " " <<  ptmax << " " 
         << etamin << " "<< etamax << " " << chargesign << " ";
-      if (pca::matrixpcaconst<int32_t>::plane_type_to_string(it->get_plane_type()) == "RPHI")
+      if (pca::matrixpcaconst<long long int>::plane_type_to_string(it->get_plane_type()) == "RPHI")
       {
         if (chargesign > 0)
           muplus++;

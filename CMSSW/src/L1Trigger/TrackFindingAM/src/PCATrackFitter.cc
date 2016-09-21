@@ -30,8 +30,8 @@ namespace
 
   bool hits_to_zrpmatrix_integer (double ci, double si,
       const std::vector<Hit*> & hits, 
-      pca::matrixpcaconst<int32_t> & zrv, 
-      pca::matrixpcaconst<int32_t> & phirv, 
+      pca::matrixpcaconst<long long int> & zrv, 
+      pca::matrixpcaconst<long long int> & phirv, 
       std::string & layersid, 
       std::string & pslayersid,
       int tow)
@@ -53,9 +53,9 @@ namespace
         yi = hits[idx]->getX() * si + hits[idx]->getY() * ci;
       }
 
-      int32_t zi = (int32_t) hits[idx]->getZ();
-      int32_t ri = (int32_t) sqrt(xi*xi+yi*yi);
-      int32_t pi = 50000 * atan2(yi,xi);
+      long long int zi = (long long int) hits[idx]->getZ();
+      long long int ri = (long long int) sqrt(xi*xi+yi*yi);
+      long long int pi = 50000 * atan2(yi,xi);
 
       zrv(0, counter) = zi;
       phirv(0, counter) = pi;
@@ -349,7 +349,7 @@ void PCATrackFitter::read_integegr_const_filename (const std::string & in)
     return;
   }
 
-  std::vector<pca::matrixpcaconst<int32_t> >::const_iterator it = 
+  std::vector<pca::matrixpcaconst<long long int> >::const_iterator it = 
       pcacontvct_integer_.begin();
   for (; it != pcacontvct_integer_.end(); ++it)
   {
@@ -385,7 +385,7 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
 
   if (hits.size() == 6)
   {
-    pca::matrixpcaconst<int32_t> zrv(1, 12), phirv(1, 12);
+    pca::matrixpcaconst<long long int> zrv(1, 12), phirv(1, 12);
     std::string layersid, pslayersid;
 
     if (hits_to_zrpmatrix_integer (ci, si, hits, zrv, phirv, 
@@ -396,14 +396,14 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
       double z0_est = track_->getZ0();
       double phi_est = track_->getPhi0();
  
-      pca::matrixpcaconst<int32_t> cmtx_rz(0, 0);
-      pca::matrixpcaconst<int32_t> qvec_rz(0, 0); 
-      pca::matrixpcaconst<int32_t> amtx_rz(0, 0); 
-      pca::matrixpcaconst<int32_t> kvec_rz(0, 0); 
-      pca::matrixpcaconst<int32_t> cmtx_rphi(0, 0); 
-      pca::matrixpcaconst<int32_t> qvec_rphi(0, 0); 
-      pca::matrixpcaconst<int32_t> amtx_rphi(0, 0); 
-      pca::matrixpcaconst<int32_t> kvec_rphi(0, 0); 
+      pca::matrixpcaconst<long long int> cmtx_rz(0, 0);
+      pca::matrixpcaconst<long long int> qvec_rz(0, 0); 
+      pca::matrixpcaconst<long long int> amtx_rz(0, 0); 
+      pca::matrixpcaconst<long long int> kvec_rz(0, 0); 
+      pca::matrixpcaconst<long long int> cmtx_rphi(0, 0); 
+      pca::matrixpcaconst<long long int> qvec_rphi(0, 0); 
+      pca::matrixpcaconst<long long int> amtx_rphi(0, 0); 
+      pca::matrixpcaconst<long long int> kvec_rphi(0, 0); 
       
       if (pca::import_pca_const (pcacontvct_integer_, 
                             cmtx_rz, 
@@ -422,8 +422,8 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
                             tow, 
                             pca::INTEGPT))
       {
-        int32_t cottheta = 0;
-        int32_t z0 = 0;
+        long long int cottheta = 0;
+        long long int z0 = 0;
         
         cottheta = qvec_rz(0,0);
         z0 = qvec_rz(0,1);
@@ -433,8 +433,8 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
           z0 += cmtx_rz(1, i) * zrv(0, i);
         }
         
-        int32_t coverpt = 0; // pt
-        int32_t phi = 0;
+        long long int coverpt = 0; // pt
+        long long int phi = 0;
         
         coverpt = qvec_rphi(0,0);
         phi = qvec_rphi(0,1);
