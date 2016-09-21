@@ -89,6 +89,15 @@ namespace pca
       void set_useintbitewise (bool);
       bool get_useintbitewise () const;
 
+      void set_multiple_charge_pe (bool in)
+      {
+        multiple_charge_pe_ = in;
+      };
+      bool get_multiple_charge_pe () const
+      {
+        return multiple_charge_pe_;
+      };
+
       void set_towid (int);
       int get_towid () const;
 
@@ -187,6 +196,8 @@ namespace pca
       unsigned int maxnumoftracks_;
       std::string specificseq_;
 
+      bool multiple_charge_pe_;
+
       bool extract_data (const pca::pcafitter & fitter, 
           arma::mat & paramin, arma::mat & coordin, 
           arma::vec & ptvalsout, arma::vec & etavalout);
@@ -197,6 +208,20 @@ namespace pca
           const double & pt, const std::string &) const;
 
       bool linearinterpolation ();
+
+      bool from_root_file (int & i, unsigned int & countlayerswithdupid,
+          std::vector<float> & stubx, 
+          std::vector<float> & stuby, std::vector<float> & stubz, 
+          std::vector<float> & pt, std::vector<float> & x0, 
+          std::vector<float> & y0, std::vector<float> & z0, 
+          std::vector<float> & eta, std::vector<float> & phi, 
+          std::vector<float> & pdg, std::vector<int> & moduleid, 
+          std::set<std::string> & layersids_set, 
+          std::set<int> & layeridlist, std::ofstream & ss, 
+          std::ofstream & ptfile, 
+          std::ofstream & phifile, std::ofstream & d0file, 
+          std::ofstream & etafile, std::ofstream & z0file, 
+          std::ofstream & sstrack);
 
       bool remove_layer ();
 

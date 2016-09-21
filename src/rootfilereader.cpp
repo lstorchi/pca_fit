@@ -138,6 +138,8 @@ void rootfilereader::reset()
   sec_phi_ = 0.0;
   applyrotationtophi_ = false;
   applyrotationtoxy_ = false;
+
+  multiple_charge_pe_ = false;
 }
 
 void rootfilereader::set_region_type (int in)
@@ -470,7 +472,15 @@ bool rootfilereader::info_from_root_file (unsigned int & numevent,
          (moduleid.size() == phi.size()) && 
          (moduleid.size() == pdg.size()))
      {
-       bool allAreEqual = ((std::find_if(z0.begin() + 1, z0.end(), 
+       bool allAreEqual = false;
+
+       if (multiple_charge_pe_)
+       {
+         allAreEqual = true;
+       }
+       else
+       {
+         allAreEqual = ((std::find_if(z0.begin() + 1, z0.end(), 
           std::bind1st(std::not_equal_to<int>(), z0.front())) == z0.end()) &&
                           (std::find_if(x0.begin() + 1, x0.end(), 
           std::bind1st(std::not_equal_to<int>(), x0.front())) == x0.end()) &&
@@ -484,7 +494,8 @@ bool rootfilereader::info_from_root_file (unsigned int & numevent,
           std::bind1st(std::not_equal_to<int>(), phi.front())) == phi.end()) &&
                           (std::find_if(pdg.begin() + 1, pdg.end(),
           std::bind1st(std::not_equal_to<int>(), pdg.front())) == pdg.end()));
-       
+       }
+
        if (allAreEqual) // QA nel caso dei BankStubs questo check e' utile ?
        {
          int j = 0;
@@ -512,18 +523,6 @@ bool rootfilereader::info_from_root_file (unsigned int & numevent,
              if (zmax < stubz[j])
                zmax = stubz[j];
            }
-       
-           /*
-           int value = moduleid[j];
-           int layer = value/1000000;
-           value = value-layer*1000000;
-           int ladder = value/10000;
-           value = value-ladder*10000;
-           int module = value/100;
-           value = value-module*100;
-           int segid = value; 
-           */
-       
          }
        
          j = 0;
@@ -717,7 +716,7 @@ bool rootfilereader::reading_from_root_file (
   for (Int_t i=0; i<nevent; ++i) 
   { 
      TT->GetEntry(i);
-     
+
      if ((moduleid.size() == stubx.size())
         && (moduleid.size() == stuby.size())
         && (moduleid.size() == stubz.size())
@@ -729,302 +728,37 @@ bool rootfilereader::reading_from_root_file (
         && (moduleid.size() == phi.size())
         && (moduleid.size() == pdg.size()))
      {
-       bool allAreEqual = ((std::find_if(z0.begin() + 1, z0.end(), 
-          std::bind1st(std::not_equal_to<int>(), z0.front())) == z0.end()) &&
-                          (std::find_if(x0.begin() + 1, x0.end(), 
-          std::bind1st(std::not_equal_to<int>(), x0.front())) == x0.end()) &&
-                          (std::find_if(y0.begin() + 1, y0.end(), 
-          std::bind1st(std::not_equal_to<int>(), y0.front())) == y0.end()) &&
-                          (std::find_if(pt.begin() + 1, pt.end(), 
-          std::bind1st(std::not_equal_to<int>(), pt.front())) == pt.end()) &&
-                          (std::find_if(eta.begin() + 1, eta.end(), 
-          std::bind1st(std::not_equal_to<int>(), eta.front())) == eta.end()) &&
-                          (std::find_if(phi.begin() + 1, phi.end(), 
-          std::bind1st(std::not_equal_to<int>(), phi.front())) == phi.end()) &&
-                          (std::find_if(pdg.begin() + 1, pdg.end(),
-          std::bind1st(std::not_equal_to<int>(), pdg.front())) == pdg.end()));
-       
-       //if ((moduleid.size() == (unsigned int) maxnumoflayers_)  &&
-       // cannot perfomr this check in hybrid and maybe endcap
-       
-       if (allAreEqual) // QA nel caso dei BankStubs questo check e' utile ?
+       if (multiple_charge_pe_)
        {
-         rootfilereader::track_str single_track;
-       
-         double d0val;
-         //d0val = (y0[0]-(tan(phi[0])*x0[0]))*cos(phi[0]);
-         d0val = y0[0]*cos(phi[0])-x0[0]*sin(phi[0]);
-         //double d0val = x0[0];
-       
-         if (savecheckfiles_)
+         // split mu+ and mu-
+       }
+       else 
+       {
+         bool allAreEqual = ((std::find_if(z0.begin() + 1, z0.end(), 
+            std::bind1st(std::not_equal_to<int>(), z0.front())) == z0.end()) &&
+                            (std::find_if(x0.begin() + 1, x0.end(), 
+            std::bind1st(std::not_equal_to<int>(), x0.front())) == x0.end()) &&
+                            (std::find_if(y0.begin() + 1, y0.end(), 
+            std::bind1st(std::not_equal_to<int>(), y0.front())) == y0.end()) &&
+                            (std::find_if(pt.begin() + 1, pt.end(), 
+            std::bind1st(std::not_equal_to<int>(), pt.front())) == pt.end()) &&
+                            (std::find_if(eta.begin() + 1, eta.end(), 
+            std::bind1st(std::not_equal_to<int>(), eta.front())) == eta.end()) &&
+                            (std::find_if(phi.begin() + 1, phi.end(), 
+            std::bind1st(std::not_equal_to<int>(), phi.front())) == phi.end()) &&
+                            (std::find_if(pdg.begin() + 1, pdg.end(),
+            std::bind1st(std::not_equal_to<int>(), pdg.front())) == pdg.end()));
+         
+         //if ((moduleid.size() == (unsigned int) maxnumoflayers_)  &&
+         // cannot perfomr this check in hybrid and maybe endcap
+         
+         if (allAreEqual) // QA nel caso dei BankStubs questo check e' utile ?
          {
-           ptfile << pt[0] << std::endl;
-           phifile << phi[0] << std::endl;
-           d0file << d0val << std::endl;
-           etafile << eta[0] << std::endl;
-           z0file << z0[0] << std::endl;
-           
-           ss << i+1 << " " << moduleid.size() << std::endl;
-         }
-       
-         single_track.dim = (int)moduleid.size();
-       
-         std::ostringstream osss;
-         std::set<int> layeridset;
-       
-         int j = 0;
-         for (; j<(int)moduleid.size(); ++j)
-         {
-           if (savecheckfiles_)
-             ss << stubx[j] << " " << stuby[j] << " " <<
-               stubz[j] << " ";
-           
-           single_track.x.push_back(stubx[j]);
-           single_track.y.push_back(stuby[j]);
-           single_track.z.push_back(stubz[j]);
-       
-           single_track.i_x.push_back((int16_t) 10 * stubx[j]);
-           single_track.i_y.push_back((int16_t) 10 * stuby[j]);
-           single_track.i_z.push_back((int16_t) 10 * stubz[j]);
-       
-           int value = moduleid[j];
-           int layer = value/1000000;
-           value = value-layer*1000000;
-           int ladder = value/10000;
-           value = value-ladder*10000;
-           int module = value/100;
-           value = value-module*100;
-           int segid = value; // QA is just this ? from the source code seems so, I need to / by 10 ?
-       
-           osss << layer;
-       
-           if (savecheckfiles_)
-             ss << layer << " " << ladder << " " << 
-               module << " " << segid << " " << pdg[j] << std::endl;
-           
-           single_track.layer.push_back(layer);
-           single_track.ladder.push_back(ladder);
-           single_track.module.push_back(module);
-           single_track.segid.push_back(segid);
-       
-           layeridset.insert(layer);
-           layeridlist.insert(layer);
-         }
-         --j;
-       
-         if (savecheckfiles_)
-           ss << pt[j]<< " "  <<
-             phi[j] << " " << d0val << " " 
-             << eta[j] << " " << z0[j] << " " <<
-             x0[j] << " " << y0[j] << std::endl;
-       
-         single_track.pt = pt[j];
-         single_track.pdg = pdg[j];
-         single_track.phi = phi[j];
-         single_track.d0 = d0val;
-         single_track.eta = eta[j];
-         single_track.x0 = x0[j];
-         single_track.y0 = y0[j];
-         single_track.z0 = z0[j];
-         single_track.layersids = osss.str();
-       
-         if (layeridset.size() != (unsigned int)single_track.dim)
-         {
-           ++countlayerswithdupid;
-           // track with duplicated layid are removed 
-         }
-         else
-         {
-           if (regiontype_ == ISBARREL)
-           {
-             if (moduleid.size() == (unsigned int) maxnumoflayers_)
-             {
-               // do not copy duplicated 
-               if (check_if_withinranges (pdg[j], 
-                     eta[j], phi[j], d0val, z0[j], 
-                     pt[j], osss.str()))
-               {
-                 tracks_vct_.push_back(single_track);
-               
-                 if (savecheckfiles_)
-                 {
-                   sstrack << tracks_vct_.size() << " events " << std::endl;
-                   sstrack << i+1 << " " << moduleid.size() << std::endl;
-               
-                   for (int i=0; i<(int)moduleid.size(); ++i)
-                   {
-                     sstrack << single_track.x[i] << " " 
-                             << single_track.y[i] << " " 
-                             << single_track.z[i] << " "
-                             << single_track.layer[i] << " " 
-                             << single_track.ladder[i] << " " 
-                             << single_track.module[i] << " "
-                             << single_track.segid[i] << " "
-                             << single_track.pdg << " " 
-                             << single_track.i_x[i] << " " 
-                             << single_track.i_y[i] << " " 
-                             << single_track.i_z[i] << " "
-                             << std::endl; 
-                   }
-               
-                   sstrack << single_track.pt << " "  
-                           << single_track.phi << " " 
-                           << single_track.d0 << " " 
-                           << single_track.eta << " " 
-                           << single_track.z0 << " " 
-                           << single_track.x0 << " " 
-                           << single_track.y0 << std::endl;
-                 }
-               }
-             }
-           }
-           else if (regiontype_ == ISHYBRID)
-           {
-             if (moduleid.size() >= (unsigned int) maxnumoflayers_)
-             {
-               layersids_set.insert(single_track.layersids);
-               if (check_if_withinranges (pdg[j], 
-                     eta[j], phi[j], d0val, z0[j], 
-                     pt[j], osss.str()))
-               {
-                 if (moduleid.size() == (unsigned int) maxnumoflayers_)
-                 {
-                   // do not copy duplicated 
-                   tracks_vct_.push_back(single_track);
-                 }
-                 else if (moduleid.size() == (unsigned int) (maxnumoflayers_ + 1))
-                 {
-                   // need to remove last layer
-                   single_track.x.pop_back();
-                   single_track.y.pop_back();
-                   single_track.z.pop_back();
-                 
-                   single_track.i_x.pop_back();
-                   single_track.i_y.pop_back();
-                   single_track.i_z.pop_back();
-                 
-                   single_track.layer.pop_back();
-                   single_track.ladder.pop_back();
-                   single_track.module.pop_back();
-                   single_track.segid.pop_back();
-       
-                   single_track.dim = 6;
-       
-                   std::ostringstream ossl;
-                   for (int i=0; i<(int)single_track.layer.size(); ++i)
-                     ossl << single_track.layer[i];
-       
-                   single_track.layersids = ossl.str();
-                 
-                   tracks_vct_.push_back(single_track);
-                 }
-                 else if (moduleid.size() == (unsigned int) (maxnumoflayers_ + 2))
-                 {
-                   // need to remove last 2 layers
-                   single_track.x.pop_back();
-                   single_track.y.pop_back();
-                   single_track.z.pop_back();
-                 
-                   single_track.i_x.pop_back();
-                   single_track.i_y.pop_back();
-                   single_track.i_z.pop_back();
-                 
-                   single_track.layer.pop_back();
-                   single_track.ladder.pop_back();
-                   single_track.module.pop_back();
-                   single_track.segid.pop_back();
-       
-                   single_track.x.pop_back();
-                   single_track.y.pop_back();
-                   single_track.z.pop_back();
-                 
-                   single_track.i_x.pop_back();
-                   single_track.i_y.pop_back();
-                   single_track.i_z.pop_back();
-                 
-                   single_track.layer.pop_back();
-                   single_track.ladder.pop_back();
-                   single_track.module.pop_back();
-                   single_track.segid.pop_back();
-                 
-                   single_track.dim = 6;
-       
-                   std::ostringstream ossl;
-                   for (int i=0; i<(int)single_track.layer.size(); ++i)
-                     ossl << single_track.layer[i];
-       
-                   single_track.layersids = ossl.str();
-       
-                   /*
-                   std::set<int>::iterator iit = layeridset.begin();
-                   for (; iit != layeridset.end(); ++iit)
-                   {
-                     std::cerr << *iit << " : ";
-                   }
-                   std::cerr << single_track.eta << std::endl;
-                   std::cerr << " " << single_track.pt << std::endl;
-                   std::cerr << std::endl;
-                   */
-       
-                   tracks_vct_.push_back(single_track);
-                 }
-                 else 
-                 {
-                   std::set<int>::iterator iit = layeridset.begin();
-                   for (; iit != layeridset.end(); ++iit)
-                   {
-                     std::cerr << *iit << " : ";
-                   }
-                   std::cerr << std::endl;
-       
-                   set_errmsg (1, "HYBRID maybe > 8 layers ");
-                   return false;
-                 }
-                 
-                 if (savecheckfiles_)
-                 {
-                   sstrack << tracks_vct_.size() << " events " << std::endl;
-                   sstrack << i+1 << " " << moduleid.size() << std::endl;
-                 
-                   for (int i=0; i<(int)moduleid.size(); ++i)
-                   {
-                     sstrack << single_track.x[i] << " " 
-                             << single_track.y[i] << " " 
-                             << single_track.z[i] << " "
-                             << single_track.layer[i] << " " 
-                             << single_track.ladder[i] << " " 
-                             << single_track.module[i] << " "
-                             << single_track.segid[i] << " "
-                             << single_track.pdg << " " 
-                             << single_track.i_x[i] << " " 
-                             << single_track.i_y[i] << " " 
-                             << single_track.i_z[i] << " "
-                             << std::endl; 
-                   }
-                 
-                   sstrack << single_track.pt << " "  
-                           << single_track.phi << " " 
-                           << single_track.d0 << " " 
-                           << single_track.eta << " " 
-                           << single_track.z0 << " " 
-                           << single_track.x0 << " " 
-                           << single_track.y0 << std::endl;
-                 }
-               }
-             }
-             else
-             {
-               // there could be a 5 layers track ?
-       
-             }
-           }
-           else if (regiontype_ == ISENDCAP)
-           {
-             if (moduleid.size() >= (unsigned int) maxnumoflayers_)
-             {
-               layersids_set.insert(single_track.layersids);
-             }
-           }
+           if (! from_root_file (i, countlayerswithdupid,
+                 stubx, stuby, stubz, pt, x0, y0, z0, eta, phi,
+                 pdg, moduleid, layersids_set, layeridlist, ss, 
+                 ptfile, phifile, d0file, etafile, z0file, sstrack))
+               return false;
          }
        }
      }
@@ -1081,7 +815,6 @@ bool rootfilereader::reading_from_root_file (
     set_errmsg (1, "ENDCAP not yet implemented ");
     return false;
   }
- 
 
   return rootfilereader::extract_data (fitter, 
     paramin, coordin, ptvalsout, etavalout);
@@ -1090,6 +823,306 @@ bool rootfilereader::reading_from_root_file (
 ///////////////////////////////////////////////////////////////////////////////
 //                                PRIVATE                                    //
 ///////////////////////////////////////////////////////////////////////////////
+
+bool rootfilereader::from_root_file (int & i,
+    unsigned int & countlayerswithdupid,
+    std::vector<float> & stubx, 
+    std::vector<float> & stuby, std::vector<float> & stubz, 
+    std::vector<float> & pt, std::vector<float> & x0, 
+    std::vector<float> & y0, std::vector<float> & z0, 
+    std::vector<float> & eta, std::vector<float> & phi,
+    std::vector<float> & pdg,
+    std::vector<int> & moduleid,
+    std::set<std::string> & layersids_set, 
+    std::set<int> & layeridlist, std::ofstream & ss, 
+    std::ofstream & ptfile, 
+    std::ofstream & phifile, std::ofstream & d0file, 
+    std::ofstream & etafile, std::ofstream & z0file, 
+    std::ofstream & sstrack)
+{
+  
+  rootfilereader::track_str single_track;
+  
+  double d0val;
+  //d0val = (y0[0]-(tan(phi[0])*x0[0]))*cos(phi[0]);
+  d0val = y0[0]*cos(phi[0])-x0[0]*sin(phi[0]);
+  //double d0val = x0[0];
+  
+  if (savecheckfiles_)
+  {
+    ptfile << pt[0] << std::endl;
+    phifile << phi[0] << std::endl;
+    d0file << d0val << std::endl;
+    etafile << eta[0] << std::endl;
+    z0file << z0[0] << std::endl;
+    
+    ss << i+1 << " " << moduleid.size() << std::endl;
+  }
+  
+  single_track.dim = (int)moduleid.size();
+  
+  std::ostringstream osss;
+  std::set<int> layeridset;
+  
+  int j = 0;
+  for (; j<(int)moduleid.size(); ++j)
+  {
+    if (savecheckfiles_)
+      ss << stubx[j] << " " << stuby[j] << " " <<
+        stubz[j] << " ";
+    
+    single_track.x.push_back(stubx[j]);
+    single_track.y.push_back(stuby[j]);
+    single_track.z.push_back(stubz[j]);
+  
+    single_track.i_x.push_back((int16_t) 10 * stubx[j]);
+    single_track.i_y.push_back((int16_t) 10 * stuby[j]);
+    single_track.i_z.push_back((int16_t) 10 * stubz[j]);
+  
+    int value = moduleid[j];
+    int layer = value/1000000;
+    value = value-layer*1000000;
+    int ladder = value/10000;
+    value = value-ladder*10000;
+    int module = value/100;
+    value = value-module*100;
+    int segid = value; // QA is just this ? from the source code seems so, I need to / by 10 ?
+  
+    osss << layer;
+  
+    if (savecheckfiles_)
+      ss << layer << " " << ladder << " " << 
+        module << " " << segid << " " << pdg[j] << std::endl;
+    
+    single_track.layer.push_back(layer);
+    single_track.ladder.push_back(ladder);
+    single_track.module.push_back(module);
+    single_track.segid.push_back(segid);
+  
+    layeridset.insert(layer);
+    layeridlist.insert(layer);
+  }
+  --j;
+  
+  if (savecheckfiles_)
+    ss << pt[j]<< " "  <<
+      phi[j] << " " << d0val << " " 
+      << eta[j] << " " << z0[j] << " " <<
+      x0[j] << " " << y0[j] << std::endl;
+  
+  single_track.pt = pt[j];
+  single_track.pdg = pdg[j];
+  single_track.phi = phi[j];
+  single_track.d0 = d0val;
+  single_track.eta = eta[j];
+  single_track.x0 = x0[j];
+  single_track.y0 = y0[j];
+  single_track.z0 = z0[j];
+  single_track.layersids = osss.str();
+  
+  if (layeridset.size() != (unsigned int)single_track.dim)
+  {
+    ++countlayerswithdupid;
+    // track with duplicated layid are removed 
+  }
+  else
+  {
+    if (regiontype_ == ISBARREL)
+    {
+      if (moduleid.size() == (unsigned int) maxnumoflayers_)
+      {
+        // do not copy duplicated 
+        if (check_if_withinranges (pdg[j], 
+              eta[j], phi[j], d0val, z0[j], 
+              pt[j], osss.str()))
+        {
+          tracks_vct_.push_back(single_track);
+        
+          if (savecheckfiles_)
+          {
+            sstrack << tracks_vct_.size() << " events " << std::endl;
+            sstrack << i+1 << " " << moduleid.size() << std::endl;
+        
+            for (int i=0; i<(int)moduleid.size(); ++i)
+            {
+              sstrack << single_track.x[i] << " " 
+                      << single_track.y[i] << " " 
+                      << single_track.z[i] << " "
+                      << single_track.layer[i] << " " 
+                      << single_track.ladder[i] << " " 
+                      << single_track.module[i] << " "
+                      << single_track.segid[i] << " "
+                      << single_track.pdg << " " 
+                      << single_track.i_x[i] << " " 
+                      << single_track.i_y[i] << " " 
+                      << single_track.i_z[i] << " "
+                      << std::endl; 
+            }
+        
+            sstrack << single_track.pt << " "  
+                    << single_track.phi << " " 
+                    << single_track.d0 << " " 
+                    << single_track.eta << " " 
+                    << single_track.z0 << " " 
+                    << single_track.x0 << " " 
+                    << single_track.y0 << std::endl;
+          }
+        }
+      }
+    }
+    else if (regiontype_ == ISHYBRID)
+    {
+      if (moduleid.size() >= (unsigned int) maxnumoflayers_)
+      {
+        layersids_set.insert(single_track.layersids);
+        if (check_if_withinranges (pdg[j], 
+              eta[j], phi[j], d0val, z0[j], 
+              pt[j], osss.str()))
+        {
+          if (moduleid.size() == (unsigned int) maxnumoflayers_)
+          {
+            // do not copy duplicated 
+            tracks_vct_.push_back(single_track);
+          }
+          else if (moduleid.size() == (unsigned int) (maxnumoflayers_ + 1))
+          {
+            // need to remove last layer
+            single_track.x.pop_back();
+            single_track.y.pop_back();
+            single_track.z.pop_back();
+          
+            single_track.i_x.pop_back();
+            single_track.i_y.pop_back();
+            single_track.i_z.pop_back();
+          
+            single_track.layer.pop_back();
+            single_track.ladder.pop_back();
+            single_track.module.pop_back();
+            single_track.segid.pop_back();
+  
+            single_track.dim = 6;
+  
+            std::ostringstream ossl;
+            for (int i=0; i<(int)single_track.layer.size(); ++i)
+              ossl << single_track.layer[i];
+  
+            single_track.layersids = ossl.str();
+          
+            tracks_vct_.push_back(single_track);
+          }
+          else if (moduleid.size() == (unsigned int) (maxnumoflayers_ + 2))
+          {
+            // need to remove last 2 layers
+            single_track.x.pop_back();
+            single_track.y.pop_back();
+            single_track.z.pop_back();
+          
+            single_track.i_x.pop_back();
+            single_track.i_y.pop_back();
+            single_track.i_z.pop_back();
+          
+            single_track.layer.pop_back();
+            single_track.ladder.pop_back();
+            single_track.module.pop_back();
+            single_track.segid.pop_back();
+  
+            single_track.x.pop_back();
+            single_track.y.pop_back();
+            single_track.z.pop_back();
+          
+            single_track.i_x.pop_back();
+            single_track.i_y.pop_back();
+            single_track.i_z.pop_back();
+          
+            single_track.layer.pop_back();
+            single_track.ladder.pop_back();
+            single_track.module.pop_back();
+            single_track.segid.pop_back();
+          
+            single_track.dim = 6;
+  
+            std::ostringstream ossl;
+            for (int i=0; i<(int)single_track.layer.size(); ++i)
+              ossl << single_track.layer[i];
+  
+            single_track.layersids = ossl.str();
+  
+            /*
+            std::set<int>::iterator iit = layeridset.begin();
+            for (; iit != layeridset.end(); ++iit)
+            {
+              std::cerr << *iit << " : ";
+            }
+            std::cerr << single_track.eta << std::endl;
+            std::cerr << " " << single_track.pt << std::endl;
+            std::cerr << std::endl;
+            */
+  
+            tracks_vct_.push_back(single_track);
+          }
+          else 
+          {
+            std::set<int>::iterator iit = layeridset.begin();
+            for (; iit != layeridset.end(); ++iit)
+            {
+              std::cerr << *iit << " : ";
+            }
+            std::cerr << std::endl;
+  
+            set_errmsg (1, "HYBRID maybe > 8 layers ");
+            return false;
+          }
+          
+          if (savecheckfiles_)
+          {
+            sstrack << tracks_vct_.size() << " events " << std::endl;
+            sstrack << i+1 << " " << moduleid.size() << std::endl;
+          
+            for (int i=0; i<(int)moduleid.size(); ++i)
+            {
+              sstrack << single_track.x[i] << " " 
+                      << single_track.y[i] << " " 
+                      << single_track.z[i] << " "
+                      << single_track.layer[i] << " " 
+                      << single_track.ladder[i] << " " 
+                      << single_track.module[i] << " "
+                      << single_track.segid[i] << " "
+                      << single_track.pdg << " " 
+                      << single_track.i_x[i] << " " 
+                      << single_track.i_y[i] << " " 
+                      << single_track.i_z[i] << " "
+                      << std::endl; 
+            }
+          
+            sstrack << single_track.pt << " "  
+                    << single_track.phi << " " 
+                    << single_track.d0 << " " 
+                    << single_track.eta << " " 
+                    << single_track.z0 << " " 
+                    << single_track.x0 << " " 
+                    << single_track.y0 << std::endl;
+          }
+        }
+      }
+      else
+      {
+        // there could be a 5 layers track ?
+  
+      }
+    }
+    else if (regiontype_ == ISENDCAP)
+    {
+      if (moduleid.size() >= (unsigned int) maxnumoflayers_)
+      {
+        layersids_set.insert(single_track.layersids);
+      }
+    }
+  }
+
+  return true;
+
+}
+
 
 bool rootfilereader::convertorphiz (std::vector<track_rphiz_str> & 
     rphiz_tracks)
