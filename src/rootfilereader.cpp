@@ -730,7 +730,107 @@ bool rootfilereader::reading_from_root_file (
      {
        if (multiple_charge_pe_)
        {
-         // split mu+ and mu-
+         // split mu+ and mu- Q and D
+         std::vector<float> t_stubx, t_stuby, t_stubz, t_pt, 
+           t_x0, t_y0, t_z0, t_eta, t_phi, t_pdg;
+         std::vector<int> t_moduleid;
+         for (int j = 0; j<(int)pdg.size(); ++j)
+         {
+           if (pdg[j] > 0)
+           {
+             t_stubx.push_back(stubx[j]);
+             t_stuby.push_back(stuby[j]);
+             t_stubz.push_back(stubz[j]);
+             t_pt.push_back(pt[j]);
+             t_x0.push_back(x0[j]);
+             t_y0.push_back(y0[j]);
+             t_z0.push_back(z0[j]);
+             t_eta.push_back(eta[j]);
+             t_phi.push_back(phi[j]);
+             t_pdg.push_back(pdg[j]);
+             t_moduleid.push_back(moduleid[j]);
+           }
+         }
+
+         bool allAreEqual = ((std::find_if(t_z0.begin() + 1, t_z0.end(), 
+            std::bind1st(std::not_equal_to<int>(), t_z0.front())) == t_z0.end()) &&
+                            (std::find_if(t_x0.begin() + 1, t_x0.end(), 
+            std::bind1st(std::not_equal_to<int>(), t_x0.front())) == t_x0.end()) &&
+                            (std::find_if(t_y0.begin() + 1, t_y0.end(), 
+            std::bind1st(std::not_equal_to<int>(), t_y0.front())) == t_y0.end()) &&
+                            (std::find_if(t_pt.begin() + 1, t_pt.end(), 
+            std::bind1st(std::not_equal_to<int>(), t_pt.front())) == t_pt.end()) &&
+                            (std::find_if(t_eta.begin() + 1, t_eta.end(), 
+            std::bind1st(std::not_equal_to<int>(), t_eta.front())) == t_eta.end()) &&
+                            (std::find_if(t_phi.begin() + 1, t_phi.end(), 
+            std::bind1st(std::not_equal_to<int>(), t_phi.front())) == t_phi.end()) &&
+                            (std::find_if(t_pdg.begin() + 1, t_pdg.end(),
+            std::bind1st(std::not_equal_to<int>(), t_pdg.front())) == t_pdg.end()));
+         
+         if (allAreEqual) 
+         {
+           if (! from_root_file (i, countlayerswithdupid,
+                 t_stubx, t_stuby, t_stubz, t_pt, t_x0, t_y0, t_z0, 
+                 t_eta, t_phi,t_pdg, t_moduleid, layersids_set, 
+                 layeridlist, ss, ptfile, phifile, d0file, etafile, 
+                 z0file, sstrack))
+               return false;
+         }
+
+         t_stubx.clear();
+         t_stuby.clear();
+         t_stubz.clear();
+         t_pt.clear();
+         t_x0.clear();
+         t_y0.clear();
+         t_z0.clear();
+         t_eta.clear();
+         t_phi.clear();
+         t_pdg.clear();
+         t_moduleid.clear();
+
+         for (int j = 0; j<(int)pdg.size(); ++j)
+         {
+           if (pdg[j] < 0)
+           {
+             t_stubx.push_back(stubx[j]);
+             t_stuby.push_back(stuby[j]);
+             t_stubz.push_back(stubz[j]);
+             t_pt.push_back(pt[j]);
+             t_x0.push_back(x0[j]);
+             t_y0.push_back(y0[j]);
+             t_z0.push_back(z0[j]);
+             t_eta.push_back(eta[j]);
+             t_phi.push_back(phi[j]);
+             t_pdg.push_back(pdg[j]);
+             t_moduleid.push_back(moduleid[j]);
+           }
+         }
+
+         allAreEqual = ((std::find_if(t_z0.begin() + 1, t_z0.end(), 
+            std::bind1st(std::not_equal_to<int>(), t_z0.front())) == t_z0.end()) &&
+                            (std::find_if(t_x0.begin() + 1, t_x0.end(), 
+            std::bind1st(std::not_equal_to<int>(), t_x0.front())) == t_x0.end()) &&
+                            (std::find_if(t_y0.begin() + 1, t_y0.end(), 
+            std::bind1st(std::not_equal_to<int>(), t_y0.front())) == t_y0.end()) &&
+                            (std::find_if(t_pt.begin() + 1, t_pt.end(), 
+            std::bind1st(std::not_equal_to<int>(), t_pt.front())) == t_pt.end()) &&
+                            (std::find_if(t_eta.begin() + 1, t_eta.end(), 
+            std::bind1st(std::not_equal_to<int>(), t_eta.front())) == t_eta.end()) &&
+                            (std::find_if(t_phi.begin() + 1, t_phi.end(), 
+            std::bind1st(std::not_equal_to<int>(), t_phi.front())) == t_phi.end()) &&
+                            (std::find_if(t_pdg.begin() + 1, t_pdg.end(),
+            std::bind1st(std::not_equal_to<int>(), t_pdg.front())) == t_pdg.end()));
+         
+         if (allAreEqual) 
+         {
+           if (! from_root_file (i, countlayerswithdupid,
+                 t_stubx, t_stuby, t_stubz, t_pt, t_x0, t_y0, t_z0, 
+                 t_eta, t_phi,t_pdg, t_moduleid, layersids_set, 
+                 layeridlist, ss, ptfile, phifile, d0file, etafile, 
+                 z0file, sstrack))
+               return false;
+         }
        }
        else 
        {
