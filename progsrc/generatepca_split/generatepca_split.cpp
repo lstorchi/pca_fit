@@ -69,6 +69,7 @@ void usage (char * name)
   std::cerr << " -R, --region-type=[num]         : specify region-type 0=BARREL, 1=HYBRID, 2=ENDCAP " << std::endl;
   std::cerr << "                                   BARREL is the default " << std::endl;
   std::cerr << " -G, --get-info                  : print some infos about the root file and exit " << std::endl;
+  std::cerr << " -K, --set-multiple-pdg          : use root files with multiple PDG per entry " << std::endl;
 
   exit(1);
 }
@@ -360,6 +361,7 @@ int main (int argc, char ** argv)
 
   bool excludesmodule = false;
   bool verbose = false;
+  bool multiple_pdg = false;
 
   bool intbitewise = false;
   bool use3layers = false;
@@ -397,10 +399,11 @@ int main (int argc, char ** argv)
       {"use-only-3-layers", 0, NULL, 'c'},
       {"region-type", 1, NULL, 'R'},
       {"get-info", 0, NULL, 'G'},
+      {"set-multiple-pdg", 0, NULL, 'K'},
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "hvVTlpg:zrxn:t:m:o:u:kaf:b:dy:X:B:D:cR:G", 
+    c = getopt_long (argc, argv, "hvVTlpg:zrxn:t:m:o:u:kaf:b:dy:X:B:D:cR:GK", 
         long_options, &option_index);
 
     if (c == -1)
@@ -550,6 +553,9 @@ int main (int argc, char ** argv)
         break;
       case 'G':
         getinfo = true;
+        break;
+      case 'K':
+        multiple_pdg = true;
         break;
       default:
         usage (argv[0]);
@@ -716,6 +722,7 @@ int main (int argc, char ** argv)
   rootrdr.set_verbose(verbose);
   rootrdr.set_checklayersids(checklayersids);
   rootrdr.set_region_type(regiontype);
+  rootrdr.set_multiple_charge_pe(multiple_pdg);
 
   // should be removed 
   /*
