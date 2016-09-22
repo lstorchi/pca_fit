@@ -53,6 +53,9 @@ namespace
         yi = hits[idx]->getX() * si + hits[idx]->getY() * ci;
       }
 
+
+      use binning TCB function 
+
       long long int zi = (long long int) hits[idx]->getZ();
       long long int ri = (long long int) sqrt(xi*xi+yi*yi);
       long long int pi = 50000 * atan2(yi,xi);
@@ -508,6 +511,9 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
           cottheta += cmtx_rz(0, i) * zrv(0, i);
           z0 += cmtx_rz(1, i) * zrv(0, i);
         }
+
+        cottheta * const_mult_factor after convert in eta 
+        z0 * const_mult_factor
         
         long long int coverpt = 0.0; 
         long long int phi = 0.0;
@@ -519,6 +525,10 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
           coverpt += cmtx_rphi(0, i) * phirv(0, i);
           phi += cmtx_rphi(1, i) * phirv(0, i);
         }
+
+        (charge/coverpt) * const_mult_factor --> (1e6 * 1024)
+        phi * const_mult_factor 
+
 
         std::cout << " 5oof6 pt:      " << coverpt << " " << pt_est << std::endl;
         std::cout << " 5oof6 phi:     " << phi << " " << phi_est << std::endl; 
