@@ -1,4 +1,4 @@
-/*
+/*`
 C++ implementation of the PCA fitter
 
 Loriano Storchi: 2016
@@ -8,6 +8,87 @@ Loriano Storchi: 2016
 
 namespace 
 {
+  const int mult_factor = 1e6;
+  const int const_mult_factor = mult_factor*1024;
+  const int chisq_mult_factor = 1e4;
+  const int chisq_const_mult_factor = chisq_mult_factor*1024;
+  const int const_w = 25;
+  const int add_const_w = 36;
+
+
+  enum HW_SIGN_TYPE {UNSIGNED, SIGNED};
+  /* Function which simulate the HardWare representation of the values : 
+   * manage UNSIGNED and SIGNED (2's complement) overflows and accuracy 
+   * according to the available dynamic of the binary word from TCB 
+   * S.Viret, G.Galbit */
+  double binning(double fNumber, int nMSBpowOfTwo, int nBits, HW_SIGN_TYPE signType)
+  {
+    if (signType == UNSIGNED && fNumber < 0)
+      fNumber = -fNumber;
+  
+    int nLSBpowOfTwo;
+	
+    //Process the power of two of the LSB for the binary representation
+    if (signType == UNSIGNED)
+    {
+      nLSBpowOfTwo = nMSBpowOfTwo - (nBits-1);
+    }	
+    else
+    {
+      //If SIGNED, 1 bit is used for the sign
+      nLSBpowOfTwo = nMSBpowOfTwo - (nBits-2);		
+    }
+
+    /* Accuracy Simulation */
+    //Divide the number by the power of two of the LSB => 
+    //the integer part of the new number is the value we are looking for
+    fNumber = fNumber / pow(2, nLSBpowOfTwo);
+	
+    //Remove the fractionnal part by rounding down (for both positive and 
+    //negative values), this simulate the HW truncature
+    fNumber = floor(fNumber);
+	
+    //Multiply the number by the power of two of the LSB to get the correct float value
+    fNumber = fNumber * pow(2, nLSBpowOfTwo);
+
+    double fBinnedNumber = fNumber;
+    /* Overflow Simulation */
+
+    if (signType == UNSIGNED)
+    {		  
+      //If the number is in UNSIGNED representation			
+      fNumber = fmod(fNumber, pow(2, nMSBpowOfTwo+1));
+    }
+    else
+    {		  
+      //If the number is in SIGNED representation (2's complement)
+      double fTempResult = fNumber - pow(2, nMSBpowOfTwo+1); //substract the possible range to the number
+
+      if (fTempResult >= 0)
+      {
+        //If there is an overflow, it's a positive one
+        fNumber = fmod(fTempResult, pow(2, nMSBpowOfTwo+2)) - pow(2, nMSBpowOfTwo+1);
+      }
+      else
+      {
+        //If there is an overflow, it's a negative one (2's complement 
+        //format has an asymetric range for positive and negative values)
+        fNumber = fmod(fTempResult + pow(2, nLSBpowOfTwo), pow(2, nMSBpowOfTwo+2)) 
+          - pow(2, nLSBpowOfTwo) + pow(2, nMSBpowOfTwo+1);
+      }  
+    }
+
+    //If the new number is different from the previous one, an HW overflow occured
+    if (fNumber != fBinnedNumber)
+    {
+      std::cout << "WARNING HW overflow for the value : " << fBinnedNumber <<
+        " resulting value : " << fNumber << " (diff= " << fBinnedNumber-fNumber
+        << ")" << std::endl;
+    }
+	
+    return fNumber;
+  }
+
   /*
   #define LAYIDDIM 6
   int stdlayersid[LAYIDDIM] = {5, 6, 7, 8, 9, 10};
@@ -53,12 +134,16 @@ namespace
         yi = hits[idx]->getX() * si + hits[idx]->getY() * ci;
       }
 
-
-      use binning TCB function 
-
+      //use binning TCB function 
       long long int zi = (long long int) hits[idx]->getZ();
       long long int ri = (long long int) sqrt(xi*xi+yi*yi);
-      long long int pi = 50000 * atan2(yi,xi);
+      long long int pi = atan2(yi,xi);
+
+      /*
+      long long int zi = (long long int) binning(hits[idx]->getZ(), 6, 18, SIGNED);
+      long long int ri = (long long int) binning(sqrt(xi*xi+yi*yi), 6, 18, SIGNED);
+      long long int pi = (long long int) binning(atan2(yi,xi), 4, 18, SIGNED);
+      */
 
       zrv(0, counter) = zi;
       phirv(0, counter) = pi;
@@ -435,6 +520,17 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
           cottheta += cmtx_rz(0, i) * zrv(0, i);
           z0 += cmtx_rz(1, i) * zrv(0, i);
         }
+
+        double d_cottheta = (double) (cottheta / const_mult_factor);
+        double d_z0 = (double) (z0 / const_mult_factor);
+
+        double eta = 0.0e0;
+        double theta = atan(1.0e0 / d_cottheta); 
+        double tantheta2 = tan (theta/2.0e0); 
+        if (tantheta2 < 0.0)
+          eta = 1.0e0 * log (-1.0e0 * tantheta2);
+        else
+          eta = -1.0e0 * log (tantheta2);
         
         long long int coverpt = 0; // pt
         long long int phi = 0;
@@ -447,10 +543,13 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
           phi += cmtx_rphi(1, i) * phirv(0, i);
         }
 
-        std::cout << " 6oof6 pt:      " << coverpt << " " << pt_est << std::endl;
-        std::cout << " 6oof6 phi:     " << phi << " " << phi_est << std::endl; 
-        std::cout << " 6oof6 eta:     " << cottheta << " " << eta_est << std::endl;
-        std::cout << " 6oof6 z0:      " << z0 << " " << z0_est << std::endl;
+        double d_pt = (double) charge / ((double) (coverpt / const_mult_factor));
+        double d_phi = (double) (phi / const_mult_factor);
+
+        std::cout << " 6oof6 pt:      " << d_pt << " " << pt_est << std::endl;
+        std::cout << " 6oof6 phi:     " << d_phi << " " << phi_est << std::endl; 
+        std::cout << " 6oof6 eta:     " << eta << " " << eta_est << std::endl;
+        std::cout << " 6oof6 z0:      " << d_z0 << " " << z0_est << std::endl;
       }
       else 
       {
@@ -512,8 +611,16 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
           z0 += cmtx_rz(1, i) * zrv(0, i);
         }
 
-        cottheta * const_mult_factor after convert in eta 
-        z0 * const_mult_factor
+        double d_cottheta = (double) (cottheta / const_mult_factor);
+        double d_z0 = (double) (z0 / const_mult_factor);
+
+        double eta = 0.0e0;
+        double theta = atan(1.0e0 / d_cottheta); 
+        double tantheta2 = tan (theta/2.0e0); 
+        if (tantheta2 < 0.0)
+          eta = 1.0e0 * log (-1.0e0 * tantheta2);
+        else
+          eta = -1.0e0 * log (tantheta2);
         
         long long int coverpt = 0.0; 
         long long int phi = 0.0;
@@ -526,14 +633,13 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
           phi += cmtx_rphi(1, i) * phirv(0, i);
         }
 
-        (charge/coverpt) * const_mult_factor --> (1e6 * 1024)
-        phi * const_mult_factor 
+        double d_pt = (double) ((charge/coverpt) * const_mult_factor);
+        double d_phi = (double) (phi / const_mult_factor);
 
-
-        std::cout << " 5oof6 pt:      " << coverpt << " " << pt_est << std::endl;
-        std::cout << " 5oof6 phi:     " << phi << " " << phi_est << std::endl; 
-        std::cout << " 5oof6 eta:     " << cottheta << " " << eta_est << std::endl;
-        std::cout << " 5oof6 z0:      " << z0 << " " << z0_est << std::endl;
+        std::cout << " 5oof6 pt:      " << d_pt << " " << pt_est << std::endl;
+        std::cout << " 5oof6 phi:     " << d_phi << " " << phi_est << std::endl; 
+        std::cout << " 5oof6 eta:     " << eta << " " << eta_est << std::endl;
+        std::cout << " 5oof6 z0:      " << d_z0 << " " << z0_est << std::endl;
       }
       else 
       {
