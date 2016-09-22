@@ -1043,19 +1043,19 @@ bool rootfilereader::from_root_file (int & i,
             sstrack << tracks_vct_.size() << " events " << std::endl;
             sstrack << i+1 << " " << moduleid.size() << std::endl;
         
-            for (int i=0; i<(int)moduleid.size(); ++i)
+            for (int a=0; a<(int)moduleid.size(); ++a)
             {
-              sstrack << single_track.x[i] << " " 
-                      << single_track.y[i] << " " 
-                      << single_track.z[i] << " "
-                      << single_track.layer[i] << " " 
-                      << single_track.ladder[i] << " " 
-                      << single_track.module[i] << " "
-                      << single_track.segid[i] << " "
+              sstrack << single_track.x[a] << " " 
+                      << single_track.y[a] << " " 
+                      << single_track.z[a] << " "
+                      << single_track.layer[a] << " " 
+                      << single_track.ladder[a] << " " 
+                      << single_track.module[a] << " "
+                      << single_track.segid[a] << " "
                       << single_track.pdg << " " 
-                      << single_track.i_x[i] << " " 
-                      << single_track.i_y[i] << " " 
-                      << single_track.i_z[i] << " "
+                      << single_track.i_x[a] << " " 
+                      << single_track.i_y[a] << " " 
+                      << single_track.i_z[a] << " "
                       << std::endl; 
             }
         
@@ -1142,8 +1142,8 @@ bool rootfilereader::from_root_file (int & i,
             single_track.dim = 6;
   
             std::ostringstream ossl;
-            for (int i=0; i<(int)single_track.layer.size(); ++i)
-              ossl << single_track.layer[i];
+            for (int a=0; a<(int)single_track.layer.size(); ++a)
+              ossl << single_track.layer[a];
   
             single_track.layersids = ossl.str();
   
@@ -1178,19 +1178,19 @@ bool rootfilereader::from_root_file (int & i,
             sstrack << tracks_vct_.size() << " events " << std::endl;
             sstrack << i+1 << " " << moduleid.size() << std::endl;
           
-            for (int i=0; i<(int)moduleid.size(); ++i)
+            for (int a=0; a<(int)moduleid.size(); ++a)
             {
-              sstrack << single_track.x[i] << " " 
-                      << single_track.y[i] << " " 
-                      << single_track.z[i] << " "
-                      << single_track.layer[i] << " " 
-                      << single_track.ladder[i] << " " 
-                      << single_track.module[i] << " "
-                      << single_track.segid[i] << " "
+              sstrack << single_track.x[a] << " " 
+                      << single_track.y[a] << " " 
+                      << single_track.z[a] << " "
+                      << single_track.layer[a] << " " 
+                      << single_track.ladder[a] << " " 
+                      << single_track.module[a] << " "
+                      << single_track.segid[a] << " "
                       << single_track.pdg << " " 
-                      << single_track.i_x[i] << " " 
-                      << single_track.i_y[i] << " " 
-                      << single_track.i_z[i] << " "
+                      << single_track.i_x[a] << " " 
+                      << single_track.i_y[a] << " " 
+                      << single_track.i_z[a] << " "
                       << std::endl; 
             }
           
