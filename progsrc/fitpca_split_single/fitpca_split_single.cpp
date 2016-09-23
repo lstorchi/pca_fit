@@ -466,6 +466,7 @@ void usage (char * name)
   std::cerr << "                                  : coarse grain PCA" << std::endl;
   std::cerr << " -R, --region-type=[num]          : specify region-type 0=BARREL, 1=HYBRID, 2=ENDCAP " << std::endl;
   std::cerr << "                                    BARREL is the default " << std::endl;
+  std::cerr << " -K, --set-multiple-pdg          : use root files with multiple PDG per entry " << std::endl;
   std::cerr << std::endl;
 
   exit(1);
@@ -505,6 +506,8 @@ int main (int argc, char ** argv)
   bool coarsegrainpca = false;
   std::string cgpcafname;
 
+  bool multiple_pdg = false;
+
   int regiontype = 0;
 
   while (1)
@@ -537,10 +540,11 @@ int main (int argc, char ** argv)
       {"coarse-grain-pca", 1, NULL, 'Y'},
       {"region-type", 1, NULL, 'R'},
       {"dump-bankfiles", 0, NULL, 'd'},
+      {"set-multiple-pdg", 0, NULL, 'K'},
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "hc:Vvzrxkab:f:w:pD:X:Ng:n:t:m:o:u:CY:R:d", 
+    c = getopt_long (argc, argv, "hc:Vvzrxkab:f:w:pD:X:Ng:n:t:m:o:u:CY:R:dK", 
         long_options, &option_index);
 
     if (c == -1)
@@ -689,6 +693,9 @@ int main (int argc, char ** argv)
         break;
       case 'd':
         savecheckfiles = true;
+        break;
+      case 'K':
+        multiple_pdg = true;
         break;
       default:
         usage (argv[0]);
@@ -962,6 +969,7 @@ int main (int argc, char ** argv)
   //maxnumoftracks = 100000;
   rootrdr.set_maxnumoftracks(maxnumoftracks);
   rootrdr.set_region_type(regiontype);
+  rootrdr.set_multiple_charge_pe(multiple_pdg);
 
   /*
   if (regiontype == ISHYBRID)
