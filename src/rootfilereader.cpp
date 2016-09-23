@@ -717,6 +717,8 @@ bool rootfilereader::reading_from_root_file (
   { 
      TT->GetEntry(i);
 
+     //std::cout << "Event " << i << std::endl;
+
      if ((moduleid.size() == stubx.size())
         && (moduleid.size() == stuby.size())
         && (moduleid.size() == stubz.size())
@@ -738,6 +740,8 @@ bool rootfilereader::reading_from_root_file (
          {
            if (pdg[j] > 0)
            {
+             //std::cout << "mu + " << j << std::endl;
+
              t_stubx.push_back(stubx[j]);
              t_stuby.push_back(stuby[j]);
              t_stubz.push_back(stubz[j]);
@@ -752,29 +756,36 @@ bool rootfilereader::reading_from_root_file (
            }
          }
 
-         bool allAreEqual = ((std::find_if(t_z0.begin() + 1, t_z0.end(), 
-            std::bind1st(std::not_equal_to<int>(), t_z0.front())) == t_z0.end()) &&
-                            (std::find_if(t_x0.begin() + 1, t_x0.end(), 
-            std::bind1st(std::not_equal_to<int>(), t_x0.front())) == t_x0.end()) &&
-                            (std::find_if(t_y0.begin() + 1, t_y0.end(), 
-            std::bind1st(std::not_equal_to<int>(), t_y0.front())) == t_y0.end()) &&
-                            (std::find_if(t_pt.begin() + 1, t_pt.end(), 
-            std::bind1st(std::not_equal_to<int>(), t_pt.front())) == t_pt.end()) &&
-                            (std::find_if(t_eta.begin() + 1, t_eta.end(), 
-            std::bind1st(std::not_equal_to<int>(), t_eta.front())) == t_eta.end()) &&
-                            (std::find_if(t_phi.begin() + 1, t_phi.end(), 
-            std::bind1st(std::not_equal_to<int>(), t_phi.front())) == t_phi.end()) &&
-                            (std::find_if(t_pdg.begin() + 1, t_pdg.end(),
-            std::bind1st(std::not_equal_to<int>(), t_pdg.front())) == t_pdg.end()));
-         
-         if (allAreEqual) 
+         //std::cout << "done" << std::endl;
+
+         bool allAreEqual = true;
+
+         if (t_pdg.size() > 0)
          {
-           if (! from_root_file (i, countlayerswithdupid,
-                 t_stubx, t_stuby, t_stubz, t_pt, t_x0, t_y0, t_z0, 
-                 t_eta, t_phi,t_pdg, t_moduleid, layersids_set, 
-                 layeridlist, ss, ptfile, phifile, d0file, etafile, 
-                 z0file, sstrack))
-               return false;
+           allAreEqual = ((std::find_if(t_z0.begin() + 1, t_z0.end(), 
+              std::bind1st(std::not_equal_to<int>(), t_z0.front())) == t_z0.end()) &&
+                              (std::find_if(t_x0.begin() + 1, t_x0.end(), 
+              std::bind1st(std::not_equal_to<int>(), t_x0.front())) == t_x0.end()) &&
+                              (std::find_if(t_y0.begin() + 1, t_y0.end(), 
+              std::bind1st(std::not_equal_to<int>(), t_y0.front())) == t_y0.end()) &&
+                              (std::find_if(t_pt.begin() + 1, t_pt.end(), 
+              std::bind1st(std::not_equal_to<int>(), t_pt.front())) == t_pt.end()) &&
+                              (std::find_if(t_eta.begin() + 1, t_eta.end(), 
+              std::bind1st(std::not_equal_to<int>(), t_eta.front())) == t_eta.end()) &&
+                              (std::find_if(t_phi.begin() + 1, t_phi.end(), 
+              std::bind1st(std::not_equal_to<int>(), t_phi.front())) == t_phi.end()) &&
+                              (std::find_if(t_pdg.begin() + 1, t_pdg.end(),
+              std::bind1st(std::not_equal_to<int>(), t_pdg.front())) == t_pdg.end()));
+           
+           if (allAreEqual) 
+           {
+             if (! from_root_file (i, countlayerswithdupid,
+                   t_stubx, t_stuby, t_stubz, t_pt, t_x0, t_y0, t_z0, 
+                   t_eta, t_phi,t_pdg, t_moduleid, layersids_set, 
+                   layeridlist, ss, ptfile, phifile, d0file, etafile, 
+                   z0file, sstrack))
+                 return false;
+           }
          }
 
          t_stubx.clear();
@@ -793,6 +804,8 @@ bool rootfilereader::reading_from_root_file (
          {
            if (pdg[j] < 0)
            {
+             //std::cout << "mu - " << j << std::endl;
+
              t_stubx.push_back(stubx[j]);
              t_stuby.push_back(stuby[j]);
              t_stubz.push_back(stubz[j]);
@@ -807,29 +820,34 @@ bool rootfilereader::reading_from_root_file (
            }
          }
 
-         allAreEqual = ((std::find_if(t_z0.begin() + 1, t_z0.end(), 
-            std::bind1st(std::not_equal_to<int>(), t_z0.front())) == t_z0.end()) &&
-                            (std::find_if(t_x0.begin() + 1, t_x0.end(), 
-            std::bind1st(std::not_equal_to<int>(), t_x0.front())) == t_x0.end()) &&
-                            (std::find_if(t_y0.begin() + 1, t_y0.end(), 
-            std::bind1st(std::not_equal_to<int>(), t_y0.front())) == t_y0.end()) &&
-                            (std::find_if(t_pt.begin() + 1, t_pt.end(), 
-            std::bind1st(std::not_equal_to<int>(), t_pt.front())) == t_pt.end()) &&
-                            (std::find_if(t_eta.begin() + 1, t_eta.end(), 
-            std::bind1st(std::not_equal_to<int>(), t_eta.front())) == t_eta.end()) &&
-                            (std::find_if(t_phi.begin() + 1, t_phi.end(), 
-            std::bind1st(std::not_equal_to<int>(), t_phi.front())) == t_phi.end()) &&
-                            (std::find_if(t_pdg.begin() + 1, t_pdg.end(),
-            std::bind1st(std::not_equal_to<int>(), t_pdg.front())) == t_pdg.end()));
-         
-         if (allAreEqual) 
+         //std::cout << "done" << std::endl;
+
+         if (t_pdg.size() > 0)
          {
-           if (! from_root_file (i, countlayerswithdupid,
-                 t_stubx, t_stuby, t_stubz, t_pt, t_x0, t_y0, t_z0, 
-                 t_eta, t_phi,t_pdg, t_moduleid, layersids_set, 
-                 layeridlist, ss, ptfile, phifile, d0file, etafile, 
-                 z0file, sstrack))
-               return false;
+           allAreEqual = ((std::find_if(t_z0.begin() + 1, t_z0.end(), 
+              std::bind1st(std::not_equal_to<int>(), t_z0.front())) == t_z0.end()) &&
+                              (std::find_if(t_x0.begin() + 1, t_x0.end(), 
+              std::bind1st(std::not_equal_to<int>(), t_x0.front())) == t_x0.end()) &&
+                              (std::find_if(t_y0.begin() + 1, t_y0.end(), 
+              std::bind1st(std::not_equal_to<int>(), t_y0.front())) == t_y0.end()) &&
+                              (std::find_if(t_pt.begin() + 1, t_pt.end(), 
+              std::bind1st(std::not_equal_to<int>(), t_pt.front())) == t_pt.end()) &&
+                              (std::find_if(t_eta.begin() + 1, t_eta.end(), 
+              std::bind1st(std::not_equal_to<int>(), t_eta.front())) == t_eta.end()) &&
+                              (std::find_if(t_phi.begin() + 1, t_phi.end(), 
+              std::bind1st(std::not_equal_to<int>(), t_phi.front())) == t_phi.end()) &&
+                              (std::find_if(t_pdg.begin() + 1, t_pdg.end(),
+              std::bind1st(std::not_equal_to<int>(), t_pdg.front())) == t_pdg.end()));
+           
+           if (allAreEqual) 
+           {
+             if (! from_root_file (i, countlayerswithdupid,
+                   t_stubx, t_stuby, t_stubz, t_pt, t_x0, t_y0, t_z0, 
+                   t_eta, t_phi,t_pdg, t_moduleid, layersids_set, 
+                   layeridlist, ss, ptfile, phifile, d0file, etafile, 
+                   z0file, sstrack))
+                 return false;
+           }
          }
        }
        else 
@@ -924,7 +942,7 @@ bool rootfilereader::reading_from_root_file (
 //                                PRIVATE                                    //
 ///////////////////////////////////////////////////////////////////////////////
 
-bool rootfilereader::from_root_file (int & i,
+bool rootfilereader::from_root_file (int & idx,
     unsigned int & countlayerswithdupid,
     std::vector<float> & stubx, 
     std::vector<float> & stuby, std::vector<float> & stubz, 
@@ -940,7 +958,6 @@ bool rootfilereader::from_root_file (int & i,
     std::ofstream & etafile, std::ofstream & z0file, 
     std::ofstream & sstrack)
 {
-  
   rootfilereader::track_str single_track;
   
   double d0val;
@@ -956,7 +973,7 @@ bool rootfilereader::from_root_file (int & i,
     etafile << eta[0] << std::endl;
     z0file << z0[0] << std::endl;
     
-    ss << i+1 << " " << moduleid.size() << std::endl;
+    ss << idx+1 << " " << moduleid.size() << std::endl;
   }
   
   single_track.dim = (int)moduleid.size();
@@ -1037,11 +1054,11 @@ bool rootfilereader::from_root_file (int & i,
               pt[j], osss.str()))
         {
           tracks_vct_.push_back(single_track);
-        
+
           if (savecheckfiles_)
           {
             sstrack << tracks_vct_.size() << " events " << std::endl;
-            sstrack << i+1 << " " << moduleid.size() << std::endl;
+            sstrack << idx+1 << " " << moduleid.size() << std::endl;
         
             for (int a=0; a<(int)moduleid.size(); ++a)
             {
@@ -1176,7 +1193,7 @@ bool rootfilereader::from_root_file (int & i,
           if (savecheckfiles_)
           {
             sstrack << tracks_vct_.size() << " events " << std::endl;
-            sstrack << i+1 << " " << moduleid.size() << std::endl;
+            sstrack << idx+1 << " " << moduleid.size() << std::endl;
           
             for (int a=0; a<(int)moduleid.size(); ++a)
             {
