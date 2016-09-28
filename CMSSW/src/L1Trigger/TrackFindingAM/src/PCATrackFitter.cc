@@ -6,6 +6,9 @@ Loriano Storchi: 2016
 
 #include "../interface/PCATrackFitter.h"
 
+#define SF1 1000.0
+#define SF2 10.0
+
 namespace 
 {
   const int mult_factor = 1e6;
@@ -135,14 +138,14 @@ namespace
       }
 
       //use binning TCB function 
-      long long int zi = (long long int) hits[idx]->getZ();
-      long long int ri = (long long int) sqrt(xi*xi+yi*yi);
-      long long int pi = atan2(yi,xi);
-
-      /*
-      long long int zi = (long long int) binning(hits[idx]->getZ(), 6, 18, SIGNED);
-      long long int ri = (long long int) binning(sqrt(xi*xi+yi*yi), 6, 18, SIGNED);
-      long long int pi = (long long int) binning(atan2(yi,xi), 4, 18, SIGNED);
+      long long int zi = (long long int) SF1 * hits[idx]->getZ();
+      long long int ri = (long long int) SF1 * sqrt(xi*xi+yi*yi);
+      long long int pi = SF2 * atan2(yi,xi);
+      
+      /* quite surely not needed
+      long long int zi = (long long int) 1000 * binning(hits[idx]->getZ(), 6, 18, SIGNED);
+      long long int ri = (long long int) 1000 * binning(sqrt(xi*xi+yi*yi), 6, 18, SIGNED);
+      long long int pi = (long long int) 1000 * binning(atan2(yi,xi), 4, 18, SIGNED);
       */
 
       zrv(0, counter) = zi;
