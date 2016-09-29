@@ -137,16 +137,21 @@ namespace
         yi = hits[idx]->getX() * si + hits[idx]->getY() * ci;
       }
 
-      //use binning TCB function 
+      /* use binning TCB function 
       long long int zi = (long long int) SF1 * hits[idx]->getZ();
       long long int ri = (long long int) SF1 * sqrt(xi*xi+yi*yi);
       long long int pi = SF2 * atan2(yi,xi);
-      
-      /* quite surely not needed
-      long long int zi = (long long int) 1000 * binning(hits[idx]->getZ(), 6, 18, SIGNED);
-      long long int ri = (long long int) 1000 * binning(sqrt(xi*xi+yi*yi), 6, 18, SIGNED);
-      long long int pi = (long long int) 1000 * binning(atan2(yi,xi), 4, 18, SIGNED);
       */
+      
+      /* as suggested by Geoffrey */
+      // Store the integer value of Z (unit = 2^-8 .cm)
+      long long int zi =  pow(2, 8) * binning(hits[idx]->getZ(), 8, 18, SIGNED); 
+      
+      // Store the integer value of R (unit = 2^-10 .cm)
+      long long int ri =  pow(2, 10) * binning(sqrt(xi*xi+yi*yi), 6, 18, SIGNED);
+      
+      // Store the integer value of Phi (unit = 2^-12 .radian)
+      long long int pi = pow(2, 12) * binning(atan2(yi,xi), 4, 18, SIGNED);
 
       zrv(0, counter) = zi;
       phirv(0, counter) = pi;
@@ -524,8 +529,8 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
           z0 += cmtx_rz(1, i) * zrv(0, i);
         }
 
-        double d_cottheta = (double) (cottheta / const_mult_factor);
-        double d_z0 = (double) (z0 / const_mult_factor);
+        double d_cottheta = (double) ((double)cottheta / (double) const_mult_factor);
+        double d_z0 = (double) ((double)z0 / (double)const_mult_factor);
 
         double eta = 0.0e0;
         double theta = atan(1.0e0 / d_cottheta); 
@@ -546,8 +551,8 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
           phi += cmtx_rphi(1, i) * phirv(0, i);
         }
 
-        double d_pt = (double) charge / ((double) (coverpt / const_mult_factor));
-        double d_phi = (double) (phi / const_mult_factor);
+        double d_pt = (double) charge / ((double) coverpt / (double) const_mult_factor);
+        double d_phi = (double) ((double) phi / (double) const_mult_factor);
 
         std::cout << " 6oof6 pt:      " << d_pt << " " << pt_est << std::endl;
         std::cout << " 6oof6 phi:     " << d_phi << " " << phi_est << std::endl; 
@@ -614,8 +619,8 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
           z0 += cmtx_rz(1, i) * zrv(0, i);
         }
 
-        double d_cottheta = (double) (cottheta / const_mult_factor);
-        double d_z0 = (double) (z0 / const_mult_factor);
+        double d_cottheta = (double) ((double) cottheta / (double)const_mult_factor);
+        double d_z0 = (double) ((double)z0 / (double)const_mult_factor);
 
         double eta = 0.0e0;
         double theta = atan(1.0e0 / d_cottheta); 
@@ -636,8 +641,8 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
           phi += cmtx_rphi(1, i) * phirv(0, i);
         }
 
-        double d_pt = (double) ((charge/coverpt) * const_mult_factor);
-        double d_phi = (double) (phi / const_mult_factor);
+        double d_pt = (double) charge / ((double) coverpt / (double) const_mult_factor);
+        double d_phi = (double) ((double) phi / (double) const_mult_factor);
 
         std::cout << " 5oof6 pt:      " << d_pt << " " << pt_est << std::endl;
         std::cout << " 5oof6 phi:     " << d_phi << " " << phi_est << std::endl; 
