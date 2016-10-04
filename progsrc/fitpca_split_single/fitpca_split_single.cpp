@@ -1025,21 +1025,33 @@ int main (int argc, char ** argv)
     else
     {
       int n = coord.n_rows;
-      coord.resize(n + coordin_temp.n_rows, fitter.get_coordim());
+      //std::cout << "coord.n_rows " << n << std::endl;
+      //coord.resize(n + coordin_temp.n_rows, fitter.get_coordim());
+      //std::cout << "coord.n_rows " << coord.n_rows << std::endl;
       coord.insert_rows(n, coordin_temp);
+      //std::cout << "coord.n_rows " << coord.n_rows << std::endl;
+ 
 
       n = param.n_rows;
-      param.resize(n + paramin_temp.n_rows, fitter.get_paramdim());
+      //std::cout << "param.n_rows " << n << std::endl;
+      //param.resize(n + paramin_temp.n_rows, fitter.get_paramdim());
       param.insert_rows(n, paramin_temp);
 
       n = ptvals.n_elem;
-      ptvals.resize(n + ptvals_temp.n_elem);
+      //std::cout << "ptvals.n_elem " << n << std::endl;
+      //ptvals.resize(n + ptvals_temp.n_elem);
       ptvals.insert_rows(n, ptvals_temp);
 
       n = etavals.n_elem;
-      etavals.resize(n + etavals_temp.n_elem);
+      //std::cout << "etavals.n_elem " << n << std::endl;
+      //etavals.resize(n + etavals_temp.n_elem);
       etavals.insert_rows(n, etavals_temp);
     }
+  }
+
+  for (int i=0; i<ptvals.n_elem; ++i)
+  {
+    std::cout << i << " ==> " << ptvals(i) << " " << etavals(i) << std::endl;
   }
 
   std::cout << "Rotation angle used: " << rootrdr.get_rotation_angle() << std::endl;

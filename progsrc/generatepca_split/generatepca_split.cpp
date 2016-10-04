@@ -835,19 +835,19 @@ int main (int argc, char ** argv)
     else
     {
       int n = coordin.n_rows;
-      coordin.resize(n + coordin_temp.n_rows, fitter.get_coordim());
+      //coordin.resize(n + coordin_temp.n_rows, fitter.get_coordim());
       coordin.insert_rows(n, coordin_temp);
 
       n = paramin.n_rows;
-      paramin.resize(n + paramin_temp.n_rows, fitter.get_paramdim());
+      //paramin.resize(n + paramin_temp.n_rows, fitter.get_paramdim());
       paramin.insert_rows(n, paramin_temp);
 
       n = ptvals.n_elem;
-      ptvals.resize(n + ptvals_temp.n_elem);
+      //ptvals.resize(n + ptvals_temp.n_elem);
       ptvals.insert_rows(n, ptvals_temp);
 
       n = etavals.n_elem;
-      etavals.resize(n + etavals_temp.n_elem);
+      //etavals.resize(n + etavals_temp.n_elem);
       etavals.insert_rows(n, etavals_temp);
     }
   }
