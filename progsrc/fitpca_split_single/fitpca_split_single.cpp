@@ -1049,10 +1049,10 @@ int main (int argc, char ** argv)
     }
   }
 
-  for (int i=0; i<ptvals.n_elem; ++i)
-  {
-    std::cout << i << " ==> " << ptvals(i) << " " << etavals(i) << std::endl;
-  }
+  //for (int i=0; i<ptvals.n_elem; ++i)
+  //{
+  //  std::cout << i << " ==> " << ptvals(i) << " " << etavals(i) << std::endl;
+  //}
 
   std::cout << "Rotation angle used: " << rootrdr.get_rotation_angle() << std::endl;
 
