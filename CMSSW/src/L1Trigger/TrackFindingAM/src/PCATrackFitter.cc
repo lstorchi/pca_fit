@@ -554,10 +554,47 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
         double d_pt = (double) charge / ((double) coverpt / (double) const_mult_factor);
         double d_phi = (double) ((double) phi / (double) const_mult_factor);
 
-        std::cout << " 6oof6 pt:      " << d_pt << " " << pt_est << std::endl;
-        std::cout << " 6oof6 phi:     " << d_phi << " " << phi_est << std::endl; 
-        std::cout << " 6oof6 eta:     " << eta << " " << eta_est << std::endl;
-        std::cout << " 6oof6 z0:      " << d_z0 << " " << z0_est << std::endl;
+        int coordim = 6, paramdim = 2;
+        long long int chi2rz = 0.0;
+        for (int i=0; i<coordim-paramdim; ++i)
+        {
+          long long int val = 0.0;
+                                      
+          for (int j=0; j<coordim; ++j)
+            val += amtx_rz(i,j) * zrv(0, j);
+
+          val -= kvec_rz(0, i);
+          
+          chi2rz += val*val;
+        }
+
+        coordim = 12, paramdim = 2;
+        long long int chi2rphi = 0.0;
+        for (int i=0; i<coordim-paramdim; ++i)
+        {
+          long long int val = 0.0;
+                                      
+          for (int j=0; j<coordim; ++j)
+            val += amtx_rphi(i,j) * phirv(0, j);
+
+          val -= kvec_rphi(0, i);
+          
+          chi2rphi += val*val;
+        }
+
+        double d_chi2rz = (double) chi2rz / (double) pow(chisq_const_mult_factor, 2);
+        double d_chi2rphi = (double) chi2rphi / (double) pow(chisq_const_mult_factor, 2);
+
+        d_chi2rz = d_chi2rz / 4.0;
+        d_chi2rphi = d_chi2rphi / 10.0;
+ 
+        std::cout << " 6oof6 int pt:         " << d_pt << " " << pt_est << std::endl;
+        std::cout << " 6oof6 int phi:        " << d_phi << " " << phi_est << std::endl; 
+        std::cout << " 6oof6 int eta:        " << eta << " " << eta_est << std::endl;
+        std::cout << " 6oof6 int z0:         " << d_z0 << " " << z0_est << std::endl;
+        std::cout << " 6oof6 int chi2rz:     " << d_chi2rz << std::endl;
+        std::cout << " 6oof6 int chi2rphi:   " << d_chi2rphi << std::endl;
+ 
       }
       else 
       {
@@ -644,10 +681,48 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
         double d_pt = (double) charge / ((double) coverpt / (double) const_mult_factor);
         double d_phi = (double) ((double) phi / (double) const_mult_factor);
 
-        std::cout << " 5oof6 pt:      " << d_pt << " " << pt_est << std::endl;
-        std::cout << " 5oof6 phi:     " << d_phi << " " << phi_est << std::endl; 
-        std::cout << " 5oof6 eta:     " << eta << " " << eta_est << std::endl;
-        std::cout << " 5oof6 z0:      " << d_z0 << " " << z0_est << std::endl;
+        int coordim = 4, paramdim = 2;
+        long long int chi2rz = 0.0;
+        for (int i=0; i<coordim-paramdim; ++i)
+        {
+          long long int val = 0.0;
+                                      
+          for (int j=0; j<coordim; ++j)
+            val += amtx_rz(i,j) * zrv(0, j);
+
+          val -= kvec_rz(0, i);
+          
+          chi2rz += val*val;
+        }
+
+        coordim = 10, paramdim = 2;
+        long long int chi2rphi = 0.0;
+        for (int i=0; i<coordim-paramdim; ++i)
+        {
+          long long int val = 0.0;
+                                      
+          for (int j=0; j<coordim; ++j)
+            val += amtx_rphi(i,j) * phirv(0, j);
+
+          val -= kvec_rphi(0, i);
+          
+          chi2rphi += val*val;
+        }
+
+        double d_chi2rz = (double) chi2rz / (double) pow(chisq_const_mult_factor, 2);
+        double d_chi2rphi = (double) chi2rphi / (double) pow(chisq_const_mult_factor, 2);
+
+        d_chi2rz = d_chi2rz / 2.0;
+        d_chi2rphi = d_chi2rphi / 8.0;
+ 
+
+        std::cout << " 5oof6 int pt:         " << d_pt << " " << pt_est << std::endl;
+        std::cout << " 5oof6 int phi:        " << d_phi << " " << phi_est << std::endl; 
+        std::cout << " 5oof6 int eta:        " << eta << " " << eta_est << std::endl;
+        std::cout << " 5oof6 int z0:         " << d_z0 << " " << z0_est << std::endl;
+        std::cout << " 5oof6 int chi2rz:     " << d_chi2rz << std::endl;
+        std::cout << " 5oof6 int chi2rphi:   " << d_chi2rphi << std::endl;
+ 
       }
       else 
       {
