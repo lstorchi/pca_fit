@@ -151,7 +151,7 @@ namespace
       long long int ri =  pow(2, 10) * binning(sqrt(xi*xi+yi*yi), 6, 18, SIGNED);
       
       // Store the integer value of Phi (unit = 2^-12 .radian)
-      long long int pi = pow(2, 12) * binning(atan2(yi,xi), 4, 18, SIGNED);
+      long long int pi = pow(2, 16) * binning(atan2(yi,xi), 4, 18, SIGNED);
 
       zrv(0, counter) = zi;
       phirv(0, counter) = pi;
