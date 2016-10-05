@@ -8,86 +8,21 @@ Loriano Storchi: 2016
 
 namespace 
 {
+  //simplest version, can be modied to handle complicated scaling to improve float/integer match
+  //const int cmtx_mult_factor_rphi = 10*3e4; // this is driven by a 1000 scale factor on coordinate side
+  const int qconst_mult_factor_rphi = 3e7; // this is driven by the the range of c/Pt
+  //const int cmtx_mult_factor_rz = 100*5e3; // this is driven by a 1000 scale factor on coordinate side
+  const int qconst_mult_factor_rz = 5e6; // this is driven by the range of eta
+  const int coordinateScale = 1000; //this is (qconst_mult_factor_rphi/cmtx_mult_factor_rphi)
+
   const int mult_factor = 1e6;
+
   const int const_mult_factor = mult_factor*1024;
   const int chisq_mult_factor = 1e4;
   const int chisq_const_mult_factor = chisq_mult_factor*1024;
   const int const_w = 25;
   const int add_const_w = 36;
 
-
-  enum HW_SIGN_TYPE {UNSIGNED, SIGNED};
-  /* Function which simulate the HardWare representation of the values : 
-   * manage UNSIGNED and SIGNED (2's complement) overflows and accuracy 
-   * according to the available dynamic of the binary word from TCB 
-   * S.Viret, G.Galbit */
-  double binning(double fNumber, int nMSBpowOfTwo, int nBits, HW_SIGN_TYPE signType)
-  {
-    if (signType == UNSIGNED && fNumber < 0)
-      fNumber = -fNumber;
-  
-    int nLSBpowOfTwo;
-	
-    //Process the power of two of the LSB for the binary representation
-    if (signType == UNSIGNED)
-    {
-      nLSBpowOfTwo = nMSBpowOfTwo - (nBits-1);
-    }	
-    else
-    {
-      //If SIGNED, 1 bit is used for the sign
-      nLSBpowOfTwo = nMSBpowOfTwo - (nBits-2);		
-    }
-
-    /* Accuracy Simulation */
-    //Divide the number by the power of two of the LSB => 
-    //the integer part of the new number is the value we are looking for
-    fNumber = fNumber / pow(2, nLSBpowOfTwo);
-	
-    //Remove the fractionnal part by rounding down (for both positive and 
-    //negative values), this simulate the HW truncature
-    fNumber = floor(fNumber);
-	
-    //Multiply the number by the power of two of the LSB to get the correct float value
-    fNumber = fNumber * pow(2, nLSBpowOfTwo);
-
-    double fBinnedNumber = fNumber;
-    /* Overflow Simulation */
-
-    if (signType == UNSIGNED)
-    {		  
-      //If the number is in UNSIGNED representation			
-      fNumber = fmod(fNumber, pow(2, nMSBpowOfTwo+1));
-    }
-    else
-    {		  
-      //If the number is in SIGNED representation (2's complement)
-      double fTempResult = fNumber - pow(2, nMSBpowOfTwo+1); //substract the possible range to the number
-
-      if (fTempResult >= 0)
-      {
-        //If there is an overflow, it's a positive one
-        fNumber = fmod(fTempResult, pow(2, nMSBpowOfTwo+2)) - pow(2, nMSBpowOfTwo+1);
-      }
-      else
-      {
-        //If there is an overflow, it's a negative one (2's complement 
-        //format has an asymetric range for positive and negative values)
-        fNumber = fmod(fTempResult + pow(2, nLSBpowOfTwo), pow(2, nMSBpowOfTwo+2)) 
-          - pow(2, nLSBpowOfTwo) + pow(2, nMSBpowOfTwo+1);
-      }  
-    }
-
-    //If the new number is different from the previous one, an HW overflow occured
-    if (fNumber != fBinnedNumber)
-    {
-      std::cout << "WARNING HW overflow for the value : " << fBinnedNumber <<
-        " resulting value : " << fNumber << " (diff= " << fBinnedNumber-fNumber
-        << ")" << std::endl;
-    }
-	
-    return fNumber;
-  }
 
   /*
   #define LAYIDDIM 6
@@ -134,10 +69,10 @@ namespace
         yi = hits[idx]->getX() * si + hits[idx]->getY() * ci;
       }
 
-      //use binning TCB function 
-      long long int zi = (long long int) hits[idx]->getZ();
-      long long int ri = (long long int) sqrt(xi*xi+yi*yi);
-      long long int pi = atan2(yi,xi);
+     
+      long long int zi = (long long int) hits[idx]->getZ()*coordinateScale;
+      long long int ri = (long long int) sqrt(xi*xi+yi*yi)*coordinateScale;
+      long long int pi = atan2(yi,xi)*coordinateScale; 
 
       /*
       long long int zi = (long long int) binning(hits[idx]->getZ(), 6, 18, SIGNED);
@@ -448,7 +383,7 @@ void PCATrackFitter::read_integegr_const_filename (const std::string & in)
       return;
     }
   }
-  std::cout << "Done" << std::endl;
+  std::cout << "Done " << pcacontvct_integer_.size() << std::endl;
 }
 
 void PCATrackFitter::fit_integer(vector<Hit*> hits)
@@ -513,16 +448,18 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
         long long int cottheta = 0;
         long long int z0 = 0;
         
-        cottheta = qvec_rz(0,0);
-        z0 = qvec_rz(0,1);
         for (int i=0; i<(int)cmtx_rz.n_cols(); ++i)
         {
           cottheta += cmtx_rz(0, i) * zrv(0, i);
           z0 += cmtx_rz(1, i) * zrv(0, i);
         }
+        cottheta /= (100*1.0); // 100 for cmtx, 10 for coordinate
+        z0 /= (100*1.0);
+        cottheta += qvec_rz(0,0);
+        z0 += qvec_rz(0,1);
 
-        double d_cottheta = (double) (cottheta / const_mult_factor);
-        double d_z0 = (double) (z0 / const_mult_factor);
+        double d_cottheta = (double) (cottheta *1.0/ qconst_mult_factor_rz);
+        double d_z0 = (double) (z0 *5.0/ qconst_mult_factor_rz);
 
         double eta = 0.0e0;
         double theta = atan(1.0e0 / d_cottheta); 
@@ -535,21 +472,58 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
         long long int coverpt = 0; // pt
         long long int phi = 0;
         
-        coverpt = qvec_rphi(0,0);
-        phi = qvec_rphi(0,1);
         for (int i=0; i<(int)cmtx_rphi.n_cols(); ++i)
         {
           coverpt += cmtx_rphi(0, i) * phirv(0, i);
           phi += cmtx_rphi(1, i) * phirv(0, i);
         }
+        coverpt /= (10*1.0);
+        phi /= (100*1.0);
+        coverpt += qvec_rphi(0,0);
+        phi += qvec_rphi(0,1);
 
-        double d_pt = (double) charge / ((double) (coverpt / const_mult_factor));
-        double d_phi = (double) (phi / const_mult_factor);
+        double d_pt = (double) charge / ((double) (coverpt *1.0/ qconst_mult_factor_rphi));
+        double d_phi = (double) (phi *6.0/ qconst_mult_factor_rphi);
 
+        int coordim = 6, paramdim = 2;
+        long long int chi2rz = 0.0;
+        for (int i=0; i<coordim-paramdim; ++i)
+        {
+          long long int val = 0.0;
+                                      
+          for (int j=0; j<coordim; ++j)
+            val += ( amtx_rz(i,j) * zrv(0, j) );
+
+          val /= 1.0; //10 for coordinate scale
+          val -= kvec_rz(0, i);
+          
+          chi2rz += val*val;
+        }
+        double d_chi2rz = (double) chi2rz / (mult_factor);
+        d_chi2rz /= (double) (mult_factor);
+
+        coordim = 12, paramdim = 2;
+        long long int chi2rphi = 0.0;
+        for (int i=0; i<coordim-paramdim; ++i)
+        {
+          long long int val = 0.0;
+                                      
+          for (int j=0; j<coordim; ++j)
+            val += (amtx_rphi(i,j) * phirv(0, j));
+
+          val /= (1.0/2);  // 2 for amtx , 10 for coordinate scale
+          val -= kvec_rphi(0, i);
+          
+          chi2rphi += val*val;
+        }
+
+        double d_chi2rphi = (double) chi2rphi / (mult_factor);
+        d_chi2rphi /= (double) (mult_factor);
         std::cout << " 6oof6 pt:      " << d_pt << " " << pt_est << std::endl;
         std::cout << " 6oof6 phi:     " << d_phi << " " << phi_est << std::endl; 
         std::cout << " 6oof6 eta:     " << eta << " " << eta_est << std::endl;
         std::cout << " 6oof6 z0:      " << d_z0 << " " << z0_est << std::endl;
+        std::cout << " 6oof6 reduced chi2rz:      " << d_chi2rz/4.0 << " ,chi2rphi" << d_chi2rphi/10.0 << std::endl;
       }
       else 
       {
@@ -603,16 +577,18 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
         long long int cottheta = 0; 
         long long int z0 = 0;
         
-        cottheta = qvec_rz(0,0);
-        z0 = qvec_rz(0,1);
         for (int i=0; i<(int)cmtx_rz.n_cols(); ++i)
         {
           cottheta += cmtx_rz(0, i) * zrv(0, i);
           z0 += cmtx_rz(1, i) * zrv(0, i);
         }
+        cottheta /= (100*1.0);
+        z0 /= (100*1.0);
+        cottheta += qvec_rz(0,0);
+        z0 += qvec_rz(0,1);
 
-        double d_cottheta = (double) (cottheta / const_mult_factor);
-        double d_z0 = (double) (z0 / const_mult_factor);
+        double d_cottheta = (double) (cottheta *1.0/ qconst_mult_factor_rz);
+        double d_z0 = (double) (z0 *5.0/ qconst_mult_factor_rz);
 
         double eta = 0.0e0;
         double theta = atan(1.0e0 / d_cottheta); 
@@ -625,21 +601,59 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
         long long int coverpt = 0.0; 
         long long int phi = 0.0;
         
-        coverpt = qvec_rphi(0,0);
-        phi = qvec_rphi(0,1);
         for (int i=0; i<(int)cmtx_rphi.n_cols(); ++i)
         {
           coverpt += cmtx_rphi(0, i) * phirv(0, i);
           phi += cmtx_rphi(1, i) * phirv(0, i);
         }
+        coverpt /= (10*1.0);
+        phi /= (100*1.0);
+        coverpt += qvec_rphi(0,0);
+        phi += qvec_rphi(0,1);
 
-        double d_pt = (double) ((charge/coverpt) * const_mult_factor);
-        double d_phi = (double) (phi / const_mult_factor);
+        double d_pt = (double) charge / ((double) (coverpt *1.0/ qconst_mult_factor_rphi));
+        double d_phi = (double) (phi *6.0/ qconst_mult_factor_rphi);
+
+        int coordim = 4, paramdim = 2;
+        long long int chi2rz = 0.0;
+        for (int i=0; i<coordim-paramdim; ++i)
+        {
+          long long int val = 0.0;
+                                      
+          for (int j=0; j<coordim; ++j)
+            val += ( amtx_rz(i,j) * zrv(0, j) );
+
+          val /= 1.0; // 10 for coordinate scale
+          val -= kvec_rz(0, i);
+          
+          chi2rz += val*val;
+        }
+        double d_chi2rz = (double) chi2rz / (mult_factor);
+        d_chi2rz /= (double) (mult_factor);
+
+        coordim = 10, paramdim = 2;
+        long long int chi2rphi = 0.0;
+        for (int i=0; i<coordim-paramdim; ++i)
+        {
+          long long int val = 0.0;
+                                      
+          for (int j=0; j<coordim; ++j)
+            val += amtx_rphi(i,j) * phirv(0, j);
+
+          val /= (1.0/2); // 2 for amtx, 10 for coordinate scale
+          val -= kvec_rphi(0, i);
+          
+          chi2rphi += val*val;
+        }
+
+        double d_chi2rphi = (double) chi2rphi / (mult_factor);
+        d_chi2rphi /= (double) (mult_factor);
 
         std::cout << " 5oof6 pt:      " << d_pt << " " << pt_est << std::endl;
         std::cout << " 5oof6 phi:     " << d_phi << " " << phi_est << std::endl; 
         std::cout << " 5oof6 eta:     " << eta << " " << eta_est << std::endl;
         std::cout << " 5oof6 z0:      " << d_z0 << " " << z0_est << std::endl;
+        std::cout << " 5oof6 reduced chi2rz:      " << d_chi2rz/2.0 << " ,chi2rphi" << d_chi2rphi/8.0 << std::endl;
       }
       else 
       {
@@ -813,7 +827,7 @@ void PCATrackFitter::fit_float(vector<Hit*> hits)
           double val = 0.0;
                                       
           for (int j=0; j<coordim; ++j)
-            val += amtx_rz(i,j) * zrv(0, j);
+            val += ( amtx_rz(i,j) * zrv(0, j) );
 
           val -= kvec_rz(0, i);
           

@@ -11,6 +11,11 @@
 
 #include "common.h"
 
+const int cmtx_mult_factor_rphi = 10*3e4; // this is driven by a 1000 scale factor on coordinate side
+const int qconst_mult_factor_rphi = 3e7; // this is driven by the the range of c/Pt
+const int cmtx_mult_factor_rz = 100*5e3; // this is driven by a 1000 scale factor on coordinate side
+const int qconst_mult_factor_rz = 5e6; // this is driven by the range of eta
+
 const int mult_factor = 1e6;
 const int const_mult_factor = mult_factor*1024;
 const int chisq_mult_factor = 1e4;
@@ -75,27 +80,32 @@ int main (int argc, char *argv[])
     {
       if (c.get_const_type() == const_type::CMTX) 
       {
-        int counter = 0;
+        int parameter_counter = 0;
 	for (int i = 0; i < c.n_rows(); ++i)
         {
 	  for (int j = 0; j < c.n_cols(); ++j)
           {
-            long long int tmp = mult_factor*c.element(i,j);
+            long long int tmp = cmtx_mult_factor_rphi*c.element(i,j);
             /* TODO: unclear ask, where counter is the global index of element */
-            if ( counter%2 == 0) tmp /= 64;
+            if (parameter_counter%2 == 1) tmp *= 10; //this I the switch between c/Pt and phi, bit wise value is 8
+            if (parameter_counter%2 == 1) tmp /= 6; //this I the switch between c/Pt and phi, bit wise value is 8
             check_val(tmp, const_w, "rphi matrix consts");
             ci.element(i, j) = tmp;
-            counter++;
           }
+          parameter_counter++;
         }
       }
       else if (c.get_const_type() == const_type::QVEC)
       {
+	int parameter_counter = 0;
 	for (int i = 0; i < c.n_cols(); ++i)
         {
-          long long int tmp = const_mult_factor*c.element(0,i);
+          long long int tmp = qconst_mult_factor_rphi*c.element(0,i);
+          //Better to have separate scale factor for c/Pt and phi
+          if ( parameter_counter%2 == 1) tmp /= 6; //this is the switch between c/Pt and phi, bit wise value is 8
           check_val (tmp, add_const_w, "rphi add consts");
           ci.element(0, i) = tmp;
+          parameter_counter++;
         }
       }
       else if (c.get_const_type() == const_type::AMTX) 
@@ -105,10 +115,10 @@ int main (int argc, char *argv[])
         {
 	  for (int j = 0; j < c.n_cols(); ++j)
           {
-            long long int tmp = chisq_mult_factor*c.element(i,j);
+            long long int tmp = mult_factor*c.element(i,j)/2000; //1000 for coordinate and 2 for amtx
             /* TODO: unclear ask, where counter is the global index of element */
-            if ( counter%2 == 0) tmp /= 64;
-            check_val(tmp, const_w, "rphi matrix consts");
+            //if ( counter%2 == 0) tmp /= 64;
+            check_val(tmp, const_w, "rphi matrix consts amtx");
             ci.element(i, j) = tmp;
             counter++;
           }
@@ -118,8 +128,8 @@ int main (int argc, char *argv[])
       {
 	for (int i = 0; i < c.n_cols(); ++i)
         {
-          long long int tmp = chisq_const_mult_factor*c.element(0,i);
-          check_val (tmp, add_const_w, "rphi add consts");
+          long long int tmp = mult_factor*c.element(0,i);
+          check_val (tmp, add_const_w, "rphi add consts kvec");
           ci.element(0, i) = tmp;
         }
       }
@@ -133,27 +143,30 @@ int main (int argc, char *argv[])
     {
       if (c.get_const_type() == const_type::CMTX) 
       {
-        int counter = 0;
+        int parameter_counter = 0;
 	for (int i = 0; i < c.n_rows(); ++i)
         {
 	  for (int j = 0; j < c.n_cols(); ++j)
           {
-            long long int tmp = mult_factor*c.element(i,j);
+            long long int tmp = cmtx_mult_factor_rz*c.element(i,j);
             /* TODO: unclear ask, where counter is the global index of element */
-            if ( counter%2 == 0) tmp *= 4;
+            if ( parameter_counter%2 == 1) tmp /= 5;
             check_val(tmp, const_w, "rz matrix consts");
             ci.element(i, j) = tmp;
-            counter++;
           }
+          parameter_counter++;
         }
       }
       else if (c.get_const_type() == const_type::QVEC)
       {
+        int parameter_counter = 0;
 	for (int i = 0; i < c.n_cols(); ++i)
         {
-          long long int tmp = const_mult_factor*c.element(0,i);
+          long long int tmp = qconst_mult_factor_rz*c.element(0,i);
+          if ( parameter_counter%2 == 1) tmp /= 5;
           check_val (tmp, add_const_w, "rz add consts");
           ci.element(0, i) = tmp;
+          parameter_counter++;
         }
       }
       else if (c.get_const_type() == const_type::AMTX) 
@@ -163,10 +176,10 @@ int main (int argc, char *argv[])
         {
 	  for (int j = 0; j < c.n_cols(); ++j)
           {
-            long long int tmp = chisq_mult_factor*c.element(i,j);
+            long long int tmp = mult_factor*c.element(i,j)/1000;//1000 for coordinate
             /* TODO: unclear ask, where counter is the global index of element */
-            if ( counter%2 == 0) tmp *= 4;
-            check_val(tmp, const_w, "rz matrix consts");
+            //if ( counter%2 == 0) tmp *= 4;
+            check_val(tmp, const_w, "rz matrix consts amtx");
             ci.element(i, j) = tmp;
             counter++;
           }
@@ -176,8 +189,8 @@ int main (int argc, char *argv[])
       {
 	for (int i = 0; i < c.n_cols(); ++i)
         {
-          long long int tmp = chisq_const_mult_factor*c.element(0,i);
-          check_val (tmp, add_const_w, "rz add consts");
+          long long int tmp = mult_factor*c.element(0,i);
+          check_val (tmp, add_const_w, "rz add consts kvec");
           ci.element(0, i) = tmp;
         }
       }
