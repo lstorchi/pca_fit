@@ -45,8 +45,7 @@ class PCATrackFitter:public TrackFitter
   std::vector<pca::matrixpcaconst<double> > pcacontvct_float_;
   std::vector<pca::matrixpcaconst<long long int> > pcacontvct_integer_;
 
-  std::vector<double> chi2vf_;
-  std::vector<long long int> chi2vi_;
+  std::vector<double> chi2v_;
 
   /* we will merge these using TypeIs... structs */
   void fit_float(vector<Hit*> hits);
@@ -71,13 +70,9 @@ class PCATrackFitter:public TrackFitter
 
   void setTrack(Track* intc); 
 
-  const std::vector<double> & get_chi2f() const
+  const std::vector<double> & get_chi2() const
   {
-    return chi2vf_;
-  }
-  const std::vector<long long int> & get_chi2i() const
-  {
-    return chi2vi_;
+    return chi2v_;
   }
 
   void cleanChi2();
@@ -87,7 +82,7 @@ class PCATrackFitter:public TrackFitter
   /* In case a second file is read values will be appended,
    * initialize will remove all the values */
   void read_float_const_filename (const std::string & in);
-  void read_integegr_const_filename (const std::string & in);
+  void read_integer_const_filename (const std::string & in);
 
   void set_useinteger (const bool & in)
   {

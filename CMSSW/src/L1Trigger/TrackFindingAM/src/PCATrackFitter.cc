@@ -228,8 +228,7 @@ void PCATrackFitter::initialize()
 
 void PCATrackFitter::cleanChi2()
 {
-  chi2vf_.clear();
-  chi2vi_.clear();
+  chi2v_.clear();
 }
 
 void PCATrackFitter::mergePatterns()
@@ -513,16 +512,26 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
         double d_chi2rz = (double) chi2rz / (double) pow(pca::chisq_const_mult_factor, 2);
         double d_chi2rphi = (double) chi2rphi / (double) pow(pca::chisq_const_mult_factor, 2);
 
-        d_chi2rz = d_chi2rz / 4.0;
-        d_chi2rphi = d_chi2rphi / 10.0;
- 
         std::cout << " 6oof6 int pt:         " << d_pt << " " << pt_est << std::endl;
         std::cout << " 6oof6 int phi:        " << d_phi << " " << phi_est << std::endl; 
         std::cout << " 6oof6 int eta:        " << eta << " " << eta_est << std::endl;
         std::cout << " 6oof6 int z0:         " << d_z0 << " " << z0_est << std::endl;
-        std::cout << " 6oof6 int chi2rz:     " << d_chi2rz << std::endl;
-        std::cout << " 6oof6 int chi2rphi:   " << d_chi2rphi << std::endl;
- 
+        std::cout << " 6oof6 int chi2rz:     " << d_chi2rz/4.0 << std::endl;
+        std::cout << " 6oof6 int chi2rphi:   " << d_chi2rphi/10.0 << std::endl;
+
+        Track* fit_track = new Track();
+        
+        fit_track->setCurve(d_pt);
+        fit_track->setPhi0(d_phi);
+        fit_track->setEta0(eta);
+        fit_track->setZ0(d_z0);
+                        
+        for(unsigned int idx = 0; idx < hits.size(); ++idx)
+          fit_track->addStubIndex(hits[idx]->getID());
+        
+        // TODO: check NDF (14)
+        chi2v_.push_back((d_chi2rz+d_chi2rphi)/14.0);
+        tracks.push_back(fit_track);
       }
       else 
       {
@@ -644,17 +653,28 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
         double d_chi2rz = (double) chi2rz / (double) pow(pca::chisq_const_mult_factor, 2);
         double d_chi2rphi = (double) chi2rphi / (double) pow(pca::chisq_const_mult_factor, 2);
 
-        d_chi2rz = d_chi2rz / 2.0;
-        d_chi2rphi = d_chi2rphi / 8.0;
- 
-
         std::cout << " 5oof6 int pt:         " << d_pt << " " << pt_est << std::endl;
         std::cout << " 5oof6 int phi:        " << d_phi << " " << phi_est << std::endl; 
         std::cout << " 5oof6 int eta:        " << eta << " " << eta_est << std::endl;
         std::cout << " 5oof6 int z0:         " << d_z0 << " " << z0_est << std::endl;
-        std::cout << " 5oof6 int chi2rz:     " << d_chi2rz << std::endl;
-        std::cout << " 5oof6 int chi2rphi:   " << d_chi2rphi << std::endl;
- 
+        std::cout << " 5oof6 int chi2rz:     " << d_chi2rz/2.0 << std::endl;
+        std::cout << " 5oof6 int chi2rphi:   " << d_chi2rphi/8.0 << std::endl;
+
+        Track* fit_track = new Track();
+        
+        fit_track->setCurve(d_pt);
+        fit_track->setPhi0(d_phi);
+        fit_track->setEta0(eta);
+        fit_track->setZ0(d_z0);
+                        
+        for(unsigned int idx = 0; idx < hits.size(); ++idx)
+          fit_track->addStubIndex(hits[idx]->getID());
+        
+        tracks.push_back(fit_track);
+        // TODO: check NDF (10)
+        //chi2v_.push_back((chi2rz+chi2rphi)/(10.0));
+        // use only rphi 
+        chi2v_.push_back(d_chi2rphi/8.0);
       }
       else 
       {
@@ -867,7 +887,7 @@ void PCATrackFitter::fit_float(vector<Hit*> hits)
           fit_track->addStubIndex(hits[idx]->getID());
         
         // TODO: check NDF (14)
-        chi2vf_.push_back((chi2rz+chi2rphi)/14.0);
+        chi2v_.push_back((chi2rz+chi2rphi)/14.0);
         tracks.push_back(fit_track);
       }
       else 
@@ -1006,9 +1026,9 @@ void PCATrackFitter::fit_float(vector<Hit*> hits)
         
         tracks.push_back(fit_track);
         // TODO: check NDF (10)
-        //chi2vf_.push_back((chi2rz+chi2rphi)/(10.0));
+        //chi2v_.push_back((chi2rz+chi2rphi)/(10.0));
         // use only rphi 
-        chi2vf_.push_back(chi2rphi/8.0);
+        chi2v_.push_back(chi2rphi/8.0);
       }
       else 
       {
