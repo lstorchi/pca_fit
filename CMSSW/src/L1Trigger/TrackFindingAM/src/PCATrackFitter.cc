@@ -11,92 +11,6 @@ Loriano Storchi: 2016
 
 namespace 
 {
-  const int mult_factor = 1e6;
-  const int const_mult_factor = mult_factor*1024;
-  const int chisq_mult_factor = 3e4;
-  const int chisq_const_mult_factor = chisq_mult_factor*1024;
-  const int const_w = 25;
-  const int add_const_w = 36;
-
-
-  enum HW_SIGN_TYPE {UNSIGNED, SIGNED};
-  /* Function which simulate the HardWare representation of the values : 
-   * manage UNSIGNED and SIGNED (2's complement) overflows and accuracy 
-   * according to the available dynamic of the binary word from TCB 
-   * S.Viret, G.Galbit */
-  double binning(double fNumber, int nMSBpowOfTwo, int nBits, HW_SIGN_TYPE signType)
-  {
-    if (signType == UNSIGNED && fNumber < 0)
-      fNumber = -fNumber;
-  
-    int nLSBpowOfTwo;
-	
-    //Process the power of two of the LSB for the binary representation
-    if (signType == UNSIGNED)
-    {
-      nLSBpowOfTwo = nMSBpowOfTwo - (nBits-1);
-    }	
-    else
-    {
-      //If SIGNED, 1 bit is used for the sign
-      nLSBpowOfTwo = nMSBpowOfTwo - (nBits-2);		
-    }
-
-    /* Accuracy Simulation */
-    //Divide the number by the power of two of the LSB => 
-    //the integer part of the new number is the value we are looking for
-    fNumber = fNumber / pow(2, nLSBpowOfTwo);
-	
-    //Remove the fractionnal part by rounding down (for both positive and 
-    //negative values), this simulate the HW truncature
-    fNumber = floor(fNumber);
-	
-    //Multiply the number by the power of two of the LSB to get the correct float value
-    fNumber = fNumber * pow(2, nLSBpowOfTwo);
-
-    double fBinnedNumber = fNumber;
-    /* Overflow Simulation */
-
-    if (signType == UNSIGNED)
-    {		  
-      //If the number is in UNSIGNED representation			
-      fNumber = fmod(fNumber, pow(2, nMSBpowOfTwo+1));
-    }
-    else
-    {		  
-      //If the number is in SIGNED representation (2's complement)
-      double fTempResult = fNumber - pow(2, nMSBpowOfTwo+1); //substract the possible range to the number
-
-      if (fTempResult >= 0)
-      {
-        //If there is an overflow, it's a positive one
-        fNumber = fmod(fTempResult, pow(2, nMSBpowOfTwo+2)) - pow(2, nMSBpowOfTwo+1);
-      }
-      else
-      {
-        //If there is an overflow, it's a negative one (2's complement 
-        //format has an asymetric range for positive and negative values)
-        fNumber = fmod(fTempResult + pow(2, nLSBpowOfTwo), pow(2, nMSBpowOfTwo+2)) 
-          - pow(2, nLSBpowOfTwo) + pow(2, nMSBpowOfTwo+1);
-      }  
-    }
-
-    //If the new number is different from the previous one, an HW overflow occured
-    if (fNumber != fBinnedNumber)
-    {
-      std::cout << "WARNING HW overflow for the value : " << fBinnedNumber <<
-        " resulting value : " << fNumber << " (diff= " << fBinnedNumber-fNumber
-        << ")" << std::endl;
-    }
-	
-    return fNumber;
-  }
-
-  /*
-  #define LAYIDDIM 6
-  int stdlayersid[LAYIDDIM] = {5, 6, 7, 8, 9, 10};
-  */
-
   /* TODO to be merged using the  TypeIs... struct */
 
   /* quick and very dirty */
@@ -532,8 +446,8 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
           z0 += cmtx_rz(1, i) * zrv(0, i);
         }
 
-        double d_cottheta = (double) ((double)cottheta / (double) const_mult_factor);
-        double d_z0 = (double) ((double)z0 / (double)const_mult_factor);
+        double d_cottheta = (double) ((double)cottheta / (double) pca::const_mult_factor);
+        double d_z0 = (double) ((double)z0 / (double)pca::const_mult_factor);
 
         double eta = 0.0e0;
         double theta = atan(1.0e0 / d_cottheta); 
@@ -554,8 +468,8 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
           phi += cmtx_rphi(1, i) * phirv(0, i);
         }
 
-        double d_pt = (double) charge / ((double) coverpt / (double) const_mult_factor);
-        double d_phi = (double) ((double) phi / (double) const_mult_factor);
+        double d_pt = (double) charge / ((double) coverpt / (double) pca::const_mult_factor);
+        double d_phi = (double) ((double) phi / (double) pca::const_mult_factor);
 
         if ((tow == 19) || (tow == 20) ||
             (tow == 27) || (tow == 28))
@@ -589,8 +503,8 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
           chi2rphi += val*val;
         }
 
-        double d_chi2rz = (double) chi2rz / (double) pow(chisq_const_mult_factor, 2);
-        double d_chi2rphi = (double) chi2rphi / (double) pow(chisq_const_mult_factor, 2);
+        double d_chi2rz = (double) chi2rz / (double) pow(pca::chisq_const_mult_factor, 2);
+        double d_chi2rphi = (double) chi2rphi / (double) pow(pca::chisq_const_mult_factor, 2);
 
         d_chi2rz = d_chi2rz / 4.0;
         d_chi2rphi = d_chi2rphi / 10.0;
@@ -663,8 +577,8 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
           z0 += cmtx_rz(1, i) * zrv(0, i);
         }
 
-        double d_cottheta = (double) ((double) cottheta / (double)const_mult_factor);
-        double d_z0 = (double) ((double)z0 / (double)const_mult_factor);
+        double d_cottheta = (double) ((double) cottheta / (double) pca::const_mult_factor);
+        double d_z0 = (double) ((double)z0 / (double) pca::const_mult_factor);
 
         double eta = 0.0e0;
         double theta = atan(1.0e0 / d_cottheta); 
@@ -685,8 +599,8 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
           phi += cmtx_rphi(1, i) * phirv(0, i);
         }
 
-        double d_pt = (double) charge / ((double) coverpt / (double) const_mult_factor);
-        double d_phi = (double) ((double) phi / (double) const_mult_factor);
+        double d_pt = (double) charge / ((double) coverpt / (double) pca::const_mult_factor);
+        double d_phi = (double) ((double) phi / (double) pca::const_mult_factor);
 
         if ((tow == 19) || (tow == 20) ||
             (tow == 27) || (tow == 28))
@@ -720,8 +634,8 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
           chi2rphi += val*val;
         }
 
-        double d_chi2rz = (double) chi2rz / (double) pow(chisq_const_mult_factor, 2);
-        double d_chi2rphi = (double) chi2rphi / (double) pow(chisq_const_mult_factor, 2);
+        double d_chi2rz = (double) chi2rz / (double) pow(pca::chisq_const_mult_factor, 2);
+        double d_chi2rphi = (double) chi2rphi / (double) pow(pca::chisq_const_mult_factor, 2);
 
         d_chi2rz = d_chi2rz / 2.0;
         d_chi2rphi = d_chi2rphi / 8.0;

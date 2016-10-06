@@ -39,6 +39,13 @@ struct TypeIsDouble< double >
 
 namespace pca
 {
+  const int mult_factor = 1e6;
+  const int const_mult_factor = mult_factor*1024;
+  const int chisq_mult_factor = 3e4;
+  const int chisq_const_mult_factor = chisq_mult_factor*1024;
+  const int const_w = 25;
+  const int add_const_w = 36;
+
   enum const_type 
   {
     QVEC,
