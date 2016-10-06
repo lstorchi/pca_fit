@@ -45,6 +45,9 @@ namespace pca
   const int chisq_const_mult_factor = chisq_mult_factor*1024;
   const int const_w = 25;
   const int add_const_w = 36;
+  const int hit_w = 18;
+  const int result_w = 48;
+ 
 
   enum const_type 
   {

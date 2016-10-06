@@ -13,6 +13,11 @@ namespace
 {
   /* TODO to be merged using the  TypeIs... struct */
 
+  bool check_val(double val, int width) 
+  {
+    return (abs(val) > pow(2, width-1));
+  }
+
   /* quick and very dirty */
   template <typename T>
   void dump_element (const pca::matrixpcaconst<T> & in, std::ostream & out)
@@ -61,14 +66,27 @@ namespace
       // Store the integer value of Z (unit = 2^-8 .cm)
       //long long int zi =  pow(2, 8) * binning(hits[idx]->getZ(), 8, 18, SIGNED); 
       long long int zi =  pow(2, 8) * hits[idx]->getZ();
+      if (check_val((double) zi, pca::hit_w))
+      {
+        std::cerr << "Overflow in zi coordinate " << std::endl;
+      }
       
       // Store the integer value of R (unit = 2^-10 .cm)
       //long long int ri =  pow(2, 10) * binning(sqrt(xi*xi+yi*yi), 6, 18, SIGNED);
       long long int ri =  pow(2, 10) * sqrt(xi*xi+yi*yi);
+      if (check_val((double) ri, pca::hit_w))
+      {
+        std::cerr << "Overflow in ri coordinate " << std::endl;
+      }
+ 
 
       // Store the integer value of Phi (unit = 2^-12 .radian)
       //long long int pi = pow(2, 16) * binning(atan2(yi,xi), 4, 18, SIGNED);
       long long int pi = pow(2, 16) * atan2(yi,xi);
+      if (check_val((double) pi, pca::hit_w))
+      {
+        std::cerr << "Overflow in pi coordinate " << std::endl;
+      }
 
       zrv(0, counter) = zi;
       phirv(0, counter) = pi;
@@ -446,11 +464,23 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
         
         cottheta = qvec_rz(0,0);
         z0 = qvec_rz(0,1);
+        if (check_val((double) cottheta, pca::add_w))
+          std::cerr << "Overflow in cottheta add_w " << std::endl;
+        if (check_val((double) z0, pca::add_w))
+          std::cerr << "Overflow in z0 add_w" << std::endl;
         for (int i=0; i<(int)cmtx_rz.n_cols(); ++i)
         {
           cottheta += cmtx_rz(0, i) * zrv(0, i);
+          if (check_val((double) cottheta, pca::add_w))
+            std::cerr << "Overflow in cottheta add_w " << std::endl;
           z0 += cmtx_rz(1, i) * zrv(0, i);
+          if (check_val((double) z0, pca::add_w))
+            std::cerr << "Overflow in z0 add_w" << std::endl;
         }
+        if (check_val((double) z0, pca::result_w))
+          std::cerr << "Overflow in z0 result_w" << std::endl;
+        if (check_val((double) cottheta, pca::result_w))
+          std::cerr << "Overflow in cottheta result_w" << std::endl;
 
         double d_cottheta = (double) ((double)cottheta / (double) pca::const_mult_factor);
         double d_z0 = (double) ((double)z0 / (double)pca::const_mult_factor);
@@ -468,11 +498,23 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
         
         coverpt = qvec_rphi(0,0);
         phi = qvec_rphi(0,1);
+        if (check_val((double) coverpt, pca::add_w))
+          std::cerr << "Overflow in coverpt add_w " << std::endl;
+        if (check_val((double) phi, pca::add_w))
+          std::cerr << "Overflow in phi add_w" << std::endl;
         for (int i=0; i<(int)cmtx_rphi.n_cols(); ++i)
         {
           coverpt += cmtx_rphi(0, i) * phirv(0, i);
           phi += cmtx_rphi(1, i) * phirv(0, i);
+          if (check_val((double) coverpt, pca::add_w))
+            std::cerr << "Overflow in coverpt add_w " << std::endl;
+          if (check_val((double) phi, pca::add_w))
+            std::cerr << "Overflow in phi add_w" << std::endl;
         }
+        if (check_val((double) coverpt, pca::result_w))
+          std::cerr << "Overflow in coverpt result_w" << std::endl;
+        if (check_val((double) phi, pca::result_w))
+          std::cerr << "Overflow in phi result_w" << std::endl;
 
         double d_pt = (double) charge / ((double) coverpt / (double) pca::const_mult_factor);
         double d_phi = (double) ((double) phi / (double) pca::const_mult_factor);
