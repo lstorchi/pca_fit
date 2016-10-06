@@ -15,6 +15,9 @@ namespace
 
   bool check_val(double val, int width) 
   {
+    if (abs(val) > pow(2, width-1))
+      std::cerr << "value: " << (long long int) val << " width: " << width << std::endl;
+
     return (abs(val) > pow(2, width-1));
   }
 
