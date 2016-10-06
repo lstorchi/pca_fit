@@ -869,12 +869,12 @@ void PCATrackFitter::fit_float(vector<Hit*> hits)
           chi2rphi += val*val;
         }
         
-        std::cout << " 6oof6 pt:      " << pt << " " << pt_est << std::endl;
-        std::cout << " 6oof6 phi:     " << phi << " " << phi_est << std::endl; 
-        std::cout << " 6oof6 eta:     " << eta << " " << eta_est << std::endl;
-        std::cout << " 6oof6 z0:      " << z0 << " " << z0_est << std::endl;
-        std::cout << " 6oof6 chirz:   " << chi2rz/4.0 << std::endl;
-        std::cout << " 6oof6 chirphi: " << chi2rphi/10.0 << std::endl;
+        std::cout << " 6oof6 pt:       " << pt << " " << pt_est << std::endl;
+        std::cout << " 6oof6 phi:      " << phi << " " << phi_est << std::endl; 
+        std::cout << " 6oof6 eta:      " << eta << " " << eta_est << std::endl;
+        std::cout << " 6oof6 z0:       " << z0 << " " << z0_est << std::endl;
+        std::cout << " 6oof6 chi2rz:   " << chi2rz/4.0 << std::endl;
+        std::cout << " 6oof6 chi2rphi: " << chi2rphi/10.0 << std::endl;
 
         Track* fit_track = new Track();
         
@@ -1007,12 +1007,12 @@ void PCATrackFitter::fit_float(vector<Hit*> hits)
           chi2rphi += val*val;
         }
         
-        std::cout << " 5oof6 pt:      " << pt << " " << pt_est << std::endl;
-        std::cout << " 5oof6 phi:     " << phi << " " << phi_est << std::endl; 
-        std::cout << " 5oof6 eta:     " << eta << " " << eta_est << std::endl;
-        std::cout << " 5oof6 z0:      " << z0 << " " << z0_est << std::endl;
-        std::cout << " 5oof6 chirz:   " << chi2rz/2.0 << std::endl;
-        std::cout << " 5oof6 chirphi: " << chi2rphi/8.0 << std::endl;
+        std::cout << " 5oof6 pt:       " << pt << " " << pt_est << std::endl;
+        std::cout << " 5oof6 phi:      " << phi << " " << phi_est << std::endl; 
+        std::cout << " 5oof6 eta:      " << eta << " " << eta_est << std::endl;
+        std::cout << " 5oof6 z0:       " << z0 << " " << z0_est << std::endl;
+        std::cout << " 5oof6 chi2rz:   " << chi2rz/2.0 << std::endl;
+        std::cout << " 5oof6 chi2rphi: " << chi2rphi/8.0 << std::endl;
 
         Track* fit_track = new Track();
         
