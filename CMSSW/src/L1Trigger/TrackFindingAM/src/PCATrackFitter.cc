@@ -145,13 +145,16 @@ namespace
       
       /* as suggested by Geoffrey */
       // Store the integer value of Z (unit = 2^-8 .cm)
-      long long int zi =  pow(2, 8) * binning(hits[idx]->getZ(), 8, 18, SIGNED); 
+      //long long int zi =  pow(2, 8) * binning(hits[idx]->getZ(), 8, 18, SIGNED); 
+      long long int zi =  pow(2, 8) * hits[idx]->getZ();
       
       // Store the integer value of R (unit = 2^-10 .cm)
-      long long int ri =  pow(2, 10) * binning(sqrt(xi*xi+yi*yi), 6, 18, SIGNED);
-      
+      //long long int ri =  pow(2, 10) * binning(sqrt(xi*xi+yi*yi), 6, 18, SIGNED);
+      long long int ri =  pow(2, 10) * sqrt(xi*xi+yi*yi);
+
       // Store the integer value of Phi (unit = 2^-12 .radian)
-      long long int pi = pow(2, 16) * binning(atan2(yi,xi), 4, 18, SIGNED);
+      //long long int pi = pow(2, 16) * binning(atan2(yi,xi), 4, 18, SIGNED);
+      long long int pi = pow(2, 16) * atan2(yi,xi);
 
       zrv(0, counter) = zi;
       phirv(0, counter) = pi;
@@ -554,6 +557,10 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
         double d_pt = (double) charge / ((double) coverpt / (double) const_mult_factor);
         double d_phi = (double) ((double) phi / (double) const_mult_factor);
 
+        if ((tow == 19) || (tow == 20) ||
+            (tow == 27) || (tow == 28))
+          d_phi -= sec_phi;
+
         int coordim = 6, paramdim = 2;
         long long int chi2rz = 0.0;
         for (int i=0; i<coordim-paramdim; ++i)
@@ -680,6 +687,10 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
 
         double d_pt = (double) charge / ((double) coverpt / (double) const_mult_factor);
         double d_phi = (double) ((double) phi / (double) const_mult_factor);
+
+        if ((tow == 19) || (tow == 20) ||
+            (tow == 27) || (tow == 28))
+          d_phi -= sec_phi;
 
         int coordim = 4, paramdim = 2;
         long long int chi2rz = 0.0;
