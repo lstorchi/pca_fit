@@ -352,7 +352,7 @@ void PCATrackFitter::read_float_const_filename (const std::string & in)
  
 }
 
-void PCATrackFitter::read_integegr_const_filename (const std::string & in)
+void PCATrackFitter::read_integer_const_filename (const std::string & in)
 {
   std::cout << "Reading " << in << std::endl;
   if (!pca::read_pcaconst_from_file (pcacontvct_integer_, in.c_str()))
@@ -378,6 +378,13 @@ void PCATrackFitter::read_integegr_const_filename (const std::string & in)
 
 void PCATrackFitter::fit_integer(vector<Hit*> hits)
 {
+  /*
+   * constant TF_const_w  : integer := 25;
+   * constant TF_hit_w    : integer := 18;
+   * constant TF_addc_w   : integer := 36;
+   * constant TF_result_w : integer := 48;
+   */
+
   if (pcacontvct_integer_.size() == 0)
   {
     std::cerr << "error PCA const is empty" << std::endl;
