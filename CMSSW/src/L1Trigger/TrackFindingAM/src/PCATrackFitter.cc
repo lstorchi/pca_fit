@@ -552,8 +552,8 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
             std::cerr << "Overflow in val chi2rz 2 add_const_w " << std::endl;
           
           chi2rz += val*val;
-          if (check_val((double) chi2rz, pca::add_const_w, false))
-            std::cerr << "Overflow in chi2rz 3 add_const_w " << std::endl;
+          if (check_val((double) chi2rz, pca::result_w, false))
+            std::cerr << "Overflow in chi2rz 3 result_w " << std::endl;
         }
 
         coordim = 12, paramdim = 2;
@@ -574,8 +574,8 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
             std::cerr << "Overflow in val chi2rphi 2 add_const_w " << std::endl;
           
           chi2rphi += val*val;
-          if (check_val((double) chi2rphi, pca::add_const_w, false))
-            std::cerr << "Overflow in val chi2rphi 3 add_const_w " << std::endl;
+          if (check_val((double) chi2rphi, pca::result_w, false))
+            std::cerr << "Overflow in val chi2rphi 3 result_w " << std::endl;
         }
 
         if (check_val((double) chi2rz, pca::result_w))
@@ -585,6 +585,8 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
 
         double d_chi2rz = (double) chi2rz / (double) pow(pca::chisq_const_mult_factor, 2);
         double d_chi2rphi = (double) chi2rphi / (double) pow(pca::chisq_const_mult_factor, 2);
+
+        std::cerr << "d_chi2rz: " << d_chi2rz << " d_chi2rphi: " << d_chi2rphi  << std::endl;
 
         std::cout << " 6oof6 int pt:         " << d_pt << " " << pt_est << std::endl;
         std::cout << " 6oof6 int phi:        " << d_phi << " " << phi_est << std::endl; 
@@ -725,7 +727,7 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
         for (int i=0; i<coordim-paramdim; ++i)
         {
           long long int val = 0.0;
-                                      
+                                     
           for (int j=0; j<coordim; ++j)
           {
             val += amtx_rz(i,j) * zrv(0, j);
@@ -736,10 +738,10 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
           val -= kvec_rz(0, i);
           if (check_val((double) val, pca::add_const_w))
             std::cerr << "Overflow in val chi2rz 2 add_const_w " << std::endl;
-          
+         
           chi2rz += val*val;
-          if (check_val((double) chi2rz, pca::add_const_w, false))
-            std::cerr << "Overflow in val chi2rz 3 add_const_w " << std::endl;
+          if (check_val((double) chi2rz, pca::result_w, false))
+            std::cerr << "Overflow in val chi2rz 3 result_w " << std::endl;
         }
 
         coordim = 10, paramdim = 2;
@@ -747,7 +749,7 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
         for (int i=0; i<coordim-paramdim; ++i)
         {
           long long int val = 0.0;
-                                      
+                                     
           for (int j=0; j<coordim; ++j)
           {
             val += amtx_rphi(i,j) * phirv(0, j);
@@ -758,13 +760,11 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
           val -= kvec_rphi(0, i);
           if (check_val((double) val, pca::add_const_w))
             std::cerr << "Overflow in val chi2rphi 2 add_const_w " << std::endl;
-           
+          
           chi2rphi += val*val;
-          if (check_val((double) chi2rphi, pca::add_const_w, false))
-            std::cerr << "Overflow in chi2rphi chi2rphi 3  add_const_w " << std::endl;
- 
+          if (check_val((double) chi2rphi, pca::result_w, false))
+            std::cerr << "Overflow in chi2rphi chi2rphi 3 result_w" << std::endl;
         }
-
         if (check_val((double) chi2rz, pca::result_w))
           std::cerr << "Overflow in chi2rz result_w" << std::endl;
         if (check_val((double) chi2rphi, pca::result_w))
@@ -772,6 +772,8 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
 
         double d_chi2rz = (double) chi2rz / (double) pow(pca::chisq_const_mult_factor, 2);
         double d_chi2rphi = (double) chi2rphi / (double) pow(pca::chisq_const_mult_factor, 2);
+
+        std::cerr << "d_chi2rz: " << d_chi2rz << " d_chi2rphi: " << d_chi2rphi  << std::endl;
 
         std::cout << " 5oof6 int pt:         " << d_pt << " " << pt_est << std::endl;
         std::cout << " 5oof6 int phi:        " << d_phi << " " << phi_est << std::endl; 
