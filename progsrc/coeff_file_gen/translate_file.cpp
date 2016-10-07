@@ -75,7 +75,7 @@ int main (int argc, char *argv[])
           {
             long long int tmp = mult_factor*c.element(i,j);
             /* TODO: unclear ask, where counter is the global index of element */
-            if ( counter%2 == 0) tmp /= 64;
+            if ( counter%2 == 0) tmp /= rpdval;
             check_val(tmp, const_w, "rphi matrix consts");
             ci.element(i, j) = tmp;
             counter++;
@@ -100,7 +100,7 @@ int main (int argc, char *argv[])
           {
             long long int tmp = chisq_mult_factor*c.element(i,j);
             /* TODO: unclear ask, where counter is the global index of element */
-            if ( counter%2 == 0) tmp /= 64;
+            if ( counter%2 == 0) tmp /= rpdval;
             check_val(tmp, const_w, "rphi matrix consts");
             ci.element(i, j) = tmp;
             counter++;

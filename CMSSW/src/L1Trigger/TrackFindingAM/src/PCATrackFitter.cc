@@ -93,7 +93,7 @@ namespace
 
       // Store the integer value of Phi (unit = 2^-12 .radian)
       //long long int pi = pow(2, 16) * binning(atan2(yi,xi), 4, 18, SIGNED);
-      long long int pi = pow(2, 16) * atan2(yi,xi);
+      long long int pi = pow(2, 15) * atan2(yi,xi);
       if (check_val((double) pi, pca::hit_w))
       {
         std::cerr << "Overflow in pi coordinate " << std::endl;

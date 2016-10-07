@@ -88,7 +88,7 @@ int main (int argc, char *argv[])
         ofs_rphi_param_nb << tmp << std::endl;
 
 	if (i%2==0)
-	  tmp /= 64;
+	  tmp /= rpdval;
 	check_val(tmp, const_w, "rphi matrix consts");
 	bitset<const_w> tmp_bin3(tmp);
 	ofs_rphi_param << tmp_bin3;
@@ -190,7 +190,7 @@ int main (int argc, char *argv[])
       {
 	tmp = chisq_mult_factor*constants_rphi_amtx[base_addr*10*12 + i];
 	if (i%2==0)
-	  tmp /= 64;
+	  tmp /= rpdval;
 	check_val(tmp, const_w, "rphi chisq matrix consts");
 	bitset<const_w> tmp_bin3(tmp);
 	ofs_rphi_chisq << tmp_bin3;
