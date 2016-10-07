@@ -77,7 +77,7 @@ namespace
       /* as suggested by Geoffrey */
       // Store the integer value of Z (unit = 2^-8 .cm)
       //long long int zi =  pow(2, 8) * binning(hits[idx]->getZ(), 8, 18, SIGNED); 
-      long long int zi =  pow(2, 8) * hits[idx]->getZ();
+      long long int zi =  pca::zisf * hits[idx]->getZ();
       if (check_val((double) zi, pca::hit_w))
       {
         std::cerr << "Overflow in zi coordinate " << std::endl;
@@ -85,7 +85,7 @@ namespace
       
       // Store the integer value of R (unit = 2^-10 .cm)
       //long long int ri =  pow(2, 10) * binning(sqrt(xi*xi+yi*yi), 6, 18, SIGNED);
-      long long int ri =  pow(2, 10) * sqrt(xi*xi+yi*yi);
+      long long int ri = pca::risf * sqrt(xi*xi+yi*yi);
       if (check_val((double) ri, pca::hit_w))
       {
         std::cerr << "Overflow in ri coordinate " << std::endl;
@@ -93,7 +93,7 @@ namespace
 
       // Store the integer value of Phi (unit = 2^-12 .radian)
       //long long int pi = pow(2, 16) * binning(atan2(yi,xi), 4, 18, SIGNED);
-      long long int pi = pow(2, 15) * atan2(yi,xi);
+      long long int pi = pca::pisf * atan2(yi,xi);
       if (check_val((double) pi, pca::hit_w))
       {
         std::cerr << "Overflow in pi coordinate " << std::endl;

@@ -47,7 +47,10 @@ namespace pca
   const int add_const_w = 36;
   const int hit_w = 18;
   const int result_w = 48;
- 
+
+  const long long int zisf = 256; //pow(2, 8)
+  const long long int risf = 1024; //pow(2, 10);
+  const long long int pisf = 32768; //pow(2," 15);
 
   enum const_type 
   {
