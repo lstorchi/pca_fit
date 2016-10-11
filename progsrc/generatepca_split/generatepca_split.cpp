@@ -32,7 +32,6 @@ void usage (char * name)
   std::cerr << " -h, --help                      : display this help and exit" << std::endl;
   std::cerr << " -v, --version                   : print version and exit" << std::endl;
   std::cerr << " -V, --verbose                   : verbose mode on" << std::endl;
-  std::cerr << " -T, --int-bitewise              : Integer bitewise mode on" << std::endl;
   std::cerr << " -l, --correlation               : compute and print correlation" << std::endl;
   std::cerr << " -p, --dump-allcoords            : dump all stub coordinates to a file" << std::endl;
   std::cerr << " -d, --dump-bankfiles            : dump all coordinates files and more extracted from the rootfile" 
@@ -85,7 +84,7 @@ void perform_main_computation (const arma::mat & coord,
     pca::pcafitter & fitter, 
     pca::rootfilereader & rootrdr,
     bool verbose, bool writebinfiles,
-    bool intbitewise, int towerid,
+    int towerid,
     int regiontype)
 {
   std::cout << fitter.get_paramdim() << " X " << fitter.get_coordim() << std::endl;
@@ -125,202 +124,124 @@ void perform_main_computation (const arma::mat & coord,
     pca::write_armvct(cmfname.c_str(), coordmvec);
   }
 
-  if (intbitewise)
+  pca::matrixpcaconst<double> 
+    pcmtx(cmtx.n_rows, cmtx.n_cols), 
+    pqvct(q.n_rows, q.n_cols), 
+    pamtx(amtx.n_rows, amtx.n_cols), 
+    pkvct(kivec.n_rows, kivec.n_cols);
+  
+  double ptmin, ptmax, etamin, etamax;
+  rootrdr.get_ptlimits(ptmin, ptmax);
+  rootrdr.get_etalimits(etamin, etamax);
+  assert(rootrdr.get_rphiplane() != rootrdr.get_rzplane());
+  
+  pca::armamat_to_pcamat (cmtx, pcmtx);
+  pcmtx.set_const_type (pca::CMTX);
+  if (regiontype == ISBARREL)
   {
-    pca::matrixpcaconst<int32_t> 
-      pcmtx(cmtx.n_rows, cmtx.n_cols), 
-      pqvct(q.n_rows, q.n_cols), 
-      pamtx(amtx.n_rows, amtx.n_cols), 
-      pkvct(kivec.n_rows, kivec.n_cols);
-    
-    double ptmin, ptmax, etamin, etamax;
-    rootrdr.get_ptlimits(ptmin, ptmax);
-    rootrdr.get_etalimits(etamin, etamax);
-    assert(rootrdr.get_rphiplane() != rootrdr.get_rzplane());
-    
-    pca::armamat_to_pcamat (cmtx, pcmtx);
-    pcmtx.set_const_type (pca::CMTX);
-    pcmtx.set_layersids (rootrdr.get_actualseq().c_str());
-    
-    if (regiontype == ISBARREL)
-      pcmtx.set_sector_type (pca::BARREL);
-    else if (regiontype == ISHYBRID)
-      pcmtx.set_sector_type (pca::HYBRID);
-    else if (regiontype == ISENDCAP)
-      pcmtx.set_sector_type (pca::ENDCAP);
-
-    pcmtx.set_towerid (towerid);
-    pcmtx.set_ttype (pca::INTEGPT);
-    pcmtx.set_chargesign(rootrdr.get_chargesign());
-    if (rootrdr.get_rphiplane())
-      pcmtx.set_plane_type (pca::RPHI);
-    else if (rootrdr.get_rzplane())
-      pcmtx.set_plane_type (pca::RZ);
-    pcmtx.set_ptrange (ptmin, ptmax);
-    pcmtx.set_etarange (etamin, etamax); 
-    
-    write_pcaconst_to_file (pcmtx, "pca_const.txt");
-    
-    pca::armamat_to_pcamat (q, pqvct);
-    pqvct.set_const_type (pca::QVEC);
-    pqvct.set_layersids (rootrdr.get_actualseq().c_str());
-    if (regiontype == ISBARREL)
-      pqvct.set_sector_type (pca::BARREL);
-    else if (regiontype == ISHYBRID)
-      pqvct.set_sector_type (pca::HYBRID);
-    else if (regiontype == ISENDCAP)
-      pqvct.set_sector_type (pca::ENDCAP);
-    pqvct.set_towerid (towerid);
-    pqvct.set_ttype (pca::INTEGPT);
-    pqvct.set_chargesign(rootrdr.get_chargesign());
-    if (rootrdr.get_rphiplane())
-      pqvct.set_plane_type (pca::RPHI);
-    else if (rootrdr.get_rzplane())
-      pqvct.set_plane_type (pca::RZ);
-    pqvct.set_ptrange (ptmin, ptmax);
-    pqvct.set_etarange (etamin, etamax); 
-    
-    write_pcaconst_to_file (pqvct, "pca_const.txt");
-    
-    pca::armamat_to_pcamat (amtx, pamtx);
-    pamtx.set_const_type (pca::AMTX);
-    pamtx.set_layersids (rootrdr.get_actualseq().c_str());
-    if (regiontype == ISBARREL)
-      pamtx.set_sector_type (pca::BARREL);
-    else if (regiontype == ISHYBRID)
-      pamtx.set_sector_type (pca::HYBRID);
-    else if (regiontype == ISENDCAP)
-      pamtx.set_sector_type (pca::ENDCAP);
-    pamtx.set_towerid (towerid);
-    pamtx.set_ttype (pca::INTEGPT);
-    pamtx.set_chargesign(rootrdr.get_chargesign());
-    if (rootrdr.get_rphiplane())
-      pamtx.set_plane_type (pca::RPHI);
-    else if (rootrdr.get_rzplane())
-      pamtx.set_plane_type (pca::RZ);
-    pamtx.set_ptrange (ptmin, ptmax);
-    pamtx.set_etarange (etamin, etamax); 
-    
-    write_pcaconst_to_file (pamtx, "pca_const.txt");
-    
-    pca::armamat_to_pcamat (kivec, pkvct);
-    pkvct.set_const_type (pca::KVEC);
-    pkvct.set_layersids (rootrdr.get_actualseq().c_str());
-    if (regiontype == ISBARREL)
-      pkvct.set_sector_type (pca::BARREL);
-    else if (regiontype == ISHYBRID)
-      pkvct.set_sector_type (pca::HYBRID);
-    else if (regiontype == ISENDCAP)
-      pkvct.set_sector_type (pca::ENDCAP);
-    pkvct.set_towerid (towerid);
-    pkvct.set_ttype (pca::INTEGPT);
-    pkvct.set_chargesign(rootrdr.get_chargesign());
-    if (rootrdr.get_rphiplane())
-      pkvct.set_plane_type (pca::RPHI);
-    else if (rootrdr.get_rzplane())
-      pkvct.set_plane_type (pca::RZ);
-    pkvct.set_ptrange (ptmin, ptmax);
-    pkvct.set_etarange (etamin, etamax); 
-    
-    write_pcaconst_to_file (pkvct, "pca_const.txt");
+    pcmtx.add_layersids (rootrdr.get_actualseq().c_str());
+    pcmtx.set_sector_type (pca::BARREL);
   }
-  else
+  else if (regiontype == ISHYBRID)
   {
-    pca::matrixpcaconst<double> 
-      pcmtx(cmtx.n_rows, cmtx.n_cols), 
-      pqvct(q.n_rows, q.n_cols), 
-      pamtx(amtx.n_rows, amtx.n_cols), 
-      pkvct(kivec.n_rows, kivec.n_cols);
-    
-    double ptmin, ptmax, etamin, etamax;
-    rootrdr.get_ptlimits(ptmin, ptmax);
-    rootrdr.get_etalimits(etamin, etamax);
-    assert(rootrdr.get_rphiplane() != rootrdr.get_rzplane());
-    
-    pca::armamat_to_pcamat (cmtx, pcmtx);
-    pcmtx.set_const_type (pca::CMTX);
-    pcmtx.set_layersids (rootrdr.get_actualseq().c_str());
-    if (regiontype == ISBARREL)
-      pcmtx.set_sector_type (pca::BARREL);
-    else if (regiontype == ISHYBRID)
-      pcmtx.set_sector_type (pca::HYBRID);
-    else if (regiontype == ISENDCAP)
-      pcmtx.set_sector_type (pca::ENDCAP);
-    pcmtx.set_towerid (towerid);
-    pcmtx.set_ttype (pca::FLOATPT);
-    pcmtx.set_chargesign(rootrdr.get_chargesign());
-    if (rootrdr.get_rphiplane())
-      pcmtx.set_plane_type (pca::RPHI);
-    else if (rootrdr.get_rzplane())
-      pcmtx.set_plane_type (pca::RZ);
-    pcmtx.set_ptrange (ptmin, ptmax);
-    pcmtx.set_etarange (etamin, etamax); 
-    
-    write_pcaconst_to_file (pcmtx, "pca_const.txt");
-    
-    pca::armamat_to_pcamat (q, pqvct);
-    pqvct.set_const_type (pca::QVEC);
-    pqvct.set_layersids (rootrdr.get_actualseq().c_str());
-    if (regiontype == ISBARREL)
-      pqvct.set_sector_type (pca::BARREL);
-    else if (regiontype == ISHYBRID)
-      pqvct.set_sector_type (pca::HYBRID);
-    else if (regiontype == ISENDCAP)
-      pqvct.set_sector_type (pca::ENDCAP);
-    pqvct.set_towerid (towerid);
-    pqvct.set_ttype (pca::FLOATPT);
-    pqvct.set_chargesign(rootrdr.get_chargesign());
-    if (rootrdr.get_rphiplane())
-      pqvct.set_plane_type (pca::RPHI);
-    else if (rootrdr.get_rzplane())
-      pqvct.set_plane_type (pca::RZ);
-    pqvct.set_ptrange (ptmin, ptmax);
-    pqvct.set_etarange (etamin, etamax); 
-    
-    write_pcaconst_to_file (pqvct, "pca_const.txt");
-    
-    pca::armamat_to_pcamat (amtx, pamtx);
-    pamtx.set_const_type (pca::AMTX);
-    pamtx.set_layersids (rootrdr.get_actualseq().c_str());
-    if (regiontype == ISBARREL)
-      pamtx.set_sector_type (pca::BARREL);
-    else if (regiontype == ISHYBRID)
-      pamtx.set_sector_type (pca::HYBRID);
-    else if (regiontype == ISENDCAP)
-      pamtx.set_sector_type (pca::ENDCAP);
-    pamtx.set_towerid (towerid);
-    pamtx.set_ttype (pca::FLOATPT);
-    pamtx.set_chargesign(rootrdr.get_chargesign());
-    if (rootrdr.get_rphiplane())
-      pamtx.set_plane_type (pca::RPHI);
-    else if (rootrdr.get_rzplane())
-      pamtx.set_plane_type (pca::RZ);
-    pamtx.set_ptrange (ptmin, ptmax);
-    pamtx.set_etarange (etamin, etamax); 
-    
-    write_pcaconst_to_file (pamtx, "pca_const.txt");
-    
-    pca::armamat_to_pcamat (kivec, pkvct);
-    pkvct.set_const_type (pca::KVEC);
-    pkvct.set_layersids (rootrdr.get_actualseq().c_str());
-    if (regiontype == ISBARREL)
-      pkvct.set_sector_type (pca::BARREL);
-    else if (regiontype == ISHYBRID)
-      pkvct.set_sector_type (pca::HYBRID);
-    else if (regiontype == ISENDCAP)
-      pkvct.set_sector_type (pca::ENDCAP);
-    pkvct.set_towerid (towerid);
-    pkvct.set_ttype (pca::FLOATPT);
-    pkvct.set_chargesign(rootrdr.get_chargesign());
-    if (rootrdr.get_rphiplane())
-      pkvct.set_plane_type (pca::RPHI);
-    else if (rootrdr.get_rzplane())
-      pkvct.set_plane_type (pca::RZ);
-    pkvct.set_ptrange (ptmin, ptmax);
-    pkvct.set_etarange (etamin, etamax); 
-    
-    write_pcaconst_to_file (pkvct, "pca_const.txt");
+    pcmtx.set_sector_type (pca::HYBRID);
   }
+  else if (regiontype == ISENDCAP)
+  {
+    pcmtx.set_sector_type (pca::ENDCAP);
+  }
+  pcmtx.set_towerid (towerid);
+  pcmtx.set_ttype (pca::FLOATPT);
+  pcmtx.set_chargesign(rootrdr.get_chargesign());
+  if (rootrdr.get_rphiplane())
+    pcmtx.set_plane_type (pca::RPHI);
+  else if (rootrdr.get_rzplane())
+    pcmtx.set_plane_type (pca::RZ);
+  pcmtx.set_ptrange (ptmin, ptmax);
+  pcmtx.set_etarange (etamin, etamax); 
+  
+  write_pcaconst_to_file (pcmtx, "pca_const.txt");
+  
+  pca::armamat_to_pcamat (q, pqvct);
+  pqvct.set_const_type (pca::QVEC);
+  if (regiontype == ISBARREL)
+  {
+    pqvct.add_layersids (rootrdr.get_actualseq().c_str());
+    pqvct.set_sector_type (pca::BARREL);
+  }
+  else if (regiontype == ISHYBRID)
+  {
+    pqvct.set_sector_type (pca::HYBRID);
+  }
+  else if (regiontype == ISENDCAP)
+  {
+    pqvct.set_sector_type (pca::ENDCAP);
+  }
+  pqvct.set_towerid (towerid);
+  pqvct.set_ttype (pca::FLOATPT);
+  pqvct.set_chargesign(rootrdr.get_chargesign());
+  if (rootrdr.get_rphiplane())
+    pqvct.set_plane_type (pca::RPHI);
+  else if (rootrdr.get_rzplane())
+    pqvct.set_plane_type (pca::RZ);
+  pqvct.set_ptrange (ptmin, ptmax);
+  pqvct.set_etarange (etamin, etamax); 
+  
+  write_pcaconst_to_file (pqvct, "pca_const.txt");
+  
+  pca::armamat_to_pcamat (amtx, pamtx);
+  pamtx.set_const_type (pca::AMTX);
+  if (regiontype == ISBARREL)
+  {
+    pamtx.add_layersids (rootrdr.get_actualseq().c_str());
+    pamtx.set_sector_type (pca::BARREL);
+  }
+  else if (regiontype == ISHYBRID)
+  {
+    pamtx.set_sector_type (pca::HYBRID);
+  }
+  else if (regiontype == ISENDCAP)
+  {
+    pamtx.set_sector_type (pca::ENDCAP);
+  }
+  pamtx.set_towerid (towerid);
+  pamtx.set_ttype (pca::FLOATPT);
+  pamtx.set_chargesign(rootrdr.get_chargesign());
+  if (rootrdr.get_rphiplane())
+    pamtx.set_plane_type (pca::RPHI);
+  else if (rootrdr.get_rzplane())
+    pamtx.set_plane_type (pca::RZ);
+  pamtx.set_ptrange (ptmin, ptmax);
+  pamtx.set_etarange (etamin, etamax); 
+  
+  write_pcaconst_to_file (pamtx, "pca_const.txt");
+  
+  pca::armamat_to_pcamat (kivec, pkvct);
+  pkvct.set_const_type (pca::KVEC);
+  if (regiontype == ISBARREL)
+  {
+    pkvct.add_layersids (rootrdr.get_actualseq().c_str());
+    pkvct.set_sector_type (pca::BARREL);
+  }
+  else if (regiontype == ISHYBRID)
+  {
+    pkvct.set_sector_type (pca::HYBRID);
+  }
+  else if (regiontype == ISENDCAP)
+  {
+    pkvct.set_sector_type (pca::ENDCAP);
+  }
+  pkvct.set_towerid (towerid);
+  pkvct.set_ttype (pca::FLOATPT);
+  pkvct.set_chargesign(rootrdr.get_chargesign());
+  if (rootrdr.get_rphiplane())
+    pkvct.set_plane_type (pca::RPHI);
+  else if (rootrdr.get_rzplane())
+    pkvct.set_plane_type (pca::RZ);
+  pkvct.set_ptrange (ptmin, ptmax);
+  pkvct.set_etarange (etamin, etamax); 
+  
+  write_pcaconst_to_file (pkvct, "pca_const.txt");
 }
 
 # ifndef __CINT__
@@ -363,7 +284,6 @@ int main (int argc, char ** argv)
   bool verbose = false;
   bool multiple_pdg = false;
 
-  bool intbitewise = false;
   bool use3layers = false;
 
   int towerid = -99;
@@ -375,7 +295,6 @@ int main (int argc, char ** argv)
       {"help", 0, NULL, 'h'},
       {"version", 0, NULL, 'v'},
       {"verbose", 0, NULL, 'V'},
-      {"int-bitewise", 0, NULL, 'T'}, 
       {"correlation", 0, NULL, 'l'},
       {"dump-allcoords", 0, NULL, 'p'},
       {"charge-sign", 1, NULL, 'g'},
@@ -403,7 +322,7 @@ int main (int argc, char ** argv)
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "hvVTlpg:zrxn:t:m:o:u:kaf:b:dy:X:B:D:cR:GK", 
+    c = getopt_long (argc, argv, "hvVlpg:zrxn:t:m:o:u:kaf:b:dy:X:B:D:cR:GK", 
         long_options, &option_index);
 
     if (c == -1)
@@ -420,9 +339,6 @@ int main (int argc, char ** argv)
         break;
       case 'V':
         verbose = true;
-        break;
-      case 'T':
-        intbitewise = true;
         break;
       case 'l':
         correlation = true;
@@ -563,7 +479,7 @@ int main (int argc, char ** argv)
     } 
   }
 
-  fitter.set_useintbitewise(intbitewise);
+  fitter.set_useintbitewise(false);
 
   if (!getinfo)
   {
@@ -705,7 +621,7 @@ int main (int argc, char ** argv)
 
   pca::rootfilereader rootrdr;
 
-  rootrdr.set_useintbitewise(intbitewise);
+  rootrdr.set_useintbitewise(false);
 
   rootrdr.set_specificseq (sequence.c_str());
   rootrdr.set_maxnumoflayers(numoflayers);
@@ -980,7 +896,7 @@ int main (int argc, char ** argv)
       cfname.str(), qfname.str(), afname.str() ,
       vfname.str(), kfname.str(), coordmfname.str(),
       fitter, rootrdr, verbose, writebinfiles, 
-      intbitewise, towerid, regiontype);
+      towerid, regiontype);
 
   return EXIT_SUCCESS;
 }

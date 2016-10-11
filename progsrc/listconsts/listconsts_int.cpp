@@ -49,7 +49,7 @@ bool read_pca_const (const std::string & cfname)
       it->get_ptrange(ptmin, ptmax);
       it->get_etarange(etamin, etamax);
       chargesign = it->get_chargesign();
-      layerseq = it->get_layersids();
+      layerseq = it->get_layersids_string();
 
       std::cout 
         << pca::matrixpcaconst<long long int>::plane_type_to_string(it->get_plane_type()) << " " 

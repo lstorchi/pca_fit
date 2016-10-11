@@ -992,9 +992,9 @@ bool rootfilereader::from_root_file (int & idx,
     single_track.y.push_back(stuby[j]);
     single_track.z.push_back(stubz[j]);
   
-    single_track.i_x.push_back((int16_t) 10 * stubx[j]);
-    single_track.i_y.push_back((int16_t) 10 * stuby[j]);
-    single_track.i_z.push_back((int16_t) 10 * stubz[j]);
+    single_track.i_x.push_back((int16_t) pca::zisf * stubx[j]);
+    single_track.i_y.push_back((int16_t) pca::zisf * stuby[j]);
+    single_track.i_z.push_back((int16_t) pca::zisf * stubz[j]);
   
     int value = moduleid[j];
     int layer = value/1000000;
@@ -1291,11 +1291,11 @@ bool rootfilereader::convertorphiz (std::vector<track_rphiz_str> &
       //double phii = acos(track->x[j]/ri);
       double phii = atan2(y, x);
 
-      int32_t i_ri = sqrt(pow(track->i_x[j], 2.0) + 
+      int32_t i_ri = pca::risf*sqrt(pow(track->i_x[j], 2.0) + 
           pow (track->i_y[j], 2.0));
       //int32_t i_phii = 50000*acos((double) track->i_x[j]/
       //    (double) i_ri);
-      int32_t i_phii = 50000*atan2((double)track->i_y[j],
+      int32_t i_phii = pca::pisf*atan2((double)track->i_y[j],
           (double)track->i_x[j]);
 
       single_track.z.push_back(track->z[j]);
