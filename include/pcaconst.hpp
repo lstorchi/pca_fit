@@ -45,7 +45,7 @@ namespace pca
 
   const int mult_factor = 1e5;
   const int const_mult_factor = mult_factor*1024;
-  const int chisq_mult_factor = 1e3;
+  const int chisq_mult_factor = 1e2;
   const int chisq_const_mult_factor = chisq_mult_factor*1024;
 
   const int const_w = 25;
