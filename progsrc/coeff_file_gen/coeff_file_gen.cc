@@ -25,6 +25,9 @@ int main (int argc, char *argv[])
   std::vector< matrixpcaconst<double> > all_constants;
   bool a = read_pcaconst_from_file<double>(all_constants, argv[1]);
 
+  double rpdval = rpdval_get(); 
+  double rzdval = rzdval_get();
+ 
   // write rphi param
   std::vector<double> constants_rphi_cmtx;
   for (matrixpcaconst<double> c : all_constants) 
@@ -256,7 +259,7 @@ int main (int argc, char *argv[])
       {
 	tmp = mult_factor*constants_rz_cmtx[base_addr*2*6 + i];
 	if (i%2==0)
-	  tmp *= 4;
+	  tmp *= rzdval;
 	check_val(tmp, const_w, "rz matrix consts");
 	bitset<const_w> tmp_bin3(tmp);
 	ofs_rz_param << tmp_bin3;
@@ -356,7 +359,7 @@ int main (int argc, char *argv[])
       {
 	tmp = chisq_mult_factor*constants_rz_amtx[base_addr*4*6 + i];
 	if (i%2==0)
-	  tmp *= 4;
+	  tmp *= rzdval;
 	check_val(tmp, const_w, "rz chisq matrix consts");
 	bitset<const_w> tmp_bin3(tmp);
 	ofs_rz_chisq << tmp_bin3;

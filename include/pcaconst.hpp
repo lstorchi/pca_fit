@@ -39,18 +39,19 @@ struct TypeIsDouble< double >
 
 namespace pca
 {
-  const int mult_factor = 1e6;
+  const long long int zisf = 256; //pow(2, 8)
+  const long long int risf = 1024; //pow(2, 10);
+  const long long int pisf = 32768; //pow(2, 15);
+
+  const int mult_factor = 1e5;
   const int const_mult_factor = mult_factor*1024;
-  const int chisq_mult_factor = 1e4;
+  const int chisq_mult_factor = 1e3;
   const int chisq_const_mult_factor = chisq_mult_factor*1024;
+
   const int const_w = 25;
   const int add_const_w = 36;
   const int hit_w = 18;
   const int result_w = 48;
-
-  const long long int zisf = 256; //pow(2, 8)
-  const long long int risf = 1024; //pow(2, 10);
-  const long long int pisf = 32768; //pow(2," 15);
 
   enum const_type 
   {

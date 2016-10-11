@@ -14,6 +14,20 @@
 using namespace pca;
 using namespace std;
 
+double rpdval_get ()
+{
+  double v  = pca::pisf/pca::risf;
+
+  return v;
+}
+
+double rzdval_get ()
+{
+  double v = pca::risf/pca::zisf;
+   
+  return v;
+}
+
 int check_val(double val, int width, string mstr) 
 {
   if (abs(val) > pow(2, width-1))

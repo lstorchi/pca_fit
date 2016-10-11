@@ -44,6 +44,9 @@ int main (int argc, char *argv[])
 
     remove(out_fname.c_str());
   } 
+
+  double rpdval = rpdval_get(); 
+  double rzdval = rzdval_get();
   
   for (matrixpcaconst<double> c : all_constants) 
   {
@@ -133,7 +136,7 @@ int main (int argc, char *argv[])
           {
             long long int tmp = mult_factor*c.element(i,j);
             /* TODO: unclear ask, where counter is the global index of element */
-            if ( counter%2 == 0) tmp *= 4;
+            if ( counter%2 == 0) tmp *= rzdval;
             check_val(tmp, const_w, "rz matrix consts");
             ci.element(i, j) = tmp;
             counter++;
@@ -158,7 +161,7 @@ int main (int argc, char *argv[])
           {
             long long int tmp = chisq_mult_factor*c.element(i,j);
             /* TODO: unclear ask, where counter is the global index of element */
-            if ( counter%2 == 0) tmp *= 4;
+            if ( counter%2 == 0) tmp *= rzdval;
             check_val(tmp, const_w, "rz matrix consts");
             ci.element(i, j) = tmp;
             counter++;
