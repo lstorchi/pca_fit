@@ -3,6 +3,7 @@
 
 #include <stdexcept>
 #include <vector>
+#include <set>
 
 #include <iostream>
 #include <fstream>
@@ -99,7 +100,7 @@ namespace pca
         int towerid_;
         double ptmin_, ptmax_, etamin_, etamax_;
         int chargesign_;
-        std::string layersids_;
+        std::set<std::string> layersids_;
 
         void range_check (unsigned i, unsigned j) const;
 
@@ -132,8 +133,20 @@ namespace pca
         void set_chargesign (int in) {chargesign_ = in;};
         int get_chargesign () const {return chargesign_;};
 
-        void set_layersids (const char * in) {layersids_ = in;};
-        std::string get_layersids () const {return layersids_;};
+        void add_layersids (const char * in) {layersids_.insert(in);};
+        void set_layersids (const std::set<std::string> & in) {layersids_ = in;};
+        const std::set<std::string> & get_layersids () const {return layersids_;};
+        std::string get_layersids_string () const 
+        {
+          std::ostringstream retv;
+
+          std::set<std::string>::const_iterator it = layersids_.begin();
+          for (; it != layersids_.end(); ++it)
+            retv << *it << ";" ;
+
+          std::string outstr = retv.str().substr(0, retv.str().size()-1);;
+          return outstr;;
+        };
 
         void set_ptrange (double min, double max) 
         {
@@ -337,7 +350,7 @@ namespace pca
     etamin_ = 0.0;
     etamax_ = 0.0;
     chargesign_ = 0;
-    layersids_ = "unspecified";
+    layersids_.clear();
   
     /*
     if( rows_ == 0 || cols_ == 0 )
@@ -371,6 +384,7 @@ namespace pca
     towerid_ = cp.towerid_;
     chargesign_ = cp.chargesign_;
 
+    layersids_.clear();
     layersids_ = cp.layersids_;
   }
 
@@ -418,7 +432,7 @@ namespace pca
     ptmax_ = 0.0;
     etamin_ = 0.0;
     etamax_ = 0.0;
-    layersids_ = "unspecified";
+    layersids_.clear();
   }
   
   template<typename T>
@@ -466,6 +480,7 @@ namespace pca
     this->towerid_ = cp.towerid_;
     this->chargesign_ = cp.chargesign_;
 
+    this->layersids_.clear();
     this->layersids_ = cp.layersids_;
   
     return *this;
@@ -504,12 +519,24 @@ namespace pca
         infile >> instr;
         matt.set_towerid(atoi(instr.c_str()));
         infile >> instr;
-        matt.set_layersids(instr.c_str());
+
+        std::string delim = ";";
+        size_t pos = 0;
+        std::set<std::string> tokens;
+        while ((pos = instr.find(delim)) != std::string::npos) 
+        {
+          std::string t = instr.substr(0, pos);
+          tokens.insert(t);
+          instr.erase(0, pos + delim.length());
+        }
+        tokens.insert(instr);
+        matt.set_layersids(tokens);
+
         infile >> instr;
         matt.set_sector_type(matrixpcaconst<T>::string_to_sector_type(instr));
         infile >> instr;
         matt.set_plane_type(matrixpcaconst<T>::string_to_plane_type(instr));
-        infile >> instr;
+        infile >> instr;\
         matt.set_ttype(matrixpcaconst<T>::string_to_ttype(instr));
         infile >> instr >> instr1;
         matt.set_ptrange(atof(instr.c_str()), atof(instr1.c_str()));
@@ -572,10 +599,10 @@ namespace pca
           outf << matrixpcaconst<T>::const_type_to_string(vct[i].get_const_type()) 
             << std::endl;
           outf << vct[i].get_towerid() << std::endl;
-          if (vct[i].get_layersids() == "")
+          if (vct[i].get_layersids_string() == "")
             outf << "unspecified" << std::endl;
           else
-            outf << vct[i].get_layersids() << std::endl;
+            outf << vct[i].get_layersids_string() << std::endl;
           outf << matrixpcaconst<T>::sector_type_to_string(vct[i].get_sector_type()) 
             << std::endl;
           outf << matrixpcaconst<T>::plane_type_to_string(vct[i].get_plane_type()) 
@@ -613,10 +640,10 @@ namespace pca
       outf << matrixpcaconst<T>::const_type_to_string(in.get_const_type()) 
         << std::endl;
       outf << in.get_towerid() << std::endl;
-      if (in.get_layersids() == "")
+      if (in.get_layersids_string() == "")
         outf << "unspecified" << std::endl;
       else
-        outf << in.get_layersids() << std::endl;
+        outf << in.get_layersids_string() << std::endl;
       outf << matrixpcaconst<T>::sector_type_to_string(in.get_sector_type()) 
         << std::endl;
       outf << matrixpcaconst<T>::plane_type_to_string(in.get_plane_type()) 
@@ -666,7 +693,7 @@ namespace pca
     for (; it != vct.end(); ++it)
     {
       double ptmin, ptmax, etamin, etamax;
-      std::string actuallayids;
+      std::set<std::string> actuallayids;
       int chargesign;
   
       it->get_ptrange(ptmin, ptmax);
@@ -680,7 +707,7 @@ namespace pca
         {
           if (it->get_plane_type() == pca::RZ)
           {
-            if (actuallayids == pslayersid)
+            if (actuallayids.find(pslayersid) != actuallayids.end())
             {
               if ((eta >= etamin) && (eta <= etamax)) 
               {
@@ -714,7 +741,7 @@ namespace pca
           }
           else if (it->get_plane_type() == pca::RPHI)
           {
-            if (actuallayids == layersid)
+            if (actuallayids.find(layersid) != actuallayids.end())
             {
               if (chargesignin == chargesign)
               {
@@ -790,7 +817,7 @@ namespace pca
     for (; it != vct.end(); ++it)
     {
       double ptmin, ptmax, etamin, etamax;
-      std::string actuallayids;
+      std::set<std::string> actuallayids;
       int chargesign;
   
       it->get_ptrange(ptmin, ptmax);
@@ -808,7 +835,7 @@ namespace pca
           {
             if (chargesignin == chargesign)
             {
-              if (actuallayids == layersid)
+              if (actuallayids.find(layersid) != actuallayids.end())
               {
                 if ((eta >= etamin) && (eta <= etamax)) 
                 {

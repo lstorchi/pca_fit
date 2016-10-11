@@ -40,7 +40,7 @@ int get_missing_layer(matrixpcaconst<double> c)
   missing_layer = -1;
 
   string layers_str;
-  layers_str = c.get_layersids();
+  layers_str = c.get_layersids_string();
   
   if (c.get_plane_type() == plane_type::RPHI) 
   {
