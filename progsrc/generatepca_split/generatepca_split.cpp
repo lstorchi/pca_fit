@@ -144,10 +144,12 @@ void perform_main_computation (const arma::mat & coord,
   }
   else if (regiontype == ISHYBRID)
   {
+    pamtx.set_layersids (rootrdr.get_actualseq_set()); 
     pcmtx.set_sector_type (pca::HYBRID);
   }
   else if (regiontype == ISENDCAP)
   {
+    pamtx.set_layersids (rootrdr.get_actualseq_set());
     pcmtx.set_sector_type (pca::ENDCAP);
   }
   pcmtx.set_towerid (towerid);
@@ -171,10 +173,12 @@ void perform_main_computation (const arma::mat & coord,
   }
   else if (regiontype == ISHYBRID)
   {
+    pamtx.set_layersids (rootrdr.get_actualseq_set()); 
     pqvct.set_sector_type (pca::HYBRID);
   }
   else if (regiontype == ISENDCAP)
   {
+    pamtx.set_layersids (rootrdr.get_actualseq_set()); 
     pqvct.set_sector_type (pca::ENDCAP);
   }
   pqvct.set_towerid (towerid);
@@ -198,10 +202,12 @@ void perform_main_computation (const arma::mat & coord,
   }
   else if (regiontype == ISHYBRID)
   {
+    pamtx.set_layersids (rootrdr.get_actualseq_set());
     pamtx.set_sector_type (pca::HYBRID);
   }
   else if (regiontype == ISENDCAP)
   {
+    pamtx.set_layersids (rootrdr.get_actualseq_set());
     pamtx.set_sector_type (pca::ENDCAP);
   }
   pamtx.set_towerid (towerid);
@@ -225,10 +231,12 @@ void perform_main_computation (const arma::mat & coord,
   }
   else if (regiontype == ISHYBRID)
   {
+    pamtx.set_layersids (rootrdr.get_actualseq_set()); 
     pkvct.set_sector_type (pca::HYBRID);
   }
   else if (regiontype == ISENDCAP)
   {
+    pamtx.set_layersids (rootrdr.get_actualseq_set());
     pkvct.set_sector_type (pca::ENDCAP);
   }
   pkvct.set_towerid (towerid);
@@ -768,7 +776,10 @@ int main (int argc, char ** argv)
     }
   }
 
-  std::cout << "Extracted layers seq: " << rootrdr.get_actualseq() << std::endl;
+  if (regiontype == ISBARREL)
+    std::cout << "Extracted layers seq: " << rootrdr.get_actualseq() << std::endl;
+  else 
+    std::cout << "Extracted layers seq: " << rootrdr.get_actualseq_set_string() << std::endl;
 
   if (userelativecoord)
     pca::global_to_relative(coordin, coord1min, coord2min);

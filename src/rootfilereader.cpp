@@ -128,6 +128,7 @@ void rootfilereader::reset()
   layeridtorm_ = -1;
 
   layersid_ = "";
+  layersid_set_.clear();
 
   tracks_vct_.clear();
 
@@ -388,6 +389,23 @@ const std::string & rootfilereader::get_specificseq () const
 const std::string & rootfilereader::get_actualseq () const
 {
   return layersid_;
+}
+
+const std::set<std::string> & rootfilereader::get_actualseq_set () const
+{
+  return layersid_set_;
+}
+
+std::string rootfilereader::get_actualseq_set_string () const
+{
+  std::ostringstream retv;
+  
+  std::set<std::string>::const_iterator it = layersid_set_.begin();
+  for (; it != layersid_set_.end(); ++it)
+    retv << *it << ";" ;
+  
+  std::string outstr = retv.str().substr(0, retv.str().size()-1);;
+  return outstr;;
 }
 
 void rootfilereader::set_performlinearinterpolation (bool in)
@@ -1496,6 +1514,8 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
 
     actuallayersids = osss.str();
     actuallayersids.erase(actuallayersids.end()-1);
+
+    layersid_set_.insert(actuallayersids);
 
     // this should be removed if we decide to use a single 
     // set for each possible combination 

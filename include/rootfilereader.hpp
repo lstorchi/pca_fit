@@ -4,6 +4,7 @@
 #include <armadillo>
 #include <vector>
 #include <map>
+#include <set>
 
 // lstorchi: this should be moved into include as soon as the utility code should be
 //           a class... This is not a proper class, just a way to collect some functions 
@@ -105,6 +106,8 @@ namespace pca
       const std::string & get_specificseq () const;
 
       const std::string & get_actualseq () const;
+      const std::set<std::string> & get_actualseq_set () const;
+      std::string get_actualseq_set_string () const;
       
       void set_etalimits (double & min, double & max);
       void set_philimits (double & min, double & max);
@@ -177,6 +180,7 @@ namespace pca
       std::string errmsg_, filename_;
 
       std::string layersid_;
+      std::set<std::string> layersid_set_;
 
       bool useintbitewise_;
 
