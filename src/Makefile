@@ -40,3 +40,6 @@ $(LIBNAME): $(OBJ)
 
 clean:
 	rm -f *.o dicts.cpp dicts.h $(LIBNAME) ../lib/$(LIBNAME)
+
+pcafitter.o: ../include/pcaconst.hpp
+utility.o: ../include/pcaconst.hpp

@@ -144,12 +144,12 @@ void perform_main_computation (const arma::mat & coord,
   }
   else if (regiontype == ISHYBRID)
   {
-    pamtx.set_layersids (rootrdr.get_actualseq_set()); 
+    pcmtx.set_layersids (rootrdr.get_actualseq_set()); 
     pcmtx.set_sector_type (pca::HYBRID);
   }
   else if (regiontype == ISENDCAP)
   {
-    pamtx.set_layersids (rootrdr.get_actualseq_set());
+    pcmtx.set_layersids (rootrdr.get_actualseq_set());
     pcmtx.set_sector_type (pca::ENDCAP);
   }
   pcmtx.set_towerid (towerid);
@@ -173,12 +173,12 @@ void perform_main_computation (const arma::mat & coord,
   }
   else if (regiontype == ISHYBRID)
   {
-    pamtx.set_layersids (rootrdr.get_actualseq_set()); 
+    pqvct.set_layersids (rootrdr.get_actualseq_set()); 
     pqvct.set_sector_type (pca::HYBRID);
   }
   else if (regiontype == ISENDCAP)
   {
-    pamtx.set_layersids (rootrdr.get_actualseq_set()); 
+    pqvct.set_layersids (rootrdr.get_actualseq_set()); 
     pqvct.set_sector_type (pca::ENDCAP);
   }
   pqvct.set_towerid (towerid);
@@ -231,12 +231,12 @@ void perform_main_computation (const arma::mat & coord,
   }
   else if (regiontype == ISHYBRID)
   {
-    pamtx.set_layersids (rootrdr.get_actualseq_set()); 
+    pkvct.set_layersids (rootrdr.get_actualseq_set()); 
     pkvct.set_sector_type (pca::HYBRID);
   }
   else if (regiontype == ISENDCAP)
   {
-    pamtx.set_layersids (rootrdr.get_actualseq_set());
+    pkvct.set_layersids (rootrdr.get_actualseq_set());
     pkvct.set_sector_type (pca::ENDCAP);
   }
   pkvct.set_towerid (towerid);

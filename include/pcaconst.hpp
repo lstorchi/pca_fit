@@ -134,7 +134,8 @@ namespace pca
         int get_chargesign () const {return chargesign_;};
 
         void add_layersids (const char * in) {layersids_.insert(in);};
-        void set_layersids (const std::set<std::string> & in) {layersids_ = in;};
+        void set_layersids (const std::set<std::string> & in) { layersids_.clear(); 
+          layersids_ = in;}
         const std::set<std::string> & get_layersids () const {return layersids_;};
         std::string get_layersids_string () const 
         {
@@ -479,7 +480,6 @@ namespace pca
     this->etamax_ = cp.etamax_;
     this->towerid_ = cp.towerid_;
     this->chargesign_ = cp.chargesign_;
-
     this->layersids_.clear();
     this->layersids_ = cp.layersids_;
   
