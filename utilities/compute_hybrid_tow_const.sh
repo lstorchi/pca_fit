@@ -1,61 +1,119 @@
-export TOWERID=8
-export ROTTFILENAME=MUBANK_pt2To200_tow8.root
-export OUTFILENAME="output_compute_pca_const.out_7bins"
+if [ "$#" -ne 3 ]; then
+  echo $0 " rootfile towerid etaminval"
+  exit
+fi
 
+export TOWERID=$2
+export ROTTFILENAME=$1
+export OUTFILENAME="output_compute_pca_const.out"
+
+echo "Using " $ROTTFILENAME " for Tower " $TOWERID " out " $OUTFILENAME " etamin " $3
 > $OUTFILENAME
 
-declare -a arr=("3.0;7.0" "7.0;12.0" "12.0;18.0" "18.0;25.0" "25.0;50.0" "50.0;100.0" "100.0;200.0")
+declare -a arr=("2.0;3.0" "3.0;7.0" "7.0;12.0" "12.0;18.0" "18.0;25.0" "25.0;50.0" "50.0;100.0" "100.0;200.0")
 
 for i in "${arr[@]}"
 do
   echo $i " Gev mu+" >> $OUTFILENAME
-  ./generatepca_split -k -R 1 --rphi-plane --charge-sign=+ --pt-range="$i" -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
-  ./fitpca_split_single -k -N -c "./pca_const.txt" -R 1 --rphi-plane --charge-sign=+ --pt-range="$i" -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
-  rm results.txt pca_const.txt
+  export FFILE="results_rphi_"$i"_p.txt" 
+  FILENAME=${FFILE//;/_}
+  echo $FILENAME
+  ./generatepca_split -R 1 -k --rphi-plane --charge-sign=+ --pt-range="$i" -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
+  ./fitpca_split_single -R 1 -N -k --rphi-plane --charge-sign=+ --pt-range="$i" -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
+  mv results.txt $FILENAME
   echo ""
+
+  echo $i " Gev mu-" >> $OUTFILENAME
+  export FFILE="results_rphi_"$i"_n.txt"
+  FILENAME=${FFILE//;/_}
+  echo $FILENAME
+  ./generatepca_split -R 1 -k --rphi-plane --charge-sign=- --pt-range="$i" -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
+  ./fitpca_split_single -R 1 -N -k --rphi-plane --charge-sign=- --pt-range="$i" -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
+  mv results.txt $FILENAME
+  echo ""
+
+  for j in `seq 5 10`
+  do 
+    echo "Removing layer " $j
+    echo $i " Gev mu+" >> $OUTFILENAME
+    export FFILE="results_rphi_"$i"_p_fk"$j".txt"
+    FILENAME=${FFILE//;/_}
+    echo $FILENAME
+    ./generatepca_split -R 1 --fk-five-hits=$j -k --rphi-plane --charge-sign=+ --pt-range="$i" -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
+    ./fitpca_split_single -R 1 -N --fk-five-hits=$j -k --rphi-plane --charge-sign=+ --pt-range="$i" -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
+    mv results.txt $FILENAME
+    echo ""
+
+    echo $i " Gev mu-" >> $OUTFILENAME
+    export FFILE="results_rphi_"$i"_n_fk"$j".txt"
+    FILENAME=${FFILE//;/_}
+    echo $FILENAME
+    ./generatepca_split -R 1 --fk-five-hits=$j -k --rphi-plane --charge-sign=- --pt-range="$i" -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
+    ./fitpca_split_single -R 1 -N --fk-five-hits=$j -k --rphi-plane --charge-sign=- --pt-range="$i" -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
+    mv results.txt $FILENAME
+    echo ""
+  done
+
+  for j in `seq 18 22`
+  do 
+    echo "Removing layer " $j
+    echo $i " Gev mu+" >> $OUTFILENAME
+    export FFILE="results_rphi_"$i"_p_fk"$j".txt"
+    FILENAME=${FFILE//;/_}
+    echo $FILENAME
+    ./generatepca_split -R 1 --fk-five-hits=$j -k --rphi-plane --charge-sign=+ --pt-range="$i" -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
+    ./fitpca_split_single -R 1 -N --fk-five-hits=$j -k --rphi-plane --charge-sign=+ --pt-range="$i" -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
+    mv results.txt $FILENAME
+    echo ""
+
+    echo $i " Gev mu-" >> $OUTFILENAME
+    export FFILE="results_rphi_"$i"_n_fk"$j".txt"
+    FILENAME=${FFILE//;/_}
+    echo $FILENAME
+    ./generatepca_split -R 1 --fk-five-hits=$j -k --rphi-plane --charge-sign=- --pt-range="$i" -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
+    ./fitpca_split_single -R 1 -N --fk-five-hits=$j -k --rphi-plane --charge-sign=- --pt-range="$i" -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
+    mv results.txt $FILENAME
+    echo ""
+  done
 
 done
 
-export OUTFILENAME="output_compute_pca_const.out_17bins"
-
-> $OUTFILENAME
-
-echo "Using " $ROTTFILENAME " for Tower " $TOWERID " out " $OUTFILENAME > $OUTFILENAME
-
-declare -a arr=("3.0;4.0" "4.0;6.0" "6.0;9.0" "9.0;13.0" "13.0;17.0" "17.0;22.0" "22.0;28.0" "28.0;35.0" "35.0;43.0" "43.0;52.0" "52.0;62.0" "62.0;73.0" "73.0;85.0" "85.0;100.0" "100.0;120.0" "120.0;150.0" "150.0;200.0")
-
-
-for i in "${arr[@]}"
+export k=$3
+for i in `seq 1 26`;
 do
-  echo $i " Gev mu+" >> $OUTFILENAME
-  ./generatepca_split -k -R 1 --rphi-plane --charge-sign=+ --pt-range="$i" -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
-  ./fitpca_split_single -k -N -c "./pca_const.txt" -R 1 --rphi-plane --charge-sign=+ --pt-range="$i" -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
-  rm results.txt pca_const.txt
+  export start=$k
+  k=$(echo "$k + 0.05" | bc | awk '{printf "%f", $0}')
+  echo "Eta range: " $start " "  $k >> $OUTFILENAME
+  export rage=$start";"$k
+
+  ./generatepca_split -R 1 -x --rz-plane --eta-range="$rage" -k -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
+  ./fitpca_split_single -R 1 -N -x --rz-plane --eta-range="$rage" -k -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
+  mv results.txt results_rz_$i.txt
+
+  ./generatepca_split -R 1 -x --rz-plane --eta-range="$rage" -k --fk-five-hits=5 -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
+  ./fitpca_split_single -R 1 -N -x --rz-plane --eta-range="$rage" -k --fk-five-hits=5 -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
+  mv results.txt results_fk5_rz_$i.txt
+ 
+  ./generatepca_split -R 1 -x --rz-plane --eta-range="$rage" -k --fk-five-hits=6 -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
+  ./fitpca_split_single -R 1 -N -x --rz-plane --eta-range="$rage" -k --fk-five-hits=6 -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
+  mv results.txt results_fk6_rz_$i.txt
+ 
+  ./generatepca_split -R 1 -x --rz-plane --eta-range="$rage" -k --fk-five-hits=7 -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
+  ./fitpca_split_single -R 1 -N -x --rz-plane --eta-range="$rage" -k --fk-five-hits=7 -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
+  mv results.txt results_fk7_rz_$i.txt
+
+  ./generatepca_split -R 1 -x --rz-plane --eta-range="$rage" -k --fk-five-hits=18 -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
+  ./fitpca_split_single -R 1 -N -x --rz-plane --eta-range="$rage" -k --fk-five-hits=18 -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
+  mv results.txt results_fk5_rz_$i.txt
+ 
+  ./generatepca_split -R 1 -x --rz-plane --eta-range="$rage" -k --fk-five-hits=19 -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
+  ./fitpca_split_single -R 1 -N -x --rz-plane --eta-range="$rage" -k --fk-five-hits=19 -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
+  mv results.txt results_fk6_rz_$i.txt
+ 
+  ./generatepca_split -R 1 -x --rz-plane --eta-range="$rage" -k --fk-five-hits=20 -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
+  ./fitpca_split_single -R 1 -N -x --rz-plane --eta-range="$rage" -k --fk-five-hits=20 -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
+  mv results.txt results_fk7_rz_$i.txt
+ 
   echo ""
 done
-
-export OUTFILENAME="output_compute_pca_const.out_estasplit"
-
-> $OUTFILENAME
-
-declare -a arr=("3.0;7.0" "7.0;12.0" "12.0;18.0" "18.0;25.0" "25.0;50.0" "50.0;100.0" "100.0;200.0")
-
-for i in "${arr[@]}"
-do
-  echo $i " Gev mu+" >> $OUTFILENAME
-  ./generatepca_split -k -R 1 --eta-range="-1.0;-0.4" --rphi-plane --charge-sign=+ --pt-range="$i" -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
-  ./fitpca_split_single -k -N --eta-range="-1.0;-0.4" -c "./pca_const.txt" -R 1 --rphi-plane --charge-sign=+ --pt-range="$i" -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
-  rm results.txt pca_const.txt
-  echo ""
-done
-
-for i in "${arr[@]}"
-do
-  echo $i " Gev mu+" >> $OUTFILENAME
-  ./generatepca_split -k -R 1 --eta-range="-1.7;-1.0" --rphi-plane --charge-sign=+ --pt-range="$i" -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
-  ./fitpca_split_single -k -N --eta-range="-1.7;-1.0" -c "./pca_const.txt" -R 1 --rphi-plane --charge-sign=+ --pt-range="$i" -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
-  rm results.txt pca_const.txt
-  echo ""
-done
-
 
