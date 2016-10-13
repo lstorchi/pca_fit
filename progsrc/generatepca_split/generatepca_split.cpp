@@ -626,10 +626,9 @@ int main (int argc, char ** argv)
                   
   arma::mat coordin, paramin;
   arma::vec ptvals, etavals;
+  std::vector<std::string> pslayers, layers;
 
   pca::rootfilereader rootrdr;
-
-  rootrdr.set_useintbitewise(false);
 
   rootrdr.set_specificseq (sequence.c_str());
   rootrdr.set_maxnumoflayers(numoflayers);
@@ -741,13 +740,19 @@ int main (int argc, char ** argv)
 
     arma::mat coordin_temp, paramin_temp;
     arma::vec ptvals_temp, etavals_temp;
+    std::vector<std::string> pslayers_temp, layers_temp;
  
     if (!rootrdr.reading_from_root_file (fitter, paramin_temp, coordin_temp, 
-          ptvals_temp, etavals_temp))
+          ptvals_temp, etavals_temp, layers_temp, pslayers_temp))
     {
       std::cerr << rootrdr.get_errmsg() << std::endl;
       return EXIT_FAILURE;
     }
+
+    pslayers.insert(pslayers.end(), pslayers_temp.begin(), 
+          pslayers_temp.end());
+    layers.insert(layers.end(), layers_temp.begin(), 
+          layers_temp.end());
 
     if (i == 0)
     {
@@ -775,6 +780,12 @@ int main (int argc, char ** argv)
       etavals.insert_rows(n, etavals_temp);
     }
   }
+
+  assert(coordin.n_rows == paramin.n_rows);
+  assert(coordin.n_rows == ptvals.n_elem);
+  assert(coordin.n_rows == etavals.n_elem);
+  assert(coordin.n_rows == pslayers.size());
+  assert(coordin.n_rows == layers.size());
 
   if (regiontype == ISBARREL)
     std::cout << "Extracted layers seq: " << rootrdr.get_actualseq() << std::endl;

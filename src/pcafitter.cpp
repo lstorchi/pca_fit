@@ -259,8 +259,8 @@ bool pcafitter::compute_parameters (
     std::vector<pca::matrixpcaconst<double> > & allconst,
     const arma::mat & coord, 
     const arma::mat & paramslt,
-    const std::string & layersid,
-    const std::string & pslayersid,
+    const std::vector<std::string> & alllayers,
+    const std::vector<std::string> & pslayers,
     int towerid, 
     double ** paraptr,
     int paramdim, bool rphiplane,
@@ -310,7 +310,7 @@ bool pcafitter::compute_parameters (
 
       if (!import_pca_const (allconst, cmtx_c, qvec_c, 
             amtx_c, kvec_c, etaorig, pt, 
-            chargesignin, layersid,  
+            chargesignin, alllayers[b],  
             towerid, pca::FLOATPT, pca::RPHI))
         return false;
     }
@@ -327,7 +327,7 @@ bool pcafitter::compute_parameters (
 
       if (!import_pca_const (allconst, cmtx_c, qvec_c, 
             amtx_c, kvec_c, etaorig, pt, 
-            chargesignin, pslayersid, 
+            chargesignin, pslayers[b], 
             towerid, pca::FLOATPT, pca::RZ))
         return false;
     }

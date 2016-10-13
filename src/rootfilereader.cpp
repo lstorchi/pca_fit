@@ -79,11 +79,22 @@ namespace
     }
     else
     {
-      if ((layerid >= 5) && (layerid <= 10))
-        return true;
+      if (excludesmodule)
+      {
+        if ((layerid >= 5) && (layerid <= 7))
+          return true;
 
-      if ((layerid >= 18) && (layerid <= 22))
-        return true;
+        if ((layerid >= 18) && (layerid <= 20))
+          return true;
+      }
+      else
+      {
+        if ((layerid >= 5) && (layerid <= 10))
+          return true;
+
+        if ((layerid >= 18) && (layerid <= 22))
+          return true;
+      }
 
       return false;
     }
@@ -1460,8 +1471,30 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
   for (; track != rphiz_tracks.end(); ++track)
   {
     int jidx = 0;
-    std::ostringstream osss;
+    std::ostringstream pos, los;;
     std::string actuallayersids = "";
+
+    /* extract only layers seqs quick */
+    for (int j = 0; j < track->dim; ++j)
+    {
+      if (j <= excludesmodval)
+        pos << track->layer[j] << ":";
+
+      los << track->layer[j] << ":";
+    }
+
+    actuallayersids = pos.str();
+    actuallayersids.erase(actuallayersids.end()-1);
+
+    pslayers.push_back(actuallayersids);
+
+    actuallayersids = los.str();
+    actuallayersids.erase(actuallayersids.end()-1);
+
+    layers.push_back(actuallayersids);
+
+    std::ostringstream osss;
+
     for (int j = 0; j < track->dim; ++j)
     {
       if (excludesmodule_)
@@ -1740,6 +1773,8 @@ bool rootfilereader::linearinterpolationrphiz (
     set_errmsg (1, "Can work only using 5 layers out of six");
     return false;
   }
+
+  return true;
 }
 
 bool rootfilereader::linearinterpolation ()

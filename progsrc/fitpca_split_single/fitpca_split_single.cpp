@@ -42,7 +42,9 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
      const std::string & pslayersid, 
      bool coarsegrainpca, 
      std::vector<pca::matrixpcaconst<double> > & cgconst,
-     int regiontype, arma::vec & etavals)
+     int regiontype, arma::vec & etavals, 
+     const std::vector<std::string> & alllayers,
+     const std::vector<std::string> & pslayers)
 {
   int nbins = 100;
 
@@ -105,7 +107,7 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
     }
 
     if (!fitter.compute_parameters (allconst, 
-          coordslt, paramslt, ls, ps, 
+          coordslt, paramslt, alllayers, pslayers, 
           towerid, ptrs, fitter.get_paramdim(), 
           rphiplane, chi2values, etavals, ptvals))
     {
@@ -493,6 +495,7 @@ int main (int argc, char ** argv)
   std::string sequence = "", layersid, pslayersid;
 
   std::vector<std::string> cfnames, tokens;
+  std::vector<std::string> pslayers, alllayers;
 
   double etamin = -1.0e0 * INFINITY, etamax = +1.0e0 * INFINITY;
   double ptmin = -1.0e0 * INFINITY, ptmax = +1.0e0 * INFINITY;
@@ -1017,13 +1020,19 @@ int main (int argc, char ** argv)
 
     arma::mat coordin_temp, paramin_temp;
     arma::vec ptvals_temp, etavals_temp;
+    std::vector<std::string> pslayers_temp, layers_temp;
  
     if (!rootrdr.reading_from_root_file (fitter, paramin_temp, coordin_temp, 
-          ptvals_temp, etavals_temp))
+          ptvals_temp, etavals_temp, layers_temp, pslayers_temp))
     {
       std::cerr << rootrdr.get_errmsg() << std::endl;
       return EXIT_FAILURE;
     }
+
+    pslayers.insert(pslayers.end(), pslayers_temp.begin(), 
+          pslayers_temp.end());
+    alllayers.insert(alllayers.end(), layers_temp.begin(), 
+          layers_temp.end());
 
     if (i == 0)
     {
@@ -1059,6 +1068,12 @@ int main (int argc, char ** argv)
     }
   }
 
+  assert(coord.n_rows == param.n_rows);
+  assert(coord.n_rows == ptvals.n_elem);
+  assert(coord.n_rows == etavals.n_elem);
+  assert(coord.n_rows == pslayers.size());
+  assert(coord.n_rows == alllayers.size());
+
   //for (int i=0; i<ptvals.n_elem; ++i)
   //{
   //  std::cout << i << " ==> " << ptvals(i) << " " << etavals(i) << std::endl;
@@ -1087,7 +1102,7 @@ int main (int argc, char ** argv)
         towerid, rootrdr.get_rotation_angle(), writeresults, 
         layeridtorm, etamin, etamax, ptmin, ptmax, chargesign, 
         layersid,  pslayersid, coarsegrainpca, cgconst, regiontype,
-        etavals))
+        etavals, alllayers, pslayers))
     return EXIT_FAILURE;
 
   return EXIT_SUCCESS;
