@@ -87,9 +87,6 @@ namespace pca
       void set_verbose (bool);
       bool get_verbose () const;
 
-      void set_useintbitewise (bool);
-      bool get_useintbitewise () const;
-
       void set_multiple_charge_pe (bool in)
       {
         multiple_charge_pe_ = in;
@@ -132,7 +129,8 @@ namespace pca
 
       bool reading_from_root_file (const pca::pcafitter & fitter, 
           arma::mat & paramin, arma::mat & coordin, 
-          arma::vec & ptvalsout, arma::vec & etavalout);
+          arma::vec & ptvalsout, arma::vec & etavalout, 
+          std::vector<std::string> &, std::vector<std::string> &);
       
       bool info_from_root_file (unsigned int & numevent, 
           double & xmin, double & xmax, double & ymin, double & ymax,
@@ -182,8 +180,6 @@ namespace pca
       std::string layersid_;
       std::set<std::string> layersid_set_;
 
-      bool useintbitewise_;
-
       bool use3layers_;
       std::set<int> tlayers_;
 
@@ -204,7 +200,8 @@ namespace pca
 
       bool extract_data (const pca::pcafitter & fitter, 
           arma::mat & paramin, arma::mat & coordin, 
-          arma::vec & ptvalsout, arma::vec & etavalout);
+          arma::vec & ptvalsout, arma::vec & etavalout, 
+          std::vector<std::string> &, std::vector<std::string> &);
 
       bool check_if_withinranges (const int & charge, 
           const double & eta, const double & phi, 

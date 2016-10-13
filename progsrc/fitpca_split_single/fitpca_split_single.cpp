@@ -729,27 +729,37 @@ int main (int argc, char ** argv)
   if (sequence == "")
   {
     std::ostringstream psosss, osss;
-    std::cout << "Only for BARREL" << std::endl;
-    for (int i=5; i<=10; ++i)
+    if (regiontype != ISBARREL)
+    {
+      for (int i=5; i<=10; ++i)
+      {
+        if (use3layers)
+          if (layers.find(i) == layers.end())
+            continue;
+      
+        if (usefakefiveoutofsix)
+          if (i == layeridtorm)
+            continue;
+      
+        osss << i << ":";
+        if (i <= 7)
+          psosss << i << ":";
+      }
+      
+      layersid = osss.str();
+      layersid.erase(layersid.end()-1);
+      
+      pslayersid = psosss.str();
+      pslayersid.erase(pslayersid.end()-1);
+    }
+    else if (regiontype != ISHYBRID)
     {
       if (use3layers)
-        if (layers.find(i) == layers.end())
-          continue;
- 
-      if (usefakefiveoutofsix)
-        if (i == layeridtorm)
-          continue;
- 
-      osss << i << ":";
-      if (i <= 7)
-        psosss << i << ":";
+      {
+        std::cerr << "Only for BARREL" << std::endl;
+        return EXIT_FAILURE;
+      }
     }
-
-    layersid = osss.str();
-    layersid.erase(layersid.end()-1);
-
-    pslayersid = psosss.str();
-    pslayersid.erase(pslayersid.end()-1);
   }
   else
   {

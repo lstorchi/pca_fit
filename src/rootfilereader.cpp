@@ -79,6 +79,12 @@ namespace
     }
     else
     {
+      if ((layerid >= 5) && (layerid <= 10))
+        return true;
+
+      if ((layerid >= 18) && (layerid <= 22))
+        return true;
+
       return false;
     }
   }
@@ -106,7 +112,6 @@ void rootfilereader::reset()
   printoutstdinfo_ = true;
   fkfiveoutofsix_ = false;
 
-  useintbitewise_ = false;
   use3layers_ = false;
   tlayers_.clear();
 
@@ -151,16 +156,6 @@ void rootfilereader::set_region_type (int in)
 int rootfilereader::get_region_type () const
 {
   return regiontype_;
-}
-
-void rootfilereader::set_useintbitewise (bool in)
-{
-  useintbitewise_ = in;
-}
-
-bool rootfilereader::get_useintbitewise () const
-{
-  return useintbitewise_;
 }
 
 void rootfilereader::set_printoutstdinfo (bool in)
@@ -633,7 +628,8 @@ bool rootfilereader::info_from_root_file (unsigned int & numevent,
 bool rootfilereader::reading_from_root_file (
     const pca::pcafitter & fitter, arma::mat & paramin, 
     arma::mat & coordin, arma::vec & ptvalsout, 
-    arma::vec & etavalout)
+    arma::vec & etavalout, std::vector<std::string> & layers, 
+    std::vector<std::string> & pslayers)
 {
   TFile* inputFile = TFile::Open(filename_.c_str());
 
@@ -953,7 +949,8 @@ bool rootfilereader::reading_from_root_file (
   }
 
   return rootfilereader::extract_data (fitter, 
-    paramin, coordin, ptvalsout, etavalout);
+    paramin, coordin, ptvalsout, etavalout, 
+    layers, pslayers);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1268,12 +1265,6 @@ bool rootfilereader::convertorphiz (std::vector<track_rphiz_str> &
     return false;
   }
 
-  if (useintbitewise_) 
-  {
-    set_errmsg (-16, "Integer phi rotation not yet implemented");
-    return false;
-  }
-
   double ci = cos(-sec_phi_);
   double si = sin(-sec_phi_);
 
@@ -1327,7 +1318,7 @@ bool rootfilereader::convertorphiz (std::vector<track_rphiz_str> &
 
     rphiz_tracks.push_back(single_track);
   }
-
+ 
   return true;
 }
 
@@ -1377,7 +1368,8 @@ void rootfilereader::reset_error ()
 
 bool rootfilereader::extract_data (const pca::pcafitter & fitter, 
     arma::mat & paramin, arma::mat & coordin, arma::vec & ptvalsout, 
-    arma::vec & etavalout)
+    arma::vec & etavalout, std::vector<std::string> & layers, 
+    std::vector<std::string> & pslayers)
 {
   if (printoutstdinfo_)
     std::cout << "Extracted  " << tracks_vct_.size() << " tracks " << std::endl;
@@ -1480,31 +1472,15 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
         if (tlayers_.find(track->layer[j]) == tlayers_.end())
           continue;
 
-      if (useintbitewise_)
+      if (rzplane_)
       {
-        if (rzplane_)
-        {
-          coordin(counter, jidx*2) = track->i_z[j];
-          coordin(counter, jidx*2+1) = track->i_r[j];
-        }
-        else if (rphiplane_)
-        {
-          coordin(counter, jidx*2) = track->i_phii[j];
-          coordin(counter, jidx*2+1) = track->i_r[j];
-        }
+        coordin(counter, jidx*2) = track->z[j];
+        coordin(counter, jidx*2+1) = track->r[j];
       }
-      else
-      { 
-        if (rzplane_)
-        {
-          coordin(counter, jidx*2) = track->z[j];
-          coordin(counter, jidx*2+1) = track->r[j];
-        }
-        else if (rphiplane_)
-        {
-          coordin(counter, jidx*2) = track->phii[j];
-          coordin(counter, jidx*2+1) = track->r[j];
-        }
+      else if (rphiplane_)
+      {
+        coordin(counter, jidx*2) = track->phii[j];
+        coordin(counter, jidx*2+1) = track->r[j];
       }
 
       ++jidx;
@@ -1638,144 +1614,133 @@ bool rootfilereader::linearinterpolationrphiz (
     std::vector<track_rphiz_str> & rphiz_tracks)
 {
 
-  if (!useintbitewise_)
+  if (maxnumoflayers_ == 5)
   {
-    if (maxnumoflayers_ == 5)
+    std::vector<track_rphiz_str>::iterator track = rphiz_tracks.begin();
+    for (; track != rphiz_tracks.end(); ++track)
     {
-      std::vector<track_rphiz_str>::iterator track = rphiz_tracks.begin();
-      for (; track != rphiz_tracks.end(); ++track)
+      if (rphiplane_)
       {
-        if (rphiplane_)
+        if (track->layersids == "678910")
         {
-          if (track->layersids == "678910")
-          {
-            set_errmsg (1, "TODO not yet implemented");
-            return false;
-          }
-          else if (track->layersids == "578910")
-          {
-            // simplest approach we will need to store a single scalar 
-            // and maybe a second one to remove the bias 
-            double doverv = 0.4596;
-            
-            double v1 = track->r[1] - track->r[0]; 
-            double v2 = track->phii[1] - track->phii[0]; 
-            
-            double pd1 = track->r[0] + doverv * v1;
-            double pd2 = track->phii[0] + doverv * v2;
-            
-            std::vector<double>::iterator it = track->r.begin();
-            ++it;
-            track->r.insert(it, pd1);
-            
-            it = track->phii.begin();
-            ++it;
-            track->phii.insert(it, pd2);
-            
-            std::vector<int>::iterator iit = track->layer.begin();
-            ++iit;
-            track->layer.insert(iit, 6);
-            
-            track->layersids == "5678910";
-            track->dim = 6;
-    
-            return true;
-          }
-          else if (track->layersids == "568910")
-          {
-            set_errmsg (1, "TODO not yet implemented");
-            return false;
-          }
-          else if (track->layersids == "567910")
-          {
-            set_errmsg (1, "TODO not yet implemented");
-            return false;
-          }
-          else if (track->layersids ==  "567810")
-          {
-            set_errmsg (1, "TODO not yet implemented");
-            return false;
-          }
-          else if (track->layersids == "56789")
-          {
-            set_errmsg (1, "TODO not yet implemented");
-            return false;
-          }
+          set_errmsg (1, "TODO not yet implemented");
+          return false;
         }
-        else if (rzplane_)
+        else if (track->layersids == "578910")
         {
-          if (track->layersids == "678910")
-          {
-            set_errmsg (1, "TODO not yet implemented");
-            return false;
-          }
-          else if (track->layersids == "578910")
-          {
-            // simplest approach we will need to store a single scalar 
-            // and maybe a second one to remove the bias 
-            double doverv = 0.4596;
-            
-            double v1 = track->r[1] - track->r[0]; 
-            double v2 = track->z[1] - track->z[0]; 
-            
-            double pd1 = track->r[0] + doverv * v1;
-            double pd2 = track->z[0] + doverv * v2;
-            
-            std::vector<double>::iterator it = track->r.begin();
-            ++it;
-            track->r.insert(it, pd1);
-            
-            it = track->z.begin();
-            ++it;
-            track->z.insert(it, pd2);
-            
-            std::vector<int>::iterator iit = track->layer.begin();
-            ++iit;
-            track->layer.insert(iit, 6);
-            
-            track->layersids == "5678910";
-            track->dim = 6;
-    
-            return true;
-          }
-          else if (track->layersids == "568910")
-          {
-            set_errmsg (1, "TODO not yet implemented");
-            return false;
-          }
-          else if (track->layersids == "567910")
-          {
-            set_errmsg (1, "TODO not yet implemented");
-            return false;
-          }
-          else if (track->layersids ==  "567810")
-          {
-            set_errmsg (1, "TODO not yet implemented");
-            return false;
-          }
-          else if (track->layersids == "56789")
-          {
-            set_errmsg (1, "TODO not yet implemented");
-            return false;
-          }
+          // simplest approach we will need to store a single scalar 
+          // and maybe a second one to remove the bias 
+          double doverv = 0.4596;
+          
+          double v1 = track->r[1] - track->r[0]; 
+          double v2 = track->phii[1] - track->phii[0]; 
+          
+          double pd1 = track->r[0] + doverv * v1;
+          double pd2 = track->phii[0] + doverv * v2;
+          
+          std::vector<double>::iterator it = track->r.begin();
+          ++it;
+          track->r.insert(it, pd1);
+          
+          it = track->phii.begin();
+          ++it;
+          track->phii.insert(it, pd2);
+          
+          std::vector<int>::iterator iit = track->layer.begin();
+          ++iit;
+          track->layer.insert(iit, 6);
+          
+          track->layersids == "5678910";
+          track->dim = 6;
+  
+          return true;
+        }
+        else if (track->layersids == "568910")
+        {
+          set_errmsg (1, "TODO not yet implemented");
+          return false;
+        }
+        else if (track->layersids == "567910")
+        {
+          set_errmsg (1, "TODO not yet implemented");
+          return false;
+        }
+        else if (track->layersids ==  "567810")
+        {
+          set_errmsg (1, "TODO not yet implemented");
+          return false;
+        }
+        else if (track->layersids == "56789")
+        {
+          set_errmsg (1, "TODO not yet implemented");
+          return false;
+        }
+      }
+      else if (rzplane_)
+      {
+        if (track->layersids == "678910")
+        {
+          set_errmsg (1, "TODO not yet implemented");
+          return false;
+        }
+        else if (track->layersids == "578910")
+        {
+          // simplest approach we will need to store a single scalar 
+          // and maybe a second one to remove the bias 
+          double doverv = 0.4596;
+          
+          double v1 = track->r[1] - track->r[0]; 
+          double v2 = track->z[1] - track->z[0]; 
+          
+          double pd1 = track->r[0] + doverv * v1;
+          double pd2 = track->z[0] + doverv * v2;
+          
+          std::vector<double>::iterator it = track->r.begin();
+          ++it;
+          track->r.insert(it, pd1);
+          
+          it = track->z.begin();
+          ++it;
+          track->z.insert(it, pd2);
+          
+          std::vector<int>::iterator iit = track->layer.begin();
+          ++iit;
+          track->layer.insert(iit, 6);
+          
+          track->layersids == "5678910";
+          track->dim = 6;
+  
+          return true;
+        }
+        else if (track->layersids == "568910")
+        {
+          set_errmsg (1, "TODO not yet implemented");
+          return false;
+        }
+        else if (track->layersids == "567910")
+        {
+          set_errmsg (1, "TODO not yet implemented");
+          return false;
+        }
+        else if (track->layersids ==  "567810")
+        {
+          set_errmsg (1, "TODO not yet implemented");
+          return false;
+        }
+        else if (track->layersids == "56789")
+        {
+          set_errmsg (1, "TODO not yet implemented");
+          return false;
         }
       }
     }
-    else 
-    {
-      set_errmsg (1, "Can work only using 5 layers out of six");
-      return false;
-    }
-    
-    return true;
   }
-  else
+  else 
   {
-    set_errmsg (1, "INTDITEWISE not yet implemented");
+    set_errmsg (1, "Can work only using 5 layers out of six");
     return false;
   }
 }
-
 
 bool rootfilereader::linearinterpolation ()
 {
