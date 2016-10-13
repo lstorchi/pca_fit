@@ -19,7 +19,7 @@ do
   FILENAME=${FFILE//;/_}
   echo $FILENAME
   ./generatepca_split -R 1 -k --rphi-plane --charge-sign=+ --pt-range="$i" -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
-  ./fitpca_split_single -R 1 -N -k --rphi-plane --charge-sign=+ --pt-range="$i" -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
+  ./fitpca_split_single --pca-const-files="pca_const.txt" -R 1 -N -k --rphi-plane --charge-sign=+ --pt-range="$i" -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
   mv results.txt $FILENAME
   echo ""
 
@@ -28,7 +28,7 @@ do
   FILENAME=${FFILE//;/_}
   echo $FILENAME
   ./generatepca_split -R 1 -k --rphi-plane --charge-sign=- --pt-range="$i" -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
-  ./fitpca_split_single -R 1 -N -k --rphi-plane --charge-sign=- --pt-range="$i" -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
+  ./fitpca_split_single --pca-const-files="pca_const.txt" -R 1 -N -k --rphi-plane --charge-sign=- --pt-range="$i" -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
   mv results.txt $FILENAME
   echo ""
 
@@ -40,7 +40,7 @@ do
     FILENAME=${FFILE//;/_}
     echo $FILENAME
     ./generatepca_split -R 1 --fk-five-hits=$j -k --rphi-plane --charge-sign=+ --pt-range="$i" -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
-    ./fitpca_split_single -R 1 -N --fk-five-hits=$j -k --rphi-plane --charge-sign=+ --pt-range="$i" -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
+    ./fitpca_split_single --pca-const-files="pca_const.txt" -R 1 -N --fk-five-hits=$j -k --rphi-plane --charge-sign=+ --pt-range="$i" -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
     mv results.txt $FILENAME
     echo ""
 
@@ -49,7 +49,7 @@ do
     FILENAME=${FFILE//;/_}
     echo $FILENAME
     ./generatepca_split -R 1 --fk-five-hits=$j -k --rphi-plane --charge-sign=- --pt-range="$i" -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
-    ./fitpca_split_single -R 1 -N --fk-five-hits=$j -k --rphi-plane --charge-sign=- --pt-range="$i" -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
+    ./fitpca_split_single --pca-const-files="pca_const.txt" -R 1 -N --fk-five-hits=$j -k --rphi-plane --charge-sign=- --pt-range="$i" -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
     mv results.txt $FILENAME
     echo ""
   done
@@ -62,7 +62,7 @@ do
     FILENAME=${FFILE//;/_}
     echo $FILENAME
     ./generatepca_split -R 1 --fk-five-hits=$j -k --rphi-plane --charge-sign=+ --pt-range="$i" -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
-    ./fitpca_split_single -R 1 -N --fk-five-hits=$j -k --rphi-plane --charge-sign=+ --pt-range="$i" -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
+    ./fitpca_split_single --pca-const-files="pca_const.txt" -R 1 -N --fk-five-hits=$j -k --rphi-plane --charge-sign=+ --pt-range="$i" -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
     mv results.txt $FILENAME
     echo ""
 
@@ -71,7 +71,7 @@ do
     FILENAME=${FFILE//;/_}
     echo $FILENAME
     ./generatepca_split -R 1 --fk-five-hits=$j -k --rphi-plane --charge-sign=- --pt-range="$i" -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
-    ./fitpca_split_single -R 1 -N --fk-five-hits=$j -k --rphi-plane --charge-sign=- --pt-range="$i" -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
+    ./fitpca_split_single --pca-const-files="pca_const.txt" -R 1 -N --fk-five-hits=$j -k --rphi-plane --charge-sign=- --pt-range="$i" -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
     mv results.txt $FILENAME
     echo ""
   done
@@ -87,31 +87,31 @@ do
   export rage=$start";"$k
 
   ./generatepca_split -R 1 -x --rz-plane --eta-range="$rage" -k -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
-  ./fitpca_split_single -R 1 -N -x --rz-plane --eta-range="$rage" -k -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
+  ./fitpca_split_single --pca-const-files="pca_const.txt" -R 1 -N -x --rz-plane --eta-range="$rage" -k -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
   mv results.txt results_rz_$i.txt
 
   ./generatepca_split -R 1 -x --rz-plane --eta-range="$rage" -k --fk-five-hits=5 -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
-  ./fitpca_split_single -R 1 -N -x --rz-plane --eta-range="$rage" -k --fk-five-hits=5 -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
+  ./fitpca_split_single --pca-const-files="pca_const.txt" -R 1 -N -x --rz-plane --eta-range="$rage" -k --fk-five-hits=5 -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
   mv results.txt results_fk5_rz_$i.txt
  
   ./generatepca_split -R 1 -x --rz-plane --eta-range="$rage" -k --fk-five-hits=6 -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
-  ./fitpca_split_single -R 1 -N -x --rz-plane --eta-range="$rage" -k --fk-five-hits=6 -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
+  ./fitpca_split_single --pca-const-files="pca_const.txt" -R 1 -N -x --rz-plane --eta-range="$rage" -k --fk-five-hits=6 -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
   mv results.txt results_fk6_rz_$i.txt
  
   ./generatepca_split -R 1 -x --rz-plane --eta-range="$rage" -k --fk-five-hits=7 -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
-  ./fitpca_split_single -R 1 -N -x --rz-plane --eta-range="$rage" -k --fk-five-hits=7 -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
+  ./fitpca_split_single --pca-const-files="pca_const.txt" -R 1 -N -x --rz-plane --eta-range="$rage" -k --fk-five-hits=7 -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
   mv results.txt results_fk7_rz_$i.txt
 
   ./generatepca_split -R 1 -x --rz-plane --eta-range="$rage" -k --fk-five-hits=18 -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
-  ./fitpca_split_single -R 1 -N -x --rz-plane --eta-range="$rage" -k --fk-five-hits=18 -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
+  ./fitpca_split_single --pca-const-files="pca_const.txt" -R 1 -N -x --rz-plane --eta-range="$rage" -k --fk-five-hits=18 -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
   mv results.txt results_fk5_rz_$i.txt
  
   ./generatepca_split -R 1 -x --rz-plane --eta-range="$rage" -k --fk-five-hits=19 -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
-  ./fitpca_split_single -R 1 -N -x --rz-plane --eta-range="$rage" -k --fk-five-hits=19 -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
+  ./fitpca_split_single --pca-const-files="pca_const.txt" -R 1 -N -x --rz-plane --eta-range="$rage" -k --fk-five-hits=19 -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
   mv results.txt results_fk6_rz_$i.txt
  
   ./generatepca_split -R 1 -x --rz-plane --eta-range="$rage" -k --fk-five-hits=20 -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
-  ./fitpca_split_single -R 1 -N -x --rz-plane --eta-range="$rage" -k --fk-five-hits=20 -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
+  ./fitpca_split_single --pca-const-files="pca_const.txt" -R 1 -N -x --rz-plane --eta-range="$rage" -k --fk-five-hits=20 -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
   mv results.txt results_fk7_rz_$i.txt
  
   echo ""

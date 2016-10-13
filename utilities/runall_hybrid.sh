@@ -1,4 +1,4 @@
-for num in 8 9 11 12 13 14 15
+for num in 8 9 10 11 12 13 14 15
 do 
   mkdir $num
   cd $num
