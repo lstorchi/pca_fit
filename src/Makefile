@@ -24,7 +24,8 @@ LIBNAME = libpcafitter.a
 OBJ = pcafitter.o \
       utility.o \
       dicts.o \
-      rootfilereader.o
+      rootfilereader.o \
+      filter.o
 
 all: $(LIBNAME)
 
