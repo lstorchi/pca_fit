@@ -1400,8 +1400,13 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
       // remove last layers if needed 
       if (!remove_last_layer ())
         return false;
+
+      // given the layers that we need to remove filter 
+      // not acceptable layers sequence so we do not have duplicated
+      // set of constants  
+      if (!remove_not_acptble_layerseq ())
+        return false;
     }
-    
   }
 
   if (excludesmodule_)
@@ -1537,6 +1542,9 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
 
     layersid_set_.insert(actuallayersids);
 
+    if (actuallayersids == "5:18:19:20:21")
+      std::cout << track->layersids << std::endl;
+
     // this should be removed if we decide to use a single 
     // set for each possible combination 
     if (checklayersids_ && (regiontype_ == ISBARREL))
@@ -1616,6 +1624,51 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
   return true;
 }
 
+// ugly and dirty
+bool rootfilereader::remove_not_acptble_layerseq()
+{
+  if (layeridtorm_ == 7)
+  {
+    int hm = 0;
+    std::vector<track_str>::iterator track = tracks_vct_.begin();
+    while (track != tracks_vct_.end())
+    {
+      if (track->layersids == "518192021")
+      {
+        ++hm;
+        track = tracks_vct_.erase(track);
+      }
+      else
+        ++track;
+    }
+
+    std::cout << hm << " tracks will be removed " << std::endl;
+  }
+  else if (layeridtorm_ == 8)
+  {
+    int hm = 0;
+    std::vector<track_str>::iterator track = tracks_vct_.begin();
+    while (track != tracks_vct_.end())
+    {
+      if ((track->layersids == "56181920") ||
+          (track->layersids == "518192021"))
+      {
+        ++hm;
+        track = tracks_vct_.erase(track);
+      }
+      else
+        ++track;
+    }
+
+    std::cout << hm << " tracks will be removed " << std::endl;
+  }
+
+
+
+  return true;
+}
+ 
+
 bool rootfilereader::remove_last_layer()
 {
   std::vector<track_str>::iterator track = tracks_vct_.begin();
@@ -1628,8 +1681,7 @@ bool rootfilereader::remove_last_layer()
     {
       std::ostringstream osss;
       for (int j = 0; j < track->dim-1; ++j)
-        if (track->layer[j] != layeridtorm_)
-          osss << track->layer[j];
+        osss << track->layer[j];
       
       track->layersids = osss.str();
       
