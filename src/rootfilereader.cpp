@@ -1542,8 +1542,8 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
 
     layersid_set_.insert(actuallayersids);
 
-    if (actuallayersids == "5:18:19:20:21")
-      std::cout << track->layersids << std::endl;
+    //if (actuallayersids == "5:18:19:20:21")
+    //  std::cout << track->layersids << std::endl;
 
     // this should be removed if we decide to use a single 
     // set for each possible combination 
@@ -1624,16 +1624,20 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
   return true;
 }
 
-// ugly and dirty
+// ugly and dirty to select valid 5oof6 seqs in hybrid
 bool rootfilereader::remove_not_acptble_layerseq()
 {
-  if (layeridtorm_ == 7)
+  int hm = 0;
+  if ((layeridtorm_ == 5))
   {
-    int hm = 0;
     std::vector<track_str>::iterator track = tracks_vct_.begin();
     while (track != tracks_vct_.end())
     {
-      if (track->layersids == "518192021")
+      if ((track->layersids != "678910") &&
+          (track->layersids != "678918") &&
+          (track->layersids != "6781819") &&
+          (track->layersids != "67181920") &&
+          (track->layersids != "618192021"))
       {
         ++hm;
         track = tracks_vct_.erase(track);
@@ -1641,17 +1645,48 @@ bool rootfilereader::remove_not_acptble_layerseq()
       else
         ++track;
     }
-
-    std::cout << hm << " tracks will be removed " << std::endl;
+  }
+  else if (layeridtorm_ == 6)
+  {
+    std::vector<track_str>::iterator track = tracks_vct_.begin();
+    while (track != tracks_vct_.end())
+    {
+      if ((track->layersids != "578910") &&
+          (track->layersids != "578918") &&
+          (track->layersids != "5781819") &&
+          (track->layersids != "57181920"))
+      {
+        ++hm;
+        track = tracks_vct_.erase(track);
+      }
+      else
+        ++track;
+    }
+  }
+ 
+  else if (layeridtorm_ == 7)
+  {
+    std::vector<track_str>::iterator track = tracks_vct_.begin();
+    while (track != tracks_vct_.end())
+    {
+      if ((track->layersids != "568910") &&
+          (track->layersids != "568918") &&
+          (track->layersids != "5681819"))
+      {
+        ++hm;
+        track = tracks_vct_.erase(track);
+      }
+      else
+        ++track;
+    }
   }
   else if (layeridtorm_ == 8)
   {
-    int hm = 0;
     std::vector<track_str>::iterator track = tracks_vct_.begin();
     while (track != tracks_vct_.end())
     {
-      if ((track->layersids == "56181920") ||
-          (track->layersids == "518192021"))
+      if ((track->layersids != "567910") &&
+          (track->layersids != "567918"))
       {
         ++hm;
         track = tracks_vct_.erase(track);
@@ -1659,11 +1694,85 @@ bool rootfilereader::remove_not_acptble_layerseq()
       else
         ++track;
     }
-
-    std::cout << hm << " tracks will be removed " << std::endl;
+  }
+  else if (layeridtorm_ == 9)
+  {
+    std::vector<track_str>::iterator track = tracks_vct_.begin();
+    while (track != tracks_vct_.end())
+    {
+      if ((track->layersids != "567810"))
+      {
+        ++hm;
+        track = tracks_vct_.erase(track);
+      }
+      else
+        ++track;
+    }
+  }
+  else if (layeridtorm_ == 10)
+  {
+    std::vector<track_str>::iterator track = tracks_vct_.begin();
+    while (track != tracks_vct_.end())
+    {
+      if ((track->layersids == "56789"))
+      {
+        ++hm;
+        track = tracks_vct_.erase(track);
+      }
+      else
+        ++track;
+    }
+  }
+  else if (layeridtorm_ == 18)
+  {
+    std::vector<track_str>::iterator track = tracks_vct_.begin();
+    while (track != tracks_vct_.end())
+    {
+      if ((track->layersids != "567819") &&
+          (track->layersids != "5671920") &&
+          (track->layersids != "56192021") &&
+          (track->layersids != "519202122"))
+      {
+        ++hm;
+        track = tracks_vct_.erase(track);
+      }
+      else
+        ++track;
+    }
+  }
+  else if (layeridtorm_ == 19)
+  {
+    std::vector<track_str>::iterator track = tracks_vct_.begin();
+    while (track != tracks_vct_.end())
+    {
+      if ((track->layersids != "5671820") &&
+          (track->layersids != "56182021") &&
+          (track->layersids != "518202122"))
+      {
+        ++hm;
+        track = tracks_vct_.erase(track);
+      }
+      else
+        ++track;
+    }
+  }
+  else if (layeridtorm_ == 20)
+  {
+    std::vector<track_str>::iterator track = tracks_vct_.begin();
+    while (track != tracks_vct_.end())
+    {
+      if ((track->layersids != "56181921") &&
+          (track->layersids != "518192122"))
+      {
+        ++hm;
+        track = tracks_vct_.erase(track);
+      }
+      else
+        ++track;
+    }
   }
 
-
+  std::cout << hm << " tracks will be removed " << std::endl;
 
   return true;
 }
@@ -1735,6 +1844,58 @@ bool rootfilereader::remove_last_layer()
       track->module.pop_back();
       track->segid.pop_back();
       track->dim--;
+    }
+    else if (track->dim == 8)
+    {
+      std::ostringstream osss;
+      for (int j = 0; j < track->dim-3; ++j)
+        if (track->layer[j] != layeridtorm_)
+          osss << track->layer[j];
+      
+      track->layersids = osss.str();
+      
+      track->x.pop_back();
+      track->y.pop_back();
+      track->z.pop_back();
+      
+      track->i_x.pop_back();
+      track->i_y.pop_back();
+      track->i_z.pop_back();
+      
+      track->layer.pop_back();
+      track->ladder.pop_back();
+      track->module.pop_back();
+      track->segid.pop_back();
+      track->dim--;
+ 
+      track->x.pop_back();
+      track->y.pop_back();
+      track->z.pop_back();
+      
+      track->i_x.pop_back();
+      track->i_y.pop_back();
+      track->i_z.pop_back();
+      
+      track->layer.pop_back();
+      track->ladder.pop_back();
+      track->module.pop_back();
+      track->segid.pop_back();
+      track->dim--;
+
+      track->x.pop_back();
+      track->y.pop_back();
+      track->z.pop_back();
+      
+      track->i_x.pop_back();
+      track->i_y.pop_back();
+      track->i_z.pop_back();
+      
+      track->layer.pop_back();
+      track->ladder.pop_back();
+      track->module.pop_back();
+      track->segid.pop_back();
+      track->dim--;
+
     }
   }
 

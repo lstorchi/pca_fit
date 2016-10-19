@@ -1097,6 +1097,12 @@ int main (int argc, char ** argv)
 
   std::cout << "Using " << param.n_rows << " tracks" << std::endl;
 
+  if (param.n_rows == 0)
+  {
+    std::cerr << "No tracks to fit" << std::endl;
+    return EXIT_FAILURE;
+  }
+
   if (!build_and_compare (param, coord, allconst,
         verbose, fitter, rzplane, rphiplane, ptvals, 
         towerid, rootrdr.get_rotation_angle(), writeresults, 
