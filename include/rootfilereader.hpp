@@ -225,6 +225,7 @@ namespace pca
           std::ofstream & sstrack);
 
       bool remove_layer ();
+      bool remove_last_layer ();
 
       bool linearinterpolationrphiz (std::vector<track_rphiz_str> &);
 

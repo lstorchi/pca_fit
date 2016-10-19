@@ -1394,6 +1394,14 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
 
     if (!remove_layer ())
       return false;
+
+    if (regiontype_ == ISHYBRID)
+    {
+      // remove last layers if needed 
+      if (!remove_last_layer ())
+        return false;
+    }
+    
   }
 
   if (excludesmodule_)
@@ -1494,6 +1502,9 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
     layers.push_back(actuallayersids);
 
     std::ostringstream osss;
+
+    //std::cout << counter << " " <<  track->dim << std::endl;
+    //std::cout << actuallayersids << std::endl;
 
     for (int j = 0; j < track->dim; ++j)
     {
@@ -1601,6 +1612,79 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
   // restore old value
   if (fkfiveoutofsix_)
     maxnumoflayers_ = 6;
+
+  return true;
+}
+
+bool rootfilereader::remove_last_layer()
+{
+  std::vector<track_str>::iterator track = tracks_vct_.begin();
+  for (; track != tracks_vct_.end(); ++track)
+  {
+
+    // devo controllare se il layer non e' quello che deve essere rimosso ?
+    // non dovrebbe servire
+    if (track->dim == 6)
+    {
+      std::ostringstream osss;
+      for (int j = 0; j < track->dim-1; ++j)
+        if (track->layer[j] != layeridtorm_)
+          osss << track->layer[j];
+      
+      track->layersids = osss.str();
+      
+      track->x.pop_back();
+      track->y.pop_back();
+      track->z.pop_back();
+      
+      track->i_x.pop_back();
+      track->i_y.pop_back();
+      track->i_z.pop_back();
+      
+      track->layer.pop_back();
+      track->ladder.pop_back();
+      track->module.pop_back();
+      track->segid.pop_back();
+      track->dim--;
+    }
+    else if (track->dim == 7)
+    {
+      std::ostringstream osss;
+      for (int j = 0; j < track->dim-2; ++j)
+        if (track->layer[j] != layeridtorm_)
+          osss << track->layer[j];
+      
+      track->layersids = osss.str();
+      
+      track->x.pop_back();
+      track->y.pop_back();
+      track->z.pop_back();
+      
+      track->i_x.pop_back();
+      track->i_y.pop_back();
+      track->i_z.pop_back();
+      
+      track->layer.pop_back();
+      track->ladder.pop_back();
+      track->module.pop_back();
+      track->segid.pop_back();
+      track->dim--;
+ 
+      track->x.pop_back();
+      track->y.pop_back();
+      track->z.pop_back();
+      
+      track->i_x.pop_back();
+      track->i_y.pop_back();
+      track->i_z.pop_back();
+      
+      track->layer.pop_back();
+      track->ladder.pop_back();
+      track->module.pop_back();
+      track->segid.pop_back();
+      track->dim--;
+    }
+  }
 
   return true;
 }

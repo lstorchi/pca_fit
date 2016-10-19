@@ -779,6 +779,7 @@ int main (int argc, char ** argv)
       //etavals.resize(n + etavals_temp.n_elem);
       etavals.insert_rows(n, etavals_temp);
     }
+    std::cout << "Done" << std::endl;
   }
 
   assert(coordin.n_rows == paramin.n_rows);
