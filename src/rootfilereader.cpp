@@ -1404,8 +1404,16 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
       // given the layers that we need to remove filter 
       // not acceptable layers sequence so we do not have duplicated
       // set of constants  
-      if (!remove_not_acptble_layerseq ())
-        return false;
+      if (rphiplane_)
+      {
+        if (!remove_not_acptble_layerseq ())
+          return false;
+      }
+      else if (rzplane_)
+      {
+        if (!remove_not_acptble_layerseq_first3 ())
+          return false;
+      }
     }
   }
 
@@ -1623,6 +1631,186 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
 
   return true;
 }
+
+// ugly and dirty to select valid 5oof6 seqs in hybrid RZ
+bool rootfilereader::remove_not_acptble_layerseq_first3()
+{
+  int hm = 0;
+
+  if ((layeridtorm_ == 5))
+  {
+    std::vector<track_str>::iterator track = tracks_vct_.begin();
+    while (track != tracks_vct_.end())
+    {
+      if (track->dim < 3)
+      {
+        ++hm;
+        track = tracks_vct_.erase(track);
+      }
+      else
+      {
+        std::ostringstream osss;
+        for (int j = 0; j < 3; ++j)
+          osss << track->layer[j];
+        std::string spslay = osss.str();
+
+        if (!((spslay == "67") ||
+              (spslay == "618") ||
+              (spslay == "1819")))
+        {
+          ++hm;
+          track = tracks_vct_.erase(track);
+        }
+        else
+          ++track;
+      }
+    }
+  }
+  else if (layeridtorm_ == 6)
+  {
+    std::vector<track_str>::iterator track = tracks_vct_.begin();
+    while (track != tracks_vct_.end())
+    {
+      if (track->dim < 3)
+      {
+        ++hm;
+        track = tracks_vct_.erase(track);
+      }
+      else
+      {
+        std::ostringstream osss;
+        for (int j = 0; j < 3; ++j)
+          osss << track->layer[j];
+        std::string spslay = osss.str();
+
+        if (!((spslay == "57") ||
+              (spslay == "518")))
+        {
+          ++hm;
+          track = tracks_vct_.erase(track);
+        }
+        else
+          ++track;
+      }
+    }
+  }
+ 
+  else if (layeridtorm_ == 7)
+  {
+    std::vector<track_str>::iterator track = tracks_vct_.begin();
+    while (track != tracks_vct_.end())
+    {
+      if (track->dim < 3)
+      {
+        ++hm;
+        track = tracks_vct_.erase(track);
+      }
+      else
+      {
+        std::ostringstream osss;
+        for (int j = 0; j < 3; ++j)
+          osss << track->layer[j];
+        std::string spslay = osss.str();
+
+        if (!(spslay == "56"))
+        {
+          ++hm;
+          track = tracks_vct_.erase(track);
+        }
+        else
+          ++track;
+      }
+    }
+  }
+  else if (layeridtorm_ == 18)
+  {
+    std::vector<track_str>::iterator track = tracks_vct_.begin();
+    while (track != tracks_vct_.end())
+    {
+      if (track->dim < 3)
+      {
+        ++hm;
+        track = tracks_vct_.erase(track);
+      }
+      else
+      {
+        std::ostringstream osss;
+        for (int j = 0; j < 3; ++j)
+          osss << track->layer[j];
+        std::string spslay = osss.str();
+ 
+        if (!((spslay == "519") ||
+              (spslay == "1920")))
+        {
+          ++hm;
+          track = tracks_vct_.erase(track);
+        }
+        else
+          ++track;
+      }
+    }
+  }
+  else if (layeridtorm_ == 19)
+  {
+    std::vector<track_str>::iterator track = tracks_vct_.begin();
+    while (track != tracks_vct_.end())
+    {
+      if (track->dim < 3)
+      {
+        ++hm;
+        track = tracks_vct_.erase(track);
+      }
+      else
+      {
+        std::ostringstream osss;
+        for (int j = 0; j < 3; ++j)
+          osss << track->layer[j];
+        std::string spslay = osss.str();
+ 
+        if (!((track->layersids == "518") ||
+              (track->layersids == "1820")))
+        {
+          ++hm;
+          track = tracks_vct_.erase(track);
+        }
+        else
+          ++track;
+      }
+    }
+  }
+  else if (layeridtorm_ == 20)
+  {
+    std::vector<track_str>::iterator track = tracks_vct_.begin();
+    while (track != tracks_vct_.end())
+    {
+      if (track->dim < 3)
+      {
+        ++hm;
+        track = tracks_vct_.erase(track);
+      }
+      else
+      {
+        std::ostringstream osss;
+        for (int j = 0; j < 3; ++j)
+          osss << track->layer[j];
+        std::string spslay = osss.str();
+ 
+        if (!(spslay == "1819"))
+        {
+          ++hm;
+          track = tracks_vct_.erase(track);
+        }
+        else
+          ++track;
+      }
+    }
+  }
+
+  std::cout << hm << " tracks will be removed " << std::endl;
+
+  return true;
+}
+
 
 // ugly and dirty to select valid 5oof6 seqs in hybrid
 bool rootfilereader::remove_not_acptble_layerseq()

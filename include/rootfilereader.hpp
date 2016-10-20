@@ -227,6 +227,7 @@ namespace pca
       bool remove_layer ();
       bool remove_last_layer ();
       bool remove_not_acptble_layerseq ();
+      bool remove_not_acptble_layerseq_first3 ();
 
       bool linearinterpolationrphiz (std::vector<track_rphiz_str> &);
 
