@@ -278,11 +278,23 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
       double phiorig = paramslt(i, PCA_PHIIDX);
       double phicmps = phicmp[i];
 
-      if ((towerid == 19) || (towerid == 20) || 
-          (towerid == 27) || (towerid == 28))
+      if (regiontype != ISBARREL)
       {
-        phicmps = phicmps - sec_phi;
-        phicmps = fmod(phicmps + M_PI, 2 * M_PI) - M_PI;
+        if ((towerid == 19) || (towerid == 20) || 
+            (towerid == 27) || (towerid == 28))
+        {
+          phicmps = phicmps - sec_phi;
+          phicmps = fmod(phicmps + M_PI, 2 * M_PI) - M_PI;
+        }
+      }
+      else if (regiontype == ISHYBRID)
+      {
+        if ((towerid == 11) || (towerid == 35) || 
+            (towerid == 12) || (towerid == 36))
+        {
+          phicmps = phicmps - sec_phi;
+          phicmps = fmod(phicmps + M_PI, 2 * M_PI) - M_PI;
+        }
       }
 
       double diffphi = pca::delta_phi(phicmps, phiorig);
@@ -1000,10 +1012,21 @@ int main (int argc, char ** argv)
 
   rootrdr.set_towid(towerid);
 
-  if ((towerid == 19) || (towerid == 20) || 
-      (towerid == 27) || (towerid == 28))
+  if (regiontype == ISBARREL)
   {
-    rootrdr.apply_rotation_to_xy(true);
+    if ((towerid == 19) || (towerid == 20) || 
+        (towerid == 27) || (towerid == 28))
+    {
+      rootrdr.apply_rotation_to_xy(true);
+    }
+  }
+  else if (regiontype == ISHYBRID)
+  {
+    if ((towerid == 11) || (towerid == 35) || 
+        (towerid == 12) || (towerid == 36))
+    {
+      rootrdr.apply_rotation_to_xy(true);
+    }
   }
 
   rootrdr.set_fkfiveoutofsix(usefakefiveoutofsix, 
