@@ -14,6 +14,7 @@ filter::filter(std::string filename, std::string secfilename,
 
   if (!filter::convert(secfilename)) return; // Don't go further if there is no sector file
 
+  std::cout << "starting to execute do filter " << std::endl;
   filter::do_filter(secid,hit_lim); // Launch the filter loop
 }
 
@@ -55,6 +56,7 @@ void filter::do_filter(int secid,int hit_lim)
 
     m_L1TT->GetEntry(i);
     
+    
     if (i%100000==0) 
       cout << "Processed " << i << "/" << ndat << endl;
 
@@ -63,6 +65,7 @@ void filter::do_filter(int secid,int hit_lim)
     for(int pdg=-13;pdg<14;pdg+=26){
       new_nb_stub = 0;
       filter::reset();
+      
       
       if (m_stub < 4) continue; // Not enough stubs anyway, don't go further
       
@@ -77,19 +80,20 @@ void filter::do_filter(int secid,int hit_lim)
       for (int j=0;j<m_stub;++j)
 	{  
 	  //Takes only stubs with the correct PDG ID
+          
 	  if(m_stub_pdg[j]!=pdg)
 	    continue;
 
 	  new_nb_stub++;
 	  
-	  mf_stub_etaGEN->push_back(m_stub_etaGEN[j]);  
-	  mf_stub_strip->push_back(m_stub_strip[j]); 
 	  mf_stub_ptGEN->push_back(m_stub_ptGEN[j]);
+	  mf_stub_etaGEN->push_back(m_stub_etaGEN[j]);  
 	  mf_stub_x->push_back(m_stub_x[j]);
 	  mf_stub_y->push_back(m_stub_y[j]);
 	  mf_stub_z->push_back(m_stub_z[j]);
 	  mf_stub_bend->push_back(m_stub_bend[j]);
 	  mf_stub_modid->push_back(m_stub_modid[j]);  
+	  mf_stub_strip->push_back(m_stub_strip[j]); 
 	  mf_stub_X0->push_back(m_stub_X0[j]);
 	  mf_stub_Y0->push_back(m_stub_Y0[j]);
 	  mf_stub_Z0->push_back(m_stub_Z0[j]);
@@ -117,6 +121,7 @@ void filter::do_filter(int secid,int hit_lim)
 	    }
 	} // End of loop over stubs
 
+      
       if (new_nb_stub < 4) continue; // Not enough stubs anyway, don't go further
       mf_stub = new_nb_stub;
 
@@ -168,8 +173,9 @@ void filter::do_filter(int secid,int hit_lim)
 	  if (secid!=sec_max.at(j) && n_hits_max==5 && (sec_max.at(j)<16 || sec_max.at(j)>=32)) keepit=false;
 	}
       }
-
+      
       if (!keepit) continue; // This track is better in another tower
+
       
       m_efftree->Fill(); // If yes fill the skimmed tree  
     }
@@ -223,14 +229,14 @@ void filter::initTuple(std::string test,std::string out)
     in.close();
   }
 
-  pm_stub_etaGEN=&m_stub_etaGEN;  
-  pm_stub_strip=&m_stub_strip; 
   pm_stub_ptGEN=&m_stub_ptGEN;
+  pm_stub_etaGEN=&m_stub_etaGEN;  
   pm_stub_x=&m_stub_x;
   pm_stub_y=&m_stub_y;
   pm_stub_z=&m_stub_z;
   pm_stub_bend=&m_stub_bend;
   pm_stub_modid=&m_stub_modid;  
+  pm_stub_strip=&m_stub_strip; 
   pm_stub_X0=&m_stub_X0;
   pm_stub_Y0=&m_stub_Y0;
   pm_stub_Z0=&m_stub_Z0;
@@ -238,19 +244,19 @@ void filter::initTuple(std::string test,std::string out)
   pm_stub_pdg=&m_stub_pdg;
 
   m_L1TT->SetBranchAddress("STUB_n",           &m_stub);
-  m_L1TT->SetBranchAddress("STUB_ptGEN",       &m_stub_ptGEN);
-  m_L1TT->SetBranchAddress("STUB_etaGEN",      &m_stub_etaGEN);
-  m_L1TT->SetBranchAddress("STUB_x",           &m_stub_x);
-  m_L1TT->SetBranchAddress("STUB_y",           &m_stub_y);
-  m_L1TT->SetBranchAddress("STUB_z",           &m_stub_z);
-  m_L1TT->SetBranchAddress("STUB_bend",        &m_stub_bend);
-  m_L1TT->SetBranchAddress("STUB_modid",       &m_stub_modid);
-  m_L1TT->SetBranchAddress("STUB_strip",       &m_stub_strip);
-  m_L1TT->SetBranchAddress("STUB_X0",          &m_stub_X0);
-  m_L1TT->SetBranchAddress("STUB_Y0",          &m_stub_Y0);
-  m_L1TT->SetBranchAddress("STUB_Z0",          &m_stub_Z0);
-  m_L1TT->SetBranchAddress("STUB_PHI0",        &m_stub_PHI0);
-  m_L1TT->SetBranchAddress("STUB_pdg" ,        &m_stub_pdg);
+  m_L1TT->SetBranchAddress("STUB_ptGEN",       &pm_stub_ptGEN);
+  m_L1TT->SetBranchAddress("STUB_etaGEN",      &pm_stub_etaGEN);
+  m_L1TT->SetBranchAddress("STUB_x",           &pm_stub_x);
+  m_L1TT->SetBranchAddress("STUB_y",           &pm_stub_y);
+  m_L1TT->SetBranchAddress("STUB_z",           &pm_stub_z);
+  m_L1TT->SetBranchAddress("STUB_bend",        &pm_stub_bend);
+  m_L1TT->SetBranchAddress("STUB_modid",       &pm_stub_modid);
+  m_L1TT->SetBranchAddress("STUB_strip",       &pm_stub_strip);
+  m_L1TT->SetBranchAddress("STUB_X0",          &pm_stub_X0);
+  m_L1TT->SetBranchAddress("STUB_Y0",          &pm_stub_Y0);
+  m_L1TT->SetBranchAddress("STUB_Z0",          &pm_stub_Z0);
+  m_L1TT->SetBranchAddress("STUB_PHI0",        &pm_stub_PHI0);
+  m_L1TT->SetBranchAddress("STUB_pdg" ,        &pm_stub_pdg);
 
   // Output file definition (see the header)
 
@@ -258,19 +264,14 @@ void filter::initTuple(std::string test,std::string out)
 
   m_efftree = new TTree("BankStubs","Stubs for bank");
 
-  mf_stub_etaGEN = new std::vector<float>;
-  mf_stub_strip  = new std::vector<float>;
-  mf_stub_ptGEN  = new std::vector<float>;
-  mf_stub_modid  = new std::vector<int>; 
-
-  mf_stub_etaGEN = new std::vector<float>;
-  mf_stub_strip = new std::vector<float>;
   mf_stub_ptGEN = new std::vector<float>;
+  mf_stub_etaGEN = new std::vector<float>;
   mf_stub_x = new std::vector<float>;
   mf_stub_y = new std::vector<float>;
   mf_stub_z = new std::vector<float>;
   mf_stub_bend = new std::vector<float>;
   mf_stub_modid = new std::vector<int>;
+  mf_stub_strip = new std::vector<float>;
   mf_stub_X0 = new std::vector<float>;
   mf_stub_Y0 = new std::vector<float>;
   mf_stub_Z0 = new std::vector<float>;
@@ -388,14 +389,14 @@ void filter::reset()
 {
   mf_stub = 0;
 
-  mf_stub_etaGEN->clear(); 
-  mf_stub_strip->clear(); 
   mf_stub_ptGEN->clear();  
+  mf_stub_etaGEN->clear(); 
   mf_stub_x->clear();  
   mf_stub_y->clear();  
   mf_stub_z->clear();
   mf_stub_bend->clear();    
   mf_stub_modid->clear();  
+  mf_stub_strip->clear(); 
   mf_stub_X0->clear();  
   mf_stub_Y0->clear();  
   mf_stub_Z0->clear();
