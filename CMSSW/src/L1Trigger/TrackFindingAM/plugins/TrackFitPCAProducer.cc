@@ -1,6 +1,6 @@
 /*! \class   TrackFitPCAProducer
  *
- *  \author S Viret / L Storchi
+ *  \author S Viret / L Storchi / A. Modak 
  *  \date   2016, Mar 4
  *
  */
@@ -92,8 +92,10 @@ TrackFitPCAProducer::TrackFitPCAProducer( const edm::ParameterSet& iConfig )
   TTStubsInputTag          = iConfig.getParameter< edm::InputTag >( "TTInputStubs" );
   TTPatternsInputTag       = iConfig.getParameter< edm::InputTag >( "TTInputPatterns" );
   TTTrackOutputTag         = iConfig.getParameter< std::string >( "TTTrackName" );
+  TTTrackBinaryOutputTag   = iConfig.getParameter< std::string >( "TTTrackBinaryName" );
 
   produces< std::vector< TTTrack< Ref_PixelDigi_ > > >( TTTrackOutputTag );
+  produces< std::vector< TTTrack< Ref_PixelDigi_ > > >( TTTrackBinaryOutputTag );
 }
 
 /// Destructor
@@ -125,6 +127,7 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
   /// The temporary collection is used to store tracks
   /// before removal of duplicates
   std::auto_ptr< std::vector< TTTrack< Ref_PixelDigi_ > > > TTTracksForOutput( new std::vector< TTTrack< Ref_PixelDigi_ > > );
+  std::auto_ptr< std::vector< TTTrack< Ref_PixelDigi_ > > > TTTracksBinForOutput( new std::vector< TTTrack< Ref_PixelDigi_ > > );
 
   /// Get the Stubs already stored away
   edm::Handle< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > > > TTStubHandle;
@@ -155,40 +158,40 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
 
   /// STEP 0
   /// Read PCAConst file
-  PCA->read_float_const_filename ("../data/infnpca_const_files/barrel_tow16_pca_const.txt");
-  PCA->read_float_const_filename ("../data/infnpca_const_files/barrel_tow17_pca_const.txt");
-  PCA->read_float_const_filename ("../data/infnpca_const_files/barrel_tow18_pca_const.txt");
-  PCA->read_float_const_filename ("../data/infnpca_const_files/barrel_tow19_pca_const.txt");
-  PCA->read_float_const_filename ("../data/infnpca_const_files/barrel_tow20_pca_const.txt");
-  PCA->read_float_const_filename ("../data/infnpca_const_files/barrel_tow21_pca_const.txt");
-  PCA->read_float_const_filename ("../data/infnpca_const_files/barrel_tow22_pca_const.txt");
-  PCA->read_float_const_filename ("../data/infnpca_const_files/barrel_tow23_pca_const.txt");
-  PCA->read_float_const_filename ("../data/infnpca_const_files/barrel_tow24_pca_const.txt");
-  PCA->read_float_const_filename ("../data/infnpca_const_files/barrel_tow25_pca_const.txt");
-  PCA->read_float_const_filename ("../data/infnpca_const_files/barrel_tow26_pca_const.txt");
-  PCA->read_float_const_filename ("../data/infnpca_const_files/barrel_tow27_pca_const.txt");
-  PCA->read_float_const_filename ("../data/infnpca_const_files/barrel_tow28_pca_const.txt");
-  PCA->read_float_const_filename ("../data/infnpca_const_files/barrel_tow29_pca_const.txt");
-  PCA->read_float_const_filename ("../data/infnpca_const_files/barrel_tow30_pca_const.txt");
-  PCA->read_float_const_filename ("../data/infnpca_const_files/barrel_tow31_pca_const.txt");
+  PCA->read_float_const_filename ("/lustre/home/amodak/AMSimulation/dev/CMSSW_6_2_0_SLHC27/src/L1Trigger/TrackFindingAM/data/infnpca_const_files/barrel_tow16_pca_const.txt");
+  PCA->read_float_const_filename ("/lustre/home/amodak/AMSimulation/dev/CMSSW_6_2_0_SLHC27/src/L1Trigger/TrackFindingAM/data/infnpca_const_files/barrel_tow17_pca_const.txt");
+  PCA->read_float_const_filename ("/lustre/home/amodak/AMSimulation/dev/CMSSW_6_2_0_SLHC27/src/L1Trigger/TrackFindingAM/data/infnpca_const_files/barrel_tow18_pca_const.txt");
+  PCA->read_float_const_filename ("/lustre/home/amodak/AMSimulation/dev/CMSSW_6_2_0_SLHC27/src/L1Trigger/TrackFindingAM/data/infnpca_const_files/barrel_tow19_pca_const.txt");
+  PCA->read_float_const_filename ("/lustre/home/amodak/AMSimulation/dev/CMSSW_6_2_0_SLHC27/src/L1Trigger/TrackFindingAM/data/infnpca_const_files/barrel_tow20_pca_const.txt");
+  PCA->read_float_const_filename ("/lustre/home/amodak/AMSimulation/dev/CMSSW_6_2_0_SLHC27/src/L1Trigger/TrackFindingAM/data/infnpca_const_files/barrel_tow21_pca_const.txt");
+  PCA->read_float_const_filename ("/lustre/home/amodak/AMSimulation/dev/CMSSW_6_2_0_SLHC27/src/L1Trigger/TrackFindingAM/data/infnpca_const_files/barrel_tow22_pca_const.txt");
+  PCA->read_float_const_filename ("/lustre/home/amodak/AMSimulation/dev/CMSSW_6_2_0_SLHC27/src/L1Trigger/TrackFindingAM/data/infnpca_const_files/barrel_tow23_pca_const.txt");
+  PCA->read_float_const_filename ("/lustre/home/amodak/AMSimulation/dev/CMSSW_6_2_0_SLHC27/src/L1Trigger/TrackFindingAM/data/infnpca_const_files/barrel_tow24_pca_const.txt");
+  PCA->read_float_const_filename ("/lustre/home/amodak/AMSimulation/dev/CMSSW_6_2_0_SLHC27/src/L1Trigger/TrackFindingAM/data/infnpca_const_files/barrel_tow25_pca_const.txt");
+  PCA->read_float_const_filename ("/lustre/home/amodak/AMSimulation/dev/CMSSW_6_2_0_SLHC27/src/L1Trigger/TrackFindingAM/data/infnpca_const_files/barrel_tow26_pca_const.txt");
+  PCA->read_float_const_filename ("/lustre/home/amodak/AMSimulation/dev/CMSSW_6_2_0_SLHC27/src/L1Trigger/TrackFindingAM/data/infnpca_const_files/barrel_tow27_pca_const.txt");
+  PCA->read_float_const_filename ("/lustre/home/amodak/AMSimulation/dev/CMSSW_6_2_0_SLHC27/src/L1Trigger/TrackFindingAM/data/infnpca_const_files/barrel_tow28_pca_const.txt");
+  PCA->read_float_const_filename ("/lustre/home/amodak/AMSimulation/dev/CMSSW_6_2_0_SLHC27/src/L1Trigger/TrackFindingAM/data/infnpca_const_files/barrel_tow29_pca_const.txt");
+  PCA->read_float_const_filename ("/lustre/home/amodak/AMSimulation/dev/CMSSW_6_2_0_SLHC27/src/L1Trigger/TrackFindingAM/data/infnpca_const_files/barrel_tow30_pca_const.txt");
+  PCA->read_float_const_filename ("/lustre/home/amodak/AMSimulation/dev/CMSSW_6_2_0_SLHC27/src/L1Trigger/TrackFindingAM/data/infnpca_const_files/barrel_tow31_pca_const.txt");
 
   // Integer
-  PCA_int->read_integer_const_filename ("../data/infnpca_const_files/barrel_tow16_pca_const.txt_int");
-  PCA_int->read_integer_const_filename ("../data/infnpca_const_files/barrel_tow17_pca_const.txt_int");
-  PCA_int->read_integer_const_filename ("../data/infnpca_const_files/barrel_tow18_pca_const.txt_int");
-  PCA_int->read_integer_const_filename ("../data/infnpca_const_files/barrel_tow19_pca_const.txt_int");
-  PCA_int->read_integer_const_filename ("../data/infnpca_const_files/barrel_tow20_pca_const.txt_int");
-  PCA_int->read_integer_const_filename ("../data/infnpca_const_files/barrel_tow21_pca_const.txt_int");
-  PCA_int->read_integer_const_filename ("../data/infnpca_const_files/barrel_tow22_pca_const.txt_int");
-  PCA_int->read_integer_const_filename ("../data/infnpca_const_files/barrel_tow23_pca_const.txt_int");
-  PCA_int->read_integer_const_filename ("../data/infnpca_const_files/barrel_tow24_pca_const.txt_int");
-  PCA_int->read_integer_const_filename ("../data/infnpca_const_files/barrel_tow25_pca_const.txt_int");
-  PCA_int->read_integer_const_filename ("../data/infnpca_const_files/barrel_tow26_pca_const.txt_int");
-  PCA_int->read_integer_const_filename ("../data/infnpca_const_files/barrel_tow27_pca_const.txt_int");
-  PCA_int->read_integer_const_filename ("../data/infnpca_const_files/barrel_tow28_pca_const.txt_int");
-  PCA_int->read_integer_const_filename ("../data/infnpca_const_files/barrel_tow29_pca_const.txt_int");
-  PCA_int->read_integer_const_filename ("../data/infnpca_const_files/barrel_tow30_pca_const.txt_int");
-  PCA_int->read_integer_const_filename ("../data/infnpca_const_files/barrel_tow31_pca_const.txt_int");
+  PCA_int->read_integer_const_filename ("/lustre/home/amodak/AMSimulation/dev/CMSSW_6_2_0_SLHC27/src/L1Trigger/TrackFindingAM/data/infnpca_const_files/barrel_tow16_pca_const.txt_int");
+  PCA_int->read_integer_const_filename ("/lustre/home/amodak/AMSimulation/dev/CMSSW_6_2_0_SLHC27/src/L1Trigger/TrackFindingAM/data/infnpca_const_files/barrel_tow17_pca_const.txt_int");
+  PCA_int->read_integer_const_filename ("/lustre/home/amodak/AMSimulation/dev/CMSSW_6_2_0_SLHC27/src/L1Trigger/TrackFindingAM/data/infnpca_const_files/barrel_tow18_pca_const.txt_int");
+  PCA_int->read_integer_const_filename ("/lustre/home/amodak/AMSimulation/dev/CMSSW_6_2_0_SLHC27/src/L1Trigger/TrackFindingAM/data/infnpca_const_files/barrel_tow19_pca_const.txt_int");
+  PCA_int->read_integer_const_filename ("/lustre/home/amodak/AMSimulation/dev/CMSSW_6_2_0_SLHC27/src/L1Trigger/TrackFindingAM/data/infnpca_const_files/barrel_tow20_pca_const.txt_int");
+  PCA_int->read_integer_const_filename ("/lustre/home/amodak/AMSimulation/dev/CMSSW_6_2_0_SLHC27/src/L1Trigger/TrackFindingAM/data/infnpca_const_files/barrel_tow21_pca_const.txt_int");
+  PCA_int->read_integer_const_filename ("/lustre/home/amodak/AMSimulation/dev/CMSSW_6_2_0_SLHC27/src/L1Trigger/TrackFindingAM/data/infnpca_const_files/barrel_tow22_pca_const.txt_int");
+  PCA_int->read_integer_const_filename ("/lustre/home/amodak/AMSimulation/dev/CMSSW_6_2_0_SLHC27/src/L1Trigger/TrackFindingAM/data/infnpca_const_files/barrel_tow23_pca_const.txt_int");
+  PCA_int->read_integer_const_filename ("/lustre/home/amodak/AMSimulation/dev/CMSSW_6_2_0_SLHC27/src/L1Trigger/TrackFindingAM/data/infnpca_const_files/barrel_tow24_pca_const.txt_int");
+  PCA_int->read_integer_const_filename ("/lustre/home/amodak/AMSimulation/dev/CMSSW_6_2_0_SLHC27/src/L1Trigger/TrackFindingAM/data/infnpca_const_files/barrel_tow25_pca_const.txt_int");
+  PCA_int->read_integer_const_filename ("/lustre/home/amodak/AMSimulation/dev/CMSSW_6_2_0_SLHC27/src/L1Trigger/TrackFindingAM/data/infnpca_const_files/barrel_tow26_pca_const.txt_int");
+  PCA_int->read_integer_const_filename ("/lustre/home/amodak/AMSimulation/dev/CMSSW_6_2_0_SLHC27/src/L1Trigger/TrackFindingAM/data/infnpca_const_files/barrel_tow27_pca_const.txt_int");
+  PCA_int->read_integer_const_filename ("/lustre/home/amodak/AMSimulation/dev/CMSSW_6_2_0_SLHC27/src/L1Trigger/TrackFindingAM/data/infnpca_const_files/barrel_tow28_pca_const.txt_int");
+  PCA_int->read_integer_const_filename ("/lustre/home/amodak/AMSimulation/dev/CMSSW_6_2_0_SLHC27/src/L1Trigger/TrackFindingAM/data/infnpca_const_files/barrel_tow29_pca_const.txt_int");
+  PCA_int->read_integer_const_filename ("/lustre/home/amodak/AMSimulation/dev/CMSSW_6_2_0_SLHC27/src/L1Trigger/TrackFindingAM/data/infnpca_const_files/barrel_tow30_pca_const.txt_int");
+  PCA_int->read_integer_const_filename ("/lustre/home/amodak/AMSimulation/dev/CMSSW_6_2_0_SLHC27/src/L1Trigger/TrackFindingAM/data/infnpca_const_files/barrel_tow31_pca_const.txt_int");
 
   /// STEP 1
   /// Loop over track candidates
@@ -202,6 +205,10 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
   std::vector<Track*> tracks;
   for(unsigned int i=0;i<tracks.size();i++) delete tracks[i];
   tracks.clear();
+
+  std::vector<Track*> tracksb;
+  for(unsigned int i=0;i<tracksb.size();i++) delete tracksb[i];
+  tracksb.clear();
 
   edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >::const_iterator inputIter;
   edmNew::DetSet< TTStub< Ref_PixelDigi_ > >::const_iterator stubIter;
@@ -324,6 +331,7 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
       PCA_int->setSectorID(tempTrackPtr->getSector());
       PCA_int->setTrack(TC);
       PCA_int->fit(m_hits);
+      tracksb = PCA_int->getTracks();
       PCA_int->clean();
 
       delete TC;      
@@ -363,14 +371,53 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
           delete tracks[tt];
         }
       }
+
+      std::vector<double> chi2v_b = PCA_int->get_chi2();
+
+      if (chi2v_b.size() == tracksb.size())
+      {
+        // Store the tracks (no duplicate cleaning yet)
+	cout<<"Found "<<tracksb.size()<<" int track"<<endl;
+        
+        std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > > tempVec;
+        
+        for(unsigned int tt=0;tt<tracksb.size();tt++)
+        {	
+          tempVec.clear();
+        
+          vector<int> stubs = tracksb[tt]->getStubs();
+          for(unsigned int sti=0;sti<stubs.size();sti++) tempVec.push_back( stubMap[ stubs[sti] ]);
+        
+          double pz = tracksb[tt]->getCurve()/(tan(2*atan(exp(-tracksb[tt]->getEta0()))));
+          
+          TTTrack< Ref_PixelDigi_ > tempTrack( tempVec );
+          GlobalPoint POCA(0.,0.,tracksb[tt]->getZ0());
+          GlobalVector mom(tracksb[tt]->getCurve()*cos(tracksb[tt]->getPhi0()),
+          		 tracksb[tt]->getCurve()*sin(tracksb[tt]->getPhi0()),
+          		 pz);
+          
+          tempTrack.setSector( seedSector );
+          tempTrack.setWedge( tracksb[tt]->getCharge() );
+          tempTrack.setMomentum( mom , 5);
+          tempTrack.setPOCA( POCA , 5);
+          tempTrack.setChi2(chi2v_b[tt]);
+        
+          TTTracksBinForOutput->push_back( tempTrack );
+          
+          delete tracksb[tt];
+        }
+      }
+
     } // End of loop over patterns
 
     delete(PCA);    
+    delete(PCA_int);    
 
   }
 
   /// Put in the event content
   iEvent.put( TTTracksForOutput, TTTrackOutputTag);
+  iEvent.put( TTTracksBinForOutput, TTTrackBinaryOutputTag);
 }
 
 // DEFINE THIS AS A PLUG-IN
