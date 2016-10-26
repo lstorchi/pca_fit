@@ -1,6 +1,6 @@
 /*! \class   TrackFitPCAProducer
  *
- *  \author S Viret / L Storchi
+ *  \author S Viret / L Storchi / A. Modak 
  *  \date   2016, Mar 4
  *
  */
