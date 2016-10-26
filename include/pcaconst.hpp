@@ -41,7 +41,7 @@ namespace pca
 {
   const long long int zisf = 256; //pow(2, 8)
   const long long int risf = 1024; //pow(2, 10);
-  const long long int pisf = 32768; //pow(2, 15);
+  const long long int pisf = 65536; //pow(2, 16);
 
   const int mult_factor = 1e5;
   const int const_mult_factor = mult_factor*1024;
