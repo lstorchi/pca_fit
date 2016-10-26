@@ -86,7 +86,7 @@ namespace
       // Store the integer value of R (unit = 2^-10 .cm)
       //long long int ri =  pow(2, 10) * binning(sqrt(xi*xi+yi*yi), 6, 18, SIGNED);
       long long int ri = pca::risf * sqrt(xi*xi+yi*yi);
-      if (check_val((double) ri, pca::hit_w))
+      if (check_val((double) ri, pca::hit_w, false))
       {
         std::cerr << "Overflow in ri coordinate " << std::endl;
       }
@@ -578,9 +578,9 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
             std::cerr << "Overflow in val chi2rphi 3 result_w " << std::endl;
         }
 
-        if (check_val((double) chi2rz, pca::result_w))
+        if (check_val((double) chi2rz, pca::result_w, false))
           std::cerr << "Overflow in chi2rz result_w" << std::endl;
-        if (check_val((double) chi2rphi, pca::result_w))
+        if (check_val((double) chi2rphi, pca::result_w, false))
           std::cerr << "Overflow in chi2rphi result_w" << std::endl;
 
         double d_chi2rz = (double) chi2rz / (double) pow(pca::chisq_const_mult_factor, 2);
@@ -765,9 +765,9 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
           if (check_val((double) chi2rphi, pca::result_w, false))
             std::cerr << "Overflow in chi2rphi chi2rphi 3 result_w" << std::endl;
         }
-        if (check_val((double) chi2rz, pca::result_w))
+        if (check_val((double) chi2rz, pca::result_w, false))
           std::cerr << "Overflow in chi2rz result_w" << std::endl;
-        if (check_val((double) chi2rphi, pca::result_w))
+        if (check_val((double) chi2rphi, pca::result_w, false))
           std::cerr << "Overflow in chi2rphi result_w" << std::endl;
 
         double d_chi2rz = (double) chi2rz / (double) pow(pca::chisq_const_mult_factor, 2);
