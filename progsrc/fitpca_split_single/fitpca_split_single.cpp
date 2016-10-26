@@ -277,7 +277,9 @@ bool build_and_compare (arma::mat & paramslt, arma::mat & coordslt,
       double phicmps = phicmp[i];
 
       if ((towerid == 19) || (towerid == 20) || 
-          (towerid == 27) || (towerid == 28))
+          (towerid == 27) || (towerid == 28) ||
+          (towerid == 11) || (towerid == 35) || 
+          (towerid == 12) || (towerid == 36))
       {
         phicmps = phicmps - sec_phi;
         phicmps = fmod(phicmps + M_PI, 2 * M_PI) - M_PI;
@@ -988,7 +990,9 @@ int main (int argc, char ** argv)
   rootrdr.set_towid(towerid);
 
   if ((towerid == 19) || (towerid == 20) || 
-      (towerid == 27) || (towerid == 28))
+      (towerid == 27) || (towerid == 28) ||
+      (towerid == 11) || (towerid == 35) || 
+      (towerid == 12) || (towerid == 36))
   {
     rootrdr.apply_rotation_to_xy(true);
   }

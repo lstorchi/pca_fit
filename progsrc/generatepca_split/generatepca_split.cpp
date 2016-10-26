@@ -754,7 +754,9 @@ int main (int argc, char ** argv)
   // needed expecially for tow 19 20 27 28
   // only for the genration
   if ((towerid == 19) || (towerid == 20) || 
-      (towerid == 27) || (towerid == 28))
+      (towerid == 27) || (towerid == 28) ||
+      (towerid == 11) || (towerid == 35) || 
+      (towerid == 12) || (towerid == 36))
   {
     rootrdr.apply_rotation_to_phi(true);
     rootrdr.apply_rotation_to_xy(true);
