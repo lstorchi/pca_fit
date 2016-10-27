@@ -62,7 +62,9 @@ namespace
       double yi = hits[idx]->getY();
 
       if ((tow == 19) || (tow == 20) ||
-          (tow == 27) || (tow == 28))
+          (tow == 27) || (tow == 28) ||
+          (tow == 11) || (tow == 12) ||
+          (tow == 35) || (tow == 36))
       {
         xi = hits[idx]->getX() * ci - hits[idx]->getY() * si;
         yi = hits[idx]->getX() * si + hits[idx]->getY() * ci;
@@ -142,7 +144,9 @@ namespace
  
       // TODO double check this
       if ((tow == 19) || (tow == 20) ||
-          (tow == 27) || (tow == 28))
+          (tow == 27) || (tow == 28) ||
+          (tow == 11) || (tow == 12) ||
+          (tow == 35) || (tow == 36)) 
       {
         xi = hits[idx]->getX() * ci - hits[idx]->getY() * si;
         yi = hits[idx]->getX() * si + hits[idx]->getY() * ci;
@@ -531,7 +535,9 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
         double d_phi = (double) ((double) phi / (double) pca::const_mult_factor);
 
         if ((tow == 19) || (tow == 20) ||
-            (tow == 27) || (tow == 28))
+            (tow == 27) || (tow == 28) ||
+            (tow == 11) || (tow == 12) ||
+            (tow == 35) || (tow == 36))
           d_phi -= sec_phi;
 
         int coordim = 6, paramdim = 2;
@@ -719,7 +725,9 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
         double d_phi = (double) ((double) phi / (double) pca::const_mult_factor);
 
         if ((tow == 19) || (tow == 20) ||
-            (tow == 27) || (tow == 28))
+            (tow == 27) || (tow == 28) ||
+            (tow == 11) || (tow == 12) ||
+            (tow == 35) || (tow == 36)) 
           d_phi -= sec_phi;
 
         int coordim = 4, paramdim = 2;
@@ -947,7 +955,9 @@ void PCATrackFitter::fit_float(vector<Hit*> hits)
         }
 
         if ((tow == 19) || (tow == 20) ||
-            (tow == 27) || (tow == 28))
+            (tow == 27) || (tow == 28) ||
+            (tow == 11) || (tow == 12) ||
+            (tow == 35) || (tow == 36)) 
           phi -= sec_phi;
 
         phi = fmod(phi + M_PI, 2 * M_PI) - M_PI;
@@ -1085,7 +1095,9 @@ void PCATrackFitter::fit_float(vector<Hit*> hits)
         }
 
         if ((tow == 19) || (tow == 20) ||
-            (tow == 27) || (tow == 28))
+            (tow == 27) || (tow == 28) ||
+            (tow == 11) || (tow == 12) ||
+            (tow == 35) || (tow == 36)) 
           phi -= sec_phi;
 
         phi = fmod(phi + M_PI, 2 * M_PI) - M_PI;
