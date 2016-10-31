@@ -58,6 +58,7 @@ int main (int argc, char *argv[])
     ci.set_sector_type(c.get_sector_type());
     ci.set_plane_type(c.get_plane_type());
     ci.set_chargesign(c.get_chargesign());
+    ci.set_ttype(c.get_ttype());
 
     double ptmin, ptmax, etamin, etamax;
     c.get_ptrange(ptmin, ptmax);
@@ -71,8 +72,6 @@ int main (int argc, char *argv[])
       get_eta_ranges (c.get_towerid(), etamin, etamax);
     ci.set_ptrange(ptmin, ptmax);
     ci.set_etarange(etamin, etamax);
-
-    ci.set_ttype(c.get_ttype());
 
     if (c.get_plane_type() == plane_type::RPHI)
     {
