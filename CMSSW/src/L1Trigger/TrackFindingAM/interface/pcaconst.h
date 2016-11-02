@@ -682,7 +682,7 @@ namespace pca
           {
             if (actuallayids == pslayersid)
             {
-              if ((eta >= etamin) && (eta <= etamax)) 
+              if ((eta > etamin) && (eta <= etamax)) 
               {
                 switch(it->get_const_type())
                 {
@@ -718,7 +718,7 @@ namespace pca
             {
               if (chargesignin == chargesign)
               {
-                if ((pt >= ptmin) && (pt <= ptmax))
+                if ((pt > ptmin) && (pt <= ptmax))
                 {
                   switch(it->get_const_type())
                   {
@@ -810,11 +810,11 @@ namespace pca
             {
               if (actuallayids == layersid)
               {
-                if ((eta >= etamin) && (eta <= etamax)) 
+                if ((eta > etamin) && (eta <= etamax)) 
                 {
                   if (chargesignin == chargesign)
                   {
-                    if ((pt >= ptmin) && (pt <= ptmax))
+                    if ((pt > ptmin) && (pt <= ptmax))
                     {
                       switch(it->get_const_type())
                       {
