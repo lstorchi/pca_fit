@@ -49,8 +49,12 @@ void usage (char * name)
   std::cerr << std::endl;
   std::cerr << " -f, --five-hits=[\"sequence\"]    : build constants for 5 / 6, specify the sequence " << std::endl;
   std::cerr << "                                     it will use \"real 5 out of 6\" tracks " << std::endl;
-  std::cerr << " -y, --fk-five-hits=[layerid]    : build constants for 5 / 6, specify the layr to be removed " 
+  std::cerr << " -y, --fk-five-hits=[layerid]    : build constants for 5 / 6, specify the layer to be removed " 
     << std::endl;
+  std::cerr << " -w, --specific-fk-53-hits=[\"sequence\"]  " << std::endl;
+  std::cerr << "                                 : for hybrid and endcap we need to specify the valid sequence " 
+    << std::endl;
+  std::cerr << "                                   to be used" << std::endl;
   std::cerr << "                                   it will use 6 layers tracks, removing a layer " << std::endl;
   std::cerr << std::endl;
   std::cerr << " -g, --charge-sign=[+/-]         : use only + particle or - paricle (again both planes) " << std::endl;
@@ -286,7 +290,7 @@ int main (int argc, char ** argv)
   double coord2min = std::numeric_limits<double>::infinity();
 
   std::vector<std::string> tokens;
-  std::string sequence;
+  std::string sequence, specificseqfk5 = "";
 
   bool excludesmodule = false;
   bool verbose = false;
@@ -327,6 +331,7 @@ int main (int argc, char ** argv)
       {"region-type", 1, NULL, 'R'},
       {"get-info", 0, NULL, 'G'},
       {"set-multiple-pdg", 0, NULL, 'K'},
+      {"specific-fk-53-hits", 1, NULL, 'w'},
       {0, 0, 0, 0}
     };
 
@@ -481,6 +486,9 @@ int main (int argc, char ** argv)
       case 'K':
         multiple_pdg = true;
         break;
+      case 'w':
+        specificseqfk5 = optarg;
+        break;
       default:
         usage (argv[0]);
         break;
@@ -546,6 +554,15 @@ int main (int argc, char ** argv)
       fitter.set_coordim (2*2);
     else
       fitter.set_coordim (2*5);
+
+    if (specificseqfk5 == "")
+    {
+      if (regiontype != ISBARREL) 
+      {
+        std::cerr << "you need to specify the layers sequence to be used" << std::endl;
+        return EXIT_FAILURE;
+      }
+    }
   }
   else
   {

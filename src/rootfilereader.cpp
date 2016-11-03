@@ -147,6 +147,7 @@ void rootfilereader::reset()
   chargesign_ = 0;
   maxnumoftracks_ = (unsigned int)  INFINITY;
   specificseq_ = "";
+  specificseqfk5_ = "";
   performlinearinterpolation_ = false;
   layeridtorm_ = -1;
 
@@ -397,6 +398,16 @@ void rootfilereader::set_specificseq (const char * in)
 const std::string & rootfilereader::get_specificseq () const
 {
   return specificseq_;
+}
+
+void rootfilereader::set_specificseq_fk5 (const char * in)
+{
+  specificseqfk5_ = in;
+}
+
+const std::string & rootfilereader::get_specificseq_fk5 () const
+{
+  return specificseqfk5_;
 }
 
 const std::string & rootfilereader::get_actualseq () const
@@ -1408,19 +1419,29 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
       if (!remove_last_layer ())
         return false;
 
+      int n = 0;
+      if (rphiplane_)
+        n = 5;
+      else if (rzplane_)
+        n = 3;
+
+      if (!remove_nonvalid_fk5seq (n))
+        return false;
+
       // given the layers that we need to remove filter 
       // not acceptable layers sequence so we do not have duplicated
       // set of constants  
-      if (rphiplane_)
-      {
-        if (!remove_not_acptble_layerseq ())
-          return false;
-      }
-      else if (rzplane_)
-      {
-        if (!remove_not_acptble_layerseq_first3 ())
-          return false;
-      }
+      // questo serve se voglio provare poi ad accumulare piu' seuqenze insieme 
+      //if (rphiplane_)
+      //{
+      //  if (!remove_not_acptble_layerseq ())
+      //    return false;
+      //}
+      //else if (rzplane_)
+      //{
+      //  if (!remove_not_acptble_layerseq_first3 ())
+      //    return false;
+      //}
     }
   }
 
@@ -1639,7 +1660,32 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
   return true;
 }
 
-// ugly and dirty to select valid 5oof6 seqs in hybrid RZ
+bool rootfilereader::remove_nonvalid_fk5seq (int n)
+{
+  int hm = 0;
+  std::vector<track_str>::iterator track = tracks_vct_.begin();
+  while (track != tracks_vct_.end())
+  {
+    std::ostringstream osss;
+    for (int j = 0; j < n; ++j)
+      osss << track->layer[j];
+    std::string spslay = osss.str();
+
+    if (spslay != specificseqfk5_) 
+    {
+      ++hm;
+      track = tracks_vct_.erase(track);
+    }
+    else
+      ++track;
+  }
+
+  std::cout << hm << " tracks will be removed " << std::endl;
+
+  return true;
+}
+
+/* ugly and dirty to select valid 5oof6 seqs in hybrid RZ
 bool rootfilereader::remove_not_acptble_layerseq_first3()
 {
   int hm = 0;
@@ -1818,8 +1864,7 @@ bool rootfilereader::remove_not_acptble_layerseq_first3()
   return true;
 }
 
-
-// ugly and dirty to select valid 5oof6 seqs in hybrid
+ugly and dirty to select valid 5oof6 seqs in hybrid
 bool rootfilereader::remove_not_acptble_layerseq()
 {
   int hm = 0;
@@ -2024,7 +2069,7 @@ bool rootfilereader::remove_not_acptble_layerseq()
 
   return true;
 }
- 
+*/ 
 
 bool rootfilereader::remove_last_layer()
 {

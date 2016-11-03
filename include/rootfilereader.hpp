@@ -102,6 +102,9 @@ namespace pca
       void set_specificseq (const char *);
       const std::string & get_specificseq () const;
 
+      void set_specificseq_fk5 (const char *);
+      const std::string & get_specificseq_fk5 () const;
+
       const std::string & get_actualseq () const;
       const std::set<std::string> & get_actualseq_set () const;
       std::string get_actualseq_set_string () const;
@@ -194,7 +197,7 @@ namespace pca
       int maxnumoflayers_, chargesign_, layeridtorm_, 
           regiontype_;
       unsigned int maxnumoftracks_;
-      std::string specificseq_;
+      std::string specificseq_, specificseqfk5_;
 
       bool multiple_charge_pe_;
 
@@ -226,8 +229,9 @@ namespace pca
 
       bool remove_layer ();
       bool remove_last_layer ();
-      bool remove_not_acptble_layerseq ();
-      bool remove_not_acptble_layerseq_first3 ();
+      bool remove_nonvalid_fk5seq (int);
+      //bool remove_not_acptble_layerseq ();
+      //bool remove_not_acptble_layerseq_first3 ();
 
       bool linearinterpolationrphiz (std::vector<track_rphiz_str> &);
 
