@@ -86,6 +86,10 @@ namespace
 
         if ((layerid >= 18) && (layerid <= 20))
           return true;
+
+        if ((layerid >= 11) && (layerid <= 13))
+          return true;
+ 
       }
       else
       {
@@ -93,6 +97,9 @@ namespace
           return true;
 
         if ((layerid >= 18) && (layerid <= 22))
+          return true;
+
+        if ((layerid >= 11) && (layerid <= 15))
           return true;
       }
 
@@ -1395,7 +1402,7 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
     if (!remove_layer ())
       return false;
 
-    if (regiontype_ == ISHYBRID)
+    if ((regiontype_ == ISHYBRID) || (regiontype_ == ISENDCAP))
     {
       // remove last layers if needed 
       if (!remove_last_layer ())
@@ -1654,9 +1661,9 @@ bool rootfilereader::remove_not_acptble_layerseq_first3()
           osss << track->layer[j];
         std::string spslay = osss.str();
 
-        if (!((spslay == "67") ||
-              (spslay == "618") ||
-              (spslay == "1819")))
+        if (!((spslay == ) ||
+              (spslay == ) ||
+              (spslay == )))
         {
           ++hm;
           track = tracks_vct_.erase(track);
@@ -1683,8 +1690,8 @@ bool rootfilereader::remove_not_acptble_layerseq_first3()
           osss << track->layer[j];
         std::string spslay = osss.str();
 
-        if (!((spslay == "57") ||
-              (spslay == "518")))
+        if (!((spslay == ) ||
+              (spslay == )))
         {
           ++hm;
           track = tracks_vct_.erase(track);
@@ -1712,7 +1719,7 @@ bool rootfilereader::remove_not_acptble_layerseq_first3()
           osss << track->layer[j];
         std::string spslay = osss.str();
 
-        if (!(spslay == "56"))
+        if (!(spslay == ))
         {
           ++hm;
           track = tracks_vct_.erase(track);
@@ -1739,8 +1746,8 @@ bool rootfilereader::remove_not_acptble_layerseq_first3()
           osss << track->layer[j];
         std::string spslay = osss.str();
  
-        if (!((spslay == "519") ||
-              (spslay == "1920")))
+        if (!((spslay == ) ||
+              (spslay == )))
         {
           ++hm;
           track = tracks_vct_.erase(track);
@@ -1767,8 +1774,8 @@ bool rootfilereader::remove_not_acptble_layerseq_first3()
           osss << track->layer[j];
         std::string spslay = osss.str();
  
-        if (!((track->layersids == "518") ||
-              (track->layersids == "1820")))
+        if (!((track->layersids == ) ||
+              (track->layersids == )))
         {
           ++hm;
           track = tracks_vct_.erase(track);
@@ -1795,7 +1802,7 @@ bool rootfilereader::remove_not_acptble_layerseq_first3()
           osss << track->layer[j];
         std::string spslay = osss.str();
  
-        if (!(spslay == "1819"))
+        if (!(spslay == ))
         {
           ++hm;
           track = tracks_vct_.erase(track);
@@ -1821,11 +1828,19 @@ bool rootfilereader::remove_not_acptble_layerseq()
     std::vector<track_str>::iterator track = tracks_vct_.begin();
     while (track != tracks_vct_.end())
     {
-      if (!((track->layersids == "678910") ||
-            (track->layersids == "678918") ||
-            (track->layersids == "6781819") ||
+      if (!((track->layersids == "1112131415") ||
+            (track->layersids == "1819202122") ||
+            (track->layersids == "611121314") ||
+            (track->layersids == "618192021") ||
+            (track->layersids == "67111213") ||
             (track->layersids == "67181920") ||
-            (track->layersids == "618192021")))
+            (track->layersids == "6781112") ||
+            (track->layersids == "6781213") ||
+            (track->layersids == "6781819") ||
+            (track->layersids == "6781920") ||
+            (track->layersids == "678910") ||
+            (track->layersids == "678911") ||
+            (track->layersids == "678918")))
       {
         ++hm;
         track = tracks_vct_.erase(track);
@@ -1839,10 +1854,15 @@ bool rootfilereader::remove_not_acptble_layerseq()
     std::vector<track_str>::iterator track = tracks_vct_.begin();
     while (track != tracks_vct_.end())
     {
-      if (!((track->layersids == "578910") ||
-            (track->layersids == "578918") ||
+      if (!((track->layersids == "511121314") ||
+            (track->layersids == "512131415") ||
+            (track->layersids == "518192021") ||
+            (track->layersids == "57111213") ||
+            (track->layersids == "57181920") ||
+            (track->layersids == "5781112") ||
             (track->layersids == "5781819") ||
-            (track->layersids == "57181920")))
+            (track->layersids == "578910") ||
+            (track->layersids == "578918")))
       {
         ++hm;
         track = tracks_vct_.erase(track);
@@ -1857,9 +1877,13 @@ bool rootfilereader::remove_not_acptble_layerseq()
     std::vector<track_str>::iterator track = tracks_vct_.begin();
     while (track != tracks_vct_.end())
     {
-      if (!((track->layersids == "568910") ||
-            (track->layersids == "568918") ||
-            (track->layersids == "5681819")))
+      if (!((track->layersids == "56111213") ||
+            (track->layersids == "56181920") ||
+            (track->layersids == "5681112") ||
+            (track->layersids == "5681819") ||
+            (track->layersids == "568910") ||
+            (track->layersids == "568911") ||
+            (track->layersids == "568918")))
       {
         ++hm;
         track = tracks_vct_.erase(track);
@@ -1873,8 +1897,9 @@ bool rootfilereader::remove_not_acptble_layerseq()
     std::vector<track_str>::iterator track = tracks_vct_.begin();
     while (track != tracks_vct_.end())
     {
-      if (!((track->layersids == "567910") ||
-            (track->layersids == "567918")))
+      if (!((track->layersids == "5671112") ||
+            (track->layersids == "5671819") ||
+            (track->layersids == "567910")))
       {
         ++hm;
         track = tracks_vct_.erase(track);
@@ -1888,7 +1913,9 @@ bool rootfilereader::remove_not_acptble_layerseq()
     std::vector<track_str>::iterator track = tracks_vct_.begin();
     while (track != tracks_vct_.end())
     {
-      if (!(track->layersids == "567810"))
+      if (!((track->layersids == "567810") ||
+            (track->layersids == "567811") ||
+            (track->layersids == "567818")))
       {
         ++hm;
         track = tracks_vct_.erase(track);
@@ -1911,15 +1938,22 @@ bool rootfilereader::remove_not_acptble_layerseq()
         ++track;
     }
   }
-  else if (layeridtorm_ == 18)
+  else if ((layeridtorm_ == 18) || (layeridtorm_ == 11))
   {
     std::vector<track_str>::iterator track = tracks_vct_.begin();
     while (track != tracks_vct_.end())
     {
-      if (!((track->layersids == "567819") ||
-            (track->layersids == "5671920") ||
+      if (!((track->layersids == "5671920") ||
+            (track->layersids == "5671213") ||
+            (track->layersids == "519202122") ||
+            (track->layersids == "56121314") ||
             (track->layersids == "56192021") ||
-            (track->layersids == "519202122")))
+            (track->layersids == "5681213") ||
+            (track->layersids == "5681920") ||
+            (track->layersids == "5781213") ||
+            (track->layersids == "5781920") ||
+            (track->layersids == "567812") ||
+            (track->layersids == "567819")))
       {
         ++hm;
         track = tracks_vct_.erase(track);
@@ -1928,14 +1962,14 @@ bool rootfilereader::remove_not_acptble_layerseq()
         ++track;
     }
   }
-  else if (layeridtorm_ == 19)
+  else if ((layeridtorm_ == 19) || (layeridtorm_ == 12))
   {
     std::vector<track_str>::iterator track = tracks_vct_.begin();
     while (track != tracks_vct_.end())
     {
-      if (!((track->layersids == "5671820") ||
-            (track->layersids == "56182021") ||
-            (track->layersids == "518202122")))
+      if (!((track->layersids == ) ||
+            (track->layersids == ) ||
+            (track->layersids == )))
       {
         ++hm;
         track = tracks_vct_.erase(track);
@@ -1949,8 +1983,8 @@ bool rootfilereader::remove_not_acptble_layerseq()
     std::vector<track_str>::iterator track = tracks_vct_.begin();
     while (track != tracks_vct_.end())
     {
-      if (!((track->layersids == "56181921") ||
-            (track->layersids == "518192122")))
+      if (!((track->layersids == ) ||
+            (track->layersids == )))
       {
         ++hm;
         track = tracks_vct_.erase(track);
@@ -1961,6 +1995,32 @@ bool rootfilereader::remove_not_acptble_layerseq()
   }
 
   std::cout << hm << " tracks will be removed " << std::endl;
+
+
+"567820",
+"567911",
+"5671113",
+"6781113"
+"511131415",
+"5781113",
+"578911",
+"56111314",
+"5681113",
+"5671820",
+"567918",
+"6781820"
+"518202122",
+"5781820",
+"56182021",
+"5681820",
+
+"567813",
+"518192022",
+"518192122",
+"56181921",
+"511121315",
+"511121415",
+"56111214",
 
   return true;
 }
