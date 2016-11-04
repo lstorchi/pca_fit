@@ -198,6 +198,8 @@ namespace pca
           regiontype_;
       unsigned int maxnumoftracks_;
       std::string specificseq_, specificseqfk5_;
+      std::set<int> layers_to_include_;
+      bool setspecificseqfk5_;
 
       bool multiple_charge_pe_;
 
@@ -228,6 +230,7 @@ namespace pca
           std::ofstream & sstrack);
 
       bool remove_layer ();
+      bool remove_layers ();
       bool remove_last_layer ();
       bool remove_nonvalid_fk5seq (int);
       //bool remove_not_acptble_layerseq ();

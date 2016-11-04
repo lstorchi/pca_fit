@@ -455,6 +455,9 @@ void usage (char * name)
   std::cerr << "                                    \"real 5 out of 6\" tracks " << std::endl;
   std::cerr << " -w, --fk-five-hits=[layerid]     : build constants for 5 / 6, specify the layr to be removed " 
     << std::endl;
+  std::cerr << " -W, --specific-fk-53-hits=[\"sequence\"]  " << std::endl;
+  std::cerr << "                                 : for hybrid and endcap we need to specify the valid sequence " 
+    << std::endl;
   std::cerr << "                                   it will use 6 layers tracks, removing a layer " << std::endl;
   std::cerr << std::endl;
   std::cerr << " -g, --charge-sign=[+/-]          : use only + particle or - paricle (again both planes)" << std::endl;
@@ -504,7 +507,7 @@ int main (int argc, char ** argv)
 
   int layeridtorm = -1, towerid = -99, numoflayers = 6;
 
-  std::string sequence = "", layersid, pslayersid;
+  std::string sequence = "", layersid, pslayersid, specificseqfk5 = "";
 
   std::vector<std::string> cfnames, tokens;
   std::vector<std::string> pslayers, alllayers;
@@ -556,10 +559,11 @@ int main (int argc, char ** argv)
       {"region-type", 1, NULL, 'R'},
       {"dump-bankfiles", 0, NULL, 'd'},
       {"set-multiple-pdg", 0, NULL, 'K'},
+      {"specific-fk-53-hits", 1, NULL, 'W'},
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "hc:Vvzrxkab:f:w:pD:X:Ng:n:t:m:o:u:CY:R:dK", 
+    c = getopt_long (argc, argv, "hc:Vvzrxkab:f:w:pD:X:Ng:n:t:m:o:u:CY:R:dKW:", 
         long_options, &option_index);
 
     if (c == -1)
@@ -712,6 +716,9 @@ int main (int argc, char ** argv)
       case 'K':
         multiple_pdg = true;
         break;
+      case 'W':
+        specificseqfk5 = optarg;
+        break;
       default:
         usage (argv[0]);
         break;
@@ -835,6 +842,31 @@ int main (int argc, char ** argv)
       fitter.set_coordim (2*2);
     else
       fitter.set_coordim (2*5);
+
+    if (specificseqfk5 != "")
+    {
+      std::cerr << "you cannot use usefakefiveoutofsix and specificseqfk5 together" << std::endl;
+      return EXIT_FAILURE;
+    }
+  }
+  else if (specificseqfk5 != "")
+  {
+    if (use3layers)
+    {
+      std::cerr << "Not yet implemented" << std::endl;
+      return EXIT_FAILURE; 
+    }
+
+    if (excludesmodule)
+      fitter.set_coordim (2*2);
+    else
+      fitter.set_coordim (2*5);
+
+    if (usefakefiveoutofsix)
+    {
+      std::cerr << "you cannot use usefakefiveoutofsix and specificseqfk5 together" << std::endl;
+      return EXIT_FAILURE;
+    }
   }
   else
   {
@@ -979,6 +1011,12 @@ int main (int argc, char ** argv)
 
   rootrdr.set_specificseq (sequence.c_str());
   rootrdr.set_maxnumoflayers(numoflayers);
+
+  if (specificseqfk5 != "")
+  {
+    rootrdr.set_specificseq_fk5 (specificseqfk5.c_str());
+    //rootrdr.set_maxnumoflayers(8);
+  }
  
   rootrdr.set_rzplane(rzplane);
   rootrdr.set_rphiplane(rphiplane);

@@ -148,6 +148,7 @@ void rootfilereader::reset()
   maxnumoftracks_ = (unsigned int)  INFINITY;
   specificseq_ = "";
   specificseqfk5_ = "";
+  setspecificseqfk5_ = false;
   performlinearinterpolation_ = false;
   layeridtorm_ = -1;
 
@@ -402,7 +403,28 @@ const std::string & rootfilereader::get_specificseq () const
 
 void rootfilereader::set_specificseq_fk5 (const char * in)
 {
-  specificseqfk5_ = in;
+  setspecificseqfk5_ = true;
+
+  std::vector<std::string> tokens;
+
+  pca::tokenize (in, tokens, ";");
+
+  // TODO need to check errors and so....
+  std::cout << "num of layers: " << tokens.size() << std::endl;
+
+  layers_to_include_.clear();
+
+  std::ostringstream seq;
+  std::vector<std::string>::iterator it = tokens.begin();
+  for (; it != tokens.end(); ++it)
+  {
+    layers_to_include_.insert(atoi(it->c_str()));
+    seq << *it;
+  }
+
+  std::cout << "sequence: \"" << seq.str() << "\""<< std::endl;
+
+  specificseqfk5_ = seq.str();
 }
 
 const std::string & rootfilereader::get_specificseq_fk5 () const
@@ -1133,142 +1155,162 @@ bool rootfilereader::from_root_file (int & idx,
     }
     else if (regiontype_ == ISHYBRID)
     {
-      if (moduleid.size() >= (unsigned int) maxnumoflayers_)
+      // TODO quick to run but need to deal with this option in a proper way
+      if (setspecificseqfk5_)
       {
-        layersids_set.insert(single_track.layersids);
-        if (check_if_withinranges (pdg[j], 
-              eta[j], phi[j], d0val, z0[j], 
-              pt[j], osss.str()))
+        // TODO fix it as soon as possible 
+        // in this case I need to include also valid 7 and 8 layers sequences 
+        // otherwise I will exclude a priori some 5 oof 6 sequences
+        if (moduleid.size() >= 5)
         {
-          if (moduleid.size() == (unsigned int) maxnumoflayers_)
+          if (check_if_withinranges (pdg[j],
+                eta[j], phi[j], d0val, z0[j],
+                pt[j], osss.str()))
           {
-            // do not copy duplicated 
+            layersids_set.insert(single_track.layersids);
             tracks_vct_.push_back(single_track);
-          }
-          else if (moduleid.size() == (unsigned int) (maxnumoflayers_ + 1))
-          {
-            // need to remove last layer
-            single_track.x.pop_back();
-            single_track.y.pop_back();
-            single_track.z.pop_back();
-          
-            single_track.i_x.pop_back();
-            single_track.i_y.pop_back();
-            single_track.i_z.pop_back();
-          
-            single_track.layer.pop_back();
-            single_track.ladder.pop_back();
-            single_track.module.pop_back();
-            single_track.segid.pop_back();
-  
-            single_track.dim = 6;
-  
-            std::ostringstream ossl;
-            for (int i=0; i<(int)single_track.layer.size(); ++i)
-              ossl << single_track.layer[i];
-  
-            single_track.layersids = ossl.str();
-          
-            tracks_vct_.push_back(single_track);
-          }
-          else if (moduleid.size() == (unsigned int) (maxnumoflayers_ + 2))
-          {
-            // need to remove last 2 layers
-            single_track.x.pop_back();
-            single_track.y.pop_back();
-            single_track.z.pop_back();
-          
-            single_track.i_x.pop_back();
-            single_track.i_y.pop_back();
-            single_track.i_z.pop_back();
-          
-            single_track.layer.pop_back();
-            single_track.ladder.pop_back();
-            single_track.module.pop_back();
-            single_track.segid.pop_back();
-  
-            single_track.x.pop_back();
-            single_track.y.pop_back();
-            single_track.z.pop_back();
-          
-            single_track.i_x.pop_back();
-            single_track.i_y.pop_back();
-            single_track.i_z.pop_back();
-          
-            single_track.layer.pop_back();
-            single_track.ladder.pop_back();
-            single_track.module.pop_back();
-            single_track.segid.pop_back();
-          
-            single_track.dim = 6;
-  
-            std::ostringstream ossl;
-            for (int a=0; a<(int)single_track.layer.size(); ++a)
-              ossl << single_track.layer[a];
-  
-            single_track.layersids = ossl.str();
-  
-            /*
-            std::set<int>::iterator iit = layeridset.begin();
-            for (; iit != layeridset.end(); ++iit)
-            {
-              std::cerr << *iit << " : ";
-            }
-            std::cerr << single_track.eta << std::endl;
-            std::cerr << " " << single_track.pt << std::endl;
-            std::cerr << std::endl;
-            */
-  
-            tracks_vct_.push_back(single_track);
-          }
-          else 
-          {
-            std::set<int>::iterator iit = layeridset.begin();
-            for (; iit != layeridset.end(); ++iit)
-            {
-              std::cerr << *iit << " : ";
-            }
-            std::cerr << std::endl;
-  
-            set_errmsg (1, "HYBRID maybe > 8 layers ");
-            return false;
-          }
-          
-          if (savecheckfiles_)
-          {
-            sstrack << tracks_vct_.size() << " events " << std::endl;
-            sstrack << idx+1 << " " << moduleid.size() << std::endl;
-          
-            for (int a=0; a<(int)moduleid.size(); ++a)
-            {
-              sstrack << single_track.x[a] << " " 
-                      << single_track.y[a] << " " 
-                      << single_track.z[a] << " "
-                      << single_track.layer[a] << " " 
-                      << single_track.ladder[a] << " " 
-                      << single_track.module[a] << " "
-                      << single_track.segid[a] << " "
-                      << single_track.pdg << " " 
-                      << single_track.i_x[a] << " " 
-                      << single_track.i_y[a] << " " 
-                      << single_track.i_z[a] << " "
-                      << std::endl; 
-            }
-          
-            sstrack << single_track.pt << " "  
-                    << single_track.phi << " " 
-                    << single_track.d0 << " " 
-                    << single_track.eta << " " 
-                    << single_track.z0 << " " 
-                    << single_track.x0 << " " 
-                    << single_track.y0 << std::endl;
           }
         }
       }
       else
       {
-        // there could be a 5 layers track ?
-  
+        if (moduleid.size() >= (unsigned int) maxnumoflayers_)
+        {
+          layersids_set.insert(single_track.layersids);
+          if (check_if_withinranges (pdg[j], 
+                eta[j], phi[j], d0val, z0[j], 
+                pt[j], osss.str()))
+          {
+            if (moduleid.size() == (unsigned int) maxnumoflayers_)
+            {
+              // do not copy duplicated 
+              tracks_vct_.push_back(single_track);
+            }
+            else if (moduleid.size() == (unsigned int) (maxnumoflayers_ + 1))
+            {
+              // need to remove last layer
+              single_track.x.pop_back();
+              single_track.y.pop_back();
+              single_track.z.pop_back();
+            
+              single_track.i_x.pop_back();
+              single_track.i_y.pop_back();
+              single_track.i_z.pop_back();
+            
+              single_track.layer.pop_back();
+              single_track.ladder.pop_back();
+              single_track.module.pop_back();
+              single_track.segid.pop_back();
+        
+              single_track.dim = 6;
+        
+              std::ostringstream ossl;
+              for (int i=0; i<(int)single_track.layer.size(); ++i)
+                ossl << single_track.layer[i];
+        
+              single_track.layersids = ossl.str();
+            
+              tracks_vct_.push_back(single_track);
+            }
+            else if (moduleid.size() == (unsigned int) (maxnumoflayers_ + 2))
+            {
+              // need to remove last 2 layers
+              single_track.x.pop_back();
+              single_track.y.pop_back();
+              single_track.z.pop_back();
+            
+              single_track.i_x.pop_back();
+              single_track.i_y.pop_back();
+              single_track.i_z.pop_back();
+            
+              single_track.layer.pop_back();
+              single_track.ladder.pop_back();
+              single_track.module.pop_back();
+              single_track.segid.pop_back();
+        
+              single_track.x.pop_back();
+              single_track.y.pop_back();
+              single_track.z.pop_back();
+            
+              single_track.i_x.pop_back();
+              single_track.i_y.pop_back();
+              single_track.i_z.pop_back();
+            
+              single_track.layer.pop_back();
+              single_track.ladder.pop_back();
+              single_track.module.pop_back();
+              single_track.segid.pop_back();
+            
+              single_track.dim = 6;
+        
+              std::ostringstream ossl;
+              for (int a=0; a<(int)single_track.layer.size(); ++a)
+                ossl << single_track.layer[a];
+        
+              single_track.layersids = ossl.str();
+        
+              /*
+              std::set<int>::iterator iit = layeridset.begin();
+              for (; iit != layeridset.end(); ++iit)
+              {
+                std::cerr << *iit << " : ";
+              }
+              std::cerr << single_track.eta << std::endl;
+              std::cerr << " " << single_track.pt << std::endl;
+              std::cerr << std::endl;
+              */
+        
+              tracks_vct_.push_back(single_track);
+            }
+            else 
+            {
+              std::set<int>::iterator iit = layeridset.begin();
+              for (; iit != layeridset.end(); ++iit)
+              {
+                std::cerr << *iit << " : ";
+              }
+              std::cerr << std::endl;
+        
+              set_errmsg (1, "HYBRID maybe > 8 layers ");
+              return false;
+            }
+            
+            if (savecheckfiles_)
+            {
+              sstrack << tracks_vct_.size() << " events " << std::endl;
+              sstrack << idx+1 << " " << moduleid.size() << std::endl;
+            
+              for (int a=0; a<(int)moduleid.size(); ++a)
+              {
+                sstrack << single_track.x[a] << " " 
+                        << single_track.y[a] << " " 
+                        << single_track.z[a] << " "
+                        << single_track.layer[a] << " " 
+                        << single_track.ladder[a] << " " 
+                        << single_track.module[a] << " "
+                        << single_track.segid[a] << " "
+                        << single_track.pdg << " " 
+                        << single_track.i_x[a] << " " 
+                        << single_track.i_y[a] << " " 
+                        << single_track.i_z[a] << " "
+                        << std::endl; 
+              }
+            
+              sstrack << single_track.pt << " "  
+                      << single_track.phi << " " 
+                      << single_track.d0 << " " 
+                      << single_track.eta << " " 
+                      << single_track.z0 << " " 
+                      << single_track.x0 << " " 
+                      << single_track.y0 << std::endl;
+            }
+          }
+        }
+        else
+        {
+          // there could be a 5 layers track ?
+        
+        }
       }
     }
     else if (regiontype_ == ISENDCAP)
@@ -1406,6 +1448,23 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
   if (tracks_vct_.size() == 0)
     return false;
 
+  if (setspecificseqfk5_)
+  {
+    maxnumoflayers_ = 5;
+
+    if (!remove_layers ())
+     return false;
+
+    int n = 0;
+    if (rphiplane_)
+      n = 5;
+    else if (rzplane_)
+      n = 2;
+
+    if (!remove_nonvalid_fk5seq (n))
+      return false;
+  }
+
   if (fkfiveoutofsix_)
   {
     maxnumoflayers_ = 5;
@@ -1417,15 +1476,6 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
     {
       // remove last layers if needed 
       if (!remove_last_layer ())
-        return false;
-
-      int n = 0;
-      if (rphiplane_)
-        n = 5;
-      else if (rzplane_)
-        n = 3;
-
-      if (!remove_nonvalid_fk5seq (n))
         return false;
 
       // given the layers that we need to remove filter 
@@ -1657,6 +1707,9 @@ bool rootfilereader::extract_data (const pca::pcafitter & fitter,
   if (fkfiveoutofsix_)
     maxnumoflayers_ = 6;
 
+  if (setspecificseqfk5_)
+    maxnumoflayers_ = 6;
+
   return true;
 }
 
@@ -1667,12 +1720,15 @@ bool rootfilereader::remove_nonvalid_fk5seq (int n)
   while (track != tracks_vct_.end())
   {
     std::ostringstream osss;
-    for (int j = 0; j < n; ++j)
+    for (int j = 0; j < std::min(n,track->dim); ++j)
+    {
       osss << track->layer[j];
+    }
     std::string spslay = osss.str();
 
     if (spslay != specificseqfk5_) 
     {
+      //std::cout << spslay << " " << track->layersids << " " << specificseqfk5_ << std::endl;
       ++hm;
       track = tracks_vct_.erase(track);
     }
@@ -2195,6 +2251,64 @@ bool rootfilereader::remove_last_layer()
   return true;
 }
 
+bool rootfilereader::remove_layers ()
+{
+  std::vector<track_str> newvcttrack;
+
+  std::vector<track_str>::iterator track = tracks_vct_.begin();
+  for (; track != tracks_vct_.end(); ++track)
+  {
+    std::ostringstream osss;
+    for (int j = 0; j < track->dim; ++j)
+      if (layers_to_include_.find(track->layer[j]) != 
+          layers_to_include_.end())
+        osss << track->layer[j];
+
+    track_str newt;
+    newt.dim = 0;
+    newt.layersids = osss.str();
+
+    for (int j = 0; j < track->dim; ++j)
+    {
+      if (layers_to_include_.find(track->layer[j]) != 
+          layers_to_include_.end())
+      {
+        newt.x.push_back(track->x[j]);
+        newt.y.push_back(track->y[j]);
+        newt.z.push_back(track->z[j]);
+
+        newt.i_x.push_back(track->i_x[j]);
+        newt.i_y.push_back(track->i_y[j]);
+        newt.i_z.push_back(track->i_z[j]);
+
+        newt.layer.push_back(track->layer[j]);
+        newt.ladder.push_back(track->ladder[j]);
+        newt.module.push_back(track->module[j]);
+        newt.segid.push_back(track->segid[j]);
+
+        newt.dim++;
+      }
+    }
+
+    newt.x0 = track->x0;
+    newt.y0 = track->y0;
+    newt.z0 = track->z0;
+    newt.d0 = track->d0;
+    newt.pt = track->pt;
+    newt.phi = track->phi;
+    newt.eta = track->eta;
+    newt.pdg = track->pdg;
+
+    newvcttrack.push_back(newt);
+  }
+
+  tracks_vct_.clear();
+  tracks_vct_ = newvcttrack;
+
+  return true;
+
+}
+ 
 bool rootfilereader::remove_layer()
 {
   std::vector<track_str>::iterator track = tracks_vct_.begin();

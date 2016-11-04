@@ -51,7 +51,7 @@ void usage (char * name)
   std::cerr << "                                     it will use \"real 5 out of 6\" tracks " << std::endl;
   std::cerr << " -y, --fk-five-hits=[layerid]    : build constants for 5 / 6, specify the layer to be removed " 
     << std::endl;
-  std::cerr << " -w, --specific-fk-53-hits=[\"sequence\"]  " << std::endl;
+  std::cerr << " -W, --specific-fk-53-hits=[\"sequence\"]  " << std::endl;
   std::cerr << "                                 : for hybrid and endcap we need to specify the valid sequence " 
     << std::endl;
   std::cerr << "                                   to be used" << std::endl;
@@ -331,11 +331,11 @@ int main (int argc, char ** argv)
       {"region-type", 1, NULL, 'R'},
       {"get-info", 0, NULL, 'G'},
       {"set-multiple-pdg", 0, NULL, 'K'},
-      {"specific-fk-53-hits", 1, NULL, 'w'},
+      {"specific-fk-53-hits", 1, NULL, 'W'},
       {0, 0, 0, 0}
     };
 
-    c = getopt_long (argc, argv, "hvVlpg:zrxn:t:m:o:u:kaf:b:dy:X:B:D:cR:GK", 
+    c = getopt_long (argc, argv, "hvVlpg:zrxn:t:m:o:u:kaf:b:dy:X:B:D:cR:GKW:", 
         long_options, &option_index);
 
     if (c == -1)
@@ -486,7 +486,7 @@ int main (int argc, char ** argv)
       case 'K':
         multiple_pdg = true;
         break;
-      case 'w':
+      case 'W':
         specificseqfk5 = optarg;
         break;
       default:
@@ -555,13 +555,29 @@ int main (int argc, char ** argv)
     else
       fitter.set_coordim (2*5);
 
-    if (specificseqfk5 == "")
+    if (specificseqfk5 != "")
     {
-      if (regiontype != ISBARREL) 
-      {
-        std::cerr << "you need to specify the layers sequence to be used" << std::endl;
-        return EXIT_FAILURE;
-      }
+      std::cerr << "you cannot use usefakefiveoutofsix and specificseqfk5 together" << std::endl;
+      return EXIT_FAILURE;
+    }
+  }
+  else if (specificseqfk5 != "")
+  {
+    if (use3layers)
+    {
+      std::cerr << "Not yet implemented" << std::endl;
+      return EXIT_FAILURE; 
+    }
+
+    if (excludesmodule)
+      fitter.set_coordim (2*2);
+    else
+      fitter.set_coordim (2*5);
+
+    if (usefakefiveoutofsix)
+    {
+      std::cerr << "you cannot use usefakefiveoutofsix and specificseqfk5 together" << std::endl;
+      return EXIT_FAILURE;
     }
   }
   else
@@ -649,6 +665,12 @@ int main (int argc, char ** argv)
 
   rootrdr.set_specificseq (sequence.c_str());
   rootrdr.set_maxnumoflayers(numoflayers);
+
+  if (specificseqfk5 != "")
+  {
+    rootrdr.set_specificseq_fk5 (specificseqfk5.c_str());
+    //rootrdr.set_maxnumoflayers(8);
+  }
 
   rootrdr.set_rzplane(rzplane);
   rootrdr.set_rphiplane(rphiplane);
