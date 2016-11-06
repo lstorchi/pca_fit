@@ -29,6 +29,7 @@ echo "Using " $ROTTFILENAME " for Tower " $TOWERID " out " $OUTFILENAME " etamin
 declare -a arr=("2.0;3.0" "3.0;7.0" "7.0;12.0" "12.0;18.0" "18.0;25.0" "25.0;50.0" "50.0;100.0" "100.0;200.0")
 
 export EXTRAOPT="-X 1000000"
+export EXTRAOPT=""
 
 for i in "${arr[@]}"
 do
