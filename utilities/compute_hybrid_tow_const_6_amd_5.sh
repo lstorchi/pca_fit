@@ -33,16 +33,10 @@ export EXTRAOPT="-X 1000000"
 for i in "${arr[@]}"
 do
   echo $i " Gev mu+" >> $OUTFILENAME
-  export FFILE="results_rphi_"$i"_p.txt" 
-  FILENAME=${FFILE//;/_}
-  echo $FILENAME
   ./generatepca_split $EXTRAOPT -R 1 -k --rphi-plane --charge-sign=+ --pt-range="$i" -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
   echo ""
 
   echo $i " Gev mu-" >> $OUTFILENAME
-  export FFILE="results_rphi_"$i"_n.txt"
-  FILENAME=${FFILE//;/_}
-  echo $FILENAME
   ./generatepca_split $EXTRAOPT -R 1 -k --rphi-plane --charge-sign=- --pt-range="$i" -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
   echo ""
 done
