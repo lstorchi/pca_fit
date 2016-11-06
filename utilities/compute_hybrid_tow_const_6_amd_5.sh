@@ -28,20 +28,22 @@ echo "Using " $ROTTFILENAME " for Tower " $TOWERID " out " $OUTFILENAME " etamin
 
 declare -a arr=("2.0;3.0" "3.0;7.0" "7.0;12.0" "12.0;18.0" "18.0;25.0" "25.0;50.0" "50.0;100.0" "100.0;200.0")
 
+export EXTRAOPT="-X 1000000"
+
 for i in "${arr[@]}"
 do
   echo $i " Gev mu+" >> $OUTFILENAME
   export FFILE="results_rphi_"$i"_p.txt" 
   FILENAME=${FFILE//;/_}
   echo $FILENAME
-  ./generatepca_split -R 1 -k --rphi-plane --charge-sign=+ --pt-range="$i" -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
+  ./generatepca_split $EXTRAOPT -R 1 -k --rphi-plane --charge-sign=+ --pt-range="$i" -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
   echo ""
 
   echo $i " Gev mu-" >> $OUTFILENAME
   export FFILE="results_rphi_"$i"_n.txt"
   FILENAME=${FFILE//;/_}
   echo $FILENAME
-  ./generatepca_split -R 1 -k --rphi-plane --charge-sign=- --pt-range="$i" -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
+  ./generatepca_split $EXTRAOPT -R 1 -k --rphi-plane --charge-sign=- --pt-range="$i" -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
   echo ""
 done
 
@@ -52,7 +54,7 @@ do
   k=$(echo "$k + 0.05" | bc | awk '{printf "%f", $0}')
   echo "Eta range: " $start " "  $k >> $OUTFILENAME
   export rage=$start";"$k
-  ./generatepca_split -R 1 -x --rz-plane --eta-range="$rage" -k -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
+  ./generatepca_split $EXTRAOPT -R 1 -x --rz-plane --eta-range="$rage" -k -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
   echo ""
 done
 
@@ -64,12 +66,12 @@ do
     if [ $n == 5 ]; then
       echo $i " Gev mu+" >> $OUTFILENAME
       echo $seq  >> $OUTFILENAME
-      ./generatepca_split -R 1 --specific-fk-53-hits="$seq" -k --rphi-plane --charge-sign=+ --pt-range="$i" -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
+      ./generatepca_split $EXTRAOPT -R 1 --specific-fk-53-hits="$seq" -k --rphi-plane --charge-sign=+ --pt-range="$i" -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
       echo ""
 
       echo $i " Gev mu-" >> $OUTFILENAME
       echo $seq  >> $OUTFILENAME
-      ./generatepca_split -R 1 --specific-fk-53-hits="$seq" -k --rphi-plane --charge-sign=- --pt-range="$i" -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
+      ./generatepca_split $EXTRAOPT -R 1 --specific-fk-53-hits="$seq" -k --rphi-plane --charge-sign=- --pt-range="$i" -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
       echo ""
     fi
   done
@@ -87,7 +89,7 @@ do
     n=$(grep -o ";" <<< "$seq" | wc -l)
     if [ $n == 2 ]; then
       echo "Eta range: " $start " "  $k >> $OUTFILENAME
-      ./generatepca_split -R 1 --specific-fk-53-hits="$seq"-x --rz-plane --eta-range="$rage" -k -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
+      ./generatepca_split $EXTRAOPT -R 1 --specific-fk-53-hits="$seq"-x --rz-plane --eta-range="$rage" -k -D $TOWERID $ROTTFILENAME >> $OUTFILENAME
       echo ""
     fi
   done
