@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <typeinfo>
 
 #include <algorithm>
 
@@ -619,9 +620,20 @@ namespace pca
           outf << vct[i].n_cols() << std::endl;
 
           outf.precision(10);
-          for (unsigned int j = 0; j<vct[i].n_rows(); ++j)
-            for (unsigned int k = 0; k<vct[i].n_cols(); ++k)
-              outf << std::scientific << vct[i](j, k) << std::endl;
+          if ((typeid(T) == typeid(double)) || 
+              (typeid(T) == typeid(float)))
+          {
+            for (unsigned int j = 0; j<vct[i].n_rows(); ++j)
+              for (unsigned int k = 0; k<vct[i].n_cols(); ++k)
+                outf << std::scientific << vct[i](j, k) << std::endl;
+          }
+          else
+          {
+            for (unsigned int j = 0; j<vct[i].n_rows(); ++j)
+              for (unsigned int k = 0; k<vct[i].n_cols(); ++k)
+                outf << vct[i](j, k) << std::endl;
+          }
+ 
         }
 
         outf.close();
@@ -660,9 +672,20 @@ namespace pca
       outf << in.n_cols() << std::endl;
 
       outf.precision(10);
-      for (unsigned int i = 0; i<in.n_rows(); ++i)
-        for (unsigned int j = 0; j<in.n_cols(); ++j)
-          outf << std::scientific << in(i, j) << std::endl;
+      if ((typeid(T) == typeid(double)) || 
+          (typeid(T) == typeid(float)))
+      {
+        for (unsigned int i = 0; i<in.n_rows(); ++i)
+          for (unsigned int j = 0; j<in.n_cols(); ++j)
+            outf << std::scientific << in(i, j) << std::endl;
+      }
+      else 
+      {
+        for (unsigned int i = 0; i<in.n_rows(); ++i)
+          for (unsigned int j = 0; j<in.n_cols(); ++j)
+            outf << in(i, j) << std::endl;
+      }
+
       outf.close();
     }
 
