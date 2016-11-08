@@ -14,6 +14,52 @@
 using namespace pca;
 using namespace std;
 
+template<typename T>
+bool quick_write_pcaconst_to_file (const std::vector<matrixpcaconst<T> > & vct, 
+    const char * filename)
+{
+  std::ofstream outf;
+  outf.open(filename);
+  
+  outf << vct.size() << std::endl;
+  for (unsigned int i = 0; i != vct.size(); ++i)
+  {
+    double min, max;
+    outf << matrixpcaconst<T>::const_type_to_string(vct[i].get_const_type()) 
+      << std::endl;
+    outf << vct[i].get_towerid() << std::endl;
+    if (vct[i].get_layersids() == "")
+      outf << "unspecified" << std::endl;
+    else
+      outf << vct[i].get_layersids() << std::endl;
+    outf << matrixpcaconst<T>::sector_type_to_string(vct[i].get_sector_type()) 
+      << std::endl;
+    outf << matrixpcaconst<T>::plane_type_to_string(vct[i].get_plane_type()) 
+      << std::endl;
+    outf << matrixpcaconst<T>::ttype_to_string(vct[i].get_ttype()) 
+      << std::endl;
+    vct[i].get_ptrange(min, max);
+    outf.precision(10);
+    outf << std::scientific << min << " " << max << std::endl;
+    vct[i].get_etarange(min, max);
+    outf << std::scientific << min << " " << max << std::endl;
+    outf << vct[i].get_chargesign () << std::endl;
+    outf << vct[i].n_rows() << std::endl;
+    outf << vct[i].n_cols() << std::endl;
+  
+    outf.precision(10);
+    for (unsigned int j = 0; j<vct[i].n_rows(); ++j)
+      for (unsigned int k = 0; k<vct[i].n_cols(); ++k)
+        outf << vct[i](j, k) << std::endl;
+  }
+  
+  outf.close();
+
+  return true;
+}
+
+
+
 int main (int argc, char *argv[]) 
 {
   if (argc != 2)
@@ -47,6 +93,8 @@ int main (int argc, char *argv[])
 
   double rpdval = rpdval_get(); 
   double rzdval = rzdval_get();
+
+  std::vector<matrixpcaconst<long long int> > vct;
   
   for (matrixpcaconst<double> c : all_constants) 
   {
@@ -189,8 +237,12 @@ int main (int argc, char *argv[])
       return EXIT_FAILURE;
     }
 
-    write_pcaconst_to_file (ci, out_fname.c_str());
+    vct.push_back(ci);
   }
+
+  std::cout << "Done" << std::endl;
+
+  quick_write_pcaconst_to_file (vct, out_fname.c_str());
 
   return EXIT_SUCCESS;
 }

@@ -520,9 +520,9 @@ namespace pca
         infile >> rows;
         infile >> cols;
         matt.reset(rows, cols);
-        for (unsigned int i = 0; i<matt.n_rows(); ++i)
-          for (unsigned int j = 0; j<matt.n_cols(); ++j)
-            infile >> matt(i, j);
+        for (unsigned int j = 0; j<matt.n_rows(); ++j)
+          for (unsigned int k = 0; k<matt.n_cols(); ++k)
+            infile >> matt(j, k);
 
         typename std::vector<matrixpcaconst<T> >::iterator it;
         it =  std::find (vct.begin(), vct.end(), matt);
