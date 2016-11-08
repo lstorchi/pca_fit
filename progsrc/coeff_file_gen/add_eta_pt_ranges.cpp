@@ -54,7 +54,7 @@ int main (int argc, char *argv[])
 
     ci.set_const_type(c.get_const_type());
     ci.set_towerid(c.get_towerid());
-    ci.set_layersids(c.get_layersids().c_str());
+    ci.set_layersids(c.get_layersids());
     ci.set_sector_type(c.get_sector_type());
     ci.set_plane_type(c.get_plane_type());
     ci.set_chargesign(c.get_chargesign());
