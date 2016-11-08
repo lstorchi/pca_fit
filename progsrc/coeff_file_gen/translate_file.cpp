@@ -238,6 +238,7 @@ int main (int argc, char *argv[])
     }
 
     vct.push_back(ci);
+    //write_pcaconst_to_file (ci, out_fname.c_str());
   }
 
   std::cout << "Done" << std::endl;
