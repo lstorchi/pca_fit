@@ -665,8 +665,277 @@ namespace pca
   }
 
   template<typename T>
+  bool import_boundary_pca_const_rphi (
+      const std::vector<pca::matrixpcaconst<T> > & vct,
+      int chargesignin,
+      const std::string & layersid,
+      int towerid, 
+      ttype tipo,
+      double & lowpt, double & hihpt,
+      pca::matrixpcaconst<T> & low_cmtx_rphi, 
+      pca::matrixpcaconst<T> & low_qvec_rphi, 
+      pca::matrixpcaconst<T> & low_amtx_rphi, 
+      pca::matrixpcaconst<T> & low_kvec_rphi, 
+      pca::matrixpcaconst<T> & hih_cmtx_rphi, 
+      pca::matrixpcaconst<T> & hih_qvec_rphi, 
+      pca::matrixpcaconst<T> & hih_amtx_rphi, 
+      pca::matrixpcaconst<T> & hih_kvec_rphi)
+  {
+    typename std::vector<pca::matrixpcaconst<T> >::const_iterator it = 
+      vct.begin();
+    int hihpt_idx_qvec_rphi = 0, hihpt_idx_kvec_rphi = 0, 
+        hihpt_idx_cmtx_rphi = 0, hihpt_idx_amtx_rphi = 0, 
+        lowpt_idx_qvec_rphi = 0, lowpt_idx_kvec_rphi = 0, 
+        lowpt_idx_cmtx_rphi = 0, lowpt_idx_amtx_rphi = 0;
+    for (int idx = 0; it != vct.end(); ++it, ++idx)
+    {
+      double ptmin, ptmax;
+      std::string actuallayids;
+      int chargesign;
+
+      it->get_ptrange(ptmin, ptmax);
+      chargesign = it->get_chargesign();
+      actuallayids = it->get_layersids();
+
+      if (towerid == it->get_towerid())
+      {
+        if (it->get_plane_type() == pca::RPHI)
+        {
+          if (it->get_ttype() == tipo)
+          {
+            if (actuallayids == layersid)
+            {
+              if (chargesignin == chargesign)
+              {
+                if (idx == 0)
+                {
+                  lowpt = ptmin;
+                  hihpt = ptmax;
+
+                  switch(it->get_const_type())
+                  {
+                    case pca::QVEC :
+                      lowpt_idx_qvec_rphi = idx;
+                      hihpt_idx_qvec_rphi = idx;
+                      break;
+                    case pca::KVEC :
+                      lowpt_idx_kvec_rphi = idx;
+                      hihpt_idx_kvec_rphi = idx;
+                      break;
+                    case pca::CMTX :
+                      lowpt_idx_cmtx_rphi = idx;
+                      hihpt_idx_cmtx_rphi = idx;
+                      break;
+                    case pca::AMTX :
+                      lowpt_idx_amtx_rphi = idx;
+                      hihpt_idx_amtx_rphi = idx;
+                      break;
+                    default:
+                      break;
+                  }
+                }
+                else 
+                {
+                  if (lowpt > ptmin)
+                  {
+                    lowpt = ptmin;
+
+                    switch(it->get_const_type())
+                    {
+                      case pca::QVEC :
+                        lowpt_idx_qvec_rphi = idx;
+                        break;
+                      case pca::KVEC :
+                        lowpt_idx_kvec_rphi = idx;
+                        break;
+                      case pca::CMTX :
+                        lowpt_idx_cmtx_rphi = idx;
+                        break;
+                      case pca::AMTX :
+                        lowpt_idx_amtx_rphi = idx;
+                        break;
+                      default:
+                        break;
+                    }
+                  }
+
+                  if (hihpt < ptmax)
+                  {
+                    hihpt = ptmax;
+
+                    switch(it->get_const_type())
+                    {
+                      case pca::QVEC :
+                        hihpt_idx_qvec_rphi = idx;
+                        break;
+                      case pca::KVEC :
+                        hihpt_idx_kvec_rphi = idx;
+                        break;
+                      case pca::CMTX :
+                        hihpt_idx_cmtx_rphi = idx;
+                        break;
+                      case pca::AMTX :
+                        hihpt_idx_amtx_rphi = idx;
+                        break;
+                      default:
+                        break;
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    low_cmtx_rphi = vct[lowpt_idx_cmtx_rphi];
+    low_qvec_rphi = vct[lowpt_idx_qvec_rphi];
+    low_amtx_rphi = vct[lowpt_idx_amtx_rphi];
+    low_kvec_rphi = vct[lowpt_idx_kvec_rphi];
+    hih_cmtx_rphi = vct[hihpt_idx_cmtx_rphi];
+    hih_qvec_rphi = vct[hihpt_idx_qvec_rphi];
+    hih_amtx_rphi = vct[hihpt_idx_amtx_rphi];
+    hih_kvec_rphi = vct[hihpt_idx_kvec_rphi];
+ 
+    return true;
+  }
+
+  template<typename T>
+  bool import_boundary_pca_const_rz (
+      const std::vector<pca::matrixpcaconst<T> > & vct,
+      const std::string & pslayersid,
+      int towerid, 
+      ttype tipo,
+      double & loweta, double & hiheta,
+      pca::matrixpcaconst<T> & low_cmtx_rz, 
+      pca::matrixpcaconst<T> & low_qvec_rz, 
+      pca::matrixpcaconst<T> & low_amtx_rz, 
+      pca::matrixpcaconst<T> & low_kvec_rz, 
+      pca::matrixpcaconst<T> & hih_cmtx_rz, 
+      pca::matrixpcaconst<T> & hih_qvec_rz, 
+      pca::matrixpcaconst<T> & hih_amtx_rz, 
+      pca::matrixpcaconst<T> & hih_kvec_rz)
+  {
+    typename std::vector<pca::matrixpcaconst<T> >::const_iterator it = 
+      vct.begin();
+    int hiheta_idx_qvec_rz = 0, hiheta_idx_kvec_rz = 0, 
+        hiheta_idx_cmtx_rz = 0, hiheta_idx_amtx_rz = 0, 
+        loweta_idx_qvec_rz = 0, loweta_idx_kvec_rz = 0, 
+        loweta_idx_cmtx_rz = 0, loweta_idx_amtx_rz = 0;
+    for (int idx = 0; it != vct.end(); ++it, ++idx)
+    {
+      double etamin, etamax;
+      std::string actuallayids;
+
+      it->get_etarange(etamin, etamax);
+      actuallayids = it->get_layersids();
+
+      if (towerid == it->get_towerid())
+      {
+        if (it->get_plane_type() == pca::RZ)
+        {
+          if (it->get_ttype() == tipo)
+          {
+            if (actuallayids == pslayersid)
+            {
+              if (idx == 0)
+              {
+                loweta = etamin;
+                hiheta = etamax;
+
+                switch(it->get_const_type())
+                {
+                  case pca::QVEC :
+                    loweta_idx_qvec_rz = idx;
+                    hiheta_idx_qvec_rz = idx;
+                    break;
+                  case pca::KVEC :
+                    loweta_idx_kvec_rz = idx;
+                    hiheta_idx_kvec_rz = idx;
+                    break;
+                  case pca::CMTX :
+                    loweta_idx_cmtx_rz = idx;
+                    hiheta_idx_cmtx_rz = idx;
+                    break;
+                  case pca::AMTX :
+                    loweta_idx_amtx_rz = idx;
+                    hiheta_idx_amtx_rz = idx;
+                    break;
+                  default:
+                    break;
+                }
+              }
+              else 
+              {
+                if (loweta > etamin)
+                {
+                  loweta = etamin;
+
+                  switch(it->get_const_type())
+                  {
+                    case pca::QVEC :
+                      loweta_idx_qvec_rz = idx;
+                      break;
+                    case pca::KVEC :
+                      loweta_idx_kvec_rz = idx;
+                      break;
+                    case pca::CMTX :
+                      loweta_idx_cmtx_rz = idx;
+                      break;
+                    case pca::AMTX :
+                      loweta_idx_amtx_rz = idx;
+                      break;
+                    default:
+                      break;
+                  }
+                }
+
+                if (hiheta < etamax)
+                {
+                  hiheta = etamax;
+
+                  switch(it->get_const_type())
+                  {
+                    case pca::QVEC :
+                      hiheta_idx_qvec_rz = idx;
+                      break;
+                    case pca::KVEC :
+                      hiheta_idx_kvec_rz = idx;
+                      break;
+                    case pca::CMTX :
+                      hiheta_idx_cmtx_rz = idx;
+                      break;
+                    case pca::AMTX :
+                      hiheta_idx_amtx_rz = idx;
+                      break;
+                    default:
+                      break;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    low_cmtx_rz = vct[loweta_idx_cmtx_rz];
+    low_qvec_rz = vct[loweta_idx_qvec_rz];
+    low_amtx_rz = vct[loweta_idx_amtx_rz];
+    low_kvec_rz = vct[loweta_idx_kvec_rz];
+    hih_cmtx_rz = vct[hiheta_idx_cmtx_rz];
+    hih_qvec_rz = vct[hiheta_idx_qvec_rz];
+    hih_amtx_rz = vct[hiheta_idx_amtx_rz];
+    hih_kvec_rz = vct[hiheta_idx_kvec_rz];
+ 
+    return true;
+  }
+
+
+  template<typename T>
   bool import_pca_const (
-      std::vector<pca::matrixpcaconst<T> > & vct,
+      const std::vector<pca::matrixpcaconst<T> > & vct,
       pca::matrixpcaconst<T> & cmtx_rz, 
       pca::matrixpcaconst<T> & qvec_rz, 
       pca::matrixpcaconst<T> & amtx_rz, 
@@ -794,7 +1063,7 @@ namespace pca
 
   template<typename T>
   bool import_pca_const (
-      std::vector<pca::matrixpcaconst<T> > & vct,
+      const std::vector<pca::matrixpcaconst<T> > & vct,
       pca::matrixpcaconst<T> & cmtx, 
       pca::matrixpcaconst<T> & qvec, 
       pca::matrixpcaconst<T> & amtx, 

@@ -39,7 +39,8 @@ class PCATrackFitter:public TrackFitter
 
   Track *track_;
 
-  std::string cfname_;
+  std::string cfname_ ;
+  bool useboundaries_ ;
   bool useinteger_ ;
 
   std::vector<pca::matrixpcaconst<double> > pcacontvct_float_;
