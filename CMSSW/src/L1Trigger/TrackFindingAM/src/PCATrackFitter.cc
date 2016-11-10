@@ -108,6 +108,17 @@ namespace
       }
     }
 
+    std::cout << "RZ:" << std::endl;
+    std::cout << "cmtx: " << cmtx_rz.n_rows() << " " << cmtx_rz.n_cols() << std::endl;
+    std::cout << "qvec: " << qvec_rz.n_rows() << " " << qvec_rz.n_cols() << std::endl;
+    std::cout << "amtx: " << amtx_rz.n_rows() << " " << amtx_rz.n_cols() << std::endl;
+    std::cout << "kvec: " << kvec_rz.n_rows() << " " << kvec_rz.n_cols() << std::endl;
+    std::cout << "RPHI:" << std::endl;
+    std::cout << "cmtx: " << cmtx_rphi.n_rows() << " " << cmtx_rphi.n_cols() << std::endl;
+    std::cout << "qvec: " << qvec_rphi.n_rows() << " " << qvec_rphi.n_cols() << std::endl;
+    std::cout << "amtx: " << amtx_rphi.n_rows() << " " << amtx_rphi.n_cols() << std::endl;
+    std::cout << "kvec: " << kvec_rphi.n_rows() << " " << kvec_rphi.n_cols() << std::endl;
+
     return true;
   }
 
@@ -355,7 +366,8 @@ void PCATrackFitter::initialize()
   pcacontvct_integer_.clear();
   cleanChi2();
   useinteger_ = false;
-  useboundaries_ = false;
+  //useboundaries_ = false;
+  useboundaries_ = true;
   track_ = NULL;
 }
 
@@ -1191,7 +1203,7 @@ void PCATrackFitter::fit_float(vector<Hit*> hits)
       pca::matrixpcaconst<double> amtx_rphi(0, 0); 
       pca::matrixpcaconst<double> kvec_rphi(0, 0); 
       
-      if (import_pca_const (pcacontvct_float_, 
+      if (!import_pca_const (pcacontvct_float_, 
                             cmtx_rz, 
                             qvec_rz, 
                             amtx_rz, 

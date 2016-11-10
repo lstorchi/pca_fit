@@ -1053,6 +1053,13 @@ namespace pca
       std::cerr << "charge: " << chargesignin << " eta: " << eta << " pt: " << pt << std::endl;
       std::cerr << "Foundrz " << hwmanygotrz << std::endl;
       std::cerr << "Foundrphi " << hwmanygotrphi << std::endl;
+
+      std::cout << "Found " << hwmanygot << " const instead of 8" << std::endl;
+      std::cout << layersid << " and " << pslayersid << std::endl;
+      std::cout << "charge: " << chargesignin << " eta: " << eta << " pt: " << pt << std::endl;
+      std::cout << "Foundrz " << hwmanygotrz << std::endl;
+      std::cout << "Foundrphi " << hwmanygotrphi << std::endl;
+ 
       return false;
     }
   
