@@ -9,6 +9,8 @@
 #include <typeinfo>
 
 #include <algorithm>
+#include <limits>
+#include <cassert>
 
 #define RANGE_CHECK
 
@@ -687,7 +689,15 @@ namespace pca
         hihpt_idx_cmtx_rphi = -1, hihpt_idx_amtx_rphi = -1, 
         lowpt_idx_qvec_rphi = -1, lowpt_idx_kvec_rphi = -1, 
         lowpt_idx_cmtx_rphi = -1, lowpt_idx_amtx_rphi = -1;
-    for (int idx = 0; it != vct.end(); ++it)
+
+    lowpt = std::numeric_limits<double>::max();
+    hihpt = std::numeric_limits<double>::min();
+
+    double lowpt_qvec = lowpt, lowpt_kvec = lowpt, 
+           lowpt_cmtx = lowpt, lowpt_amtx = lowpt;
+    double hihpt_qvec = hihpt, hihpt_kvec = hihpt, 
+           hihpt_cmtx = hihpt, hihpt_amtx = hihpt;
+    for (int idx = 0; it != vct.end(); ++it, ++idx)
     {
       double ptmin, ptmax;
       std::string actuallayids;
@@ -707,82 +717,61 @@ namespace pca
             {
               if (chargesignin == chargesign)
               {
-                if (idx == 0)
-                {
-                  lowpt = ptmin;
-                  hihpt = ptmax;
+                lowpt = ptmin;
+                hihpt = ptmax;
 
-                  switch(it->get_const_type())
-                  {
-                    case pca::QVEC :
+                switch(it->get_const_type())
+                {
+                  case pca::QVEC :
+                    if (lowpt_qvec >= ptmin)
+                    {
                       lowpt_idx_qvec_rphi = idx;
+                      lowpt_qvec = ptmin;
+                    }
+                    if (hihpt_qvec <= ptmax)
+                    {
                       hihpt_idx_qvec_rphi = idx;
-                      break;
-                    case pca::KVEC :
+                      hihpt_qvec = ptmax;
+                    }
+                    break;
+                  case pca::KVEC :
+                    if (lowpt_kvec >= ptmin)
+                    {
                       lowpt_idx_kvec_rphi = idx;
+                      lowpt_kvec = ptmin;
+                    }
+                    if (hihpt_kvec <= ptmax)
+                    {
                       hihpt_idx_kvec_rphi = idx;
-                      break;
-                    case pca::CMTX :
+                      hihpt_kvec = ptmax;
+                    }
+                    break;
+                  case pca::CMTX :
+                    if (lowpt_cmtx >= ptmin)
+                    {
                       lowpt_idx_cmtx_rphi = idx;
+                      lowpt_cmtx = ptmin;
+                    }
+                    if (hihpt_cmtx <= ptmax)
+                    {
                       hihpt_idx_cmtx_rphi = idx;
-                      break;
-                    case pca::AMTX :
+                      hihpt_cmtx = ptmax;
+                    }
+                    break;
+                  case pca::AMTX :
+                    if (lowpt_amtx >= ptmin)
+                    {
                       lowpt_idx_amtx_rphi = idx;
+                      lowpt_amtx = ptmin;
+                    }
+                    if (hihpt_amtx <= ptmax)
+                    {
                       hihpt_idx_amtx_rphi = idx;
-                      break;
-                    default:
-                      break;
-                  }
-
-                  ++idx;
-                }
-                else 
-                {
-                  if (lowpt > ptmin)
-                  {
-                    lowpt = ptmin;
-
-                    switch(it->get_const_type())
-                    {
-                      case pca::QVEC :
-                        lowpt_idx_qvec_rphi = idx;
-                        break;
-                      case pca::KVEC :
-                        lowpt_idx_kvec_rphi = idx;
-                        break;
-                      case pca::CMTX :
-                        lowpt_idx_cmtx_rphi = idx;
-                        break;
-                      case pca::AMTX :
-                        lowpt_idx_amtx_rphi = idx;
-                        break;
-                      default:
-                        break;
+                      hihpt_amtx = ptmax;
                     }
-                  }
-
-                  if (hihpt < ptmax)
-                  {
-                    hihpt = ptmax;
-
-                    switch(it->get_const_type())
-                    {
-                      case pca::QVEC :
-                        hihpt_idx_qvec_rphi = idx;
-                        break;
-                      case pca::KVEC :
-                        hihpt_idx_kvec_rphi = idx;
-                        break;
-                      case pca::CMTX :
-                        hihpt_idx_cmtx_rphi = idx;
-                        break;
-                      case pca::AMTX :
-                        hihpt_idx_amtx_rphi = idx;
-                        break;
-                      default:
-                        break;
-                    }
-                  }
+                    break;
+                  default:
+                    break;
                 }
               }
             }
@@ -790,6 +779,16 @@ namespace pca
         }
       }
     }
+
+    assert (hihpt_amtx == hihpt_cmtx);
+    assert (hihpt_amtx == hihpt_kvec);
+    assert (hihpt_amtx == hihpt_qvec);
+    assert (lowpt_amtx == lowpt_cmtx);
+    assert (lowpt_amtx == lowpt_kvec);
+    assert (lowpt_amtx == lowpt_qvec);
+
+    lowpt = lowpt_amtx;
+    hihpt = hihpt_amtx;
 
     if ((hihpt_idx_qvec_rphi == -1) ||
         (hihpt_idx_kvec_rphi == -1) || 
@@ -835,7 +834,15 @@ namespace pca
         hiheta_idx_cmtx_rz = -1, hiheta_idx_amtx_rz = -1, 
         loweta_idx_qvec_rz = -1, loweta_idx_kvec_rz = -1, 
         loweta_idx_cmtx_rz = -1, loweta_idx_amtx_rz = -1;
-    for (int idx = 0; it != vct.end(); ++it)
+    loweta = std::numeric_limits<double>::max();
+    hiheta = std::numeric_limits<double>::min();
+
+    double loweta_qvec = loweta, loweta_kvec = loweta, 
+           loweta_cmtx = loweta, loweta_amtx = loweta;
+    double hiheta_qvec = hiheta, hiheta_kvec = hiheta, 
+           hiheta_cmtx = hiheta, hiheta_amtx = hiheta;
+
+    for (int idx = 0; it != vct.end(); ++it, ++idx)
     {
       double etamin, etamax;
       it->get_etarange(etamin, etamax);
@@ -848,88 +855,74 @@ namespace pca
           {
             if (it->get_layersids() == pslayersid)
             {
-              if (idx == 0)
+              switch(it->get_const_type())
               {
-                loweta = etamin;
-                hiheta = etamax;
-
-                switch(it->get_const_type())
-                {
-                  case pca::QVEC :
+                case pca::QVEC :
+                  if (loweta_qvec >= etamin)
+                  {
                     loweta_idx_qvec_rz = idx;
+                    loweta_qvec = etamin;
+                  }
+                  if (hiheta_qvec <= etamax)
+                  {
                     hiheta_idx_qvec_rz = idx;
-                    break;
-                  case pca::KVEC :
+                    hiheta_qvec = etamax;
+                  }
+                  break;
+                case pca::KVEC :
+                  if (loweta_kvec >= etamin)
+                  {
                     loweta_idx_kvec_rz = idx;
+                    loweta_kvec = etamin;
+                  } 
+                  if (hiheta_kvec <= etamax)
+                  {
                     hiheta_idx_kvec_rz = idx;
-                    break;
-                  case pca::CMTX :
+                    hiheta_kvec = etamax;
+                  }
+                  break;
+                case pca::CMTX :
+                  if (loweta_cmtx >= etamin)
+                  {
                     loweta_idx_cmtx_rz = idx;
+                    loweta_cmtx = etamin;
+                  }
+                  if (hiheta_cmtx <= etamax)
+                  {
                     hiheta_idx_cmtx_rz = idx;
-                    break;
-                  case pca::AMTX :
+                    hiheta_cmtx = etamax;
+                  }
+                  break;
+                case pca::AMTX :
+                  if (loweta_amtx >= etamin)
+                  {
                     loweta_idx_amtx_rz = idx;
+                    loweta_amtx = etamin;
+                  }
+                  if (hiheta_amtx <= etamax)
+                  {
                     hiheta_idx_amtx_rz = idx;
-                    break;
-                  default:
-                    break;
-                }
-
-                ++idx;
-              }
-              else 
-              {
-                if (loweta > etamin)
-                {
-                  loweta = etamin;
-
-                  switch(it->get_const_type())
-                  {
-                    case pca::QVEC :
-                      loweta_idx_qvec_rz = idx;
-                      break;
-                    case pca::KVEC :
-                      loweta_idx_kvec_rz = idx;
-                      break;
-                    case pca::CMTX :
-                      loweta_idx_cmtx_rz = idx;
-                      break;
-                    case pca::AMTX :
-                      loweta_idx_amtx_rz = idx;
-                      break;
-                    default:
-                      break;
+                    hiheta_amtx = etamax;
                   }
-                }
-
-                if (hiheta < etamax)
-                {
-                  hiheta = etamax;
-
-                  switch(it->get_const_type())
-                  {
-                    case pca::QVEC :
-                      hiheta_idx_qvec_rz = idx;
-                      break;
-                    case pca::KVEC :
-                      hiheta_idx_kvec_rz = idx;
-                      break;
-                    case pca::CMTX :
-                      hiheta_idx_cmtx_rz = idx;
-                      break;
-                    case pca::AMTX :
-                      hiheta_idx_amtx_rz = idx;
-                      break;
-                    default:
-                      break;
-                  }
-                }
+                  break;
+                default:
+                  break;
               }
             }
           }
         }
       }
     }
+
+    assert (hiheta_amtx == hiheta_cmtx);
+    assert (hiheta_amtx == hiheta_kvec);
+    assert (hiheta_amtx == hiheta_qvec);
+    assert (loweta_amtx == loweta_cmtx);
+    assert (loweta_amtx == loweta_kvec);
+    assert (loweta_amtx == loweta_qvec);
+
+    loweta = loweta_amtx;
+    hiheta = hiheta_amtx;
 
     if ((hiheta_idx_qvec_rz == -1) ||
         (hiheta_idx_kvec_rz == -1) || 
@@ -939,7 +932,10 @@ namespace pca
         (loweta_idx_kvec_rz == -1) || 
         (loweta_idx_cmtx_rz == -1) || 
         (loweta_idx_amtx_rz == -1))
+    {
+      exit(1);
       return false;
+    }
 
     low_cmtx_rz = vct[loweta_idx_cmtx_rz];
     low_qvec_rz = vct[loweta_idx_qvec_rz];

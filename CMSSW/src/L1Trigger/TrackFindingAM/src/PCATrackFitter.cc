@@ -43,21 +43,75 @@ namespace
     pca::matrixpcaconst<T> hih_amtx_rphi(0, 0); 
     pca::matrixpcaconst<T> hih_kvec_rphi(0, 0); 
 
-    std::cout << pslayersid << " " << layersid << std::endl;
-    
     double loweta, hiheta, lowpt, hihpt;
-    if (!import_boundary_pca_const_rz (vct,
+    if (import_boundary_pca_const_rz (vct,
           pslayersid, tow, tipo, loweta, hiheta,
           low_cmtx_rz, low_qvec_rz, low_amtx_rz, low_kvec_rz,
           hih_cmtx_rz, hih_qvec_rz, hih_amtx_rz, hih_kvec_rz))
-      return false;
-    
-    if (!import_boundary_pca_const_rphi (vct, 
-          charge, layersid, tow, tipo, lowpt, hihpt,
-          low_cmtx_rphi, low_qvec_rphi, low_amtx_rphi, low_kvec_rphi,
-          hih_cmtx_rphi, hih_qvec_rphi, hih_amtx_rphi, hih_kvec_rphi))
-      return false;
+    {
+      if (eta_est < loweta)
+      {
+        cmtx_rz = low_cmtx_rz;
+        amtx_rz = low_amtx_rz;
+        kvec_rz = low_kvec_rz;
+        qvec_rz = low_qvec_rz;
+      }
+      else if (eta_est > hiheta)
+      {
+        cmtx_rz = hih_cmtx_rz;
+        amtx_rz = hih_amtx_rz;
+        kvec_rz = hih_kvec_rz;
+        qvec_rz = hih_qvec_rz;
+      }
+      else 
+      {
+        pt_est = (lowpt + hihpt) / 2.0;
+        if (!import_pca_const (vct, 
+              cmtx_rz, qvec_rz, amtx_rz, kvec_rz, 
+              eta_est, pt_est, charge, pslayersid,
+              tow, tipo, pca::RZ))
+        {
+          std::cerr << "error while reading PCA const RZ" << std::endl;
+          return false;
+        }
+      }
+    }
 
+    if (import_boundary_pca_const_rphi (vct, 
+         charge, layersid, tow, tipo, lowpt, hihpt,
+         low_cmtx_rphi, low_qvec_rphi, low_amtx_rphi, low_kvec_rphi,
+         hih_cmtx_rphi, hih_qvec_rphi, hih_amtx_rphi, hih_kvec_rphi))
+    {
+      if (pt_est < lowpt)
+      {
+        cmtx_rphi = low_cmtx_rphi;
+        amtx_rphi = low_amtx_rphi;
+        kvec_rphi = low_kvec_rphi;
+        qvec_rphi = low_qvec_rphi;
+      }
+      else if (pt_est > hihpt)
+      {
+        cmtx_rphi = hih_cmtx_rphi;
+        amtx_rphi = hih_amtx_rphi;
+        kvec_rphi = hih_kvec_rphi;
+        qvec_rphi = hih_qvec_rphi;
+      }
+      else 
+      {
+        eta_est = (hiheta + loweta) / 2.0;
+        if (!import_pca_const (vct, 
+              cmtx_rphi, qvec_rphi, amtx_rphi, kvec_rphi, 
+              eta_est, pt_est, charge, layersid,
+              tow, tipo, pca::RPHI))
+        {
+          std::cerr << "error while reading PCA const RPHI" << std::endl;
+          return false;
+        }
+      }
+    }
+
+
+    /*
     std::cout << "LOW RZ:" << std::endl;
     std::cout << "cmtx: " << low_cmtx_rz.n_rows() << " " << low_cmtx_rz.n_cols() << std::endl;
     std::cout << "qvec: " << low_qvec_rz.n_rows() << " " << low_qvec_rz.n_cols() << std::endl;
@@ -79,61 +133,6 @@ namespace
     std::cout << "amtx: " << hih_amtx_rphi.n_rows() << " " << hih_amtx_rphi.n_cols() << std::endl;
     std::cout << "kvec: " << hih_kvec_rphi.n_rows() << " " << hih_kvec_rphi.n_cols() << std::endl;
 
-
-    if (eta_est < loweta)
-    {
-      cmtx_rz = low_cmtx_rz;
-      amtx_rz = low_amtx_rz;
-      kvec_rz = low_kvec_rz;
-      qvec_rz = low_qvec_rz;
-    }
-    else if (eta_est > hiheta)
-    {
-      cmtx_rz = hih_cmtx_rz;
-      amtx_rz = hih_amtx_rz;
-      kvec_rz = hih_kvec_rz;
-      qvec_rz = hih_qvec_rz;
-    }
-    else 
-    {
-      pt_est = (lowpt + hihpt) / 2.0;
-      if (!import_pca_const (vct, 
-            cmtx_rz, qvec_rz, amtx_rz, kvec_rz, 
-            eta_est, pt_est, charge, pslayersid,
-            tow, tipo, pca::RZ))
-      {
-        std::cerr << "error while reading PCA const RZ" << std::endl;
-        return false;
-      }
-    }
-
-    if (pt_est < lowpt)
-    {
-      cmtx_rphi = low_cmtx_rphi;
-      amtx_rphi = low_amtx_rphi;
-      kvec_rphi = low_kvec_rphi;
-      qvec_rphi = low_qvec_rphi;
-    }
-    else if (pt_est > hihpt)
-    {
-      cmtx_rphi = hih_cmtx_rphi;
-      amtx_rphi = hih_amtx_rphi;
-      kvec_rphi = hih_kvec_rphi;
-      qvec_rphi = hih_qvec_rphi;
-    }
-    else 
-    {
-      eta_est = (hiheta + loweta) / 2.0;
-      if (!import_pca_const (vct, 
-            cmtx_rphi, qvec_rphi, amtx_rphi, kvec_rphi, 
-            eta_est, pt_est, charge, layersid,
-            tow, tipo, pca::RPHI))
-      {
-        std::cerr << "error while reading PCA const RPHI" << std::endl;
-        return false;
-      }
-    }
-
     std::cout << "RZ:" << std::endl;
     std::cout << "cmtx: " << cmtx_rz.n_rows() << " " << cmtx_rz.n_cols() << std::endl;
     std::cout << "qvec: " << qvec_rz.n_rows() << " " << qvec_rz.n_cols() << std::endl;
@@ -144,6 +143,7 @@ namespace
     std::cout << "qvec: " << qvec_rphi.n_rows() << " " << qvec_rphi.n_cols() << std::endl;
     std::cout << "amtx: " << amtx_rphi.n_rows() << " " << amtx_rphi.n_cols() << std::endl;
     std::cout << "kvec: " << kvec_rphi.n_rows() << " " << kvec_rphi.n_cols() << std::endl;
+    */
 
     return true;
   }
@@ -615,6 +615,7 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
         if (useboundaries_ )
         {
           std::cerr << "try to use the boundaries" << std::endl;
+          std::cout << "try to use the boundaries" << std::endl;
 
           if (!get_boundaries (pcacontvct_integer_, pca::INTEGPT, 
                 pslayersid, layersid, tow, charge, eta_est, pt_est,
@@ -817,6 +818,7 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
         if (useboundaries_ )
         {
           std::cerr << "try to use the boundaries" << std::endl;
+          std::cout << "try to use the boundaries" << std::endl;
 
           if (!get_boundaries (pcacontvct_integer_, pca::INTEGPT, 
                 pslayersid, layersid, tow, charge, eta_est, pt_est,
@@ -1083,6 +1085,7 @@ void PCATrackFitter::fit_float(vector<Hit*> hits)
         if (useboundaries_ )
         {
           std::cerr << "try to use the boundaries" << std::endl;
+          std::cout << "try to use the boundaries" << std::endl;
 
           if (!get_boundaries (pcacontvct_float_, pca::FLOATPT, 
                 pslayersid, layersid, tow, charge, eta_est, pt_est,
@@ -1249,6 +1252,7 @@ void PCATrackFitter::fit_float(vector<Hit*> hits)
         if (useboundaries_ )
         {
           std::cerr << "try to use the boundaries" << std::endl;
+          std::cout << "try to use the boundaries" << std::endl;
 
           if (!get_boundaries (pcacontvct_float_, pca::FLOATPT, 
                 pslayersid, layersid, tow, charge, eta_est, pt_est,
