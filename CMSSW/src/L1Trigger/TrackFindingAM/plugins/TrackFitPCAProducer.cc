@@ -156,7 +156,7 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
   PCATrackFitter* PCA_int  = new PCATrackFitter(nbLayers); // Int
   PCA_int->set_useinteger(true);
 
-  std::string rootdir = "../data/infnpca_const_files"
+  std::string rootdir = "../data/infnpca_const_files";
   /// STEP 0
   /// Read PCAConst file
   PCA->read_float_const_filename (rootdir+"/barrel_tow16_pca_const.txt");
