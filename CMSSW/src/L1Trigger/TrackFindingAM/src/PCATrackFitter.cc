@@ -42,17 +42,43 @@ namespace
     pca::matrixpcaconst<T> hih_qvec_rphi(0, 0); 
     pca::matrixpcaconst<T> hih_amtx_rphi(0, 0); 
     pca::matrixpcaconst<T> hih_kvec_rphi(0, 0); 
+
+    std::cout << pslayersid << " " << layersid << std::endl;
     
     double loweta, hiheta, lowpt, hihpt;
-    import_boundary_pca_const_rz (vct,
-        pslayersid, tow, tipo, loweta, hiheta,
-        low_cmtx_rz, low_qvec_rz, low_amtx_rz, low_kvec_rz,
-        hih_cmtx_rz, hih_qvec_rz, hih_amtx_rz, hih_kvec_rz);
+    if (!import_boundary_pca_const_rz (vct,
+          pslayersid, tow, tipo, loweta, hiheta,
+          low_cmtx_rz, low_qvec_rz, low_amtx_rz, low_kvec_rz,
+          hih_cmtx_rz, hih_qvec_rz, hih_amtx_rz, hih_kvec_rz))
+      return false;
     
-    import_boundary_pca_const_rphi (vct, 
-        charge, layersid, tow, tipo, lowpt, hihpt,
-        low_cmtx_rphi, low_qvec_rphi, low_amtx_rphi, low_kvec_rphi,
-        hih_cmtx_rphi, hih_qvec_rphi, hih_amtx_rphi, hih_kvec_rphi);
+    if (!import_boundary_pca_const_rphi (vct, 
+          charge, layersid, tow, tipo, lowpt, hihpt,
+          low_cmtx_rphi, low_qvec_rphi, low_amtx_rphi, low_kvec_rphi,
+          hih_cmtx_rphi, hih_qvec_rphi, hih_amtx_rphi, hih_kvec_rphi))
+      return false;
+
+    std::cout << "LOW RZ:" << std::endl;
+    std::cout << "cmtx: " << low_cmtx_rz.n_rows() << " " << low_cmtx_rz.n_cols() << std::endl;
+    std::cout << "qvec: " << low_qvec_rz.n_rows() << " " << low_qvec_rz.n_cols() << std::endl;
+    std::cout << "amtx: " << low_amtx_rz.n_rows() << " " << low_amtx_rz.n_cols() << std::endl;
+    std::cout << "kvec: " << low_kvec_rz.n_rows() << " " << low_kvec_rz.n_cols() << std::endl;
+    std::cout << "LOW RPHI:" << std::endl;
+    std::cout << "cmtx: " << low_cmtx_rphi.n_rows() << " " << low_cmtx_rphi.n_cols() << std::endl;
+    std::cout << "qvec: " << low_qvec_rphi.n_rows() << " " << low_qvec_rphi.n_cols() << std::endl;
+    std::cout << "amtx: " << low_amtx_rphi.n_rows() << " " << low_amtx_rphi.n_cols() << std::endl;
+    std::cout << "kvec: " << low_kvec_rphi.n_rows() << " " << low_kvec_rphi.n_cols() << std::endl;
+    std::cout << "HIH RZ:" << std::endl;
+    std::cout << "cmtx: " << hih_cmtx_rz.n_rows() << " " << hih_cmtx_rz.n_cols() << std::endl;
+    std::cout << "qvec: " << hih_qvec_rz.n_rows() << " " << hih_qvec_rz.n_cols() << std::endl;
+    std::cout << "amtx: " << hih_amtx_rz.n_rows() << " " << hih_amtx_rz.n_cols() << std::endl;
+    std::cout << "kvec: " << hih_kvec_rz.n_rows() << " " << hih_kvec_rz.n_cols() << std::endl;
+    std::cout << "HIH RPHI:" << std::endl;
+    std::cout << "cmtx: " << hih_cmtx_rphi.n_rows() << " " << hih_cmtx_rphi.n_cols() << std::endl;
+    std::cout << "qvec: " << hih_qvec_rphi.n_rows() << " " << hih_qvec_rphi.n_cols() << std::endl;
+    std::cout << "amtx: " << hih_amtx_rphi.n_rows() << " " << hih_amtx_rphi.n_cols() << std::endl;
+    std::cout << "kvec: " << hih_kvec_rphi.n_rows() << " " << hih_kvec_rphi.n_cols() << std::endl;
+
 
     if (eta_est < loweta)
     {

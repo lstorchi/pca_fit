@@ -683,11 +683,11 @@ namespace pca
   {
     typename std::vector<pca::matrixpcaconst<T> >::const_iterator it = 
       vct.begin();
-    int hihpt_idx_qvec_rphi = 0, hihpt_idx_kvec_rphi = 0, 
-        hihpt_idx_cmtx_rphi = 0, hihpt_idx_amtx_rphi = 0, 
-        lowpt_idx_qvec_rphi = 0, lowpt_idx_kvec_rphi = 0, 
-        lowpt_idx_cmtx_rphi = 0, lowpt_idx_amtx_rphi = 0;
-    for (int idx = 0; it != vct.end(); ++it, ++idx)
+    int hihpt_idx_qvec_rphi = -1, hihpt_idx_kvec_rphi = -1, 
+        hihpt_idx_cmtx_rphi = -1, hihpt_idx_amtx_rphi = -1, 
+        lowpt_idx_qvec_rphi = -1, lowpt_idx_kvec_rphi = -1, 
+        lowpt_idx_cmtx_rphi = -1, lowpt_idx_amtx_rphi = -1;
+    for (int idx = 0; it != vct.end(); ++it)
     {
       double ptmin, ptmax;
       std::string actuallayids;
@@ -733,6 +733,8 @@ namespace pca
                     default:
                       break;
                   }
+
+                  ++idx;
                 }
                 else 
                 {
@@ -789,6 +791,16 @@ namespace pca
       }
     }
 
+    if ((hihpt_idx_qvec_rphi == -1) ||
+        (hihpt_idx_kvec_rphi == -1) || 
+        (hihpt_idx_cmtx_rphi == -1) ||
+        (hihpt_idx_amtx_rphi == -1) || 
+        (lowpt_idx_qvec_rphi == -1) || 
+        (lowpt_idx_kvec_rphi == -1) || 
+        (lowpt_idx_cmtx_rphi == -1) || 
+        (lowpt_idx_amtx_rphi == -1))
+      return false;
+
     low_cmtx_rphi = vct[lowpt_idx_cmtx_rphi];
     low_qvec_rphi = vct[lowpt_idx_qvec_rphi];
     low_amtx_rphi = vct[lowpt_idx_amtx_rphi];
@@ -819,17 +831,14 @@ namespace pca
   {
     typename std::vector<pca::matrixpcaconst<T> >::const_iterator it = 
       vct.begin();
-    int hiheta_idx_qvec_rz = 0, hiheta_idx_kvec_rz = 0, 
-        hiheta_idx_cmtx_rz = 0, hiheta_idx_amtx_rz = 0, 
-        loweta_idx_qvec_rz = 0, loweta_idx_kvec_rz = 0, 
-        loweta_idx_cmtx_rz = 0, loweta_idx_amtx_rz = 0;
-    for (int idx = 0; it != vct.end(); ++it, ++idx)
+    int hiheta_idx_qvec_rz = -1, hiheta_idx_kvec_rz = -1, 
+        hiheta_idx_cmtx_rz = -1, hiheta_idx_amtx_rz = -1, 
+        loweta_idx_qvec_rz = -1, loweta_idx_kvec_rz = -1, 
+        loweta_idx_cmtx_rz = -1, loweta_idx_amtx_rz = -1;
+    for (int idx = 0; it != vct.end(); ++it)
     {
       double etamin, etamax;
-      std::string actuallayids;
-
       it->get_etarange(etamin, etamax);
-      actuallayids = it->get_layersids();
 
       if (towerid == it->get_towerid())
       {
@@ -837,7 +846,7 @@ namespace pca
         {
           if (it->get_ttype() == tipo)
           {
-            if (actuallayids == pslayersid)
+            if (it->get_layersids() == pslayersid)
             {
               if (idx == 0)
               {
@@ -865,6 +874,8 @@ namespace pca
                   default:
                     break;
                 }
+
+                ++idx;
               }
               else 
               {
@@ -919,6 +930,16 @@ namespace pca
         }
       }
     }
+
+    if ((hiheta_idx_qvec_rz == -1) ||
+        (hiheta_idx_kvec_rz == -1) || 
+        (hiheta_idx_cmtx_rz == -1) ||
+        (hiheta_idx_amtx_rz == -1) || 
+        (loweta_idx_qvec_rz == -1) || 
+        (loweta_idx_kvec_rz == -1) || 
+        (loweta_idx_cmtx_rz == -1) || 
+        (loweta_idx_amtx_rz == -1))
+      return false;
 
     low_cmtx_rz = vct[loweta_idx_cmtx_rz];
     low_qvec_rz = vct[loweta_idx_qvec_rz];
