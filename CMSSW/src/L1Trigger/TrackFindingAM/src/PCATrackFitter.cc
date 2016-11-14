@@ -450,7 +450,7 @@ void PCATrackFitter::setTrack(Track* intc)
   track_ = intc;
 }
 
-void PCATrackFitter::fit(vector<Hit*> hits)
+void PCATrackFitter::fit(vector<Hit*> hits, int pattern_id)
 {
   if (useinteger_)
     this->fit_integer (hits);
