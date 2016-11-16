@@ -159,40 +159,40 @@ void TrackFitPCAProducer::produce( edm::Event& iEvent, const edm::EventSetup& iS
   std::string rootdir = "../data/infnpca_const_files";
   /// STEP 0
   /// Read PCAConst file
-  PCA->read_float_const_filename (rootdir+"/barrel_tow16_pca_const.txt");
-  PCA->read_float_const_filename (rootdir+"/barrel_tow17_pca_const.txt");
-  PCA->read_float_const_filename (rootdir+"/barrel_tow18_pca_const.txt");
-  PCA->read_float_const_filename (rootdir+"/barrel_tow19_pca_const.txt");
-  PCA->read_float_const_filename (rootdir+"/barrel_tow20_pca_const.txt");
-  PCA->read_float_const_filename (rootdir+"/barrel_tow21_pca_const.txt");
-  PCA->read_float_const_filename (rootdir+"/barrel_tow22_pca_const.txt");
-  PCA->read_float_const_filename (rootdir+"/barrel_tow23_pca_const.txt");
-  PCA->read_float_const_filename (rootdir+"/barrel_tow24_pca_const.txt");
-  PCA->read_float_const_filename (rootdir+"/barrel_tow25_pca_const.txt");
-  PCA->read_float_const_filename (rootdir+"/barrel_tow26_pca_const.txt");
-  PCA->read_float_const_filename (rootdir+"/barrel_tow27_pca_const.txt");
-  PCA->read_float_const_filename (rootdir+"/barrel_tow28_pca_const.txt");
-  PCA->read_float_const_filename (rootdir+"/barrel_tow29_pca_const.txt");
-  PCA->read_float_const_filename (rootdir+"/barrel_tow30_pca_const.txt");
-  PCA->read_float_const_filename (rootdir+"/barrel_tow31_pca_const.txt");
+  PCA->read_float_const_filename (rootdir+"/tow16_pca_const.txt");
+  PCA->read_float_const_filename (rootdir+"/tow17_pca_const.txt");
+  PCA->read_float_const_filename (rootdir+"/tow18_pca_const.txt");
+  PCA->read_float_const_filename (rootdir+"/tow19_pca_const.txt");
+  PCA->read_float_const_filename (rootdir+"/tow20_pca_const.txt");
+  PCA->read_float_const_filename (rootdir+"/tow21_pca_const.txt");
+  PCA->read_float_const_filename (rootdir+"/tow22_pca_const.txt");
+  PCA->read_float_const_filename (rootdir+"/tow23_pca_const.txt");
+  PCA->read_float_const_filename (rootdir+"/tow24_pca_const.txt");
+  PCA->read_float_const_filename (rootdir+"/tow25_pca_const.txt");
+  PCA->read_float_const_filename (rootdir+"/tow26_pca_const.txt");
+  PCA->read_float_const_filename (rootdir+"/tow27_pca_const.txt");
+  PCA->read_float_const_filename (rootdir+"/tow28_pca_const.txt");
+  PCA->read_float_const_filename (rootdir+"/tow29_pca_const.txt");
+  PCA->read_float_const_filename (rootdir+"/tow30_pca_const.txt");
+  PCA->read_float_const_filename (rootdir+"/tow31_pca_const.txt");
 
   // Integer
-  PCA_int->read_integer_const_filename (rootdir+"/barrel_tow16_pca_const.txt_int");
-  PCA_int->read_integer_const_filename (rootdir+"/barrel_tow17_pca_const.txt_int");
-  PCA_int->read_integer_const_filename (rootdir+"/barrel_tow18_pca_const.txt_int");
-  PCA_int->read_integer_const_filename (rootdir+"/barrel_tow19_pca_const.txt_int");
-  PCA_int->read_integer_const_filename (rootdir+"/barrel_tow20_pca_const.txt_int");
-  PCA_int->read_integer_const_filename (rootdir+"/barrel_tow21_pca_const.txt_int");
-  PCA_int->read_integer_const_filename (rootdir+"/barrel_tow22_pca_const.txt_int");
-  PCA_int->read_integer_const_filename (rootdir+"/barrel_tow23_pca_const.txt_int");
-  PCA_int->read_integer_const_filename (rootdir+"/barrel_tow24_pca_const.txt_int");
-  PCA_int->read_integer_const_filename (rootdir+"/barrel_tow25_pca_const.txt_int");
-  PCA_int->read_integer_const_filename (rootdir+"/barrel_tow26_pca_const.txt_int");
-  PCA_int->read_integer_const_filename (rootdir+"/barrel_tow27_pca_const.txt_int");
-  PCA_int->read_integer_const_filename (rootdir+"/barrel_tow28_pca_const.txt_int");
-  PCA_int->read_integer_const_filename (rootdir+"/barrel_tow29_pca_const.txt_int");
-  PCA_int->read_integer_const_filename (rootdir+"/barrel_tow30_pca_const.txt_int");
-  PCA_int->read_integer_const_filename (rootdir+"/barrel_tow31_pca_const.txt_int");
+  PCA_int->read_integer_const_filename (rootdir+"/tow16_pca_const.txt_int");
+  PCA_int->read_integer_const_filename (rootdir+"/tow17_pca_const.txt_int");
+  PCA_int->read_integer_const_filename (rootdir+"/tow18_pca_const.txt_int");
+  PCA_int->read_integer_const_filename (rootdir+"/tow19_pca_const.txt_int");
+  PCA_int->read_integer_const_filename (rootdir+"/tow20_pca_const.txt_int");
+  PCA_int->read_integer_const_filename (rootdir+"/tow21_pca_const.txt_int");
+  PCA_int->read_integer_const_filename (rootdir+"/tow22_pca_const.txt_int");
+  PCA_int->read_integer_const_filename (rootdir+"/tow23_pca_const.txt_int");
+  PCA_int->read_integer_const_filename (rootdir+"/tow24_pca_const.txt_int");
+  PCA_int->read_integer_const_filename (rootdir+"/tow25_pca_const.txt_int");
+  PCA_int->read_integer_const_filename (rootdir+"/tow26_pca_const.txt_int");
+  PCA_int->read_integer_const_filename (rootdir+"/tow27_pca_const.txt_int");
+  PCA_int->read_integer_const_filename (rootdir+"/tow28_pca_const.txt_int");
+  PCA_int->read_integer_const_filename (rootdir+"/tow29_pca_const.txt_int");
+  PCA_int->read_integer_const_filename (rootdir+"/tow30_pca_const.txt_int");
+  PCA_int->read_integer_const_filename (rootdir+"/tow31_pca_const.txt_int");
 
   /// STEP 1
   /// Loop over track candidates
