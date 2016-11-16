@@ -1,6 +1,9 @@
 CFLAGS +=-I../../include/ -std=c++11
 
-all: coeff_file_gen translate_file add_eta_pt_ranges merge_missed_bin
+all: coeff_file_gen translate_file add_eta_pt_ranges merge_missed_bin merge_rzrphi
+
+merge_rzrphi:
+	g++ $(CFLAGS) -o ../../bin/merge_rzrphi merge_rzrphi.cpp utility.cpp
 
 coeff_file_gen:
 	g++ $(CFLAGS) -o ../../bin/coeff_file_gen coeff_file_gen.cc utility.cpp
@@ -16,4 +19,4 @@ add_eta_pt_ranges:
 
 clean:
 	rm -f ../../bin/coeff_file_gen ../../bin/translate_file ../../bin/add_eta_pt_ranges \
-	  ../../bin/merge_missed_bin
+	  ../../bin/merge_missed_bin ../../bin/merge_rzrphi
