@@ -42,6 +42,7 @@ class PCATrackFitter:public TrackFitter
   std::string cfname_ ;
   bool useboundaries_ ;
   bool useinteger_ ;
+  bool storecpt_;
 
   std::vector<pca::matrixpcaconst<double> > pcacontvct_float_;
   std::vector<pca::matrixpcaconst<long long int> > pcacontvct_integer_;
@@ -92,6 +93,24 @@ class PCATrackFitter:public TrackFitter
   bool get_useinteger () const
   {
     return useinteger_;
+  }
+
+  void set_useboundaries (const bool & in)
+  {
+    useboundaries_ = in;
+  }
+  bool get_useboundaries () const
+  {
+    return useboundaries_;
+  }
+
+  void set_store_chargept (const bool & in)
+  {
+    storecpt_ = in;
+  }
+  bool get_store_chargept () const
+  {
+    return storecpt_;
   }
 
   TrackFitter* clone();

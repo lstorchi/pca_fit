@@ -392,8 +392,8 @@ void PCATrackFitter::initialize()
   pcacontvct_integer_.clear();
   cleanChi2();
   useinteger_ = false;
-  //useboundaries_ = false;
-  useboundaries_ = true;
+  useboundaries_ = false;
+  storecpt_ = false;
   track_ = NULL;
 }
 
@@ -758,8 +758,12 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
       std::cout << " 6oof6 int chi2rphi:   " << d_chi2rphi/10.0 << std::endl;
 
       Track* fit_track = new Track();
-      
-      fit_track->setCurve(d_pt);
+     
+      if (storecpt_)
+        fit_track->setCurve(d_pt * (double) charge);
+      else 
+        fit_track->setCurve(d_pt);
+
       fit_track->setPhi0(d_phi);
       fit_track->setEta0(eta);
       fit_track->setZ0(d_z0);
@@ -960,8 +964,12 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
       std::cout << " 5oof6 int chi2rphi:   " << d_chi2rphi/8.0 << std::endl;
 
       Track* fit_track = new Track();
-      
-      fit_track->setCurve(d_pt);
+
+      if (storecpt_)
+        fit_track->setCurve(d_pt * (double) charge);
+      else 
+        fit_track->setCurve(d_pt);
+
       fit_track->setPhi0(d_phi);
       fit_track->setEta0(eta);
       fit_track->setZ0(d_z0);
@@ -1191,8 +1199,12 @@ void PCATrackFitter::fit_float(vector<Hit*> hits)
       std::cout << " 6oof6 chi2rphi: " << chi2rphi/10.0 << std::endl;
 
       Track* fit_track = new Track();
+
+      if (storecpt_)
+        fit_track->setCurve(pt * (double) charge);
+      else 
+        fit_track->setCurve(pt);
       
-      fit_track->setCurve(pt);
       fit_track->setPhi0(phi);
       fit_track->setEta0(eta);
       fit_track->setZ0(z0);
@@ -1344,8 +1356,12 @@ void PCATrackFitter::fit_float(vector<Hit*> hits)
       std::cout << " 5oof6 chi2rphi: " << chi2rphi/8.0 << std::endl;
 
       Track* fit_track = new Track();
+
+      if (storecpt_)
+        fit_track->setCurve(pt * (double) charge);
+      else 
+        fit_track->setCurve(pt);
       
-      fit_track->setCurve(pt);
       fit_track->setPhi0(phi);
       fit_track->setEta0(eta);
       fit_track->setZ0(z0);
