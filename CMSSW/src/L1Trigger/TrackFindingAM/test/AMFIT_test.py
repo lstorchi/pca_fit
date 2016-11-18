@@ -19,7 +19,7 @@
 
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process('AMPCAFIT')
+process = cms.Process('AMFIT2')
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -34,19 +34,18 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('L1Trigger.TrackTrigger.TrackTrigger_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(5)
+    input = cms.untracked.int32(-1)
 )
 
 # Input source
 #
-# You can use as input file the result of the script AMPR_test.py of part 5.2.2 of the tutorial
+# You can use as input file the result of the script AMTC_test.py of part 6.1.2 of the tutorial
 #
-# Any other EDM file containing patterns and produced with CMSSW 620_SLHC13 should also work
+# Any other EDM file containing TCs and produced with CMSSW 620_SLHC27 should also work
 #
 
 process.source = cms.Source("PoolSource",
-                            fileNames = cms.untracked.vstring('file:AMTC_output.root'),
-#                            fileNames = cms.untracked.vstring('file:/data/viret/test.root'),
+                            fileNames = cms.untracked.vstring("file:AMTC_output.root"),
                             duplicateCheckMode = cms.untracked.string( 'noDuplicateCheck' )
 )
 
@@ -55,7 +54,9 @@ process.source = cms.Source("PoolSource",
 
 process.TTStubAssociatorFromPixelDigis.TTStubs        = cms.VInputTag( cms.InputTag("MergeFITOutput", "StubInTrack"))
 process.TTStubAssociatorFromPixelDigis.TTClusterTruth = cms.VInputTag( cms.InputTag("TTClusterAssociatorFromPixelDigis","ClusterAccepted"))
-process.TTTrackAssociatorFromPixelDigis.TTTracks      = cms.VInputTag( cms.InputTag("MergeFITOutput", "AML1Tracks"))
+process.TTTrackAssociatorFromPixelDigis.TTTracks      = cms.VInputTag( cms.InputTag("MergeFITOutput", "AML1Tracks"), cms.InputTag("MergeFITOutputb", "AML1BinTracks"))
+
+#process.TTTracksTAMUFromTC.ConstantsDir               = cms.FileInPath("L1Trigger/TrackFindingAM/data/PreEstimate_Transverse/matrixVD_2016.txt")
 
 # Additional output definition
 from Configuration.AlCa.GlobalTag import GlobalTag
@@ -65,7 +66,7 @@ process.RAWSIMoutput = cms.OutputModule("PoolOutputModule",
     splitLevel = cms.untracked.int32(0),
     eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
     outputCommands = process.RAWSIMEventContent.outputCommands,
-    fileName = cms.untracked.string('AMPCAFIT_output.root'),
+    fileName = cms.untracked.string('./OUTPUTFILE'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string(''),
         dataTier = cms.untracked.string('GEN-SIM')
@@ -76,19 +77,21 @@ process.RAWSIMoutput = cms.OutputModule("PoolOutputModule",
 # (not yet in the customizing scripts)
 
 # Keep the PR output
-process.RAWSIMoutput.outputCommands.append('keep  *_*_*_AMTC')
+process.RAWSIMoutput.outputCommands.append('keep  *_*_*_AMPR')
+#process.RAWSIMoutput.outputCommands.append('keep  *_*_*_AMTCBASE')
+process.RAWSIMoutput.outputCommands.append('keep  *_*_*_AMFULL')
 
 # Keep the FIT output
-process.RAWSIMoutput.outputCommands.append('keep  *_*_*_AMPCAFIT')
-process.RAWSIMoutput.outputCommands.append('drop *_TTTracksFromTC_*_*')
+process.RAWSIMoutput.outputCommands.append('keep  *_*_*_AMFIT2')
+process.RAWSIMoutput.outputCommands.append('drop *_TTTracks*FromTC_*_*')
 process.RAWSIMoutput.outputCommands.append('keep  *_*_MergedTrackTruth_*')
 
 # Path and EndPath definitions
-process.L1AMPCAFIT_step         = cms.Path(process.TTTracksFromTCswStubs)
+process.L1AMFIT_step         = cms.Path(process.TTTracksFromTCswStubs)
 process.endjob_step          = cms.EndPath(process.endOfProcess)
 process.RAWSIMoutput_step    = cms.EndPath(process.RAWSIMoutput)
 
-process.schedule = cms.Schedule(process.L1AMPCAFIT_step,process.endjob_step,process.RAWSIMoutput_step)
+process.schedule = cms.Schedule(process.L1AMFIT_step,process.endjob_step,process.RAWSIMoutput_step)
 
 # Automatic addition of the customisation function
 
