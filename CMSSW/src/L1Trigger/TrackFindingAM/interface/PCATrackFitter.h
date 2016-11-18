@@ -104,15 +104,6 @@ class PCATrackFitter:public TrackFitter
     return useboundaries_;
   }
 
-  void set_store_chargept (const bool & in)
-  {
-    storecpt_ = in;
-  }
-  bool get_store_chargept () const
-  {
-    return storecpt_;
-  }
-
   TrackFitter* clone();
 };
 #endif

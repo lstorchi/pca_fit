@@ -393,7 +393,6 @@ void PCATrackFitter::initialize()
   cleanChi2();
   useinteger_ = false;
   useboundaries_ = false;
-  storecpt_ = false;
   track_ = NULL;
 }
 
@@ -759,14 +758,11 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
 
       Track* fit_track = new Track();
      
-      if (storecpt_)
-        fit_track->setCurve(d_pt * (double) charge);
-      else 
-        fit_track->setCurve(d_pt);
-
+      fit_track->setCurve(d_pt);
       fit_track->setPhi0(d_phi);
       fit_track->setEta0(eta);
       fit_track->setZ0(d_z0);
+      fit_track->setCharge(charge);
                       
       for(unsigned int idx = 0; idx < hits.size(); ++idx)
         fit_track->addStubIndex(hits[idx]->getID());
@@ -965,14 +961,11 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
 
       Track* fit_track = new Track();
 
-      if (storecpt_)
-        fit_track->setCurve(d_pt * (double) charge);
-      else 
-        fit_track->setCurve(d_pt);
-
+      fit_track->setCurve(d_pt);
       fit_track->setPhi0(d_phi);
       fit_track->setEta0(eta);
       fit_track->setZ0(d_z0);
+      fit_track->setCharge(charge);
                       
       for(unsigned int idx = 0; idx < hits.size(); ++idx)
         fit_track->addStubIndex(hits[idx]->getID());
@@ -1200,14 +1193,11 @@ void PCATrackFitter::fit_float(vector<Hit*> hits)
 
       Track* fit_track = new Track();
 
-      if (storecpt_)
-        fit_track->setCurve(pt * (double) charge);
-      else 
-        fit_track->setCurve(pt);
-      
+      fit_track->setCurve(pt);
       fit_track->setPhi0(phi);
       fit_track->setEta0(eta);
       fit_track->setZ0(z0);
+      fit_track->setCharge(charge);
                       
       for(unsigned int idx = 0; idx < hits.size(); ++idx)
         fit_track->addStubIndex(hits[idx]->getID());
@@ -1357,14 +1347,11 @@ void PCATrackFitter::fit_float(vector<Hit*> hits)
 
       Track* fit_track = new Track();
 
-      if (storecpt_)
-        fit_track->setCurve(pt * (double) charge);
-      else 
-        fit_track->setCurve(pt);
-      
+      fit_track->setCurve(pt);
       fit_track->setPhi0(phi);
       fit_track->setEta0(eta);
       fit_track->setZ0(z0);
+      fit_track->setCharge(charge);
                       
       for(unsigned int idx = 0; idx < hits.size(); ++idx)
         fit_track->addStubIndex(hits[idx]->getID());
