@@ -392,7 +392,7 @@ void PCATrackFitter::initialize()
   pcacontvct_integer_.clear();
   cleanChi2();
   useinteger_ = false;
-  useboundaries_ = false;
+  useboundaries_ = true;
   track_ = NULL;
 }
 
