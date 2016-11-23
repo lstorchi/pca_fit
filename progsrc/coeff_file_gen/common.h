@@ -1,11 +1,20 @@
 #include "pcaconst.hpp"
+#include <bitset>
 #include <typeinfo>
 
 // questo e' il rapporto fra scaling factor di r e phi so pca::risf/pca::pisf
 double rpdval_get ();
 double rzdval_get ();
 
-int check_val(double val, int width, std::string mstr); 
+template<int width>
+std::bitset<width> format_and_check_val(double val, std::string mstr)
+{
+  std::bitset<width> tmp(val);
+  if (abs(val) > pow(2, width-1))
+    std::cout << "overflow at " << mstr << std::endl;
+  return tmp;
+}
+
 int get_missing_layer(pca::matrixpcaconst<double> c);
 void get_eta_ranges (const int towerid, double & etamin, double & etamax);
 

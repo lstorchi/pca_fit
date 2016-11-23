@@ -81,7 +81,7 @@ int main (int argc, char *argv[])
             long long int tmp = mult_factor*c.element(i,j);
             /* TODO: unclear ask, where counter is the global index of element */
             if ( counter%2 == 0) tmp /= rpdval;
-            check_val(tmp, const_w, "rphi matrix consts");
+            format_and_check_val<const_w>(tmp, "rphi matrix consts");
             ci.element(i, j) = tmp;
             counter++;
           }
@@ -92,7 +92,7 @@ int main (int argc, char *argv[])
 	for (int i = 0; i < c.n_cols(); ++i)
         {
           long long int tmp = const_mult_factor*c.element(0,i);
-          check_val (tmp, add_const_w, "rphi add consts");
+          format_and_check_val<add_const_w>(tmp, "rphi add consts");
           ci.element(0, i) = tmp;
         }
       }
@@ -106,7 +106,7 @@ int main (int argc, char *argv[])
             long long int tmp = chisq_mult_factor*c.element(i,j);
             /* TODO: unclear ask, where counter is the global index of element */
             if ( counter%2 == 0) tmp /= rpdval;
-            check_val(tmp, const_w, "rphi matrix consts");
+            format_and_check_val<const_w>(tmp, "rphi matrix consts");
             ci.element(i, j) = tmp;
             counter++;
           }
@@ -117,7 +117,7 @@ int main (int argc, char *argv[])
 	for (int i = 0; i < c.n_cols(); ++i)
         {
           long long int tmp = chisq_const_mult_factor*c.element(0,i);
-          check_val (tmp, add_const_w, "rphi add consts");
+          format_and_check_val<add_const_w>(tmp, "rphi add consts");
           ci.element(0, i) = tmp;
         }
       }
@@ -139,7 +139,7 @@ int main (int argc, char *argv[])
             long long int tmp = mult_factor*c.element(i,j);
             /* TODO: unclear ask, where counter is the global index of element */
             if ( counter%2 == 0) tmp *= rzdval;
-            check_val(tmp, const_w, "rz matrix consts");
+            format_and_check_val<const_w>(tmp, "rz matrix consts");
             ci.element(i, j) = tmp;
             counter++;
           }
@@ -150,7 +150,7 @@ int main (int argc, char *argv[])
 	for (int i = 0; i < c.n_cols(); ++i)
         {
           long long int tmp = const_mult_factor*c.element(0,i);
-          check_val (tmp, add_const_w, "rz add consts");
+          format_and_check_val<add_const_w>(tmp, "rz add consts");
           ci.element(0, i) = tmp;
         }
       }
@@ -164,7 +164,7 @@ int main (int argc, char *argv[])
             long long int tmp = chisq_mult_factor*c.element(i,j);
             /* TODO: unclear ask, where counter is the global index of element */
             if ( counter%2 == 0) tmp *= rzdval;
-            check_val(tmp, const_w, "rz matrix consts");
+            format_and_check_val<const_w>(tmp, "rz matrix consts");
             ci.element(i, j) = tmp;
             counter++;
           }
@@ -175,7 +175,7 @@ int main (int argc, char *argv[])
 	for (int i = 0; i < c.n_cols(); ++i)
         {
           long long int tmp = chisq_const_mult_factor*c.element(0,i);
-          check_val (tmp, add_const_w, "rz add consts");
+          format_and_check_val<add_const_w>(tmp, "rz add consts");
           ci.element(0, i) = tmp;
         }
       }

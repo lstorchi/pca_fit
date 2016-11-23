@@ -28,12 +28,6 @@ double rzdval_get ()
   return v;
 }
 
-int check_val(double val, int width, string mstr) 
-{
-  if (abs(val) > pow(2, width-1))
-    cout << "overflow at " << mstr << endl;
-}
-
 int get_missing_layer(matrixpcaconst<double> c) 
 {
   int missing_layer;
@@ -41,10 +35,18 @@ int get_missing_layer(matrixpcaconst<double> c)
 
   string layers_str;
   layers_str = c.get_layersids();
+
+  int maxN;
   
   if (c.get_plane_type() == plane_type::RPHI) 
   {
-    for (int i = 0; i < 6; ++i)
+    // The string has the format 5:6:7:8:9:10
+    // If the string has a length of 8 or 9, it's missing a layer
+    // To avoid any range errors, in that case we check only the first
+    // 5 layers, if they match, it's the last one that's missing
+    maxN = ((layers_str.length() > 9)?6:5);
+    missing_layer = ((maxN==5)?(5):(missing_layer));
+    for (int i = 0; i < maxN; ++i)
     {
       if ( (layers_str[i*2] != ('5'+i) && (i != 5) ) ||
 	   ( (layers_str[i*2] != '1') && (i == 5) ) )
@@ -54,9 +56,11 @@ int get_missing_layer(matrixpcaconst<double> c)
 	}
     }
   } 
-  else 
+  else if (c.get_plane_type() == plane_type::RZ)
   {
-    for (int i = 0; i < 3; ++i)
+    maxN = ((layers_str.length() > 3)?3:2);
+    missing_layer = ((maxN==2)?(2):(missing_layer));
+    for (int i = 0; i < maxN; ++i)
     {
       if ( layers_str[i*2] != ('5'+i))
       {
