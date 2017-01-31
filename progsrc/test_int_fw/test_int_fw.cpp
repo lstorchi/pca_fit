@@ -188,6 +188,18 @@ int main (int argc, char *argv[])
       std::cout << "QVEC RPHI: " << std::endl;
       dump_element(qvec_rphi, std::cout);
 
+      std::cout << "AMTX RPHI: " << std::endl;
+      dump_element(amtx_rphi, std::cout);
+      
+      std::cout << "KVEC RPHI: " << std::endl;
+      dump_element(kvec_rphi, std::cout);
+
+      std::cout << "AMTX RZ: " << std::endl;
+      dump_element(amtx_rz, std::cout);
+      
+      std::cout << "KVEC RZ: " << std::endl;
+      dump_element(kvec_rz, std::cout);
+
       long long int cottheta = 0;
       long long int z0 = 0;
       
