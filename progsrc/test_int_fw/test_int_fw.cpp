@@ -146,8 +146,8 @@ int main (int argc, char *argv[])
     layersid = "6:7:8:9:10"; 
     pslayersid = "6:7";
 
-    zrv(0, 0) = -534; zrv(0, 1) = 43112;
-    zrv(0, 2) =  141; zrv(0, 3) = 44438;
+    zrv(0, 0) = -534; zrv(0, 1) = 34971;
+    zrv(0, 2) =  141; zrv(0, 3) = 51069;
     //zrv(0, 4) = 733; zrv(0, 5) = 53194;
     
     phirv(0, 0) = 43112; phirv(0, 1) =  34971;
@@ -315,10 +315,13 @@ int main (int argc, char *argv[])
       if (check_val((double) chi2rphi, pca::result_w, false))
         std::cerr << "Overflow in chi2rphi result_w" << std::endl;
 
+      std::cout << "int chi2rz:     " << chi2rz << std::endl;
+      std::cout << "int chi2rphi:   " << chi2rphi/8.0 << std::endl;
+
       double d_chi2rz = (double) chi2rz / (double) pow(pca::chisq_const_mult_factor, 2);
       double d_chi2rphi = (double) chi2rphi / (double) pow(pca::chisq_const_mult_factor, 2);
 
-      std::cerr << "d_chi2rz: " << d_chi2rz << " d_chi2rphi: " << d_chi2rphi  << std::endl;
+      //std::cerr << "d_chi2rz: " << d_chi2rz << " d_chi2rphi: " << d_chi2rphi  << std::endl;
 
       std::cout << "pt:         " << d_pt << std::endl;
       std::cout << "phi:        " << d_phi << std::endl; 
