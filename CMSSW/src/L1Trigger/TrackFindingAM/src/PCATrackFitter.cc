@@ -577,24 +577,6 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
     pca::matrixpcaconst<long long int> zrv(1, 12), phirv(1, 12);
     std::string layersid, pslayersid;
 
-    /* TEST FW 
-    tow = 25;
-    sec_phi = (tow%8) * M_PI / 4.0 - 0.4;
-    ci = cos(-sec_phi);
-    si = sin(-sec_phi);
-
-    zrv(0, 0) = 217; zrv(0, 1) = 21909;
-    zrv(0, 2) = 465; zrv(0, 3) = 37143;
-    zrv(0, 4) = 733; zrv(0, 5) = 53194;
-    
-    phirv(0, 0)  = 29628; phirv(0, 1)  = 21909;
-    phirv(0, 2)  = 30544; phirv(0, 3)  = 37143;
-    phirv(0, 4)  = 31518; phirv(0, 5)  = 53194;
-    phirv(0, 6)  = 32620; phirv(0, 7)  = 71321;
-    phirv(0, 8)  = 33878; phirv(0, 9)  = 91960;
-    phirv(0, 10) = 35082; phirv(0, 11) = 111634;
-    */
-
     if (hits_to_zrpmatrix_integer (ci, si, hits, zrv, phirv, 
           layersid, pslayersid, tow))
     {
@@ -609,6 +591,24 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
       pt_est = 6.01;
       phi_est = 0.0;
       charge = -1;
+      */
+
+      /* TEST FW 
+      tow = 25;
+      sec_phi = (tow%8) * M_PI / 4.0 - 0.4;
+      ci = cos(-sec_phi);
+      si = sin(-sec_phi);
+      
+      zrv(0, 0) = 217; zrv(0, 1) = 21909;
+      zrv(0, 2) = 465; zrv(0, 3) = 37143;
+      zrv(0, 4) = 733; zrv(0, 5) = 53194;
+      
+      phirv(0, 0)  = 29628; phirv(0, 1)  = 21909;
+      phirv(0, 2)  = 30544; phirv(0, 3)  = 37143;
+      phirv(0, 4)  = 31518; phirv(0, 5)  = 53194;
+      phirv(0, 6)  = 32620; phirv(0, 7)  = 71321;
+      phirv(0, 8)  = 33878; phirv(0, 9)  = 91960;
+      phirv(0, 10) = 35082; phirv(0, 11) = 111634;
       */
  
       pca::matrixpcaconst<long long int> cmtx_rz(0, 0);
