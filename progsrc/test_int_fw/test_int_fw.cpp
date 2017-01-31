@@ -288,6 +288,8 @@ int main (int argc, char *argv[])
             std::cerr << "Overflow in val chi2rz 1 add_const_w " << std::endl;
         }
 
+        std::cout << "RZ chi2 : " << val << std::endl; 
+
         val -= kvec_rz(0, i);
         if (check_val((double) val, pca::add_const_w))
           std::cerr << "Overflow in val chi2rz 2 add_const_w " << std::endl;
@@ -312,6 +314,8 @@ int main (int argc, char *argv[])
           if (check_val((double) val, pca::add_const_w))
             std::cerr << "Overflow in val chi2rphi 1 add_const_w " << std::endl;
         }
+
+        std::cout << "RPHI chi2 : " << val << std::endl; 
 
         val -= kvec_rphi(0, i);
         if (check_val((double) val, pca::add_const_w))
