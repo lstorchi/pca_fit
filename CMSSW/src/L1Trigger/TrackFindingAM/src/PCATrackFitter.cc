@@ -996,7 +996,8 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
       std::cout << " 5oof6 int phi:        " << d_phi << " " << phi_est << std::endl; 
       std::cout << " 5oof6 int eta:        " << eta << " " << eta_est << std::endl;
       std::cout << " 5oof6 int z0:         " << d_z0 << " " << z0_est << std::endl;
-      std::cout << " 5oof6 int chi2rz:     " << d_chi2rz/2.0 << std::endl;
+      // Should check if the missing layers is within the first 3 layers
+      //std::cout << " 5oof6 int chi2rz:     " << d_chi2rz/(2.0 or 4.0) << std::endl;
       std::cout << " 5oof6 int chi2rphi:   " << d_chi2rphi/8.0 << std::endl;
 
       Track* fit_track = new Track();
@@ -1011,8 +1012,6 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
         fit_track->addStubIndex(hits[idx]->getID());
       
       tracks.push_back(fit_track);
-      // TODO: check NDF (10)
-      //chi2v_.push_back((chi2rz+chi2rphi)/(10.0));
       // use only rphi 
       chi2v_.push_back(d_chi2rphi/8.0);
     } 
@@ -1382,7 +1381,8 @@ void PCATrackFitter::fit_float(vector<Hit*> hits)
       std::cout << " 5oof6 phi:      " << phi << " " << phi_est << std::endl; 
       std::cout << " 5oof6 eta:      " << eta << " " << eta_est << std::endl;
       std::cout << " 5oof6 z0:       " << z0 << " " << z0_est << std::endl;
-      std::cout << " 5oof6 chi2rz:   " << chi2rz/2.0 << std::endl;
+      // Should check if the missing layers is within the first 3 layers
+      //std::cout << " 5oof6 chi2rz:   " << chi2rz/(2.0 or 4.0) << std::endl;
       std::cout << " 5oof6 chi2rphi: " << chi2rphi/8.0 << std::endl;
 
       Track* fit_track = new Track();
@@ -1397,8 +1397,6 @@ void PCATrackFitter::fit_float(vector<Hit*> hits)
         fit_track->addStubIndex(hits[idx]->getID());
       
       tracks.push_back(fit_track);
-      // TODO: check NDF (10)
-      //chi2v_.push_back((chi2rz+chi2rphi)/(10.0));
       // use only rphi 
       chi2v_.push_back(chi2rphi/8.0);
     } 
