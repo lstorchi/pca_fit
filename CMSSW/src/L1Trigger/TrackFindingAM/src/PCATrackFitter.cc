@@ -714,11 +714,11 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
         d_phi -= sec_phi;
 
       long long int chi2rz = 0.0;
-      for (int i=0; i<coordimrphi-paramdim; ++i)
+      for (int i=0; i<coordimrz-paramdim; ++i)
       {
         long long int val = 0.0;
                                     
-        for (int j=0; j<coordimrphi; ++j)
+        for (int j=0; j<coordimrz; ++j)
         {
           val += amtx_rz(i,j) * zrv(0, j);
           if (check_val((double) val, pca::add_const_w))
@@ -735,11 +735,11 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
       }
 
       long long int chi2rphi = 0.0;
-      for (int i=0; i<coordimrz-paramdim; ++i)
+      for (int i=0; i<coordimrphi-paramdim; ++i)
       {
         long long int val = 0.0;
                                     
-        for (int j=0; j<coordimrz; ++j)
+        for (int j=0; j<coordimrphi; ++j)
         {
           val += amtx_rphi(i,j) * phirv(0, j);
           if (check_val((double) val, pca::add_const_w))
