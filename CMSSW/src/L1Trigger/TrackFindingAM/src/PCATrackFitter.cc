@@ -574,6 +574,7 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
 
   if ((hits.size() == 6) || (hits.size() == 5))
   {
+    bool usechi2rz = true;
     int paramdim = 2, coordim = 12;
     int coordimrphi = 12, coordimrz = 6;
     double ndfrz = 4.0, ndfrphi = 10.0;
@@ -594,6 +595,7 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
       if ((hits.size() == 5) && 
           (pslayersid  != "5:6:7"))
       {
+        usechi2rz = false;
         coordimrz = 4;
         ndfrz = 2.0;
       }
@@ -792,7 +794,10 @@ void PCATrackFitter::fit_integer(vector<Hit*> hits)
       for(unsigned int idx = 0; idx < hits.size(); ++idx)
         fit_track->addStubIndex(hits[idx]->getID());
       
-      chi2v_.push_back((d_chi2rz+d_chi2rphi)/(ndfrz+ndfrphi));
+      if (usechi2rz)
+        chi2v_.push_back((d_chi2rz+d_chi2rphi)/(ndfrz+ndfrphi));
+      else
+        chi2v_.push_back(d_chi2rphi/ndfrphi);
       tracks.push_back(fit_track);
     } 
     else
@@ -837,6 +842,7 @@ void PCATrackFitter::fit_float(vector<Hit*> hits)
 
   if ((hits.size() == 6) || (hits.size() == 5))
   {
+    bool usechi2rz = true;
     int paramdim = 2, coordim = 12;
     int coordimrphi = 12, coordimrz = 6;
     double ndfrz = 4.0, ndfrphi = 10.0;
@@ -857,6 +863,7 @@ void PCATrackFitter::fit_float(vector<Hit*> hits)
       if ((hits.size() == 5) && 
           (pslayersid != "5:6:7"))
       {
+        usechi2rz = false;
         coordimrz = 4;
         ndfrz = 2.0;
       }
@@ -1000,8 +1007,11 @@ void PCATrackFitter::fit_float(vector<Hit*> hits)
                       
       for(unsigned int idx = 0; idx < hits.size(); ++idx)
         fit_track->addStubIndex(hits[idx]->getID());
-      
-      chi2v_.push_back((chi2rz+chi2rphi)/(ndfrphi+ndfrz));
+
+      if (usechi2rz) 
+        chi2v_.push_back((chi2rz+chi2rphi)/(ndfrphi+ndfrz));
+      else
+        chi2v_.push_back(chi2rphi/ndfrphi);
       tracks.push_back(fit_track);
     } 
     else
