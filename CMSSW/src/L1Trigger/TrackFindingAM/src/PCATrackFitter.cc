@@ -855,7 +855,7 @@ void PCATrackFitter::fit_float(vector<Hit*> hits)
           layersid, pslayersid, tow))
     {
       if ((hits.size() == 5) && 
-          (pslayersid  != "5:6:7"))
+          (pslayersid != "5:6:7"))
       {
         coordimrz = 4;
         ndfrz = 2.0;
@@ -956,7 +956,7 @@ void PCATrackFitter::fit_float(vector<Hit*> hits)
       {
         double val = 0.0;
                                     
-        for (int j=0; j<coordim; ++j)
+        for (int j=0; j<coordimrz; ++j)
           val += amtx_rz(i,j) * zrv(0, j);
 
         val -= kvec_rz(0, i);
@@ -969,7 +969,7 @@ void PCATrackFitter::fit_float(vector<Hit*> hits)
       {
         double val = 0.0;
                                     
-        for (int j=0; j<coordim; ++j)
+        for (int j=0; j<coordimrphi; ++j)
           val += amtx_rphi(i,j) * phirv(0, j);
 
         val -= kvec_rphi(0, i);
